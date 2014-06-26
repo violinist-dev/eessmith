@@ -1,0 +1,55 @@
+.vcs .item-list ol {margin: 0 0 1em 40px;}
+.vcs h3 {margin: 1em 0;}
+.vcs {margin: 1em 0;}
+
+
+.ctools-collapsible-container {
+  border: 1px solid #e1e1e2;
+  margin 1em 0;
+  padding: 0 1em 1em 1em;
+  position: relative;
+  min-height: 1.85em;
+}
+..ctools-collapsible-container .ctools-collapsible-container {margin: 1em 1em;}
+.ctools-collapsed {
+  margin-top: 2em;
+}
+.ctools-collapsible-processed {}
+
+.vcs .ctools-toggle {
+  float: left;
+  top: -10px;
+  position: relative;
+  padding: 1px 0 1px 0px;
+  width: 16px;
+  -moz-border-radius: 3px 0 0 3px;
+  -webkit-border-radius: 3px 0 0 3px;
+  border-radius: 3px 0 0 3px;
+}
+.vcs .ctools-collapsible-container .ctools-toggle {
+  background: #086782 url(/sites/all/themes/corolla/css/images/arrow-down-white.png) no-repeat 96% 8px;
+  width: 12px;
+}
+.vcs .ctools-collapsible-container .ctools-toggle-collapsed {
+  background: #086782 url(/sites/all/themes/corolla/css/images/arrow-right-white.png) no-repeat 96% 8px;
+  width: 12px;
+}
+
+.vcs .ctools-collapsible-handle {
+  color: #fff;
+  background-color: #086782;
+  font-size: 1em;
+  display: block;
+  font-weight: 400;
+  padding: 2px 15px 2px 10px;
+  position: relative;
+  top: -10px;
+  -moz-border-radius: 0 3px 3px 0;
+  -webkit-border-radius: 0 3px 3px 0;
+  border-radius: 0 3px 3px 0;
+  float: left;
+}
+.ctools-collapsible-content {
+  margin-top:30px;
+}
+.vcs code {color: #e25400;}

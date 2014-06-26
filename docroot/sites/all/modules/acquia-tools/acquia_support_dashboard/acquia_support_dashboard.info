@@ -1,0 +1,5 @@
+;$Id$
+name = Acquia Support Dashboard 
+description = Customizations for Acquia Support Dashboard. 
+package = Acquia
+core = 7.x

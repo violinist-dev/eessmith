@@ -1,0 +1,5 @@
+;$Id$
+name = Acquia Support RA Reports
+description = Reports for Acquia Support Dashboard.
+package = Acquia
+core = 7.x

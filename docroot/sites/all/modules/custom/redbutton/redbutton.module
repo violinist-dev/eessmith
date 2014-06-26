@@ -1,0 +1,14 @@
+<?php
+echo "The Red Button";
+
+function redbutton_node_view  ($node, $view_mode) {
+  if ($node->type == 'article') {
+	$link_text = t('Delete this node');
+	$link_options = array(
+		'attributes' => array('style' => 'color:yellowgreen'),
+	);
+	$link_markup = l($link_text, "node/$node->nid/delete",$link_options);
+	$node->content['redbutton'] = array();
+	$node->content['redbutton']['#markup'] = $link_markup;
+  }
+}

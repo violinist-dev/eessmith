@@ -1,0 +1,162 @@
+<?php
+/**
+ *  This module is inteded to be on customer RA websites.
+ */
+
+/**
+ *  Implementation of hook_menu().
+ */
+function acquia_remote_admin_menu() {
+  $items['server-info/3408'] = array( 
+    'title' => 'My Dashboard', 
+    'description' => 'Remote Admin page for RA dashboard',
+    'page callback' => 'acquia_remote_admin_overview', 
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+ 
+  return $items; 
+}
+
+
+/**
+ * Page callback for RA page.
+ */
+function acquia_remote_admin_overview() {
+  drupal_set_title('Remote Admin Server and MySQL Information');
+
+  $info = '<br />';
+  
+  $server_name = 'Server Name A'; //////////////////////////  This constant value is for test only, and should be taken out once I know how to get the real server_name
+
+  // display server name
+  //$info .= '<h4>Server Name:</h4>';
+  //$info .= $server_name . '<br /><br /><br />';
+  
+  // find out current server status using mysql_stat()
+  $info .= '<h4>Current Server Status:</h4>';
+  mysql_connect("localhost", "root", "");
+  $array = explode("  ", mysql_stat());
+  foreach($array as $value)
+  {
+    $attribute = substr($value, 0, strpos($value, ':'));
+    $attr_value = substr($value, strlen($attribute));
+    $info .= '<b>' . $attribute . '</b>' . $attr_value . "<br />";
+  }  
+  $info .= '<br /><br />';
+  $server_uptime = (int)substr($array[0], strlen(substr($array[0], 0, strpos($array[0], ':')))+2);
+  $server_threads = (int)substr($array[1], strlen(substr($array[1], 0, strpos($array[1], ':')))+2);
+  $server_questions = (int)substr($array[2], strlen(substr($array[2], 0, strpos($array[2], ':')))+2);
+  $server_slow_queries = (int)substr($array[3], strlen(substr($array[3], 0, strpos($array[3], ':')))+2);
+  $server_opens = (int)substr($array[4], strlen(substr($array[4], 0, strpos($array[4], ':')))+2);
+  $server_flush_tables = (int)substr($array[5], strlen(substr($array[5], 0, strpos($array[5], ':')))+2);
+  $server_open_tables = (int)substr($array[6], strlen(substr($array[6], 0, strpos($array[6], ':')))+2);
+  $server_queries_per_second_avg = (int)substr($array[7], strlen(substr($array[7], 0, strpos($array[7], ':')))+2);
+  
+  // get a list of the loaded Apache modules, displayed in $COLUMN columns
+  $COLUMN = 4;
+  $info .= '<h4>Loaded Apache Modules:</h4>';
+  $array = apache_get_modules();
+  $loaded_apache_modules = '';
+  $info .= '<table>';
+  foreach(array_chunk($array, $COLUMN) as $row)
+  {
+    $info .= '<tr>';
+    foreach($row as $value)
+    {
+      $loaded_apache_modules .= $value . ', ';
+      $info .= '<td>' . $value . '</td>';
+    }
+    $info .= '</tr>';
+  }
+  $info .= '</table><br /><br />';
+  $loaded_apache_modules = substr($loaded_apache_modules, 0, strlen($loaded_apache_modules) - 2);
+  
+  // get SVN info
+  $info .= '<h4>SVN Info:</h4>';
+  $path = './';
+  $cmd = 'svn info ' . $path;
+  exec($cmd, $result);
+  // get URL, Repository Root, and Revision values
+  $i = 0;
+  foreach($result as $value)
+  {
+    if ($i == 1 || $i == 2 || $i == 4)
+    {
+      $attribute = substr($value, 0, strpos($value, ':'));
+      $attr_value = substr($value, strlen($attribute));
+      $info .= '<b>' . $attribute . '</b>' . $attr_value . "<br />";
+    }
+    $i++;
+  }
+  $info .= '<br /><br />';
+  $svn_url = substr($result[0], strlen(substr($result[0], 0, strpos($result[0], ':')))+2);
+  $svn_rep_root = substr($result[1], strlen(substr($result[1], 0, strpos($result[1], ':')))+2);  
+  $svn_revision = (int)$result[2];
+
+  // Free space
+  $drive = '/';
+  $free_space = disk_free_space($drive);
+  $total_space = disk_total_space($drive);
+  $percentage_free_space    = $free_space ? round($free_space / $total_space, 2) * 100 : 0;
+  
+  $info .= '<h4> Available Space on filesystem:</h4>';
+  $info .= '<b>Free Space</b>: ' . $free_space . ' bytes<br />';
+  $info .= '<b>Total Space</b>: ' . $total_space . ' bytes<br />';
+  $info .= '<b>Percentage Free</b>: ' . $percentage_free_space . '%<br /><br />';
+
+
+
+  // store these information into the ra_details table in the database
+  $exist = db_query("SELECT server_name FROM {ra_details} WHERE server_name = ?", array($server_name))->fetchField();
+  if (!$exist) {
+    // server_name info doesn't exist, so add it
+    $query = db_insert('ra_details') // Table name no longer needs {}
+      ->fields(array(
+          'server_name' => $server_name,
+          'server_uptime' => $server_uptime,
+          'server_threads' => $server_threads,
+          'server_questions' => $server_questions,
+          'server_slow_queries' => $server_slow_queries,
+          'server_opens' => $server_opens,
+          'server_flush_tables' => $server_flush_tables,
+          'server_open_tables' => $server_open_tables,
+          'server_queries_per_second_avg' => $server_queries_per_second_avg,
+          'loaded_apache_modules' => $loaded_apache_modules,
+          'svn_url' => $svn_url,
+          'svn_rep_root' => $svn_rep_root,
+          'svn_revision' => $svn_revision,
+          'free_space' => $free_space,
+          'total_space' => $total_space,
+          'percentage_free_space' => $percentage_free_space,
+      ))
+      ->execute();
+
+  } else {
+    // server_name already exists, so just update all fields.
+    $query = db_update('ra_details')
+      ->fields(array(
+          'server_name' => $server_name,
+          'server_uptime' => $server_uptime,
+          'server_threads' => $server_threads,
+          'server_questions' => $server_questions,
+          'server_slow_queries' => $server_slow_queries,
+          'server_opens' => $server_opens,
+          'server_flush_tables' => $server_flush_tables,
+          'server_open_tables' => $server_open_tables,
+          'server_queries_per_second_avg' => $server_queries_per_second_avg,
+          'loaded_apache_modules' => $loaded_apache_modules,
+          'svn_url' => $svn_url,
+          'svn_rep_root' => $svn_rep_root,
+          'svn_revision' => $svn_revision,
+          'free_space' => $free_space,
+          'total_space' => $total_space,
+          'percentage_free_space' => $percentage_free_space,        
+      ))
+      ->condition('server_name', $server_name)
+      ->execute();
+  }
+  
+  return $info;
+
+}

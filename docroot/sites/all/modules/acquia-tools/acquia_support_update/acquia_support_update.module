@@ -1,0 +1,112 @@
+<?php 
+/** 
+ * @file 
+ * file acquia_support_update.module
+ *
+ */ 
+
+// Define our external NSPI db.
+if (!defined('NSPI_DATABASE')) {
+  define('NSPI_DATABASE','nspi_data');
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function acquia_support_update_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function acquia_support_update_cron() {
+  acquia_support_update_process_modules();
+}
+
+/** 
+ * Implementation of hook_menu(). 
+ */ 
+function acquia_support_update_menu() {
+  $items['admin/config/acquia_support_update'] = array(
+    'title' => 'Update Project Nodes',
+    'page callback' => 'acquia_support_update_process_modules',
+    'access arguments' => array('access content'), // Add permission
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items; 
+}
+
+/**
+ * Page callback for dashboard page.
+ */
+function acquia_support_update_overview() {
+  return '';
+}
+
+function acquia_support_update_process_modules() {
+  $module_data = db_query("SELECT module_id, version, core, project, name FROM {acquia_nspi_modules} WHERE exists_on_do = 'yes' AND project != 'drupal' LIMIT 100");
+  foreach ($module_data as $module) {
+    _acquia_support_update_do_process_modules($module);
+  }
+}
+
+/**
+ * This function creates project nodes out of drupal.org XML feeds.
+ */
+function _acquia_support_update_do_process_modules($module) {
+  // Check if this project already exists on the site
+  $exists = db_query("SELECT field_project_id_value FROM {field_data_field_project_id} WHERE field_project_id_value = ?", array($module->module_id))->fetchField();
+  $update_url = 'http://updates.drupal.org/release-history/'. $module->project .'/'. $module->core;
+
+  $release_data = file_get_contents($update_url);
+
+  if (!$release_data) {
+    watchdog('Acquia Support Update', 'Project'. $module->name .' was not found to exist on drupal.org.', array(), WATCHDOG_WARNING);
+  }
+ 
+  if (empty($exists)) {
+ 
+    $data = simplexml_load_string($release_data);
+
+    $project = new stdClass();
+    $project->type = 'project';
+    $project->title = $module->name;
+    $project->uid = 1;
+    $project->language = LANGUAGE_NONE;
+    $project->field_project_type[LANGUAGE_NONE][0]['value'] = 0;
+    $project->field_project_project[LANGUAGE_NONE][0]['value'] = $data->short_name;
+    $project->field_project_compatibility[LANGUAGE_NONE][0]['value'] = $data->api_version;
+    // TODO: This is not working.
+    //$project->field_project_recommended_major[LANGUAGE_NONE][0]['value'] = $data->recommended_major;
+    //foreach (explode(',', $data->supported_majors) as $supported_major) {
+    //  $project->field_project_supported_majors[LANGUAGE_NONE][0]['value'][] = $supported_major;
+    //}
+    $project->field_project_link[LANGUAGE_NONE][0]['value'] = $data->link;
+    $project->field_project_id[LANGUAGE_NONE][0]['value'] = $module->module_id;
+
+    node_submit($project);
+    node_save($project);
+
+    // Create a Release node for each release
+    foreach ($data->releases->release as $key => $release_data) {
+      $release = new stdClass();
+      $release->type = 'release';
+      $release->title = $release_data->name;
+      $release->uid = 1;
+      $release->language = LANGUAGE_NONE;
+      $release->field_project[LANGUAGE_NONE][0]['nid'] = $project->nid;
+      $release->field_release_version[LANGUAGE_NONE][0]['value'] = $release_data->version;
+      $release->field_release_version_major[LANGUAGE_NONE][0]['value'] = $release_data->version_major;
+      $release->field_version_patch[LANGUAGE_NONE][0]['value'] = $release_data->version_patch;
+      $release->field_version_extra[LANGUAGE_NONE][0]['value'] = $release_data->version_extra;
+      $release->field_release_link[LANGUAGE_NONE][0]['value'] = $release_data->release_link;
+      $release->field_release_download[LANGUAGE_NONE][0]['value'] = $release_data->download_link;
+      $release->field_release_date[LANGUAGE_NONE][0]['value'] = $release_data->date;
+      node_save($release);
+    }
+  }
+}

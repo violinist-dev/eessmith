@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * @file workbench_workflows.module
+ */
+
+function workbench_workflows_permission() {
+  return array(
+    'administer_workbench_workflows' => array(
+      'title' => t('Administer workbench moderation exportables'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function workbench_workflows_ctools_plugin_directory($module, $plugin) {
+  // Most of this module is implemented as an export ui plugin, and the
+  // rest is in ctools/includes/workbench_states.inc
+  if ($module == 'ctools' && ($plugin == 'export_ui')) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Create an array of exportable states/events/workflows suitable for FAPI.
+ *
+ * @param string $type
+ *   Allowed values are 'states', 'events', and 'workflows'
+ * @param string $name
+ *   The machine name of the exportable.
+ * @param $reset
+ *   A boolean for whether the static cache should be reset.
+ */
+function workbench_workflows_options($type = 'states', $label_key = 'admin_title', $reset = FALSE) {
+
+  // load all objects of this type
+  $exportables = workbench_workflows_load_all($type, $reset);
+
+  $return = array();
+  foreach($exportables as $exportable) {
+    $return[$exportable->name] = $exportable->{$label_key};
+  }
+
+  return $return;
+}
+
+/**
+ * Determines if access an entity has access to a state/event/workflow
+ *
+ * @param $entity
+ *   A Drupal entity. Currently only nodes are supported.
+ * @param $exportable
+ *   The machine name of an exportable or the loaded object.
+ * @param $exportable_type
+ *   Allowed values are 'states', 'events', and 'workflows'
+ */
+function workbench_workflows_exportable_access($entity, $exportable, $exportable_type = 'states') {
+
+  $contexts = array();
+
+  // The exportable might already be the loaded object.
+  if (is_string($exportable)) {
+    ctools_include('export');
+    $exportable = workbench_workflows_load($exportable_type, $exportable);
+  }
+
+  // Create a CTools context.
+  if (!empty($exportable->requiredcontexts[0]['name'])) {
+    ctools_include('context');
+    $contexts[] = ctools_context_create($exportable->requiredcontexts[0]['name'], $entity);
+  }
+
+  // Load all the contexts.
+  // @todo, we may need a user context other than "currently logged-in user."
+  $contexts = ctools_context_match_required_contexts($exportable->requiredcontexts, $contexts);
+  $contexts = ctools_context_load_contexts($exportable, FALSE, $contexts);
+
+  return ctools_access($exportable->access, $contexts);
+}
+
+/**
+ * Load a single workbench moderation exportable.
+ *
+ * @param string $type
+ *   Allowed values are 'states', 'events', and 'workflows'
+ * @param string $name
+ *   The machine name of the exportable.
+ * Returns a CTools exportable object.
+ */
+function workbench_workflows_load($type, $name) {
+  $cache = &drupal_static('workbench_workflows_load_all', array());
+
+  // We use array_key_exists because failed loads will be NULL and
+  // isset() will try to load it again.
+  if (empty($cache[$type]) || !array_key_exists($name, $cache[$type])) {
+    ctools_include('export');
+    $result = ctools_export_load_object('workbench_workflows_' . $type, 'names', array($name));
+    if (isset($result[$name])) {
+      $cache[$type][$name] = $result[$name];
+    }
+    else {
+      $cache[$type][$name] = NULL;
+    }
+  }
+
+  if (isset($cache[$type][$name])) {
+    return $cache[$type][$name];
+  }
+}
+
+/**
+ * Load a single, unsanitized workbench moderation exportable label.
+ *
+ * @param string $type
+ *   Allowed values are 'states', 'events', and 'workflows'
+ * @param string $name
+ *   The machine name of the exportable.
+ * @param string $label_property
+ *   The property on the exportable to return. Defaults to admin_title.
+ * Returns an UNESCAPED string.
+ */
+function workbench_workflows_load_label($type, $name, $label_property = 'admin_title') {
+  $exportable = workbench_workflows_load($type, $name);
+  return $exportable->{$label_property};
+}
+
+/**
+ * Load a single workbench moderation exportable.
+ *
+ * @param string $type
+ *   Allowed values are 'states', 'events', and 'workflows'
+ * @param string $name
+ *   The machine name of the exportable.
+ * @param $reset
+ *   A boolean for whether the static cache should be reset.
+ * Returns a CTools exportable object.
+ */
+function workbench_workflows_load_all($type = 'states', $reset = FALSE) {
+
+  $cache = &drupal_static('workbench_workflows_load_all', array());
+
+  // We check our own private static because individual minis could have
+  // been loaded prior to load all and we need to know that.
+  if (empty($cache[$type]) || $reset) {
+    $all_loaded = TRUE;
+    if ($reset) {
+      $cache = array();
+    }
+
+    ctools_include('export');
+    $type_exportables = ctools_export_load_object('workbench_workflows_' . $type);
+
+    // @todo, getting errors when used on non-workflows.
+    // fix that.
+    if ($type == 'workflows') {
+      uasort($type_exportables, 'ctools_plugin_sort');
+    }
+
+    $cache[$type] = $type_exportables;
+  }
+
+  return $cache[$type];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function workbench_workflows_menu() {
+
+  $items = array();
+
+  // Module settings.
+  $items["admin/structure/workbench-workflows"] = array(
+    'title' => 'Workbench Workflows',
+    'description' => 'Configure states, events and workflows.',
+    'page callback' => 'workbench_workflows_admin_page',
+    'access arguments' => array('administer_workbench_workflows'),
+    'file' => 'workbench_workflows.admin.inc',
+  );
+  $items['admin/structure/workbench-workflows/general'] = array(
+    'title' => 'Workbench Workflows',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
+  );
+
+  return $items;
+}
+
+
+function workbench_workflows_menu_alter(&$items) {
+
+  // @todo, is there a way to set the weight at the plugin registration?
+  $items['admin/structure/workbench-workflows/states']['weight'] = -111;
+}
+
+/**
+ * Implements hook_state_flow_plugins().
+ */
+function workbench_workflows_state_flow_plugins() {
+  $info = array();
+  $path = drupal_get_path('module', 'workbench_stateflow') . '/plugins/state_flow';
+
+  $info['workbench_workflows'] = array(
+    'handler' => array(
+      'parent' => 'state_flow',
+      'class' => 'workbenchWorkflow',
+      'file' => 'workbench_workflows.inc',
+      'path' => $path,
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_state_flow_machine_type_alter()
+ */
+function workbench_workflows_state_flow_machine_type_alter(&$machine_type, $node) {
+  $machine_type = 'workbench_workflows';
+}
+
+/**
+ * Return the appropriate workflow for a node.
+ */
+function workbench_workflows_select_workflow($entity) {
+
+  $workflows = workbench_workflows_load_all('workflows');
+  foreach($workflows as $workflow) {
+    if (workbench_workflows_exportable_access($entity, $workflow)) {
+      // Return the first workflow for which access returns TRUE.
+      return $workflow;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Guard callback for the workbenchStates publish and unpublish events.
+ */
+function workbench_workflows_guard($event) {
+  return TRUE;
+dsm(get_defined_vars());
+
+  $entity = $event->get_machine()->get_object();
+  // Check if this is prohibited based on the events rules.
+  if (!workbench_workflows_exportable_access($entity, $event->key, 'events')) {
+    return FALSE;
+  } else {
+    return workbench_workflows_exportable_access($entity, $event->get_option('target'), 'states');
+  }
+}

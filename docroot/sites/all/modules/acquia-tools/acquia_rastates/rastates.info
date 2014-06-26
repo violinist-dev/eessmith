@@ -1,0 +1,8 @@
+name = Acquia RA States
+description = Extending the State Machine Module for RA
+package = Acquia
+core = 7.x
+version = 7.x-1.x
+dependencies[] = state_machine
+dependencies[] = ctools
+dependencies[] = state_flow

@@ -1,0 +1,571 @@
+<?php
+/**
+ * @file
+ *
+ * VCS instruction for RA scurity updates
+ *
+ */
+
+
+/**
+ * Define custom Display Suite layouts.
+ *
+ * @return array
+ *   A list of layouts.
+ */
+function security_updates_vcs_ds_layout_info() {
+  $path = drupal_get_path('module', 'security_updates_vcs');
+  $layouts = array(
+    'vcs' => array(
+      'label' => t('VCS'),
+      'path' => $path . '/layouts/vcs',
+      'regions' => array(
+        'ahtools' => t('AH Tool Commands'),
+        'logschecks' => t('Logs & Checks'),
+        'stage1' => t('Stage 1'),
+        'stage3' => t('Stage 3'),
+        'stage5' => t('Stage 5'),
+        'branch' => t('Create Branch'),
+        'database' => t('Update Database'),
+        'inform_branch' => t('Inform client of updated branch'),
+        'merge' => t('Merge'),
+        'inform_tag' => t('Inform client of merged tag'),
+        'info_update' => t('Update Information'),
+      ),
+    ),
+  );
+  return $layouts;
+}
+
+/**
+ * Implements hook_menu().
+ */
+// function security_updates_vcs_menu() {
+//   $items = array();
+//   // TODO: use custom access callback to only show this tab on security_updates node types
+//   $items['node/%node/vcs'] = array(
+//     'title' => 'VCS',
+//     'description' => 'VCS instruction for RA scurity updates',
+//     'page callback' => 'security_updates_vcs_page',
+//     'page arguments' => array(1),
+//     'access callback' => 'node_access',
+//     'access arguments' => array('view', 1),
+//     'type' => MENU_LOCAL_TASK,
+//   );
+//   return $items;
+// }
+
+/**
+ * Implements hook_theme().
+ */
+// function security_updates_vcs_theme() {
+//   return array(
+//     'security_updates_vcs_item' => array(
+//       'variables' => array('item' => NULL),
+//     ),
+//   );
+// }
+
+/*
+ * implimentation of hook_preprocess_node()
+ */
+function security_updates_vcs_preprocess_node(&$vars) {
+  if ($vars['node']->type == 'security_updates' && $vars['view_mode'] == 'vcs') {
+
+    drupal_add_css(drupal_get_path('module', 'security_updates_vcs') . '/theme/node--security-updates-vcs.css', 'file');
+
+    $node = $vars['node'];
+
+    // VCS type
+    $field_su_vcs = field_get_items('node', $node, 'field_su_vcs');
+    $vcs = !empty($field_su_vcs) ? $field_su_vcs[0]['value'] : '';
+
+    // Acquia hosting
+    $field_su_hosting = field_get_items('node', $node, 'field_su_hosting');
+    $hosting_location = !empty($field_su_hosting) ? $field_su_hosting[0]['value'] : '';
+
+    // Update Type
+    $field_su_update_type = field_get_items('node', $node, 'field_su_update_type');
+    $update_type = !empty($field_su_update_type) ? $field_su_update_type[0]['tid'] : '';
+    $term = taxonomy_term_load($update_type);
+    $update_type = $term->name;
+
+    // Date of Branch
+    $field_su_date_branch = field_get_items('node', $node, 'field_su_date_branch');
+    $date_branch = !empty($field_su_date_branch) ? $field_su_date_branch[0]['value'] : '';
+    $date_branch = date('Ymd', strtotime($date_branch));
+
+    // Date of Tag
+    $field_su_date_tag = field_get_items('node', $node, 'field_su_date_tag');
+    $date_tag = !empty($field_su_date_tag) ? $field_su_date_tag[0]['value'] : '';
+    $date_tag = date('Y'. '-' . 'm' . '-' . 'd', strtotime($date_tag));
+
+    // Repo URL
+    $field_su_vcs_url = field_get_items('node', $node, 'field_su_vcs_url');
+    $vcs_url = !empty($field_su_vcs_url) ? $field_su_vcs_url[0]['value'] : '';
+
+    // Ticket number
+    $field_su_ticket_number = field_get_items('node', $node, 'field_su_ticket_number');
+    $ticket_number = !empty($field_su_ticket_number) ? $field_su_ticket_number[0]['value'] : '';
+    $ticket = 'Ticket #15066-' . $ticket_number;
+
+    // Source branch
+    $field_su_source_branch = field_get_items('node', $node, 'field_su_source_branch');
+    $source_branch = !empty($field_su_source_branch) ? $field_su_source_branch[0]['value'] : '';
+
+    // Target branch
+    $field_su_target_branch_alt = field_get_items('node', $node, 'field_su_target_branch_alt');
+    $target_branch = !empty($field_su_target_branch_alt) ? $field_su_target_branch_alt[0]['value'] : '';
+
+     // Merge branch
+    $field_su_merge_branch = field_get_items('node', $node, 'field_su_merge_branch');
+    $merge_branch = !empty($field_su_merge_branch) ? $field_su_merge_branch[0]['value'] : 'master';
+
+    // Automatic Target branch
+    $field_su_target_branch_alt = field_get_items('node', $node, 'field_su_target_branch_alt');
+    $target_branch = !empty($field_su_target_branch_alt) ? $field_su_target_branch_alt[0]['value'] : 'acqUpd-'. $ticket_number . '-' . $date_branch;
+
+    // Revision
+    $field_su_revision = field_get_items('node', $node, 'field_su_revision');
+    $revision = !empty($field_su_revision) ? $field_su_revision[0]['value'] : '';
+
+    // Source version (core)
+    $field_su_source_version_core = field_get_items('node', $node, 'field_su_source_version_core');
+    $source_version_core = !empty($field_su_source_version_core) ? $field_su_source_version_core[0]['tid'] : '';
+      $term=taxonomy_term_load($source_version_core);
+      $source_version_core=$term->name;
+
+    // Target version (core)
+    $field_su_target_version_core = field_get_items('node', $node, 'field_su_target_version_core');
+    $target_version_core = !empty($field_su_target_version_core) ? $field_su_target_version_core[0]['tid'] : '';
+      $term=taxonomy_term_load($target_version_core);
+      $target_version_core=$term->name;
+
+    // Distribution
+    $field_su_distribution = field_get_items('node', $node, 'field_su_distribution');
+    $distribution = !empty($field_su_distribution) ? $field_su_distribution[0]['tid'] : '';
+      $term=taxonomy_term_load($distribution);
+      $distribution=$term->name;
+
+    // Source db
+    $field_su_source_db = field_get_items('node', $node, 'field_su_source_db');
+    $source_db = !empty($field_su_source_db) ? $field_su_source_db[0]['value'] : 'Prod';
+
+    // Target db
+    $field_su_target_db = field_get_items('node', $node, 'field_su_target_db');
+    $target_db = !empty($field_su_target_db) ? $field_su_target_db[0]['value'] : 'Stage';
+
+     // Target Environment
+    $field_su_target_env = field_get_items('node', $node, 'field_su_target_env');
+    $target_env = !empty($field_su_target_env) ? $field_su_target_env[0]['value'] : '';
+
+    if ($target_env == 'test') {
+       $target_env_client = 'Stage';
+    }
+    elseif ($target_env == 'dev') {
+       $target_env_client = 'Dev';
+    }
+    else {$target_env_client = 'Happy';}
+
+    // CA Initials
+    $field_su_initials = field_get_items('node', $node, 'field_su_initials');
+    $advisor_initials = !empty($field_su_initials) ? $field_su_initials[0]['value'] : '';
+
+    // Domain Page
+    $field_su_domains_listing = field_get_items('node', $node, 'field_su_domains_listing');
+    $domains = !empty($field_su_domains_listing) ? $field_su_domains_listing[0]['display_url'] : '';
+
+    // Workflow Page
+    $field_su_acquia_workflow = field_get_items('node', $node, 'field_su_acquia_workflow');
+    $workflow = !empty($field_su_acquia_workflow) ? $field_su_acquia_workflow[0]['display_url'] : '';
+
+    //Module Updates
+    $field_su_module_updates = field_get_items('node', $node, 'field_su_module_updates');
+    $mupdates = !empty($field_su_module_updates) ? $field_su_module_updates[0]['safe_value'] : '';
+
+    // docroot aka "site"
+    if ($vcs_url && strpos($vcs_url,'@') === false) {
+      // $vcs = 'SVN';
+      $site = explode('/', $vcs_url);
+      $site = $site[count($site)-1];
+    }
+    elseif (strpos($vcs_url,'@') !== false) {
+      // $vcs = 'Git';
+      $site = explode('@', $vcs_url);
+      $site = $site[0];
+    }
+    else {
+      $site = '';
+    }
+
+    // default client directory
+    // TODO: how to handle for multiple users if system paths differ; check for PC/Linux configurations.
+    $client_dir = '~/Sites/clients'; // '/Users/USERNAME/Sites/clients';
+    $patch_dir = '~/Sites/releases/version-patches'; // '/Users/USERNAME/Sites/releases/version-patches';
+
+    $patch_apply = 'patch -p1 < ' . $patch_dir . '/' . trim(strtolower($distribution)) . '/' . trim(strtolower($distribution)) . '-' . $source_version_core . '_to_' . $target_version_core . '.patch';
+
+    $patch_remove_vers_nums = $patch_dir . '/scripts/rmv-versionnums-dpl.sh';
+
+    switch ($vcs) {
+      case 'Git':
+        $source_branch = !empty($source_branch) ? $source_branch : 'master' ;
+        $checkout_dir = $site; // relative to $repo_get
+        $repo_get = 'git clone ' . $vcs_url;
+        $repo_up = 'git pull --all';
+        $repo_current_ref = 'git branch';
+        $grep_rej = 'git status | grep rej';
+        $grep_orig = 'git status | grep orig';
+        $cupdate = 'git-cupdate ' . trim(strtolower($distribution)) . ' ' . $source_version_core . ' ' . $target_version_core . ' 15066-' . $ticket_number;
+        $su_branch_create_item_1 = 'git pull --all';
+        $su_branch_create_item_2 = 'git checkout ' . $source_branch;
+        $su_branch_create_item_3 = 'git checkout -b ' . $target_branch;
+        $su_branch_create_item_9 = $patch_remove_vers_nums;
+        $su_branch_create_item_10 = 'git add -A';
+        $su_branch_create_item_11 = 'git commit -m "' . $advisor_initials . '@Acquia, ' . $ticket . ': Update from ' . $distribution . ' ' . $source_version_core . ' to ' . $target_version_core . '."';
+        $su_branch_create_item_12 = 'git push --set-upstream origin ' . $target_branch;
+
+        //@todo: add items specific to $update_type == 'Module';
+        if ($update_type == 'Module') {
+          // $su_branch_create_item_13 = 'this is where you build the command for step 13';
+        }
+
+        $su_merge_item_3 = 'git checkout ' . $merge_branch;
+        $su_merge_item_5 = 'git merge ' . $target_branch;
+        $su_merge_item_6 = 'git tag -a ' . $date_tag . ' -m "' . $advisor_initials . '@Acquia, ' . $ticket . ':  Tag to deploy ' . $source_version_core . ' to ' . $target_version_core . ' update to production."';
+        $su_merge_item_7 = 'git push';
+        $su_merge_item_8 = 'git push --tags origin ' . $merge_branch;
+
+        $su_log_source_branch = 'git log ' . $source_branch;
+        $su_log_target_branch = 'git log ' . $target_branch;
+        $su_log_merge_branch = 'git log ' . $merge_branch;
+
+        break;
+
+      case 'SVN':
+        $source_branch = !empty($source_branch) ? $source_branch : 'trunk';
+        $checkout_dir = 'trunk'; // relative to $repo_get - NO: hardcoded at the moment.
+        $repo_get = 'svn checkout --username {USERNAME} --password {PASSWORD} ' . $vcs_url . '/trunk';
+        $repo_up = 'svn up';
+        $repo_current_ref = 'svn info';
+        $grep_rej = 'svn status --no-ignore | grep rej';
+        $grep_orig = 'svn status --no-ignore | grep orig';
+        $cupdate = 'svn-cupdate ' . trim(strtolower($distribution)) . ' ' . $source_version_core . ' ' . $target_version_core . ' 15066-' . $ticket_number;
+        $su_branch_create_item_1 = 'svn copy ' . $vcs_url . '/' . $source_branch . ' ' . $vcs_url . '/branches/' . $target_branch . ' -m "' . $advisor_initials . '@Acquia, ' . $ticket . ': Branch from ' . $source_branch . ' to implement update from '  . $distribution . ' ' . $source_version_core . ' to ' . $target_version_core . '."';
+        $su_branch_create_item_2 = 'Edit this node and ENTER REVISION NUMBER given after creating the branch.';
+        $su_branch_create_item_3 = 'svn switch ^/branches/' . $target_branch . "\n";
+        $su_branch_create_item_9 = "svn status | grep '\?' | awk '{print $2}' | xargs svn add";
+        $su_branch_create_item_10 = "svn status | grep '\!' | awk '{print $2}' | xargs svn rm";
+        $su_branch_create_item_11 = $patch_remove_vers_nums;
+        $su_branch_create_item_12 = 'svn commit -m "' . $advisor_initials . '@Acquia, ' . $ticket . ': Update from ' . $distribution . ' ' . $source_version_core . ' to ' . $target_version_core . '."';
+
+        //@todo: add items specific to $update_type == 'Module';
+        if ($update_type == 'Module') {
+          // $su_branch_create_item_13 = 'this is where you build the command for step 13';
+        }
+
+        $su_merge_item_3 = 'svn switch ^/' . $merge_branch;
+        $su_merge_item_5 = 'svn log -v -l 20 ^/branches/' . $target_branch . ' | grep "A /branch"';
+        $su_merge_item_6 = 'svn merge ^/branches/' . $target_branch . ' -r' . $revision . ':HEAD';
+        $su_merge_item_7 = 'svn commit -m "' . $advisor_initials . '@Acquia, ' . $ticket . ': Merged branches/' . $target_branch . ' to ' . $merge_branch . '. Includes update from ' . $source_version_core . ' to ' . $target_version_core . ' update to production."';
+        $su_merge_item_8 = 'svn copy ' . $vcs_url . '/' . $merge_branch . ' ' . $vcs_url . '/tags/' . $date_tag . ' -m "' . $advisor_initials . '@Acquia, ' . $ticket . ':  Tag to deploy ' . $source_version_core . ' to ' . $target_version_core . ' update to production."';
+
+        $su_log_source_branch = 'svn log ^/' . $source_branch . ' -l 10';
+        $su_log_target_branch = 'svn log ^/branches/' . $target_branch . ' -l 10';
+        $su_log_merge_branch = 'svn log ^/' . $merge_branch . ' -l 10';
+
+        break;
+
+      default:
+        $repo_get = '';
+        $repo_up = '';
+        $repo_current_ref = '';
+        $grep_rej = '';
+        $grep_orig = '';
+        $cupdate ='';
+        $su_branch_modify_item_1 = '';
+        $su_branch_modify_item_2 = '';
+        $su_branch_modify_item_3 = '';
+        $su_branch_modify_item_9 = '';
+        $su_branch_modify_item_10 = '';
+        $su_branch_modify_item_11 = '';
+        $su_branch_modify_item_12 = '';
+
+        $su_merge_item_3 = '';
+        $su_merge_item_5 = '';
+        $su_merge_item_6 = '';
+        $su_merge_item_7 = '';
+        $su_merge_item_8 = '';
+
+        $su_log_source_branch = '';
+        $su_log_target_branch = '';
+        $su_log_merge_branch =  '';
+
+        break;
+    }
+
+    // AT Tools
+    $su_ahtools_items = array();
+    $su_ahtools_items['title'] = t("AH Tools");
+    $su_ahtools_items['items'][] = 'RA Audit: ra-audit @' . $site . '.prod';
+    $su_ahtools_items['items'][] = 'Current site status: aht @' . $site . '.prod --uri=default drush5 status';
+    $su_ahtools_items['items'][] = 'List all multisites: aht @' . $site . '.prod sites';
+    $su_ahtools_items['items'][] = 'List all security updates: aht @' . $site . '.prod --uri=default drush5 upc --pipe --security-only';
+    $su_ahtools_items['items'][] = 'List all required updates: aht @' . $site . '.prod --uri=default drush5 upc --pipe';
+    $su_ahtools_items['items'][] = 'Login as site user: aht @' . $site . '.prod --uri=default uli';
+    $su_ahtools_items['items'][] = 'Current site status: aht @' . $site . '.prod repo';
+    $su_ahtools = theme('item_list', $su_ahtools_items);
+
+    // Log Commands
+    $su_log_items = array();
+    $su_log_items['title'] = t("Repo Log Commands");
+    $su_log_items['items'][] = 'Check the logs on your source branch (' . $source_branch . '): <code>' . $su_log_source_branch .'</code>';
+    $su_log_items['items'][] = 'Check the logs on your target branch (' . $target_branch . '): <code>' . $su_log_target_branch .'</code>';
+    $su_log_items['items'][] = 'Check the logs on the branch you are merging back into (' . $merge_branch . '): <code>' . $su_log_merge_branch .'</code>';
+    $su_log = theme('item_list', $su_log_items);
+    $su_log_description = '<p>Log commands to help compare the most recent commits to various branches.  Especially important if you are not sure how master/trunk compares to the production tag or branch into which you will be merging.</p>';
+
+    // Checks: Pressflow
+    $su_checks_pf_items = array();
+    $su_checks_pf_items['title'] = t("Pressflow");
+    $su_checks_pf_items['items'][] = 'In docroot/modules, look for cookie_cache_bypass or path_alias_cache.  These are core modules added by Pressflow.';
+    $su_checks_pf_items['items'][] = 'From docroot, run (careful, even non-PF sites might return hits): <code>grep -H -r "Pressflow" . | cut -d: -f1</code>';
+    $su_checks_pf = theme('item_list', $su_checks_pf_items);
+    $su_checks_pf_description = '<p>Pressflow is almost entirely a D6 distribution.  There are a few ways to detect a pressflow installation.</p>';
+
+    //Checks: Other Distributions
+    $su_checks_ad_items = array();
+    $su_checks_ad_items['title'] = t("Other Profiles");
+    $su_checks_ad_items['items'][] = 'one item';
+    $su_checks_ad = theme('item_List', $su_checks_ad_items);
+    $su_checks_ad_description = '<p>Other distributions.  Coming.</p>';
+
+    // Checkout trunk for the first time
+    $su_branch_checkout_items = array();
+    $su_branch_checkout_items['title'] = t("Checkout repository for the first time");
+    $su_branch_checkout_items['type'] = 'ol';
+    $su_branch_checkout_items['items'][] = 'cd ' . $client_dir;
+    $su_branch_checkout_items['items'][] = 'mkdir ' . $site . ' && ' . 'cd ' . $site;
+    $su_branch_checkout_items['items'][] = $repo_get;
+    $su_branch_checkout_items['items'][] = 'cd ' . $checkout_dir;
+    $su_branch_checkout = theme('item_list', $su_branch_checkout_items);
+
+    // Modify existing local repo
+    $su_branch_modify_items = array();
+    $su_branch_modify_items['title'] = t("Modify existing local repo");
+    $su_branch_modify_items['type'] = 'ol';
+    $su_branch_modify_items['items'][] = 'cd ' . $client_dir . '/' . $site . '/' . $checkout_dir;
+    $su_branch_modify = theme('item_list', $su_branch_modify_items);
+
+    // Create a branch
+    $su_branch_create_items = array();
+    $su_branch_create_items['title'] = t("Create a branch");
+    $su_branch_create_items['type'] = 'ol';
+    $su_branch_create_items['items'][] = $su_branch_create_item_1;
+    $su_branch_create_items['items'][] = $su_branch_create_item_2;
+    $su_branch_create_items['items'][] = $su_branch_create_item_3;
+    $su_branch_create_items['items'][] = 'cd docroot';
+    $su_branch_create_items['items'][] = '<strong>This incorporates all steps through commit of core update:</strong>' . '<br/>' . $cupdate;
+    $su_branch_create_items['items'][] = $patch_apply;
+    $su_branch_create_items['items'][] = $grep_rej;
+    $su_branch_create_items['items'][] = $grep_orig;
+    $su_branch_create_items['items'][] = 'Make manual modifications as necessary. Remove all *.rej and *.orig files when manual modifications are complete.';
+    $su_branch_create_items['items'][] = $su_branch_create_item_9;
+    $su_branch_create_items['items'][] = $su_branch_create_item_10;
+    $su_branch_create_items['items'][] = $su_branch_create_item_11;
+    $su_branch_create_items['items'][] = $su_branch_create_item_12;
+
+    //@todo: add items specific to $update_type == 'Module'
+    // isset($su_branch_create_item_13) ?: $su_branch_create_items['items'][] = $su_branch_create_item_13;
+    // $su_branch_create_items['items'][] = isset($su_branch_create_item_13) ? $su_branch_create_item_13 : NULL; // test: does this create and empty list item?
+
+    $su_branch_create = theme('item_list', $su_branch_create_items);
+
+
+    // Update databases
+    $su_database_items = array();
+    $su_database_items['title'] = t("Deploy and Update databases");
+    $su_database_items['type'] = 'ol';
+    $su_database_items['items'][] = 'Go to ' . '<a href="' . $workflow . '" target=_blank>' . $workflow . '</a>';
+    $su_database_items['items'][] = 'Backup ' . $target_env_client . ' db';
+    $su_database_items['items'][] = 'Copy ' . $source_db . ' db to ' . $target_env_client . ' db';
+    $su_database_items['items'][] = 'Deploy branches/' . $target_branch . ' to ' . $target_env_client;
+    $su_database_items['items'][] = 'aht @' . $site . '.' . $target_env . ' drush5 --uri=default updb';
+    $su_database = theme('item_list', $su_database_items);
+
+
+    // Tell the client
+    $su_inform_branch_items = array();
+    $su_inform_branch_title = '<h3>' . t("Inform client that update is available") . '</h3>';
+    $su_inform_branch_items['type'] = 'ol';
+    $su_inform_branch_items['items'][] = 'Created the branch ' . $target_branch . ' from ' . $source_branch . '.';
+    $su_inform_branch_items['items'][] = 'Updated the code locally.';
+    $su_inform_branch_items['items'][] = 'Backed up the ' . $target_env_client . ' DB.';
+    $su_inform_branch_items['items'][] = 'Copied the ' . $source_db . ' DB to ' . $target_env_client . '.';
+    $su_inform_branch_items['items'][] = 'Deployed the branch ' . $target_branch . ' to ' . $target_env_client . '.';
+    $su_inform_branch_items['items'][] = 'Updated the ' . $target_env_client . ' DB.';
+    $su_inform_branch_list = theme('item_list', $su_inform_branch_items);
+    $su_inform_branch = $su_inform_branch_title;
+    $su_inform_branch .= '<span>To ensure that a secure branch of code is available to you, I have done the following:</span>';
+    $su_inform_branch .= $su_inform_branch_list;
+    $su_inform_branch .= "<span>Please test the updated code and let me know if you see any issues.  You may see all dev, stage and production links here: {$domains}.  When I receive your approval, I will merge with {$merge_branch}, create a tag, refresh the {$target_env_client} DB with a copy from {$source_db} and ask you to test one more time before deploying to to production.</span>";
+
+    // Merge
+    $su_merge_items = array();
+    $su_merge_items['title'] = t("Merge");
+    $su_merge_items['type'] = 'ol';
+    $su_merge_items['items'][] = 'cd ' . $client_dir . '/' . $site . '/' . $checkout_dir;
+    $su_merge_items['items'][] = $repo_current_ref;
+    $su_merge_items['items'][] = $su_merge_item_3;
+    $su_merge_items['items'][] = $repo_up;
+    $su_merge_items['items'][] = $su_merge_item_5;
+    $su_merge_items['items'][] = $su_merge_item_6;
+    $su_merge_items['items'][] = $su_merge_item_7;
+    $su_merge_items['items'][] = $su_merge_item_8;
+    $su_merge = theme('item_list', $su_merge_items);
+
+    // Tell the client
+    $su_inform_tag_items = array();
+    $su_inform_tag_title = '<h3>' . t("Inform client that branch is merged and tagged") . '</h3>';
+    $su_inform_tag = $su_inform_tag_title;
+    $su_inform_tag .= "<span>I have merged branch {$target_branch} into {$merge_branch}, created 'tags/{$date_tag}', and deployed to {$target_env_client}.  I have made a fresh copy of the {$source_db} DB onto {$target_env_client}.  Please test the merged and tagged code.  Once you approve, we can coordinate deploying to production.</span>";
+
+    // Push to Production
+    $su_deploy_prod_items = array();
+    $su_deploy_prod_items['title'] = t("Deploy to Production");
+    $su_deploy_prod_items['type'] = 'ol';
+    $su_deploy_prod_items['items'][] = 'Backup DB(s) on Prod';
+    $su_deploy_prod_items['items'][] = 'Deploy' . $date_tag .' to Prod';
+    $su_deploy_prod_items['items'][] = 'aht @' . $site . '.prod --uri=default drush5 updb';
+    $su_deploy_prod_items['items'][] = 'If a multisite, login to prod server: aht @' . $site . '.prod ssh html';
+    $su_deploy_prod_items['items'][] = 'cd sites';
+    $su_deploy_prod_items['items'][] = 'drush5 @sites updb';
+    $su_deploy_prod_items['items'][] = 'drush5 cc all';
+    $su_deploy_prod_items['items'][] = '<span>The production site is updated and appears to be running smoothly.  Please let me know if you see any issues or have any questions.  Otherwise, feel free to close the ticket.</span>';
+    $su_deploy_prod = theme('item_list', $su_deploy_prod_items);
+
+    // Hide su_ahtools preprocess field if self hosted
+    $vars['su_ahtools'] = ($hosting_location == 'ah') ?
+    $vars['su_ahtools'] = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('AH Tools'),
+        'content' => $su_ahtools,
+        'collapsed' => TRUE
+      )
+    )
+    : '' ;
+
+    $su_logschecks_collapsible = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Logs & Checks'),
+        'content' => $su_log_description . $su_log . $su_checks_pf_description . $su_checks_pf,
+        'collapsed' => TRUE
+      )
+    );
+
+    $su_inform_branch_collapsible = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Inform the Customer'),
+        'content' => $su_inform_branch,
+        'collapsed' => TRUE
+      )
+    );
+
+    $mupdates_collapsible = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Module Updates'),
+        'content' => '<strong>Change to sites module directory.  All commands must be run in the SAME location as the current module.</strong>' . '<br />' . $mupdates,
+        'collapsed' => TRUE
+      )
+    );
+
+ // Preprocess Variables.  The output.  Stuff Display Suite cares about.
+   $vars['su_log_checks'] = $su_logschecks_collapsible;
+
+    $vars['su_stage1'] = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Stage 1: Update on a Branch'),
+        'content' => $su_branch_checkout . $su_branch_modify . $su_branch_create . $mupdates_collapsible . $su_database . $su_inform_branch_collapsible,
+        'collapsed' => TRUE
+      )
+    );
+
+   $vars['su_stage3'] = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Stage 3: Creating Tag'),
+        'content' => $su_merge . $su_inform_tag,
+        'collapsed' => TRUE
+      )
+    );
+
+   $vars['su_stage5'] = theme (
+     'ctools_collapsible',
+     array(
+        'type' => 'fieldset',
+        'handle' => t('Stage 5: Deploy to Prod'),
+        'content' =>  $su_deploy_prod,
+        'collapsed' => TRUE
+      )
+    );
+    // $vars['su_branch_checkout'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Checkout trunk for the first time',
+    //     'content' => $su_branch_checkout,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+    // $vars['su_branch_modify'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Modify existing local repo',
+    //     'content' => $su_branch_modify,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+    // $vars['su_branch_create'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Create a branch',
+    //     'content' => $su_branch_create,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+    // $vars['su_database'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Update databes',
+    //     'content' => $su_database,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+    // $vars['su_client'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Tell the client',
+    //     'content' => $su_client,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+    // $vars['su_merge'] = theme (
+    //   'ctools_collapsible',
+    //   array(
+    //     'handle' => 'Merge',
+    //     'content' => $su_merge,
+    //     'collapsed' => FALSE
+    //   )
+    // );
+  }
+}
