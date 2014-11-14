@@ -10,7 +10,7 @@
  *
  * @ingroup views_field_handlers
  */
-class colorbox_node_handler_field_colorbox_node extends views_handler_field_node {
+class colorbox_node_handler_field_colorbox_node_link extends views_handler_field_node_link {
 
   function option_definition() {
     $options = parent::option_definition();
@@ -43,10 +43,9 @@ class colorbox_node_handler_field_colorbox_node extends views_handler_field_node
       '#default_value' => !empty($this->options['node_in_colorbox_width']) ? $this->options['node_in_colorbox_width'] : '600',
       '#description' => t("Set a fixed total width. This includes borders and buttons. Example: \"100%\", or 600"),
       '#dependency' => array(
-        'edit-options-link-to-node' => array(1),
         'edit-options-node-in-colorbox' => array(1),
       ),
-      '#dependency_count' => 2,
+      '#dependency_count' => 1,
       '#weight' => -96,
     );
     $form['node_in_colorbox_height'] = array(
@@ -55,10 +54,9 @@ class colorbox_node_handler_field_colorbox_node extends views_handler_field_node
       '#default_value' => !empty($this->options['node_in_colorbox_height']) ? $this->options['node_in_colorbox_height'] : '600',
       '#description' => t("Set a fixed total height. This includes borders and buttons. Example: \"100%\", or 600"),
       '#dependency' => array(
-        'edit-options-link-to-node' => array(1),
         'edit-options-node-in-colorbox' => array(1),
       ),
-      '#dependency_count' => 2,
+      '#dependency_count' => 1,
       '#weight' => -95,
     );
     $form['node_in_colorbox_rel'] = array(
@@ -79,8 +77,8 @@ class colorbox_node_handler_field_colorbox_node extends views_handler_field_node
    * Apply our colorbox-node class and add our widths and heights
    * to the query params.
    */
-  function render_link($data, $values) {
-    if (!empty($this->options['link_to_node']) && !empty($this->additional_fields['nid'])) {
+  function render_link($node, $values) {
+    if (node_access('view', $node)) {
         if (!empty($this->options['node_in_colorbox'])) {
           // If we have a rel gallery for the colorbox, lets add our rel attribute
           // and our gallery class to the link output.
@@ -95,6 +93,6 @@ class colorbox_node_handler_field_colorbox_node extends views_handler_field_node
           $this->options['alter']['link_attributes']['data-inner-height'] = $this->options['node_in_colorbox_height'];
         }
     }
-    return parent::render_link($data, $values);
+    return parent::render_link($node, $values);
   }
 }
