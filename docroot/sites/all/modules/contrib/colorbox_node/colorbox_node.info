@@ -4,9 +4,11 @@ core = "7.x"
 package = "colorbox"
 dependencies[] = "colorbox"
 files[] = views/colorbox_node_handler_field_colorbox_node.inc
-; Information added by drupal.org packaging script on 2012-06-17
-version = "7.x-2.1"
+files[] = views/colorbox_node_handler_field_colorbox_node_link.inc
+stylesheets[all][] = colorbox_node.css
+; Information added by Drupal.org packaging script on 2014-11-11
+version = "7.x-3.4"
 core = "7.x"
 project = "colorbox_node"
-datestamp = "1339937778"
+datestamp = "1415738597"
 
