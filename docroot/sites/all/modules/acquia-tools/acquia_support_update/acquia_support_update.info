@@ -1,4 +1,0 @@
-name = Acquia Support Update
-description = Imports and updates Project versions. 
-package = Acquia
-core = 7.x

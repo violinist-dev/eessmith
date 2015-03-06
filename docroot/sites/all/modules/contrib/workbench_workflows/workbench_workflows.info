@@ -1,7 +1,0 @@
-name = Workbench Workflows
-description = Exportable workflows
-package = Workbench
-; @todo, do all files need to be declared here?
-files[] = plugins/export_ui/workbench_workflows_ui.class.php
-files[] = plugins/state_flow/workbench_workflows.inc
-core = "7.x"

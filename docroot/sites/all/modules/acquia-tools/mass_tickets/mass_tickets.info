@@ -1,5 +1,0 @@
-name = "Mass Create Parature Tickets"
-description = "Tool for creating many Parature tickets for multiple contacts at once"
-core = 7.x
-package = Parature
-dependencies[] = parature

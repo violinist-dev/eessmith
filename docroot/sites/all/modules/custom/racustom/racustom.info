@@ -1,5 +1,0 @@
-name = RA Dash Customizations
-description = Adds a delete link to nodes
-package = Custom
-core = 7.x
-version = 7.x-1.0

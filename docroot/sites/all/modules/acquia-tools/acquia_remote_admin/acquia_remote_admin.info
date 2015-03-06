@@ -1,5 +1,0 @@
-name = Acquia Remote Administration
-description = Helper module for Acquia Remote Administration clients.
-package = Acquia
-core = 7.x
-version = 7.x-1.0

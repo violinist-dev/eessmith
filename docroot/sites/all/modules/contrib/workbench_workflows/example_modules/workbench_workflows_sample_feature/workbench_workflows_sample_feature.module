@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the workbench_workflows_sample_feature feature.
- */
-
-include_once('workbench_workflows_sample_feature.features.inc');
