@@ -14,7 +14,7 @@ stylesheets:
     - fontawesome/css/font-awesome.min.css
     - slick/slick/slick.css
     - slick/css/style.css
-    - css/monokai/monokai.min/css
+    - css/monokai/monokai.min.css
     - css/html.css
     - css/page.css
     - css/block.css
