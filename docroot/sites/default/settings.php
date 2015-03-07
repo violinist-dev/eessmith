@@ -650,7 +650,7 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
 #   include __DIR__ . '/settings.local.php';
 # }
 
-$settings['trusted_host_patterns'] = array( '^eessmithdev\.prod\.acquia-sites\.com$',);
+# $settings['trusted_host_patterns'] = array( '^eessmithdev\.prod\.acquia-sites\.com$',);
 
 if (file_exists('/var/www/site-php')) {
   require '/var/www/site-php/eessmith/eessmith-settings.inc';
