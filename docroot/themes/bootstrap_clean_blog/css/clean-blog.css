@@ -64,8 +64,9 @@ hr.small {
   letter-spacing: 1px;
 }
 
-img .align-left {
-padding-right:25px;
+img.align-left {
+margin-right: 10px;
+margin-bottom: 1px;
 }
 
 @media only screen and (min-width: 768px) {
