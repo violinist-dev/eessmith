@@ -1,0 +1,626 @@
+<?php
+
+/**
+ * @file
+ * Youtube field module adds a field for YouTube videos.
+ */
+
+use GuzzleHttp\Exception\RequestException;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\String;
+use Drupal\field\Entity\FieldInstanceConfig;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_menu_link_defaults().
+ */
+function youtube_menu_link_defaults() {
+  $links = array();
+  $links['youtube.settings'] = array(
+    'link_title' => 'YouTube Field settings',
+    'description' => 'Configure global settings for YouTube fields.',
+    'route_name' => 'youtube.settings',
+    'parent' => 'system.admin.config.media',
+  );
+
+  return $links;
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function youtube_page_attachments(&$page) {
+  $page['#attached']['library'][] = 'youtube/drupal.youtube';
+}
+
+/**
+ * Extracts the video_id from the submitted field value.
+ *
+ * @param $input
+ *   The input submitted to the field.
+ *
+ * @return bool|string Returns the video_id if available, or FALSE if not.
+ */
+function youtube_get_video_id($input) {
+  // See README.txt for accepted URL formats.
+  preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'<> ]+)/", $input, $matches);
+
+  if (!empty($matches[1])) {
+    $video_id = $matches[1];
+    return $video_id;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Returns a list of standard YouTube video sizes.
+ */
+function youtube_size_options() {
+  return array(
+    '450x315' => '450px by 315px',
+    '480x360' => '480px by 360px',
+    '640x480' => '640px by 480px',
+    '960x720' => '960px by 720px',
+    'responsive' => 'responsive (full-width of container)',
+    'custom' => 'custom',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function youtube_theme($existing, $type, $theme, $path) {
+  return array(
+    'youtube_thumbnail' => array(
+      'function' => 'theme_youtube_thumbnail',
+      'variables' => array(
+        'video_id' => NULL,
+        'entity_title' => NULL,
+        'image_style' => NULL,
+        'image_link' => NULL,
+      ),
+    ),
+    'youtube_video' => array(
+      'function' => 'theme_youtube_video',
+      'variables' => array(
+        'video_id' => NULL,
+        'entity_title' => NULL,
+        'size' => NULL,
+        'width' => NULL,
+        'height' => NULL,
+        'autoplay' => FALSE,
+        'showinfo' => FALSE,
+        'controls' => FALSE,
+        'autohide' => FALSE,
+        'iv_load_policy' => FALSE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme function for videos.
+ */
+function theme_youtube_video($variables) {
+  $id = $variables['video_id'];
+  $size = $variables['size'];
+  $width = $variables['width'];
+  $height = $variables['height'];
+  $autoplay = $variables['autoplay'];
+  $showinfo = $variables['showinfo'];
+  $controls = $variables['controls'];
+  $autohide = $variables['autohide'];
+  $iv_load_policy = $variables['iv_load_policy'];
+
+  // Get YouTube settings.
+  $suggest = \Drupal::config('youtube.settings')->get('youtube_suggest');
+  $privacy = \Drupal::config('youtube.settings')->get('youtube_privacy');
+  $player_class = \Drupal::config('youtube.settings')->get('youtube_player_class');
+  $modestbranding = \Drupal::config('youtube.settings')->get('youtube_modestbranding');
+  $theme = \Drupal::config('youtube.settings')->get('youtube_theme');
+  $color = \Drupal::config('youtube.settings')->get('youtube_color');
+  $enablejsapi = \Drupal::config('youtube.settings')->get('youtube_enablejsapi');
+  $wmode = \Drupal::config('youtube.settings')->get('youtube_wmode');
+  $dimensions = youtube_get_dimensions($size, $width, $height);
+
+  // Query string changes based on setings.
+  $query = array();
+  if (!$suggest) {
+    $query['rel'] = '0';
+  }
+  if ($modestbranding) {
+    $query['modestbranding'] = '1';
+  }
+  if ($theme) {
+    $query['theme'] = 'light';
+  }
+  if ($color) {
+    $query['color'] = 'white';
+  }
+  if ($enablejsapi) {
+    global $base_url;
+    $query['enablejsapi'] = '1';
+    $query['origin'] = $base_url;
+  }
+  if ($wmode) {
+    $query['wmode'] = 'opaque';
+  }
+  if ($autoplay) {
+    $query['autoplay'] = '1';
+  }
+  if ($showinfo) {
+    $query['showinfo'] = '0';
+  }
+  if ($controls) {
+    $query['controls'] = '0';
+  }
+  if ($autohide) {
+    $query['autohide'] = '1';
+  }
+  if ($iv_load_policy) {
+    $query['iv_load_policy'] = '3';
+  }
+
+  // Domain changes based on settings.
+  $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
+
+  $path = 'https://www.' . $domain . '/embed/' . $id;
+  $src = \Drupal\Core\Url::fromUri($path, ['query' => $query])->toString();
+  $player_id = Html::getUniqueId($player_class);
+
+  $player_title = t('Embedded video');
+  if (!empty($variables['entity_title'])) {
+    $player_title .= t(' for @entity_title', array(
+      '@entity_title' => $variables['entity_title'],
+    ));
+  }
+
+  $output = '<iframe id="' . $player_id . '" width="' . $dimensions['width'] . '"
+    height="' . $dimensions['height'] . '" src="' . $src . '" title="' . $player_title . '"
+    frameborder="0" allowfullscreen></iframe>';
+
+  if ($size == 'responsive') {
+    $output = '<div class="youtube-container--responsive">' . $output . '</div>';
+  }
+
+  return $output;
+}
+
+/**
+ * Theme function for thumbnails.
+ */
+function theme_youtube_thumbnail($variables) {
+  $id = $variables['video_id'];
+  $style = $variables['image_style'];
+
+  $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
+  $youtube_dir = empty($youtube_dir) ? 'youtube' : $youtube_dir;
+
+  $yt_dir_path = youtube_get_yt_dir();
+  $dest = $yt_dir_path . '/' . $id . '.png';
+
+  // Check to see if a thumbnail exists locally.
+  $build = array();
+  if (!file_exists($dest)) {
+    // Retrieve the image from YouTube.
+    if (!youtube_get_remote_image($id)) {
+      // Use the remote source if local copy fails.
+      $src = youtube_build_remote_image_path($id);
+      $build['image'] = array(
+        '#theme' => 'image',
+        '#uri' => $src,
+      );
+      $output = drupal_render($build);
+      return $output;
+    }
+  }
+
+  $alt = t('Embedded thumbnail');
+  if (!empty($variables['entity_title'])) {
+    $alt .= t(' for @entity_title', array(
+      '@entity_title' => $variables['entity_title'],
+    ));
+  }
+
+  if ($style) {
+    $uri = 'public://' . $youtube_dir . '/' . $id . '.png';
+    $build = array(
+      '#theme' => 'image_style',
+      '#uri' => $uri,
+      '#style_name' => $style,
+      '#alt' => $alt,
+    );
+  } else {
+    $uri = 'public://' . $youtube_dir . '/' . $id . '.png';
+    $build['image'] = array(
+      '#theme' => 'image',
+      '#uri' => $uri,
+      '#alt' => $alt,
+    );
+  }
+
+  // Check if an url path is provided.
+  if ($variables['image_link'] != NULL) {
+    $url = $variables['image_link'];
+    $link_text = \Drupal::l($build, $url);
+    $build = array(
+      '#type' => 'markup',
+      '#markup' => $link_text,
+    );
+  }
+
+  $output = drupal_render($build);
+  return $output;
+}
+
+/**
+ * Splits height and width when given size, as from youtube_size_options.
+ *
+ * @param $size
+ *   Image size.
+ * @param $width
+ *   Image width.
+ * @param $height
+ *   Image height.
+ *
+ * @return array
+ *   An array containing the dimensions.
+ */
+function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
+  $dimensions = array();
+  if ($size == 'responsive') {
+    $dimensions['width'] = '100%';
+    $dimensions['height'] = '100%';
+  }
+  elseif ($size == 'custom') {
+    $dimensions['width'] = (int) $width;
+    $dimensions['height'] = (int) $height;
+  }
+  else {
+    // Locate the 'x'.
+    $strpos = strpos($size, 'x');
+    // Width is the first dimension.
+    $dimensions['width'] = substr($size, 0, $strpos);
+    // Height is the second dimension.
+    $dimensions['height'] = substr($size, $strpos + 1, strlen($size));
+  }
+
+  return $dimensions;
+}
+
+/**
+ * Retrieve youtube thumbnail image via YouTube API.
+ *
+ * @param string $video_id
+ *   The video id of the YouTube video.
+ * @param $force_small
+ *   When TRUE, this function should return the standard size image regardless
+ *   of what the youtube_thumb_hires variable is set to. This is used should
+ *   the high resolution image be found to not exist for a particular video.
+ *
+ * @return bool
+ *   TRUE if the remote image was saved locally, FALSE if something went wrong.
+ */
+function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
+  // This value is TRUE when higher resolution thumnbails should be saved.
+  // The only thumbnail resolution higher than the standard 480 is
+  // 'maxresdefault'. This resolution image is not guaranteed to exist so after
+  // saving the file, we check to ensure that it does.
+  $youtube_thumb_hires = \Drupal::config('youtube.settings')->get('youtube_thumb_hires');
+
+  // Build the image url.
+  if ($youtube_thumb_hires && !$force_small) {
+    // The high resolution image is not available via JSON-C API.
+    $src = youtube_build_remote_image_path($video_id, 'maxresdefault');
+  }
+  else {
+    $path = 'http://gdata.youtube.com/feeds/api/videos/' . $video_id;
+    $query = array(
+      'v' => '2',
+      'alt' => 'jsonc'
+    );
+    $url = \Drupal\Core\Url::fromUri($path, ['query' => $query])->toString();
+    try {
+      $request = Drupal::httpClient()->get($url);
+    }
+    catch (RequestException $e) {
+      watchdog_exception('youtube', $e);
+      return FALSE;
+    }
+    $data = $request->getBody(TRUE);
+    $data = json_decode($data);
+    // Get the high quality default thumbnail.
+    if (!empty($data->data)) {
+      $src = $data->data->thumbnail->hqDefault;
+    } else {
+      $src = youtube_build_remote_image_path($video_id);
+    }
+  }
+
+  // Make the request for the file.
+  try {
+    $image_request = Drupal::httpClient()->get($src);
+  }
+  catch (RequestException $e) {
+    watchdog_exception('youtube', $e);
+    return FALSE;
+  }
+
+  $data = $image_request->getBody(TRUE);
+  $yt_dir_path = youtube_get_yt_dir();
+  $dest = $yt_dir_path . '/' . $video_id . '.png';
+
+  if (!file_prepare_directory($yt_dir_path, FILE_CREATE_DIRECTORY) && !mkdir($yt_dir_path, 0775, TRUE)) {
+    \Drupal::service('logger.factory')->get('youtube')->log(WATCHDOG_ERROR, 'Failed to create YouTube thumbnail directory: %dir', array('%dir' => $yt_dir_path));
+  }
+
+  // If the high resolution image didn't exist, a very small placeholder image
+  // from YouTube will have been saved. Check the dimensions of this image to
+  // determine if the placeholder was saved.
+  if ($youtube_thumb_hires && !$force_small) {
+    if (file_exists($dest)) {
+      $image_size = getimagesize($dest);
+      if (empty($image_size[0]) || $image_size[0] < 480) {
+        // The placeholder was saved. Re-running this function with $force_small
+        // will save the standard, guaranteed, thumbnail.
+        youtube_get_remote_image($video_id, TRUE);
+      }
+    }
+  }
+
+  file_put_contents($dest, $data);
+  return TRUE;
+}
+
+/**
+ * Deletes all existing thumbnail image files.
+ *
+ * This is a submit callback for the "Refresh" option in the configuration form.
+ */
+function youtube_thumb_delete_all($form, &$form_state) {
+  $yt_dir_path = youtube_get_yt_dir();
+
+  if (file_prepare_directory($yt_dir_path) && file_unmanaged_delete_recursive($yt_dir_path)) {
+    drupal_set_message(t('All YouTube Field thumbnail image files have been
+      deleted and will be redownloaded upon the next page load. This does not
+      include derivatives created by image styles.'));
+    drupal_flush_all_caches();
+  }
+  else {
+    drupal_set_message(t('There were no thumbnails to delete.'), 'warning');
+  }
+}
+
+
+/**
+ * Returns the absolute path of the remote image download directory.
+ */
+function youtube_get_yt_dir() {
+  $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
+  $youtube_dir = empty($youtube_dir) ? 'youtube' : $youtube_dir;
+  $yt_dir_uri = file_build_uri($youtube_dir);
+  $yt_dir = drupal_realpath($yt_dir_uri);
+  return $yt_dir;
+}
+
+/**
+ * Get YouTube image path by building correctly formed URL.
+ *
+ * @param $video_id
+ *   The ID of the video to grab the thumbnail from.
+ * @param $version
+ *   Which version of the thumbnail to grab. See $versions for options.
+ *
+ * @return string|bool
+ *   The youtube.com image path to the specified version/video. FALSE if the
+ *   supplied version is not an option.
+ */
+function youtube_build_remote_image_path($video_id = NULL, $version = 0) {
+  // The different versions of the image made available by YouTube.
+  // http://stackoverflow.com/a/2068371
+  $versions = array(
+    '0',
+    'hqdefault',
+    'mqdefault',
+    'maxresdefault',
+    'default',
+    '1',
+    '2',
+    '3',
+  );
+
+  if (!$video_id || !in_array($version, $versions)) {
+    return;
+  }
+
+  $version_path = 'http://img.youtube.com/vi/' . $video_id . '/' . $version . '.jpg';
+  return \Drupal\Core\Url::fromUri($version_path)->toString();
+}
+
+/**
+ * Implements hook_feeds_processor_targets_alter().
+ *
+ * Adds a target option for YouTube fields to Feeds mapping options.
+ *
+ * @param &$targets
+ *   Array containing the targets to be offered to the user. Add to this array
+ *   to expose additional options. Remove from this array to suppress options.
+ *   Remove with caution.
+ * @param $entity_type
+ *   The entity type of the target, for instance a 'node' entity.
+ * @param $bundle_name
+ *   The bundle name for which to alter targets.
+ */
+function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+  $e_manager = \Drupal::service('entity.manager');
+  $map = $e_manager->getFieldMap();
+  foreach ($map as $entity_type => $map_ary) {
+    foreach ($map_ary as $field_name => $field_info) {
+      if ($field_info['type'] == 'youtube') {
+        $info = FieldInstanceConfig::loadByName($entity_type, $bundle_name, $field_name);
+        $targets[$field_name] = array(
+          'name' => String::checkPlain($info->label),
+          'callback' => 'youtube_set_target',
+          'description' => t('The @label field of the node.', array('@label' => $info->label)),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Callback to set the Feeds target for a YouTube field.
+ *
+ * @param $source
+ *   Field mapper source settings.
+ * @param $entity
+ *   An entity object, for instance a node object.
+ * @param $target
+ *   A string identifying the target on the node.
+ * @param $value
+ *   The value to populate the target with.
+ */
+function youtube_set_target($source, $entity, $target, $value, $mapping) {
+  $video_id = youtube_get_video_id($value);
+  if ($video_id) {
+    $entity->{$target}->input = $value;
+    $entity->{$target}->video_id = $video_id;
+  }
+}
+
+/**
+ * Implements hook_token_info_alter().
+ *
+ * Alters and adds tokens for each youtube field.
+ *
+ * @param $data
+ *   The associative array of token definitions from hook_token_info().
+ */
+function youtube_token_info_alter(&$data) {
+  // Get all youtube fields. Gather entity_type and bundle information.
+  $youtube_fields = array();
+  $entity_manager = \Drupal::service('entity.manager');
+  $field_map = $entity_manager::getFieldMap();
+
+  foreach ($field_map as $entity_type_name => $fields) {
+    foreach ($fields as $field_name => $field)
+      foreach ($field['bundles'] as $bundle)
+      if ($field['type'] == 'youtube') {
+        $youtube_fields[] = array (
+          'entity_type' => $entity_type_name,
+          'bundle' => $bundle,
+          'field_name' => $field_name
+        );
+      }
+  }
+
+  foreach ($youtube_fields as $field) {
+    $field_info = FieldInstanceConfig::loadByName($field['entity_type'], $field['bundle'], $field['field_name']);
+    $field_label = $field_info['label'];
+
+    // Modify the default field token.
+    $data['tokens'][$field['entity_type']][$field['field_name']] = array(
+      'name' => $field_label . t(": Default"),
+      'description' => t("The YouTube video field value's Default (or Token if exists) view mode output."),
+    );
+
+    // Add two new tokens.
+    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_video_url'] = array(
+      'name' => $field_label . t(": Video URL"),
+      'description' => t("The YouTube video field value's youtube.com URL."),
+    );
+    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_image_url'] = array(
+      'name' => $field_label . t(": Image URL"),
+      'description' => t("The YouTube video field value's local image URL."),
+    );
+  }
+}
+
+/**
+ * Implements hook_tokens().
+ *
+ * Provide replacement values for placeholder tokens.
+ *
+ * Replaces youtube_video_url and youtube_image_url tokens.
+ *
+ * @param $type
+ *   The machine-readable name of the type (group) of token being replaced, such
+ *   as 'node', 'user', or another type defined by a hook_token_info()
+ *   implementation.
+ * @param $tokens
+ *   An array of tokens to be replaced. The keys are the machine-readable token
+ *   names, and the values are the raw [type:token] strings that appeared in the
+ *   original text.
+ * @param array $data
+ *   (optional) An associative array of data objects to be used when generating
+ *   replacement values, as supplied in the $data parameter to token_replace().
+ * @param array $options
+ *   (optional) An associative array of options for token replacement; see
+ *   token_replace() for possible values.
+ *
+ * @return array An associative array of replacement values, keyed by the raw [type:token]
+ *
+ * @see youtube_tokens_info_alter()
+ */
+function youtube_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $url_options = array('absolute' => TRUE);
+
+  if (isset($options['langcode'])) {
+    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
+    $langcode = $options['langcode'];
+  }
+  else {
+    $langcode = LanguageInterface::LANGCODE_DEFAULT;
+  }
+
+  $sanitize = !empty($options['sanitize']);
+
+  $replacements = array();
+
+  if ($type == 'node' && !empty($data['node'])) {
+    $node = $data['node'];
+
+    foreach ($tokens as $name => $original) {
+      if (!strpos($name, '__youtube_')) {
+        // This isn't a youtube token!
+        continue;
+      }
+
+      $token_pieces = explode('__', $name);
+      if (count($token_pieces) != 2) {
+        continue;
+      }
+
+      $field_name = $token_pieces[0];
+      $token_name = $token_pieces[1];
+
+      switch ($token_name) {
+        case 'youtube_video_url':
+          $field = $node->$field_name;
+          $video_id = $field->video_id;
+          $replacements[$original] = 'http://www.youtube.com/watch?v=' . $video_id;
+          break;
+
+        case 'youtube_image_url':
+          global $base_url;
+          global $base_path;
+          $field = $node->$field_name;
+          $video_id = $field->video_id;
+          $thumb_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
+          $thumb_dir = empty($thumb_dir) ? 'youtube' : $thumb_dir;
+          $file_path = 'public://' . $thumb_dir;
+          $file_path .= '/' . $video_id . '.png';
+          $full_url = file_create_url($file_path);
+          if (!file_exists($file_path)) {
+            youtube_get_remote_image($video_id);
+          }
+          $replacements[$original] = $full_url;
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
