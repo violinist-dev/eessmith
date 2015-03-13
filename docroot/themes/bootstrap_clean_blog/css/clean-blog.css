@@ -69,6 +69,10 @@ list-style-type: none;
   letter-spacing: 1px;
 }
 
+.navbar-default {
+opacity: 0.5;
+}
+
 img.align-left {
 margin-right: 10px;
 margin-bottom: 1px;
