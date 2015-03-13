@@ -73,6 +73,11 @@ list-style-type: none;
 opacity: 0.5;
 }
 
+.input-group .form-search {
+  float: right;
+  margin-right: 10px;
+}
+
 img.align-left {
 margin-right: 10px;
 margin-bottom: 1px;
