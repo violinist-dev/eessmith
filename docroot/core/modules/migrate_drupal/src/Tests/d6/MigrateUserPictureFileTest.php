@@ -29,6 +29,9 @@ class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
    */
   protected function setUp() {
     parent::setUp();
+
+    $this->installEntitySchema('file');
+
     $dumps = array(
       $this->getDumpDirectory() . '/Users.php',
       $this->getDumpDirectory() . '/ProfileValues.php',
@@ -38,7 +41,7 @@ class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
     /** @var \Drupal\migrate\Entity\MigrationInterface $migration */
     $migration = entity_load('migration', 'd6_user_picture_file');
     $source = $migration->get('source');
-    $source['conf_path'] = 'core/modules/simpletest';
+    $source['site_path'] = 'core/modules/simpletest';
     $migration->set('source', $source);
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, $this);
@@ -56,16 +59,16 @@ class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
     $files = entity_load_multiple('file', $file_ids);
     /** @var \Drupal\file\FileInterface $file */
     $file = array_shift($files);
-    $this->assertIdentical($file->getFilename(), 'image-test.jpg');
-    $this->assertIdentical($file->getFileUri(), 'public://image-test.jpg');
-    $this->assertIdentical($file->getOwnerId(), '2');
-    $this->assertIdentical($file->getSize(), '1901');
-    $this->assertIdentical($file->getMimeType(), 'image/jpeg');
+    $this->assertIdentical('image-test.jpg', $file->getFilename());
+    $this->assertIdentical('public://image-test.jpg', $file->getFileUri());
+    $this->assertIdentical('2', $file->getOwnerId());
+    $this->assertIdentical('1901', $file->getSize());
+    $this->assertIdentical('image/jpeg', $file->getMimeType());
 
     $file = array_shift($files);
-    $this->assertIdentical($file->getFilename(), 'image-test.png');
-    $this->assertIdentical($file->getFileUri(), 'public://image-test.png');
-    $this->assertIdentical($file->getOwnerId(), '8');
+    $this->assertIdentical('image-test.png', $file->getFilename());
+    $this->assertIdentical('public://image-test.png', $file->getFileUri());
+    $this->assertIdentical('8', $file->getOwnerId());
     $this->assertFalse($files);
   }
 

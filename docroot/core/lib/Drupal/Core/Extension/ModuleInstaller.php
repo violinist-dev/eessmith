@@ -13,12 +13,12 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\PreExistingConfigException;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\DrupalKernelInterface;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Default implementation of the module installer.
  *
- * It registers the module in config, install its own configuration,
+ * It registers the module in config, installs its own configuration,
  * installs the schema, updates the Drupal kernel and more.
  */
 class ModuleInstaller implements ModuleInstallerInterface {
@@ -88,7 +88,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
       $module_list = $module_list ? array_combine($module_list, $module_list) : array();
       if ($missing_modules = array_diff_key($module_list, $module_data)) {
         // One or more of the given modules doesn't exist.
-        throw new MissingDependencyException(String::format('Unable to install modules %modules due to missing modules %missing.', array(
+        throw new MissingDependencyException(SafeMarkup::format('Unable to install modules %modules due to missing modules %missing.', array(
           '%modules' => implode(', ', $module_list),
           '%missing' => implode(', ', $missing_modules),
         )));
@@ -107,7 +107,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
         foreach (array_keys($module_data[$module]->requires) as $dependency) {
           if (!isset($module_data[$dependency])) {
             // The dependency does not exist.
-            throw new MissingDependencyException(String::format('Unable to install modules: module %module is missing its dependency module %dependency.', array(
+            throw new MissingDependencyException(SafeMarkup::format('Unable to install modules: module %module is missing its dependency module %dependency.', array(
               '%module' => $module,
               '%dependency' => $dependency,
             )));
@@ -151,22 +151,16 @@ class ModuleInstaller implements ModuleInstallerInterface {
           )));
         }
 
-        // Install profiles can not have config clashes. Configuration that
-        // has the same name as a module's configuration will be used instead.
-        if ($module != drupal_get_profile()) {
-          // Validate default configuration of this module. Bail if unable to
-          // install. Should not continue installing more modules because those
-          // may depend on this one.
-          $existing_configuration = $config_installer->findPreExistingConfiguration('module', $module);
-          if (!empty($existing_configuration)) {
-            throw PreExistingConfigException::create($module, $existing_configuration);
-          }
-        }
+        // Check the validity of the default configuration. This will throw
+        // exceptions if the configuration is not valid.
+        $config_installer->checkConfigurationToInstall('module', $module);
 
+        // Save this data without checking schema. This is a performance
+        // improvement for module installation.
         $extension_config
           ->set("module.$module", 0)
           ->set('module', module_config_sort($extension_config->get('module')))
-          ->save();
+          ->save(TRUE);
 
         // Prepare the new module list, sorted by weight, including filenames.
         // This list is used for both the ModuleHandler and DrupalKernel. It
@@ -211,18 +205,14 @@ class ModuleInstaller implements ModuleInstallerInterface {
         // Update the kernel to include it.
         $this->updateKernel($module_filenames);
 
-        // Refresh the schema to include it.
-        drupal_get_schema(NULL, TRUE);
-
         // Allow modules to react prior to the installation of a module.
         $this->moduleHandler->invokeAll('module_preinstall', array($module));
 
         // Now install the module's schema if necessary.
         drupal_install_schema($module);
 
-        // Clear plugin manager caches and flag router to rebuild if requested.
+        // Clear plugin manager caches.
         \Drupal::getContainer()->get('plugin.cache_clearer')->clearCachedDefinitions();
-        \Drupal::service('router.builder_indicator')->setRebuildNeeded();
 
         // Set the schema version to the number of the last update provided by
         // the module, or the minimum core schema version.
@@ -249,12 +239,6 @@ class ModuleInstaller implements ModuleInstallerInterface {
           $config_installer
             ->setSyncing(TRUE)
             ->setSourceStorage($source_storage);
-        }
-        else {
-          // If we're not in a config synchronization reset the source storage
-          // so that the extension install storage will pick up the new
-          // configuration.
-          $config_installer->resetSourceStorage();
         }
         \Drupal::service('config.installer')->installDefaultConfig('module', $module);
 
@@ -283,7 +267,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
         // Modules can alter theme info, so refresh theme data.
         // @todo ThemeHandler cannot be injected into ModuleHandler, since that
         //   causes a circular service dependency.
-        // @see https://drupal.org/node/2208429
+        // @see https://www.drupal.org/node/2208429
         \Drupal::service('theme_handler')->refreshInfo();
 
         // Allow the module to perform install tasks.
@@ -296,6 +280,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
 
     // If any modules were newly installed, invoke hook_modules_installed().
     if (!empty($modules_installed)) {
+      \Drupal::service('router.builder')->setRebuildNeeded();
       $this->moduleHandler->invokeAll('modules_installed', array($modules_installed));
     }
 
@@ -346,7 +331,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
         $reason_message[] = implode(', ', $reason);
       }
       throw new ModuleUninstallValidatorException(format_string('The following reasons prevents the modules from being uninstalled: @reasons', array(
-        '@reasons' => implode(', ', $reason_message),
+        '@reasons' => implode('; ', $reason_message),
       )));
     }
     // Set the actual module weights.
@@ -399,8 +384,9 @@ class ModuleInstaller implements ModuleInstallerInterface {
       // Remove the schema.
       drupal_uninstall_schema($module);
 
-      // Remove the module's entry from the config.
-      \Drupal::configFactory()->getEditable('core.extension')->clear("module.$module")->save();
+      // Remove the module's entry from the config. Don't check schema when
+      // uninstalling a module since we are only clearing a key.
+      \Drupal::configFactory()->getEditable('core.extension')->clear("module.$module")->save(TRUE);
 
       // Update the module handler to remove the module.
       // The current ModuleHandler instance is obsolete with the kernel rebuild
@@ -417,9 +403,8 @@ class ModuleInstaller implements ModuleInstallerInterface {
       // its statically cached list.
       drupal_static_reset('system_rebuild_module_data');
 
-      // Clear plugin manager caches and flag router to rebuild if requested.
+      // Clear plugin manager caches.
       \Drupal::getContainer()->get('plugin.cache_clearer')->clearCachedDefinitions();
-      \Drupal::service('router.builder_indicator')->setRebuildNeeded();
 
       // Update the kernel to exclude the uninstalled modules.
       $this->updateKernel($module_filenames);
@@ -430,7 +415,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
       // Modules can alter theme info, so refresh theme data.
       // @todo ThemeHandler cannot be injected into ModuleHandler, since that
       //   causes a circular service dependency.
-      // @see https://drupal.org/node/2208429
+      // @see https://www.drupal.org/node/2208429
       \Drupal::service('theme_handler')->refreshInfo();
 
       \Drupal::logger('system')->info('%module module uninstalled.', array('%module' => $module));
@@ -438,6 +423,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
       $schema_store = \Drupal::keyValue('system.schema');
       $schema_store->delete($module);
     }
+    \Drupal::service('router.builder')->setRebuildNeeded();
     drupal_get_installed_schema_version(NULL, TRUE);
 
     // Let other modules react.

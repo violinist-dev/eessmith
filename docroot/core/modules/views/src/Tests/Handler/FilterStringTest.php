@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\views\Tests\Handler\FilterStringTest.
+ * Contains \Drupal\views\Tests\Handler\FilterStringTest.
  */
 
 namespace Drupal\views\Tests\Handler;
@@ -11,7 +11,7 @@ use Drupal\views\Tests\ViewUnitTestBase;
 use Drupal\views\Views;
 
 /**
- * Tests the core Drupal\views\Plugin\views\filter\String handler.
+ * Tests the core Drupal\views\Plugin\views\filter\StringFilter handler.
  *
  * @group views
  */
@@ -487,7 +487,7 @@ class FilterStringTest extends ViewUnitTestBase {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Descriptino, Operator: ends, Value: Beatles
+    // Filter: Description, Operator: ends, Value: Beatles
     $filters['description']['group_info']['default_group'] = 4;
     $view->setDisplay('page_1');
     $view->displayHandlers->get('page_1')->overrideOption('filters', $filters);

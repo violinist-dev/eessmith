@@ -11,10 +11,8 @@ node.add_page:
     _title: 'Add content'
     _controller: '\Drupal\node\Controller\NodeController::addPage'
   options:
-    _access_mode: 'ANY'
     _node_operation_route: TRUE
   requirements:
-    _permission: 'administer content types'
     _node_add_access: 'node'
 
 node.add:
@@ -52,7 +50,7 @@ entity.node.version_history:
   options:
     _node_operation_route: TRUE
 
-node.revision_show:
+entity.node.revision:
   path: '/node/{node}/revisions/{node_revision}/view'
   defaults:
     _controller: '\Drupal\node\Controller\NodeController::revisionShow'

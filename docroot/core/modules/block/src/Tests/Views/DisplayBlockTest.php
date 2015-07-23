@@ -9,7 +9,7 @@ namespace Drupal\block\Tests\Views;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\views\Views;
 use Drupal\views\Tests\ViewTestBase;
 use Drupal\views\Tests\ViewTestData;
@@ -95,7 +95,7 @@ class DisplayBlockTest extends ViewTestBase {
     $this->drupalPostForm(NULL, array(), t('Save'));
 
     // Test that the blocks are listed under the correct categories.
-    $category_id = drupal_html_id('edit-category-' . String::checkPlain($category));
+    $category_id = Html::getUniqueId('edit-category-' . SafeMarkup::checkPlain($category));
     $arguments[':id'] = $category_id;
     $this->drupalGet('admin/structure/block');
     $elements = $this->xpath('//details[@id=:id]//li[contains(@class, :li_class)]/a[contains(@href, :href) and text()=:text]', $arguments);
@@ -129,7 +129,7 @@ class DisplayBlockTest extends ViewTestBase {
   /**
    * Tests removing a block display.
    */
-  protected function testDeleteBlockDisplay() {
+  public function testDeleteBlockDisplay() {
     // To test all combinations possible we first place create two instances
     // of the block display of the first view.
     $block_1 = $this->drupalPlaceBlock('views_block:test_view_block-block_1', array('label' => 'test_view_block-block_1:1'));
@@ -273,11 +273,11 @@ class DisplayBlockTest extends ViewTestBase {
   public function testBlockContextualLinks() {
     $this->drupalLogin($this->drupalCreateUser(array('administer views', 'access contextual links', 'administer blocks')));
     $block = $this->drupalPlaceBlock('views_block:test_view_block-block_1');
-    $cached_block = $this->drupalPlaceBlock('views_block:test_view_block-block_1', array('cache' => array('max_age' => 3600)));
+    $cached_block = $this->drupalPlaceBlock('views_block:test_view_block-block_1');
     $this->drupalGet('test-page');
 
-    $id = 'block:block=' . $block->id() . ':|entity.view.edit_form:view=test_view_block:location=block&name=test_view_block&display_id=block_1';
-    $cached_id = 'block:block=' . $cached_block->id() . ':|entity.view.edit_form:view=test_view_block:location=block&name=test_view_block&display_id=block_1';
+    $id = 'block:block=' . $block->id() . ':langcode=en|entity.view.edit_form:view=test_view_block:location=block&name=test_view_block&display_id=block_1&langcode=en';
+    $cached_id = 'block:block=' . $cached_block->id() . ':langcode=en|entity.view.edit_form:view=test_view_block:location=block&name=test_view_block&display_id=block_1&langcode=en';
     // @see \Drupal\contextual\Tests\ContextualDynamicContextTest:assertContextualLinkPlaceHolder()
     $this->assertRaw('<div' . new Attribute(array('data-contextual-id' => $id)) . '></div>', format_string('Contextual link placeholder with id @id exists.', array('@id' => $id)));
     $this->assertRaw('<div' . new Attribute(array('data-contextual-id' => $cached_id)) . '></div>', format_string('Contextual link placeholder with id @id exists.', array('@id' => $cached_id)));
@@ -285,7 +285,7 @@ class DisplayBlockTest extends ViewTestBase {
     // Get server-rendered contextual links.
     // @see \Drupal\contextual\Tests\ContextualDynamicContextTest:renderContextualLinks()
     $post = array('ids[0]' => $id, 'ids[1]' => $cached_id);
-    $response = $this->drupalPost('contextual/render', 'application/json', $post, array('query' => array('destination' => 'test-page')));
+    $response = $this->drupalPostWithFormat('contextual/render', 'json', $post, array('query' => array('destination' => 'test-page')));
     $this->assertResponse(200);
     $json = Json::decode($response);
     $this->assertIdentical($json[$id], '<ul class="contextual-links"><li class="block-configure"><a href="' . base_path() . 'admin/structure/block/manage/' . $block->id() . '">Configure block</a></li><li class="entityviewedit-form"><a href="' . base_path() . 'admin/structure/views/view/test_view_block/edit/block_1">Edit view</a></li></ul>');

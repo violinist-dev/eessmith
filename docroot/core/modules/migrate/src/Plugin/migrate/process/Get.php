@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Contains \Drupal\migrate\Plugin\migrate\process\CopyFromSource.
+ * Contains \Drupal\migrate\Plugin\migrate\process\Get.
  */
 
 namespace Drupal\migrate\Plugin\migrate\process;
 
 use Drupal\migrate\ProcessPluginBase;
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\Row;
 
 /**
@@ -28,7 +28,7 @@ class Get extends ProcessPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function transform($value, MigrateExecutable $migrate_executable, Row $row, $destination_property) {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     $source = $this->configuration['source'];
     $properties = is_string($source) ? array($source) : $source;
     $return = array();

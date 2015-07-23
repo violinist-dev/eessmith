@@ -26,13 +26,14 @@ class MigrateBookConfigsTest extends MigrateDrupal6TestBase {
    *
    * @var array
    */
-  public static $modules = array('book');
+  public static $modules = array('book', 'system', 'node', 'field', 'text', 'entity_reference');
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
+
     $migration = entity_load('migration', 'd6_book_settings');
     $dumps = array(
       $this->getDumpDirectory() . '/Variable.php',
@@ -47,9 +48,9 @@ class MigrateBookConfigsTest extends MigrateDrupal6TestBase {
    */
   public function testBookSettings() {
     $config = $this->config('book.settings');
-    $this->assertIdentical($config->get('child_type'), 'book');
-    $this->assertIdentical($config->get('block.navigation.mode'), 'all pages');
-    $this->assertIdentical($config->get('allowed_types'), array('book'));
+    $this->assertIdentical('book', $config->get('child_type'));
+    $this->assertIdentical('all pages', $config->get('block.navigation.mode'));
+    $this->assertIdentical(array('book'), $config->get('allowed_types'));
     $this->assertConfigSchema(\Drupal::service('config.typed'), 'book.settings', $config->get());
   }
 

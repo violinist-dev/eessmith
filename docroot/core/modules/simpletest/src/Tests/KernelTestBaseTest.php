@@ -27,6 +27,22 @@ class KernelTestBaseTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp() {
+    $php = <<<'EOS'
+<?php
+# Make sure that the $test_class variable is defined when this file is included.
+if ($test_class) {
+}
+
+# Define a function to be able to check that this file was loaded with
+# function_exists().
+if (!function_exists('simpletest_test_stub_settings_function')) {
+  function simpletest_test_stub_settings_function() {}
+}
+EOS;
+
+    $settings_testing_file = $this->siteDirectory . '/settings.testing.php';
+    file_put_contents($settings_testing_file, $php);
+
     $original_container = $this->originalContainer;
     parent::setUp();
     $this->assertNotIdentical(\Drupal::getContainer(), $original_container, 'KernelTestBase test creates a new container.');
@@ -48,6 +64,9 @@ class KernelTestBaseTest extends KernelTestBase {
 
     // Verify that no modules have been installed.
     $this->assertFalse(db_table_exists($table), "'$table' database table not found.");
+
+    // Verify that the settings.testing.php got taken into account.
+    $this->assertTrue(function_exists('simpletest_test_stub_settings_function'));
   }
 
   /**
@@ -89,8 +108,6 @@ class KernelTestBaseTest extends KernelTestBase {
     $this->assertFalse(in_array($module, $list), "{$module}_hook_info() in \Drupal::moduleHandler()->getImplementations() not found.");
 
     $this->assertFalse(db_table_exists($table), "'$table' database table not found.");
-    $schema = drupal_get_schema($table, TRUE);
-    $this->assertFalse($schema, "'$table' table schema not found.");
 
     // Install the module.
     \Drupal::service('module_installer')->install(array($module));
@@ -103,7 +120,7 @@ class KernelTestBaseTest extends KernelTestBase {
     $this->assertTrue(in_array($module, $list), "{$module}_hook_info() in \Drupal::moduleHandler()->getImplementations() found.");
 
     $this->assertTrue(db_table_exists($table), "'$table' database table found.");
-    $schema = drupal_get_schema($table);
+    $schema = drupal_get_module_schema($module, $table);
     $this->assertTrue($schema, "'$table' table schema found.");
   }
 
@@ -135,9 +152,7 @@ class KernelTestBaseTest extends KernelTestBase {
     $this->assertTrue(db_table_exists($table), "'$table' database table found.");
 
     // Verify that the schema is known to Schema API.
-    $schema = drupal_get_schema();
-    $this->assertTrue($schema[$table], "'$table' table found in schema.");
-    $schema = drupal_get_schema($table);
+    $schema = drupal_get_module_schema($module, $table);
     $this->assertTrue($schema, "'$table' table schema found.");
 
     // Verify that a unknown table from an enabled module throws an error.
@@ -150,7 +165,7 @@ class KernelTestBaseTest extends KernelTestBase {
       $this->pass('Exception for non-retrievable schema found.');
     }
     $this->assertFalse(db_table_exists($table), "'$table' database table not found.");
-    $schema = drupal_get_schema($table);
+    $schema = drupal_get_module_schema($module, $table);
     $this->assertFalse($schema, "'$table' table schema not found.");
 
     // Verify that a table from a unknown module cannot be installed.
@@ -164,14 +179,14 @@ class KernelTestBaseTest extends KernelTestBase {
       $this->pass('Exception for non-retrievable schema found.');
     }
     $this->assertFalse(db_table_exists($table), "'$table' database table not found.");
-    $schema = drupal_get_schema($table);
-    $this->assertFalse($schema, "'$table' table schema not found.");
+    $schema = drupal_get_module_schema($module, $table);
+    $this->assertTrue($schema, "'$table' table schema found.");
 
     // Verify that the same table can be installed after enabling the module.
     $this->enableModules(array($module));
     $this->installSchema($module, $table);
     $this->assertTrue(db_table_exists($table), "'$table' database table found.");
-    $schema = drupal_get_schema($table);
+    $schema = drupal_get_module_schema($module, $table);
     $this->assertTrue($schema, "'$table' table schema found.");
   }
 
@@ -191,6 +206,8 @@ class KernelTestBaseTest extends KernelTestBase {
    * Tests expected behavior of installConfig().
    */
   function testInstallConfig() {
+    // The user module has configuration that depends on system.
+    $this->enableModules(array('system'));
     $module = 'user';
 
     // Verify that default config can only be installed for enabled modules.
@@ -267,6 +284,8 @@ class KernelTestBaseTest extends KernelTestBase {
    * Tests that _theme() works right after loading a module.
    */
   function testEnableModulesTheme() {
+    /** @var \Drupal\Core\Render\RendererInterface $renderer */
+    $renderer = $this->container->get('renderer');
     $original_element = $element = array(
       '#type' => 'container',
       '#markup' => 'Foo',
@@ -274,11 +293,11 @@ class KernelTestBaseTest extends KernelTestBase {
     );
     $this->enableModules(array('system'));
     // _theme() throws an exception if modules are not loaded yet.
-    $this->assertTrue(drupal_render($element));
+    $this->assertTrue($renderer->renderRoot($element));
 
     $element = $original_element;
     $this->disableModules(array('entity_test'));
-    $this->assertTrue(drupal_render($element));
+    $this->assertTrue($renderer->renderRoot($element));
   }
 
   /**

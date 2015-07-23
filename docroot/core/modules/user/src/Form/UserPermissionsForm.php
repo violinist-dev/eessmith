@@ -7,7 +7,8 @@
 
 namespace Drupal\user\Form;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\PermissionHandlerInterface;
@@ -34,16 +35,26 @@ class UserPermissionsForm extends FormBase {
   protected $roleStorage;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * Constructs a new UserPermissionsForm.
    *
    * @param \Drupal\user\PermissionHandlerInterface $permission_handler
    *   The permission handler.
    * @param \Drupal\user\RoleStorageInterface $role_storage
    *   The role storage.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface
+   *   The module handler.
    */
-  public function __construct(PermissionHandlerInterface $permission_handler, RoleStorageInterface $role_storage) {
+  public function __construct(PermissionHandlerInterface $permission_handler, RoleStorageInterface $role_storage, ModuleHandlerInterface $module_handler) {
     $this->permissionHandler = $permission_handler;
     $this->roleStorage = $role_storage;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -52,7 +63,8 @@ class UserPermissionsForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('user.permissions'),
-      $container->get('entity.manager')->getStorage('user_role')
+      $container->get('entity.manager')->getStorage('user_role'),
+      $container->get('module_handler')
     );
   }
 
@@ -79,11 +91,13 @@ class UserPermissionsForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $role_names = array();
     $role_permissions = array();
+    $admin_roles = array();
     foreach ($this->getRoles() as $role_name => $role) {
       // Retrieve role names for columns.
-      $role_names[$role_name] = String::checkPlain($role->label());
+      $role_names[$role_name] = SafeMarkup::checkPlain($role->label());
       // Fetch permissions for the roles.
       $role_permissions[$role_name] = $role->getPermissions();
+      $admin_roles[$role_name] = $role->isAdmin();
     }
 
     // Store $role_names for use when saving the data.
@@ -93,7 +107,6 @@ class UserPermissionsForm extends FormBase {
     );
     // Render role/permission overview:
     $options = array();
-    $module_info = system_rebuild_module_data();
     $hide_descriptions = system_admin_compact_mode();
 
     $form['system_compact_link'] = array(
@@ -105,7 +118,7 @@ class UserPermissionsForm extends FormBase {
       '#type' => 'table',
       '#header' => array($this->t('Permission')),
       '#id' => 'permissions',
-      '#attributes' => ['class' => ['permissions']],
+      '#attributes' => ['class' => ['permissions', 'js-permissions']],
       '#sticky' => TRUE,
     );
     foreach ($role_names as $name) {
@@ -129,7 +142,7 @@ class UserPermissionsForm extends FormBase {
           'class' => array('module'),
           'id' => 'module-' . $provider,
         ),
-        '#markup' => $module_info[$provider]->info['name'],
+        '#markup' => $this->moduleHandler->getName($provider),
       ));
       foreach ($permissions as $perm => $perm_item) {
         // Fill in default values for the permission.
@@ -161,15 +174,24 @@ class UserPermissionsForm extends FormBase {
             ),
             '#type' => 'checkbox',
             '#default_value' => in_array($perm, $role_permissions[$rid]) ? 1 : 0,
-            '#attributes' => array('class' => array('rid-' . $rid)),
+            '#attributes' => array('class' => array('rid-' . $rid, 'js-rid-' . $rid)),
             '#parents' => array($rid, $perm),
           );
+          // Show a column of disabled but checked checkboxes.
+          if ($admin_roles[$rid]) {
+            $form['permissions'][$perm][$rid]['#disabled'] = TRUE;
+            $form['permissions'][$perm][$rid]['#default_value'] = TRUE;
+          }
         }
       }
     }
 
     $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array('#type' => 'submit', '#value' => $this->t('Save permissions'));
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => $this->t('Save permissions'),
+      '#button_type' => 'primary',
+    );
 
     $form['#attached']['library'][] = 'user/drupal.user.permissions';
 
@@ -181,7 +203,7 @@ class UserPermissionsForm extends FormBase {
    */
   function submitForm(array &$form, FormStateInterface $form_state) {
     foreach ($form_state->getValue('role_names') as $role_name => $name) {
-      user_role_change_permissions($role_name, $form_state->getValue($role_name));
+      user_role_change_permissions($role_name, (array) $form_state->getValue($role_name));
     }
 
     drupal_set_message($this->t('The changes have been saved.'));

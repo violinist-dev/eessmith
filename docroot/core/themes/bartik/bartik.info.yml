@@ -5,6 +5,8 @@ description: 'A flexible, recolorable theme with many regions and a responsive, 
 package: Core
 # version: VERSION
 # core: 8.x
+stylesheets-remove:
+  - '@classy/css/layout.css'
 libraries:
   - bartik/global-styling
 ckeditor_stylesheets:
@@ -19,6 +21,7 @@ regions:
   help: Help
   page_top: 'Page top'
   page_bottom: 'Page bottom'
+  highlighted: Highlighted
   featured_top: 'Featured top'
   breadcrumb: Breadcrumb
   content: Content
@@ -34,8 +37,8 @@ regions:
   footer_fifth: 'Footer fifth'
 
 
-# Information added by Drupal.org packaging script on 2015-02-25
-version: '8.0.0-beta7'
+# Information added by Drupal.org packaging script on 2015-06-29
+version: '8.0.0-beta12'
 core: '8.x'
 project: 'drupal'
-datestamp: 1424875577
+datestamp: 1435602053

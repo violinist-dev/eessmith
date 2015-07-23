@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\ckeditor\Tests\CKEditorTest.
+ * Contains \Drupal\ckeditor\Tests\CKEditorTest.
  */
 
 namespace Drupal\ckeditor\Tests;
@@ -283,14 +283,14 @@ class CKEditorTest extends KernelTestBase {
     $expected = $this->getDefaultInternalConfig();
     $expected['disallowedContent'] = $this->getDefaultDisallowedContentConfig();
     $expected['allowedContent'] = $this->getDefaultAllowedContentConfig();
-    $this->assertIdentical($expected, $internal_plugin->getConfig($editor), '"Internal" plugin configuration built correctly for default toolbar.');
+    $this->assertEqual($expected, $internal_plugin->getConfig($editor), '"Internal" plugin configuration built correctly for default toolbar.');
 
     // Format dropdown/button enabled: new setting should be present.
     $settings = $editor->getSettings();
     $settings['toolbar']['rows'][0][0]['items'][] = 'Format';
     $editor->setSettings($settings);
     $expected['format_tags'] = 'p;h4;h5;h6';
-    $this->assertIdentical($expected, $internal_plugin->getConfig($editor), '"Internal" plugin configuration built correctly for customized toolbar.');
+    $this->assertEqual($expected, $internal_plugin->getConfig($editor), '"Internal" plugin configuration built correctly for customized toolbar.');
   }
 
   /**
@@ -405,7 +405,7 @@ class CKEditorTest extends KernelTestBase {
   protected function assertCKEditorLanguage($langcode = 'fr') {
     // Set French as the site default language.
     ConfigurableLanguage::createFromLangcode('fr')->save();
-    $this->config('system.site')->set('langcode', 'fr')->save();
+    $this->config('system.site')->set('default_langcode', 'fr')->save();
 
     // Reset the language manager so new negotiations attempts will fall back on
     // French. Reinject the language manager CKEditor to use the current one.

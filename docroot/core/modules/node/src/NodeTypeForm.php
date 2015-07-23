@@ -9,7 +9,7 @@ namespace Drupal\node;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -55,7 +55,7 @@ class NodeTypeForm extends EntityForm {
 
     $type = $this->entity;
     if ($this->operation == 'add') {
-      $form['#title'] = String::checkPlain($this->t('Add content type'));
+      $form['#title'] = SafeMarkup::checkPlain($this->t('Add content type'));
       $fields = $this->entityManager->getBaseFieldDefinitions('node');
       // Create a node with a fake bundle using the type's UUID so that we can
       // get the default values for workflow settings.
@@ -85,7 +85,7 @@ class NodeTypeForm extends EntityForm {
       '#maxlength' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
       '#disabled' => $type->isLocked(),
       '#machine_name' => array(
-        'exists' => 'node_type_load',
+        'exists' => ['Drupal\node\Entity\NodeType', 'load'],
         'source' => array('name'),
       ),
       '#description' => t('A unique machine-readable name for this content type. It must only contain lowercase letters, numbers, and underscores. This name will be used for constructing the URL of the %node-add page, in which underscores will be converted into hyphens.', array(

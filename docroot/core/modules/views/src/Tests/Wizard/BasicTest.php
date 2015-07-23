@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Definition of Drupal\views\Tests\Wizard\BasicTest.
+ * Contains \Drupal\views\Tests\Wizard\BasicTest.
  */
 
 namespace Drupal\views\Tests\Wizard;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Url;
 use Drupal\views\Views;
 
@@ -172,7 +172,7 @@ class BasicTest extends WizardTestBase {
    *
    * @see \Drupal\views_ui\ViewAddForm::form()
    */
-  protected function testWizardForm() {
+  public function testWizardForm() {
     $this->drupalGet('admin/structure/views/add');
 
     $result = $this->xpath('//small[@id = "edit-label-machine-name-suffix"]');
@@ -207,7 +207,7 @@ class BasicTest extends WizardTestBase {
 
     foreach ($displays as $display) {
       foreach (array('query', 'exposed_form', 'pager', 'style', 'row') as $type) {
-        $this->assertFalse(empty($display['display_options'][$type]['options']), String::format('Default options found for @plugin.', array('@plugin' => $type)));
+        $this->assertFalse(empty($display['display_options'][$type]['options']), SafeMarkup::format('Default options found for @plugin.', array('@plugin' => $type)));
       }
     }
   }

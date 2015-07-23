@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Definition of Drupal\config\Tests\ConfigImportUITest.
+ * Contains \Drupal\config\Tests\ConfigImportUITest.
  */
 
 namespace Drupal\config\Tests;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Config\InstallStorage;
 use Drupal\simpletest\WebTestBase;
 
@@ -68,6 +68,8 @@ class ConfigImportUITest extends WebTestBase {
       'label' => 'New',
       'weight' => 0,
       'style' => '',
+      'size' => '',
+      'size_value' => '',
       'protected_property' => '',
     );
     $staging->write($dynamic_name, $original_dynamic_data);
@@ -308,7 +310,7 @@ class ConfigImportUITest extends WebTestBase {
   }
 
   /**
-   * Tests that mutliple validation errors are listed on the page.
+   * Tests that multiple validation errors are listed on the page.
    */
   public function testImportValidation() {
     // Set state value so that
@@ -324,7 +326,7 @@ class ConfigImportUITest extends WebTestBase {
     $this->drupalPostForm(NULL, array(), t('Import all'));
 
     // Verify that the validation messages appear.
-    $this->assertText('The configuration synchronization failed validation.');
+    $this->assertText('The configuration cannot be imported because it failed validation for the following reasons:');
     $this->assertText('Config import validate error 1.');
     $this->assertText('Config import validate error 2.');
 
@@ -373,7 +375,9 @@ class ConfigImportUITest extends WebTestBase {
       'label' => 'Primary',
       'weight' => 0,
       'style' => NULL,
-      'protected_property' => null,
+      'size' => NULL,
+      'size_value' => NULL,
+      'protected_property' => NULL,
     );
     $staging->write($name_primary, $values_primary);
     $values_secondary = array(
@@ -388,7 +392,9 @@ class ConfigImportUITest extends WebTestBase {
       'label' => 'Secondary Sync',
       'weight' => 0,
       'style' => NULL,
-      'protected_property' => null,
+      'size' => NULL,
+      'size_value' => NULL,
+      'protected_property' => NULL,
     );
     $staging->write($name_secondary, $values_secondary);
     // Verify that there are configuration differences to import.
@@ -397,7 +403,7 @@ class ConfigImportUITest extends WebTestBase {
 
     // Attempt to import configuration and verify that an error message appears.
     $this->drupalPostForm(NULL, array(), t('Import all'));
-    $this->assertText(String::format('Deleted and replaced configuration entity "@name"', array('@name' => $name_secondary)));
+    $this->assertText(SafeMarkup::format('Deleted and replaced configuration entity "@name"', array('@name' => $name_secondary)));
     $this->assertText(t('The configuration was imported with errors.'));
     $this->assertNoText(t('The configuration was imported successfully.'));
     $this->assertText(t('There are no configuration changes to import.'));
@@ -445,6 +451,41 @@ class ConfigImportUITest extends WebTestBase {
     $this->assertNoText(format_string('core.entity_view_display.node.@type.teaser', array('@type' => $node_type->id())));
     $this->assertNoText(format_string('core.entity_view_display.node.@type.default', array('@type' => $node_type->id())));
     $this->assertNoText(format_string('core.entity_form_display.node.@type.default', array('@type' => $node_type->id())));
+  }
+
+  /**
+   * Tests config importer cannot uninstall extensions which are depended on.
+   *
+   * @see \Drupal\Core\EventSubscriber\ConfigImportSubscriber
+   */
+  public function testExtensionValidation() {
+    \Drupal::service('module_installer')->install(['node']);
+    \Drupal::service('theme_handler')->install(['bartik']);
+    $this->rebuildContainer();
+
+    $staging = $this->container->get('config.storage.staging');
+    $this->copyConfig($this->container->get('config.storage'), $staging);
+    $core = $staging->read('core.extension');
+    // Node depends on text.
+    unset($core['module']['text']);
+    $module_data = system_rebuild_module_data();
+    $this->assertTrue(isset($module_data['node']->requires['text']), 'The Node module depends on the Text module.');
+    // Bartik depends on classy.
+    unset($core['theme']['classy']);
+    $theme_data = \Drupal::service('theme_handler')->rebuildThemeData();
+    $this->assertTrue(isset($theme_data['bartik']->requires['classy']), 'The Bartik theme depends on the Classy theme.');
+    // This module does not exist.
+    $core['module']['does_not_exist'] = 0;
+    // This theme does not exist.
+    $core['theme']['does_not_exist'] = 0;
+    $staging->write('core.extension', $core);
+
+    $this->drupalPostForm('admin/config/development/configuration', array(), t('Import all'));
+    $this->assertText('The configuration cannot be imported because it failed validation for the following reasons:');
+    $this->assertText('Unable to uninstall the Text module since the Node module is installed.');
+    $this->assertText('Unable to uninstall the Classy theme since the Bartik theme is installed.');
+    $this->assertText('Unable to install the does_not_exist module since it does not exist.');
+    $this->assertText('Unable to install the does_not_exist theme since it does not exist.');
   }
 
 }

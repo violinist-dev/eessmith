@@ -5,14 +5,14 @@
  * Token integration for the views module.
  */
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Implements hook_token_info().
  */
 function views_token_info() {
   $info['types']['view'] = array(
-    'name' => t('View'),
+    'name' => t('View', [], ['context' => 'View entity type']),
     'description' => t('Tokens related to views.'),
     'needs-data' => 'view',
   );
@@ -86,11 +86,11 @@ function views_tokens($type, $tokens, array $data = array(), array $options = ar
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'label':
-          $replacements[$original] = $sanitize ? String::checkPlain($view->storage->label()) : $view->storage->label();
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($view->storage->label()) : $view->storage->label();
           break;
 
         case 'description':
-          $replacements[$original] = $sanitize ? String::checkPlain($view->storage->get('description')) : $view->storage->get('description');
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($view->storage->get('description')) : $view->storage->get('description');
           break;
 
         case 'id':
@@ -99,7 +99,7 @@ function views_tokens($type, $tokens, array $data = array(), array $options = ar
 
         case 'title':
           $title = $view->getTitle();
-          $replacements[$original] = $sanitize ? String::checkPlain($title) : $title;
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($title) : $title;
           break;
 
         case 'url':

@@ -16,13 +16,18 @@ function config_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The Configuration manager module provides a user interface for importing and exporting configuration changes; i.e., for staging configuration data between multiple instances of this web site. For more information, see the online handbook entry for <a href="!url">Configuration manager module</a>', array(
-        '!url' => 'http://drupal.org/documentation/administer/config',
+        '!url' => 'https://www.drupal.org/documentation/administer/config',
       )) . '</p>';
       return $output;
 
     case 'config.sync':
       $output = '';
       $output .= '<p>' . t('Import configuration that is placed in your staging directory. All changes, deletions, renames, and additions are listed below.') . '</p>';
+      return $output;
+
+    case 'config.import_full':
+      $output = '';
+      $output .= '<p>' . t('After uploading a configuration archive, you will be able to examine the changes and import them.') . '</p>';
       return $output;
   }
 }

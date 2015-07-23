@@ -7,7 +7,9 @@
 
 namespace Drupal\user\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\UrlGeneratorTrait;
 use Drupal\Core\Url;
@@ -27,6 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   use UrlGeneratorTrait;
+  use RedirectDestinationTrait;
 
   /**
    * The route match.
@@ -74,7 +77,11 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
    */
   protected function blockAccess(AccountInterface $account) {
     $route_name = $this->routeMatch->getRouteName();
-    return ($account->isAnonymous() && !in_array($route_name, array('user.register', 'user.login', 'user.logout')));
+    if ($account->isAnonymous() && !in_array($route_name, array('user.register', 'user.login', 'user.logout'))) {
+      return AccessResult::allowed()
+        ->addCacheContexts(['route', 'user.roles:anonymous']);
+    }
+    return AccessResult::forbidden();
   }
 
   /**
@@ -87,20 +94,20 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
     unset($form['pass']['#description']);
     $form['name']['#size'] = 15;
     $form['pass']['#size'] = 15;
-    $form['#action'] = $this->url('<current>', [], ['query' => drupal_get_destination(), 'external' => FALSE]);
+    $form['#action'] = $this->url('<current>', [], ['query' => $this->getDestinationArray(), 'external' => FALSE]);
     // Build action links.
     $items = array();
     if (\Drupal::config('user.settings')->get('register') != USER_REGISTER_ADMINISTRATORS_ONLY) {
-      $items['create_account'] = \Drupal::l(t('Create new account'), new Url('user.register', array(), array(
+      $items['create_account'] = \Drupal::l($this->t('Create new account'), new Url('user.register', array(), array(
         'attributes' => array(
-          'title' => t('Create a new user account.'),
+          'title' => $this->t('Create a new user account.'),
           'class' => array('create-account-link'),
         ),
       )));
     }
-    $items['request_password'] = \Drupal::l(t('Reset your password'), new Url('user.pass', array(), array(
+    $items['request_password'] = \Drupal::l($this->t('Reset your password'), new Url('user.pass', array(), array(
       'attributes' => array(
-        'title' => t('Send password reset instructions via e-mail.'),
+        'title' => $this->t('Send password reset instructions via e-mail.'),
         'class' => array('request-password-link'),
       ),
     )));
@@ -111,6 +118,15 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
         '#items' => $items,
       ),
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo Make cacheable once https://www.drupal.org/node/2351015 lands.
+   */
+  public function getCacheMaxAge() {
+    return 0;
   }
 
 }

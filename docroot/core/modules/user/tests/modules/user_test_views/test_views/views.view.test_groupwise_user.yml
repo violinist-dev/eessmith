@@ -1,4 +1,4 @@
-langcode: und
+langcode: en
 status: true
 dependencies:
   module:
@@ -9,7 +9,7 @@ label: test_groupwise_user
 module: views
 description: ''
 tag: default
-base_table: users
+base_table: users_field_data
 base_field: uid
 core: 8.0-dev
 display:
@@ -20,7 +20,7 @@ display:
           perm: 'access user profiles'
         type: perm
       cache:
-        type: none
+        type: tag
       exposed_form:
         type: basic
       fields:
@@ -28,14 +28,15 @@ display:
           field: name
           id: name
           table: users_field_data
-          plugin_id: user_name
+          plugin_id: field
+          type: user_name
           entity_type: user
           entity_field: name
         nid:
           field: nid
           id: nid
           relationship: uid_representative
-          table: node
+          table: node_field_data
           plugin_id: node
           entity_type: node
           entity_field: nid
@@ -70,19 +71,19 @@ display:
           subquery_regenerate: true
           subquery_sort: node.nid
           subquery_view: ''
-          table: users
+          table: users_field_data
           plugin_id: groupwise_max
       row:
         type: fields
       sorts:
         created:
-          field: created
-          id: created
-          order: DESC
+          field: uid
+          id: uid
+          order: ASC
           table: users_field_data
-          plugin_id: date
+          plugin_id: field
           entity_type: user
-          entity_field: created
+          entity_field: uid
       style:
         type: default
       title: test_groupwise_user

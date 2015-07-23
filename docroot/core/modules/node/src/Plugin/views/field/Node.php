@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\node\Plugin\views\field\Node.
+ * Contains \Drupal\node\Plugin\views\field\Node.
  */
 
 namespace Drupal\node\Plugin\views\field;
@@ -33,7 +33,7 @@ class Node extends FieldPluginBase {
 
     // Don't add the additional fields to groupby
     if (!empty($this->options['link_to_node'])) {
-      $this->additional_fields['nid'] = array('table' => 'node', 'field' => 'nid');
+      $this->additional_fields['nid'] = array('table' => 'node_field_data', 'field' => 'nid');
     }
   }
 

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\Core\Plugin\DefaultPluginManagerTest.
+ * Contains \Drupal\Tests\Core\Plugin\DefaultPluginManagerTest.
  */
 
 namespace Drupal\Tests\Core\Plugin;
@@ -186,6 +186,30 @@ class DefaultPluginManagerTest extends UnitTestCase {
   }
 
   /**
+   * Tests the plugin manager with caching disabled.
+   */
+  public function testDefaultPluginManagerNoCache() {
+    $plugin_manager = new TestPluginManager($this->namespaces, $this->expectedDefinitions, NULL, NULL, '\Drupal\plugin_test\Plugin\plugin_test\fruit\FruitInterface');
+
+    $cid = $this->randomMachineName();
+    $cache_backend = $this->getMockBuilder('Drupal\Core\Cache\MemoryBackend')
+      ->disableOriginalConstructor()
+      ->getMock();
+    $cache_backend
+      ->expects($this->never())
+      ->method('get');
+    $cache_backend
+      ->expects($this->never())
+      ->method('set');
+    $plugin_manager->setCacheBackend($cache_backend, $cid);
+
+    $plugin_manager->useCaches(FALSE);
+
+    $this->assertEquals($this->expectedDefinitions, $plugin_manager->getDefinitions());
+    $this->assertEquals($this->expectedDefinitions['banana'], $plugin_manager->getDefinition('banana'));
+  }
+
+  /**
    * Tests the plugin manager cache clear with tags.
    */
   public function testCacheClearWithTags() {
@@ -227,7 +251,7 @@ class DefaultPluginManagerTest extends UnitTestCase {
    * @covers ::createInstance
    *
    * @expectedException \Drupal\Component\Plugin\Exception\PluginException
-   * @expectedExceptionMessage Plugin "kale" (Drupal\plugin_test\Plugin\plugin_test\fruit\Kale) in plugin_test should implement interface \Drupal\plugin_test\Plugin\plugin_test\fruit\FruitInterface
+   * @expectedExceptionMessage Plugin "kale" (Drupal\plugin_test\Plugin\plugin_test\fruit\Kale) must implement interface \Drupal\plugin_test\Plugin\plugin_test\fruit\FruitInterface
    */
   public function testCreateInstanceWithInvalidInterfaces() {
     $module_handler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');

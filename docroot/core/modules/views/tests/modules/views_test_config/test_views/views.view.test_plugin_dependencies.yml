@@ -1,4 +1,4 @@
-langcode: und
+langcode: en
 status: true
 dependencies:
   module:
@@ -13,7 +13,7 @@ label: test_plugin_dependencies
 module: views
 description: ''
 tag: default
-base_table: comment
+base_table: comment_field_data
 base_field: nid
 core: 8.0-dev
 display:
@@ -22,14 +22,14 @@ display:
       access:
         type: test_static
       cache:
-        type: none
+        type: tag
       exposed_form:
         type: basic
       fields:
         cid:
           field: cid
           id: cid
-          table: comment
+          table: comment_field_data
           plugin_id: comment
           entity_type: comment
           entity_field: cid

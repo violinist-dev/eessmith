@@ -31,6 +31,16 @@ class TwigThemeTestController {
   }
 
   /**
+   * Controller for testing the twig placeholder filter outside of {% trans %}
+   */
+  public function placeholderOutsideTransRender() {
+    return [
+      '#theme' => 'twig_theme_test_placeholder_outside_trans',
+      '#var' => '<script>alert(123);</script>',
+    ];
+  }
+
+  /**
    * Renders for testing url_generator functions in a Twig template.
    */
   public function urlGeneratorRender() {
@@ -45,8 +55,19 @@ class TwigThemeTestController {
   public function linkGeneratorRender() {
     return array(
       '#theme' => 'twig_theme_test_link_generator',
-      '#test_url' => new Url('user.register'),
+      '#test_url' => new Url('user.register', [], ['absolute' => TRUE]),
+      '#test_url_attribute' => new Url('user.register', [], ['attributes' => ['foo' => 'bar']]),
     );
+  }
+
+  /**
+   * Renders a URL to a string.
+   */
+  public function urlToStringRender() {
+    return [
+      '#theme' => 'twig_theme_test_url_to_string',
+      '#test_url' => Url::fromRoute('user.register'),
+    ];
   }
 
   /**
@@ -55,6 +76,15 @@ class TwigThemeTestController {
   public function fileUrlRender() {
     return array(
       '#theme' => 'twig_theme_test_file_url',
+    );
+  }
+
+  /**
+   * Renders for testing attach_library functions in a Twig template.
+   */
+  public function attachLibraryRender() {
+    return array(
+      '#theme' => 'twig_theme_test_attach_library',
     );
   }
 

@@ -1090,9 +1090,6 @@ class FormState implements FormStateInterface {
         $errors[$name] = $message;
         $this->errors = $errors;
         static::setAnyErrors();
-        if ($message) {
-          $this->drupalSetMessage($message, 'error');
-        }
       }
     }
 
@@ -1119,7 +1116,7 @@ class FormState implements FormStateInterface {
    * {@inheritdoc}
    */
   public function getError(array $element) {
-    if ($errors = $this->getErrors($this)) {
+    if ($errors = $this->getErrors()) {
       $parents = array();
       foreach ($element['#parents'] as $parent) {
         $parents[] = $parent;
@@ -1241,15 +1238,7 @@ class FormState implements FormStateInterface {
         unset($values[$last_parent]);
       }
     }
-  }
-
-  /**
-   * Wraps drupal_set_message().
-   *
-   * @return array|null
-   */
-  protected function drupalSetMessage($message = NULL, $type = 'status', $repeat = FALSE) {
-    return drupal_set_message($message, $type, $repeat);
+    return $this;
   }
 
   /**

@@ -9,6 +9,7 @@ namespace Drupal\aggregator\Plugin\Block;
 
 use Drupal\aggregator\FeedStorageInterface;
 use Drupal\aggregator\ItemStorageInterface;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Query\QueryInterface;
@@ -96,13 +97,6 @@ class AggregatorFeedBlock extends BlockBase implements ContainerFactoryPluginInt
     return array(
       'block_count' => 10,
       'feed' => NULL,
-      // Modify the default max age for the 'Aggregator Feed' blocks:
-      // modifications made to feeds or feed items will automatically invalidate
-      // corresponding cache tags, therefore allowing us to cache these blocks
-      // forever.
-      'cache' => array(
-        'max_age' => \Drupal\Core\Cache\Cache::PERMANENT,
-      ),
     );
   }
 
@@ -111,7 +105,7 @@ class AggregatorFeedBlock extends BlockBase implements ContainerFactoryPluginInt
    */
   protected function blockAccess(AccountInterface $account) {
     // Only grant access to users with the 'access news feeds' permission.
-    return $account->hasPermission('access news feeds');
+    return AccessResult::allowedIfHasPermission($account, 'access news feeds');
   }
 
   /**
@@ -125,14 +119,14 @@ class AggregatorFeedBlock extends BlockBase implements ContainerFactoryPluginInt
     }
     $form['feed'] = array(
       '#type' => 'select',
-      '#title' => t('Select the feed that should be displayed'),
+      '#title' => $this->t('Select the feed that should be displayed'),
       '#default_value' => $this->configuration['feed'],
       '#options' => $options,
     );
     $range = range(2, 20);
     $form['block_count'] = array(
       '#type' => 'select',
-      '#title' => t('Number of news items in block'),
+      '#title' => $this->t('Number of news items in block'),
       '#default_value' => $this->configuration['block_count'],
       '#options' => array_combine($range, $range),
     );
@@ -172,7 +166,7 @@ class AggregatorFeedBlock extends BlockBase implements ContainerFactoryPluginInt
       foreach ($items as $item) {
         $aggregator_block_item = array(
           '#type' => 'link',
-          '#href' => $item->getLink(),
+          '#url' => $item->urlInfo(),
           '#title' => $item->label(),
         );
         $rendered_items[] = drupal_render($aggregator_block_item);

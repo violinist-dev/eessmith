@@ -24,7 +24,7 @@ class MigrateVocabularyFieldInstanceTest extends MigrateDrupal6TestBase {
    *
    * @var array
    */
-  static $modules = array('node', 'field', 'taxonomy');
+  static $modules = array('node', 'field', 'taxonomy', 'text', 'entity_reference');
 
   /**
    * {@inheritdoc}
@@ -57,15 +57,10 @@ class MigrateVocabularyFieldInstanceTest extends MigrateDrupal6TestBase {
     entity_create('field_storage_config', array(
       'entity_type' => 'node',
       'field_name' => 'tags',
-      'type' => 'taxonomy_term_reference',
+      'type' => 'entity_reference',
       'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
       'settings' => array(
-        'allowed_values' => array(
-          array(
-            'vocabulary' => 'tags',
-            'parent' => 0,
-          ),
-        ),
+        'target_type' => 'taxonomy_term',
       ),
     ))->save();
 
@@ -86,12 +81,17 @@ class MigrateVocabularyFieldInstanceTest extends MigrateDrupal6TestBase {
     // Test that the field exists.
     $field_id = 'node.article.tags';
     $field = FieldConfig::load($field_id);
-    $this->assertIdentical($field->id(), $field_id, 'Field instance exists on article bundle.');
+    $this->assertIdentical($field_id, $field->id(), 'Field instance exists on article bundle.');
 
     // Test the page bundle as well.
     $field_id = 'node.page.tags';
     $field = FieldConfig::load($field_id);
-    $this->assertIdentical($field->id(), $field_id, 'Field instance exists on page bundle.');
+    $this->assertIdentical($field_id, $field->id(), 'Field instance exists on page bundle.');
+
+    $settings = $field->getSettings();
+    $this->assertIdentical('default:taxonomy_term', $settings['handler'], 'The handler plugin ID is correct.');
+    $this->assertIdentical(['tags'], $settings['handler_settings']['target_bundles'], 'The target_bundle handler setting is correct.');
+    $this->assertIdentical(TRUE, $settings['handler_settings']['auto_create'], 'The "auto_create" setting is correct.');
 
     $this->assertIdentical(array('node', 'article', 'tags'), entity_load('migration', 'd6_vocabulary_field_instance')->getIdMap()->lookupDestinationID(array(4, 'article')));
   }

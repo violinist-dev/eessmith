@@ -7,7 +7,7 @@
 
 namespace Drupal\system\Tests\System;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Xss;
 
 /**
@@ -17,6 +17,15 @@ use Drupal\Component\Utility\Xss;
  * @group system
  */
 class TokenReplaceUnitTest extends TokenReplaceUnitTestBase {
+
+  /**
+   * @inheritdoc
+   */
+  protected function setUp() {
+    parent::setUp();
+    // Set the site name to something other than an empty string.
+    $this->config('system.site')->set('name', 'Drupal')->save();
+  }
 
   /**
    * Test whether token-replacement works in various contexts.
@@ -60,7 +69,7 @@ class TokenReplaceUnitTest extends TokenReplaceUnitTestBase {
     $source .= '[bogus:token]';
 
     // Replace with with the clear parameter, only the valid token should remain.
-    $target = String::checkPlain($this->config('system.site')->get('name'));
+    $target = SafeMarkup::checkPlain($this->config('system.site')->get('name'));
     $result = $this->tokenService->replace($source, array(), array('langcode' => $this->interfaceLanguage->getId(), 'clear' => TRUE));
     $this->assertEqual($target, $result, 'Valid tokens replaced while invalid tokens ignored.');
 
@@ -95,7 +104,7 @@ class TokenReplaceUnitTest extends TokenReplaceUnitTestBase {
 
     // Generate and test sanitized tokens.
     $tests = array();
-    $tests['[site:name]'] = String::checkPlain($config->get('name'));
+    $tests['[site:name]'] = SafeMarkup::checkPlain($config->get('name'));
     $tests['[site:slogan]'] = $safe_slogan;
     $tests['[site:mail]'] = $config->get('mail');
     $tests['[site:url]'] = \Drupal::url('<front>', [], $url_options);
@@ -145,7 +154,7 @@ class TokenReplaceUnitTest extends TokenReplaceUnitTestBase {
     $tests['[date:medium]'] = $date_formatter->format($date, 'medium', '', NULL, $this->interfaceLanguage->getId());
     $tests['[date:long]'] = $date_formatter->format($date, 'long', '', NULL, $this->interfaceLanguage->getId());
     $tests['[date:custom:m/j/Y]'] = $date_formatter->format($date, 'custom', 'm/j/Y', NULL, $this->interfaceLanguage->getId());
-    $tests['[date:since]'] = $date_formatter->formatInterval(REQUEST_TIME - $date, 2, $this->interfaceLanguage->getId());
+    $tests['[date:since]'] = $date_formatter->formatTimeDiffSince($date, array('langcode' => $this->interfaceLanguage->getId()));
     $tests['[date:raw]'] = Xss::filter($date);
 
     // Test to make sure that we generated something for each token.

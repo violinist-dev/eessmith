@@ -2,13 +2,15 @@
 
 /**
  * @file
- * Definition of Drupal\node\Tests\NodeAccessLanguageTest.
+ * Contains \Drupal\node\Tests\NodeAccessLanguageTest.
  */
 
 namespace Drupal\node\Tests;
 
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\node\Entity\NodeType;
+use Drupal\user\Entity\User;
 
 /**
  * Tests node_access and db_select() with node_access tag functionality with
@@ -28,7 +30,7 @@ class NodeAccessLanguageTest extends NodeTestBase {
   protected function setUp() {
     parent::setUp();
 
-    node_access_test_add_field(entity_load('node_type', 'page'));
+    node_access_test_add_field(NodeType::load('page'));
 
     // After enabling a node access module, the access table has to be rebuild.
     node_access_rebuild();
@@ -225,7 +227,7 @@ class NodeAccessLanguageTest extends NodeTestBase {
 
     // Load the user 1 user for later use as an admin user with permission to
     // see everything.
-    $admin_user = user_load(1);
+    $admin_user = User::load(1);
 
     // Creating a private node with langcode Hungarian, will be saved as
     // the fallback in node access table.

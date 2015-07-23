@@ -2,17 +2,21 @@
  * @file
  * CKEditor button and group configuration user interface.
  */
+
 (function ($, Drupal, _, CKEDITOR) {
 
   "use strict";
 
   Drupal.ckeditor = Drupal.ckeditor || {};
 
+  /**
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.ckeditorAdmin = {
     attach: function (context) {
       // Process the CKEditor configuration fragment once.
-      var $configurationForm = $(context).find('.ckeditor-toolbar-configuration');
-      if ($configurationForm.once('ckeditor-configuration').length) {
+      var $configurationForm = $(context).find('.ckeditor-toolbar-configuration').once('ckeditor-configuration');
+      if ($configurationForm.length) {
         var $textarea = $configurationForm
           // Hide the textarea that contains the serialized representation of the
           // CKEditor configuration.
@@ -55,7 +59,7 @@
       // really means that all CKEditor toolbar buttons have been removed. Hence,
       // all editor features will be removed, so any reactions from filters will
       // be undone.
-      var $configurationForm = $(context).find('.ckeditor-toolbar-configuration.ckeditor-configuration-processed');
+      var $configurationForm = $(context).find('.ckeditor-toolbar-configuration').findOnce('ckeditor-configuration');
       if ($configurationForm.length && Drupal.ckeditor.models && Drupal.ckeditor.models.Model) {
         var config = Drupal.ckeditor.models.Model.toJSON().activeEditorConfig;
         var buttons = Drupal.ckeditor.views.controller.getButtonList(config);
@@ -69,13 +73,23 @@
 
   /**
    * CKEditor configuration UI methods of Backbone objects.
+   *
+   * @namespace
    */
   Drupal.ckeditor = {
 
-    // A hash of View instances.
+    /**
+     * A hash of View instances.
+     *
+     * @type {object}
+     */
     views: {},
 
-    // A hash of Model instances.
+    /**
+     * A hash of Model instances.
+     *
+     * @type {object}
+     */
     models: {},
 
     /**
@@ -86,11 +100,11 @@
      * placeholder, then a process is launched to name that group before the button
      * move is translated into configuration.
      *
-     * @param Backbone.View view
+     * @param {Backbone.View} view
      *   The Backbone View that invoked this function.
-     * @param jQuery $button
+     * @param {jQuery} $button
      *   A jQuery set that contains an li element that wraps a button element.
-     * @param function callback
+     * @param {function} callback
      *   A callback to invoke after the button group naming modal dialog has been
      *   closed.
      */
@@ -99,17 +113,16 @@
 
       // If dropped in a placeholder button group, the user must name it.
       if ($group.hasClass('placeholder')) {
+        if (view.isProcessing) {
+          return;
+        }
+        view.isProcessing = true;
 
-          if (view.isProcessing) {
-              return;
-          }
-          view.isProcessing = true;
-
-          Drupal.ckeditor.openGroupNameDialog(view, $group, callback);
+        Drupal.ckeditor.openGroupNameDialog(view, $group, callback);
       }
       else {
-          view.model.set('isDirty', true);
-          callback(true);
+        view.model.set('isDirty', true);
+        callback(true);
       }
     },
 
@@ -119,9 +132,9 @@
      * Each row has a placeholder group at the end of the row. A user may not move
      * an existing button group past the placeholder group at the end of a row.
      *
-     * @param Backbone.View view
+     * @param {Backbone.View} view
      *   The Backbone View that invoked this function.
-     * @param jQuery $group
+     * @param {jQuery} $group
      *   A jQuery set that contains an li element that wraps a group of buttons.
      */
     registerGroupMove: function (view, $group) {
@@ -144,11 +157,11 @@
     /**
      * Opens a Drupal dialog with a form for changing the title of a button group.
      *
-     * @param Backbone.View view
+     * @param {Backbone.View} view
      *   The Backbone View that invoked this function.
-     * @param jQuery $group
+     * @param {jQuery} $group
      *   A jQuery set that contains an li element that wraps a group of buttons.
-     * @param function callback
+     * @param {function} callback
      *   A callback to invoke after the button group naming modal dialog has been
      *   closed.
      */
@@ -158,10 +171,11 @@
       /**
        * Validates the string provided as a button group title.
        *
-       * @param DOM form
+       * @param {HTMLElement} form
        *   The form DOM element that contains the input with the new button group
        *   title string.
-       * @return Boolean
+       *
+       * @return {bool}
        *   Returns true when an error exists, otherwise returns false.
        */
       function validateForm(form) {
@@ -183,9 +197,9 @@
       /**
        * Attempts to close the dialog; Validates user input.
        *
-       * @param String action
+       * @param {string} action
        *   The dialog action chosen by the user: 'apply' or 'cancel'.
-       * @param DOM form
+       * @param {HTMLElement} form
        *   The form DOM element that contains the input with the new button group
        *   title string.
        */
@@ -204,9 +218,9 @@
         /**
          * Applies a string as the name of a CKEditor button group.
          *
-         * @param jQuery $group
+         * @param {jQuery} $group
          *   A jQuery set that contains an li element that wraps a group of buttons.
-         * @param String name
+         * @param {string} name
          *   The new name of the CKEditor button group.
          */
         function namePlaceholderGroup($group, name) {
@@ -337,9 +351,10 @@
 
   };
 
-
   /**
    * Automatically shows/hides settings of buttons-only CKEditor plugins.
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.ckeditorAdminButtonPluginSettings = {
     attach: function (context) {
@@ -412,7 +427,7 @@
   /**
    * Themes a blank CKEditor row.
    *
-   * @return String
+   * @return {string}
    */
   Drupal.theme.ckeditorRow = function () {
     return '<li class="ckeditor-row placeholder" role="group"><ul class="ckeditor-toolbar-groups clearfix"></ul></li>';
@@ -421,7 +436,7 @@
   /**
    * Themes a blank CKEditor button group.
    *
-   * @return String
+   * @return {string}
    */
   Drupal.theme.ckeditorToolbarGroup = function () {
     var group = '';
@@ -435,7 +450,7 @@
   /**
    * Themes a form for changing the title of a CKEditor button group.
    *
-   * @return String
+   * @return {string}
    */
   Drupal.theme.ckeditorButtonGroupNameForm = function () {
     return '<form><input name="group-name" required="required"></form>';
@@ -444,7 +459,7 @@
   /**
    * Themes a button that will toggle the button group names in active config.
    *
-   * @return String
+   * @return {string}
    */
   Drupal.theme.ckeditorButtonGroupNamesToggle = function () {
     return '<a class="ckeditor-groupnames-toggle" role="button" aria-pressed="false"></a>';
@@ -453,7 +468,7 @@
   /**
    * Themes a button that will prompt the user to name a new button group.
    *
-   * @return String
+   * @return {string}
    */
   Drupal.theme.ckeditorNewButtonGroup = function () {
     return '<li class="ckeditor-add-new-group"><button role="button" aria-label="' + Drupal.t('Add a CKEditor button group to the end of this row.') + '">' + Drupal.t('Add group') + '</button></li>';

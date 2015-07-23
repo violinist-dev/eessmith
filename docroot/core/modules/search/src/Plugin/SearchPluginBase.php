@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\search\Plugin\SearchPluginBase
+ * Contains \Drupal\search\Plugin\SearchPluginBase.
  */
 
 namespace Drupal\search\Plugin;
@@ -88,6 +88,13 @@ abstract class SearchPluginBase extends PluginBase implements ContainerFactoryPl
   /**
    * {@inheritdoc}
    */
+  public function getType() {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildResults() {
     $results = $this->execute();
 
@@ -133,4 +140,25 @@ abstract class SearchPluginBase extends PluginBase implements ContainerFactoryPl
 
     return $query;
   }
+
+  /*
+   * {@inheritdoc}
+   */
+  public function getHelp() {
+    // This default search help is appropriate for plugins like NodeSearch
+    // that use the SearchQuery class.
+    $help = array('list' => array(
+      '#theme' => 'item_list',
+      '#items' => array(
+        $this->t('Search looks for exact, case-insensitive keywords; keywords shorter than a minimum length are ignored.'),
+        $this->t('Use upper-case OR to get more results. Example: cat OR dog (content contains either "cat" or "dog").'),
+        $this->t('You can use upper-case AND to require all words, but this is the same as the default behavior. Example: cat AND dog (same as cat dog, content must contain both "cat" and "dog").'),
+        $this->t('Use quotes to search for a phrase. Example: "the cat eats mice".'),
+        $this->t('You can precede keywords by - to exclude them; you must still have at least one "positive" keyword. Example: cat -dog (content must contain cat and cannot contain dog).'),
+      ),
+    ));
+
+    return $help;
+  }
+
 }

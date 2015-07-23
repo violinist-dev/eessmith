@@ -23,7 +23,7 @@ trait AllowedTagsXssTrait {
    *
    * Used for items entered by administrators, like field descriptions, allowed
    * values, where some (mainly inline) mark-up may be desired (so
-   * \Drupal\Component\Utility\String::checkPlain() is not acceptable).
+   * \Drupal\Component\Utility\SafeMarkup::checkPlain() is not acceptable).
    *
    * @param string $string
    *   The string with raw HTML in it.
@@ -33,6 +33,15 @@ trait AllowedTagsXssTrait {
    *   valid UTF-8.
    */
   public function fieldFilterXss($string) {
+    // All known XSS vectors are filtered out by
+    // \Drupal\Component\Utility\Xss::filter(), all tags in the markup are
+    // allowed intentionally by the trait, and no danger is added in by
+    // \Drupal\Component\Utility\HTML::normalize(). Since the normalized value
+    // is essentially the same markup, designate this string as safe as well.
+    // This method is an internal part of field sanitization, so the resultant,
+    // sanitized string should be printable as is.
+    //
+    // @todo Free this memory in https://www.drupal.org/node/2505963.
     return SafeMarkup::set(Html::normalize(Xss::filter($string, $this->allowedTags())));
   }
 

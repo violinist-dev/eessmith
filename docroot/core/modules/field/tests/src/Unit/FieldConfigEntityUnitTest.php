@@ -22,7 +22,7 @@ class FieldConfigEntityUnitTest extends UnitTestCase {
   /**
    * The entity type used for testing.
    *
-   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Config\Entity\ConfigEntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $entityType;
 
@@ -73,7 +73,7 @@ class FieldConfigEntityUnitTest extends UnitTestCase {
    */
   protected function setUp() {
     $this->entityTypeId = $this->randomMachineName();
-    $this->entityType = $this->getMock('\Drupal\Core\Entity\EntityTypeInterface');
+    $this->entityType = $this->getMock('\Drupal\Core\Config\Entity\ConfigEntityTypeInterface');
 
     $this->entityManager = $this->getMock('\Drupal\Core\Entity\EntityManagerInterface');
 
@@ -243,7 +243,7 @@ class FieldConfigEntityUnitTest extends UnitTestCase {
       'id' => 'test_entity_type.test_bundle.field_test',
       'uuid' => NULL,
       'status' => TRUE,
-      'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+      'langcode' => 'en',
       'field_name' => 'field_test',
       'entity_type' => 'test_entity_type',
       'bundle' => 'test_bundle',

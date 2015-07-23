@@ -44,7 +44,7 @@ class TwigEnvironment extends \Twig_Environment {
     $this->cache_object = \Drupal::cache();
 
     // Ensure that twig.engine is loaded, given that it is needed to render a
-    // template because functions like twig_drupal_escape_filter are called.
+    // template because functions like TwigExtension::escapeFilter() are called.
     require_once $root . '/core/themes/engines/twig/twig.engine';
 
     $this->templateClasses = array();
@@ -195,8 +195,12 @@ class TwigEnvironment extends \Twig_Environment {
    *
    * @return string
    *   The rendered inline template.
+   *
+   * @see \Drupal\Core\Template\Loader\StringLoader::exists()
    */
   public function renderInline($template_string, array $context = array()) {
+    // Prefix all inline templates with a special comment.
+    $template_string = '{# inline_template_start #}' . $template_string;
     return $this->loadTemplate($template_string, NULL)->render($context);
   }
 

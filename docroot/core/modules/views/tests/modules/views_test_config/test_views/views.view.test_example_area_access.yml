@@ -1,11 +1,11 @@
-langcode: und
+langcode: en
 status: true
 dependencies: {  }
 id: test_example_area_access
 module: views
 description: ''
 tag: ''
-base_table: node
+base_table: node_field_data
 base_field: nid
 core: '8'
 display:
@@ -14,7 +14,7 @@ display:
       access:
         type: none
       cache:
-        type: none
+        type: tag
       empty:
         test_example:
           field: test_example

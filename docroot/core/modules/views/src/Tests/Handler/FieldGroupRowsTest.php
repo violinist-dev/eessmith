@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\views\Tests\Handler\FieldGroupRowsTest.
+ * Contains \Drupal\views\Tests\Handler\FieldGroupRowsTest.
  */
 
 namespace Drupal\views\Tests\Handler;
@@ -61,8 +61,6 @@ class FieldGroupRowsTest extends HandlerTestBase {
       'bundle' => $node_type->id(),
     );
     entity_create('field_config', $field)->save();
-
-    $this->container->get('views.views_data')->clear();
   }
 
   /**
@@ -87,8 +85,13 @@ class FieldGroupRowsTest extends HandlerTestBase {
 
     // Test ungrouped rows.
     $this->executeView($view);
+    $view->render();
+
+    $view->row_index = 0;
     $this->assertEqual($view->field[$this->fieldName]->advancedRender($view->result[0]), 'a');
+    $view->row_index = 1;
     $this->assertEqual($view->field[$this->fieldName]->advancedRender($view->result[1]), 'b');
+    $view->row_index = 2;
     $this->assertEqual($view->field[$this->fieldName]->advancedRender($view->result[2]), 'c');
   }
 

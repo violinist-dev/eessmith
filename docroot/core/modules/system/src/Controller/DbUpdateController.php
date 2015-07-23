@@ -198,7 +198,7 @@ class DbUpdateController extends ControllerBase {
     }
     $title = isset($output['#title']) ? $output['#title'] : $this->t('Drupal database update');
 
-    return new Response($this->bareHtmlPageRenderer->renderBarePage($output, $title, 'maintenance_page', $regions));
+    return $this->bareHtmlPageRenderer->renderBarePage($output, $title, 'maintenance_page', $regions);
   }
 
   /**
@@ -215,7 +215,7 @@ class DbUpdateController extends ControllerBase {
     $this->keyValueExpirableFactory->get('update_available_release')->deleteAll();
 
     $build['info_header'] = array(
-      '#markup' => '<p>' . $this->t('Use this utility to update your database whenever a new release of Drupal or a module is installed.') . '</p><p>' . $this->t('For more detailed information, see the <a href="http://drupal.org/upgrade">upgrading handbook</a>. If you are unsure what these terms mean you should probably contact your hosting provider.') . '</p>',
+      '#markup' => '<p>' . $this->t('Use this utility to update your database whenever a new release of Drupal or a module is installed.') . '</p><p>' . $this->t('For more detailed information, see the <a href="https://www.drupal.org/upgrade">upgrading handbook</a>. If you are unsure what these terms mean you should probably contact your hosting provider.') . '</p>',
     );
 
     $info[] = $this->t("<strong>Back up your code</strong>. Hint: when backing up module code, do not leave that backup in the 'modules' or 'sites/*/modules' directories as this may confuse Drupal's auto-discovery mechanism.");
@@ -474,7 +474,7 @@ class DbUpdateController extends ControllerBase {
         }
       }
       if ($all_messages) {
-        $build['query_messsages'] = array(
+        $build['query_messages'] = array(
           '#type' => 'container',
           '#children' => $all_messages,
           '#attributes' => array('class' => array('update-results')),
@@ -601,7 +601,7 @@ class DbUpdateController extends ControllerBase {
     );
     batch_set($batch);
 
-    return batch_process('update.php/results', Url::fromRoute('system.db_update'));
+    return batch_process('update.php/results', Url::fromRoute('system.db_update', array('op' => 'start')));
   }
 
   /**

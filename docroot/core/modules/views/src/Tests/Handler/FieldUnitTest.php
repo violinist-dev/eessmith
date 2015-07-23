@@ -231,13 +231,15 @@ class FieldUnitTest extends ViewUnitTestBase {
    * Tests the exclude setting.
    */
   public function testExclude() {
+    /** @var \Drupal\Core\Render\RendererInterface $renderer */
+    $renderer = $this->container->get('renderer');
     $view = Views::getView('test_field_output');
     $view->initHandlers();
     // Hide the field and see whether it's rendered.
     $view->field['name']->options['exclude'] = TRUE;
 
     $output = $view->preview();
-    $output = drupal_render($output);
+    $output = $renderer->renderRoot($output);
     foreach ($this->dataSet() as $entry) {
       $this->assertNotSubString($output, $entry['name']);
     }
@@ -246,7 +248,7 @@ class FieldUnitTest extends ViewUnitTestBase {
     $view->field['name']->options['exclude'] = FALSE;
 
     $output = $view->preview();
-    $output = drupal_render($output);
+    $output = $renderer->renderRoot($output);
     foreach ($this->dataSet() as $entry) {
       $this->assertSubString($output, $entry['name']);
     }
@@ -566,7 +568,7 @@ class FieldUnitTest extends ViewUnitTestBase {
    * Tests the trimText method.
    */
   public function testTrimText() {
-    // Test unicode, @see http://drupal.org/node/513396#comment-2839416
+    // Test unicode. See https://www.drupal.org/node/513396#comment-2839416.
     $text = array(
       'Tuy nhiên, những hi vọng',
       'Giả sử chúng tôi có 3 Apple',

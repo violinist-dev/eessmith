@@ -26,10 +26,10 @@
 %}
 <div{{ attributes.addClass(classes) }}>
   {% if title -%}
-    <h3>{{ title }}</h3>
+    <h3 class="views-ui-display-tab-bucket__title">{{ title }}</h3>
   {%- endif %}
-  {{ content }}
   {% if actions -%}
     {{ actions }}
   {%- endif %}
+  {{ content }}
 </div>

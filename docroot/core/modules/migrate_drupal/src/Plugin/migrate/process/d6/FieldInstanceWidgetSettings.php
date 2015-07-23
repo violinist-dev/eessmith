@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Contains \Drupal\migrate_drupal\Plugin\migrate\process\d6\FieldInstanceWidgetSettings
+ * Contains \Drupal\migrate_drupal\Plugin\migrate\process\d6\FieldInstanceWidgetSettings.
  */
 
 namespace Drupal\migrate_drupal\Plugin\migrate\process\d6;
 
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\ProcessPluginBase;
 use Drupal\migrate\Row;
 
@@ -25,7 +25,7 @@ class FieldInstanceWidgetSettings extends ProcessPluginBase {
    *
    * Get the field instance default/mapped widget settings.
    */
-  public function transform($value, MigrateExecutable $migrate_executable, Row $row, $destination_property) {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     list($widget_type, $widget_settings) = $value;
     return $this->getSettings($widget_type, $widget_settings);
   }

@@ -7,12 +7,12 @@
 
 namespace Drupal\system\Form;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\PreExistingConfigException;
+use Drupal\Core\Config\UnmetDependenciesException;
 use Drupal\Core\Controller\TitleResolverInterface;
 use Drupal\Core\Access\AccessManagerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
@@ -60,13 +60,6 @@ class ModulesListForm extends FormBase {
   protected $keyValueExpirable;
 
   /**
-   * The entity manager.
-   *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
-   */
-  protected $entityManager;
-
-  /**
    * The title resolver.
    *
    * @var \Drupal\Core\Controller\TitleResolverInterface
@@ -110,7 +103,6 @@ class ModulesListForm extends FormBase {
       $container->get('module_installer'),
       $container->get('keyvalue.expirable')->get('module_list'),
       $container->get('access_manager'),
-      $container->get('entity.manager'),
       $container->get('current_user'),
       $container->get('current_route_match'),
       $container->get('title_resolver'),
@@ -130,8 +122,6 @@ class ModulesListForm extends FormBase {
    *   The key value expirable factory.
    * @param \Drupal\Core\Access\AccessManagerInterface $access_manager
    *   Access manager.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -143,12 +133,11 @@ class ModulesListForm extends FormBase {
    * @param \Drupal\Core\Menu\MenuLinkManagerInterface $menu_link_manager
    *   The menu link manager.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, KeyValueStoreExpirableInterface $key_value_expirable, AccessManagerInterface $access_manager, EntityManagerInterface $entity_manager, AccountInterface $current_user,  RouteMatchInterface $route_match, TitleResolverInterface $title_resolver, RouteProviderInterface $route_provider, MenuLinkManagerInterface $menu_link_manager) {
+  public function __construct(ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, KeyValueStoreExpirableInterface $key_value_expirable, AccessManagerInterface $access_manager, AccountInterface $current_user, RouteMatchInterface $route_match, TitleResolverInterface $title_resolver, RouteProviderInterface $route_provider, MenuLinkManagerInterface $menu_link_manager) {
     $this->moduleHandler = $module_handler;
     $this->moduleInstaller = $module_installer;
     $this->keyValueExpirable = $key_value_expirable;
     $this->accessManager = $access_manager;
-    $this->entityManager = $entity_manager;
     $this->currentUser = $current_user;
     $this->routeMatch = $route_match;
     $this->titleResolver = $title_resolver;
@@ -168,7 +157,7 @@ class ModulesListForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     require_once DRUPAL_ROOT . '/core/includes/install.inc';
-    $distribution = String::checkPlain(drupal_install_profile_distribution_name());
+    $distribution = SafeMarkup::checkPlain(drupal_install_profile_distribution_name());
 
     // Include system.admin.inc so we can use the sort callbacks.
     $this->moduleHandler->loadInclude('system', 'inc', 'system.admin');
@@ -238,6 +227,7 @@ class ModulesListForm extends FormBase {
     $form['actions']['submit'] = array(
       '#type' => 'submit',
       '#value' => $this->t('Save configuration'),
+      '#button_type' => 'primary',
     );
 
     return $form;
@@ -265,17 +255,17 @@ class ModulesListForm extends FormBase {
     $row['description']['#markup'] = $this->t($module->info['description']);
     $row['version']['#markup'] = $module->info['version'];
 
-    // Generate link for module's help page, if there is one.
+    // Generate link for module's help page. Assume that if a hook_help()
+    // implementation exists then the module provides an overview page, rather
+    // than checking to see if the page exists, which is costly.
     $row['links']['help'] = array();
     if ($this->moduleHandler->moduleExists('help') && $module->status && in_array($module->getName(), $this->moduleHandler->getImplementations('help'))) {
-      if ($this->moduleHandler->invoke($module->getName(), 'help', array('help.page.' . $module->getName(), $this->routeMatch))) {
-        $row['links']['help'] = array(
-          '#type' => 'link',
-          '#title' => $this->t('Help'),
-          '#url' => Url::fromRoute('help.page', ['name' => $module->getName()]),
-          '#options' => array('attributes' => array('class' =>  array('module-link', 'module-link-help'), 'title' => $this->t('Help'))),
-        );
-      }
+      $row['links']['help'] = array(
+        '#type' => 'link',
+        '#title' => $this->t('Help'),
+        '#url' => Url::fromRoute('help.page', ['name' => $module->getName()]),
+        '#options' => array('attributes' => array('class' =>  array('module-link', 'module-link-help'), 'title' => $this->t('Help'))),
+      );
     }
 
     // Generate link for module's permission, if the user has access to it.
@@ -532,6 +522,13 @@ class ModulesListForm extends FormBase {
               '%config_names' => implode(', ', $config_objects),
               '@extension' => $modules['install'][$e->getExtension()]
             )),
+          'error'
+        );
+        return;
+      }
+      catch (UnmetDependenciesException $e) {
+        drupal_set_message(
+          $e->getTranslatedMessage($this->getStringTranslation(), $modules['install'][$e->getExtension()]),
           'error'
         );
         return;

@@ -9,7 +9,7 @@
  */
 
 use Drupal\Component\Graph\Graph;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Utility\Error;
 
@@ -44,7 +44,7 @@ function update_check_incompatibility($name, $type = 'module') {
     // We need to do a full rebuild here to make sure the database reflects any
     // code changes that were made in the filesystem before the update script
     // was initiated.
-    $themes = system_rebuild_theme_data();
+    $themes = \Drupal::service('theme_handler')->rebuildThemeData();
     $modules = system_rebuild_module_data();
   }
 
@@ -61,34 +61,6 @@ function update_check_incompatibility($name, $type = 'module') {
     return TRUE;
   }
   return FALSE;
-}
-
-/**
- * Returns whether the settings file requirement has been satisfied.
- *
- * @return array
- *  A requirements info array.
- */
-function update_settings_file_requirements() {
-  $requirements = array();
-
-  // Check whether settings.php needs to be rewritten.
-  $settings_file = conf_path() . '/settings.php';
-  $writable = drupal_verify_install_file($settings_file, FILE_EXIST | FILE_READABLE | FILE_WRITABLE);
-  $requirements['settings file']['title'] = 'Settings file';
-  if ($writable) {
-    $requirements['settings file'] += array(
-      'value' => 'settings.php is writable.',
-    );
-  }
-  else {
-    $requirements['settings file'] += array(
-      'value' => 'settings.php is not writable.',
-      'severity' => REQUIREMENT_ERROR,
-      'description' => 'Drupal requires write permissions to <em>' . $settings_file . '</em> during the update process. If you are unsure how to grant file permissions, consult the <a href="http://drupal.org/server-permissions">online handbook</a>.',
-    );
-  }
-  return $requirements;
 }
 
 /**
@@ -113,7 +85,7 @@ function update_system_schema_requirements() {
     $requirements['minimum schema'] += array(
       'value' => 'The installed schema version does not meet the minimum.',
       'severity' => REQUIREMENT_ERROR,
-      'description' => 'Your system schema version is ' . $system_schema . '. Updating directly from a schema version prior to 8000 is not supported. You must <a href="https://drupal.org/node/2179269">migrate your site to Drupal 8</a> first.',
+      'description' => 'Your system schema version is ' . $system_schema . '. Updating directly from a schema version prior to 8000 is not supported. You must <a href="https://www.drupal.org/node/2179269">migrate your site to Drupal 8</a> first.',
     );
   }
 
@@ -127,7 +99,6 @@ function update_check_requirements() {
   // Check requirements of all loaded modules.
   $requirements = \Drupal::moduleHandler()->invokeAll('requirements', array('update'));
   $requirements += update_system_schema_requirements();
-  $requirements += update_settings_file_requirements();
   return $requirements;
 }
 
@@ -218,7 +189,7 @@ function update_do_one($module, $number, $dependency_map, &$context) {
       $variables = Error::decodeException($e);
       unset($variables['backtrace']);
       // The exception message is run through
-      // \Drupal\Component\Utility\String::checkPlain() by
+      // \Drupal\Component\Utility\SafeMarkup::checkPlain() by
       // \Drupal\Core\Utility\Error::decodeException().
       $ret['#abort'] = array('success' => FALSE, 'query' => t('%type: !message in %function (line %line of %file).', $variables));
     }
@@ -247,7 +218,7 @@ function update_do_one($module, $number, $dependency_map, &$context) {
     drupal_set_installed_schema_version($module, $number);
   }
 
-  $context['message'] = 'Updating ' . String::checkPlain($module) . ' module';
+  $context['message'] = 'Updating ' . SafeMarkup::checkPlain($module) . ' module';
 }
 
 /**
@@ -269,7 +240,7 @@ function update_entity_definitions($module, $number, &$context) {
     $variables = Error::decodeException($e);
     unset($variables['backtrace']);
     // The exception message is run through
-    // \Drupal\Component\Utility\String::checkPlain() by
+    // \Drupal\Component\Utility\SafeMarkup::checkPlain() by
     // \Drupal\Core\Utility\Error::decodeException().
     $ret['#abort'] = array('success' => FALSE, 'query' => t('%type: !message in %function (line %line of %file).', $variables));
     $context['results'][$module][$number] = $ret;
@@ -308,7 +279,7 @@ function update_get_update_list() {
     // Display a requirements error if the user somehow has a schema version
     // from the previous Drupal major version.
     if ($schema_version < \Drupal::CORE_MINIMUM_SCHEMA_VERSION) {
-      $ret[$module]['warning'] = '<em>' . $module . '</em> module cannot be updated. Its schema version is ' . $schema_version . ', which is from an earlier major release of Drupal. You will need to <a href="https://drupal.org/node/2127611">migrate the data for this module</a> instead.';
+      $ret[$module]['warning'] = '<em>' . $module . '</em> module cannot be updated. Its schema version is ' . $schema_version . ', which is from an earlier major release of Drupal. You will need to <a href="https://www.drupal.org/node/2127611">migrate the data for this module</a> instead.';
       continue;
     }
     // Otherwise, get the list of updates defined by this module.
@@ -318,7 +289,7 @@ function update_get_update_list() {
       // so if no updates are removed, it will == 0.
       $last_removed = \Drupal::moduleHandler()->invoke($module, 'update_last_removed');
       if ($schema_version < $last_removed) {
-        $ret[$module]['warning'] = '<em>' . $module . '</em> module cannot be updated. Its schema version is ' . $schema_version . '. Updates up to and including ' . $last_removed . ' have been removed in this release. In order to update <em>' . $module . '</em> module, you will first <a href="http://drupal.org/upgrade">need to upgrade</a> to the last version in which these updates were available.';
+        $ret[$module]['warning'] = '<em>' . $module . '</em> module cannot be updated. Its schema version is ' . $schema_version . '. Updates up to and including ' . $last_removed . ' have been removed in this release. In order to update <em>' . $module . '</em> module, you will first <a href="https://www.drupal.org/upgrade">need to upgrade</a> to the last version in which these updates were available.';
         continue;
       }
 

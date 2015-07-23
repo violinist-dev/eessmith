@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\system\Tests\DrupalKernel\DrupalKernelTest.
+ * Contains \Drupal\system\Tests\DrupalKernel\DrupalKernelTest.
  */
 
 namespace Drupal\system\Tests\DrupalKernel;
@@ -57,11 +57,13 @@ class DrupalKernelTest extends KernelTestBase {
    *   A list of modules to enable on the kernel.
    * @param bool $read_only
    *   Build the kernel in a read only state.
-   * @return DrupalKernel
+   *
+   * @return \Drupal\Core\DrupalKernel
+   *   New kernel for testing.
    */
   protected function getTestKernel(Request $request, array $modules_enabled = NULL, $read_only = FALSE) {
     // Manually create kernel to avoid replacing settings.
-    $class_loader = require DRUPAL_ROOT . '/core/vendor/autoload.php';
+    $class_loader = require DRUPAL_ROOT . '/autoload.php';
     $kernel = DrupalKernel::createFromRequest($request, $class_loader, 'testing');
     $this->settingsSet('container_yamls', []);
     $this->settingsSet('hash_salt', $this->databasePrefix);
@@ -122,9 +124,9 @@ class DrupalKernelTest extends KernelTestBase {
     $this->assertEqual(array_values($modules_enabled), $module_list);
 
     // Test that our synthetic services are there.
-    $classloader = $container->get('class_loader');
-    $refClass = new \ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    $class_loader = $container->get('class_loader');
+    $refClass = new \ReflectionClass($class_loader);
+    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a class loader');
 
     // We make this assertion here purely to show that the new container below
     // is functioning correctly, i.e. we get a brand new ContainerBuilder
@@ -150,9 +152,9 @@ class DrupalKernelTest extends KernelTestBase {
     $this->assertTrue($container->has('service_provider_test_class'), 'Container has test service');
 
     // Test that our synthetic services are there.
-    $classloader = $container->get('class_loader');
-    $refClass = new \ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    $class_loader = $container->get('class_loader');
+    $refClass = new \ReflectionClass($class_loader);
+    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a class loader');
 
     // Check that the location of the new module is registered.
     $modules = $container->getParameter('container.modules');
@@ -164,11 +166,11 @@ class DrupalKernelTest extends KernelTestBase {
   }
 
   /**
-   * Test repeated loading of compiled DIC with different environment.
+   * Tests repeated loading of compiled DIC with different environment.
    */
   public function testRepeatedBootWithDifferentEnvironment() {
     $request = Request::createFromGlobals();
-    $class_loader = require DRUPAL_ROOT . '/core/vendor/autoload.php';
+    $class_loader = require DRUPAL_ROOT . '/autoload.php';
 
     $environments = [
       'testing1',
@@ -185,6 +187,28 @@ class DrupalKernelTest extends KernelTestBase {
     }
 
     $this->pass('Repeatedly loaded compiled DIC with different environment');
+  }
+
+  /**
+   * Tests setting of site path after kernel boot.
+   */
+  public function testPreventChangeOfSitePath() {
+    // @todo: write a memory based storage backend for testing.
+    $modules_enabled = array(
+      'system' => 'system',
+      'user' => 'user',
+    );
+
+    $request = Request::createFromGlobals();
+    $kernel = $this->getTestKernel($request, $modules_enabled);
+    $pass = FALSE;
+    try {
+      $kernel->setSitePath('/dev/null');
+    }
+    catch (\LogicException $e) {
+      $pass = TRUE;
+    }
+    $this->assertTrue($pass, 'Throws LogicException if DrupalKernel::setSitePath() is called after boot');
   }
 
 }

@@ -7,28 +7,16 @@
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\FormElementHelper;
 use Drupal\Core\Form\OptGroup;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
-/**
- * Retrieves, populates, and processes a form.
- *
- * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
- *   Use \Drupal::formBuilder()->submitForm().
- *
- * @see \Drupal\Core\Form\FormBuilderInterface::submitForm().
- */
-function drupal_form_submit($form_arg, FormStateInterface $form_state) {
-  \Drupal::formBuilder()->submitForm($form_arg, $form_state);
-}
 
 /**
  * Prepares variables for select element templates.
@@ -109,7 +97,7 @@ function form_select_options($element, $choices = NULL) {
   $options = '';
   foreach ($choices as $key => $choice) {
     if (is_array($choice)) {
-      $options .= '<optgroup label="' . String::checkPlain($key) . '">';
+      $options .= '<optgroup label="' . SafeMarkup::checkPlain($key) . '">';
       $options .= form_select_options($element, $choice);
       $options .= '</optgroup>';
     }
@@ -125,7 +113,7 @@ function form_select_options($element, $choices = NULL) {
       else {
         $selected = '';
       }
-      $options .= '<option value="' . String::checkPlain($key) . '"' . $selected . '>' . String::checkPlain($choice) . '</option>';
+      $options .= '<option value="' . SafeMarkup::checkPlain($key) . '"' . $selected . '>' . SafeMarkup::checkPlain($choice) . '</option>';
     }
   }
   return SafeMarkup::set($options);
@@ -216,6 +204,12 @@ function template_preprocess_fieldset(&$variables) {
     // Add the description's id to the fieldset aria attributes.
     $variables['attributes']['aria-describedby'] = $description_id;
   }
+
+  // Display any error messages.
+  $variables['errors'] = NULL;
+  if (!empty($element['#errors']) && empty($element['#error_no_message'])) {
+    $variables['errors'] = $element['#errors'];
+  }
 }
 
 /**
@@ -238,7 +232,7 @@ function template_preprocess_details(&$variables) {
     if (!empty($element['#attributes']['id'])) {
       $variables['summary_attributes']['aria-controls'] = $element['#attributes']['id'];
     }
-    $variables['summary_attributes']['aria-expanded'] = !empty($element['#attributes']['open']);
+    $variables['summary_attributes']['aria-expanded'] = !empty($element['#attributes']['open']) ? 'true' : 'false';
     $variables['summary_attributes']['aria-pressed'] = $variables['summary_attributes']['aria-expanded'];
   }
   $variables['title'] = (!empty($element['#title'])) ? $element['#title'] : '';
@@ -364,7 +358,7 @@ function template_preprocess_textarea(&$variables) {
   Element\RenderElement::setAttributes($element, array('form-textarea'));
   $variables['wrapper_attributes'] = new Attribute();
   $variables['attributes'] = new Attribute($element['#attributes']);
-  $variables['value'] = String::checkPlain($element['#value']);
+  $variables['value'] = SafeMarkup::checkPlain($element['#value']);
   $variables['resizable'] = !empty($element['#resizable']) ? $element['#resizable'] : NULL;
   $variables['required'] = !empty($element['#required']) ? $element['#required'] : NULL;
 }
@@ -416,17 +410,11 @@ function template_preprocess_form_element(&$variables) {
   // \Drupal::formBuilder()->doBuildForm().
   $element += array(
     '#title_display' => 'before',
+    '#wrapper_attributes' => array(),
   );
+  $variables['attributes'] = $element['#wrapper_attributes'];
 
-  // Take over any #wrapper_attributes defined by the element.
-  // @todo Temporary hack for #type 'item'.
-  // @see http://drupal.org/node/1829202
-  $variables['attributes'] = array();
-  if (isset($element['#wrapper_attributes'])) {
-    $variables['attributes'] = $element['#wrapper_attributes'];
-  }
-
-  // Add element #id for #type 'item'.
+  // Add element #id for #type 'item' and 'password_confirm'.
   if (isset($element['#markup']) && !empty($element['#id'])) {
     $variables['attributes']['id'] = $element['#id'];
   }
@@ -441,6 +429,12 @@ function template_preprocess_form_element(&$variables) {
 
   // Pass elements disabled status to template.
   $variables['disabled'] = !empty($element['#attributes']['disabled']) ? $element['#attributes']['disabled'] : NULL;
+
+  // Display any error messages.
+  $variables['errors'] = NULL;
+  if (!empty($element['#errors']) && empty($element['#error_no_message'])) {
+    $variables['errors'] = $element['#errors'];
+  }
 
   // If #title is not set, we don't display any label.
   if (!isset($element['#title'])) {
@@ -553,7 +547,7 @@ function template_preprocess_form_element_label(&$variables) {
  * Note: if the batch 'title', 'init_message', 'progress_message', or
  * 'error_message' could contain any user input, it is the responsibility of
  * the code calling batch_set() to sanitize them first with a function like
- * \Drupal\Component\Utility\String::checkPlain() or
+ * \Drupal\Component\Utility\SafeMarkup::checkPlain() or
  * \Drupal\Component\Utility\Xss::filter(). Furthermore, if the batch operation
  * returns any user input in the 'results' or 'message' keys of $context, it
  * must also sanitize them first.
@@ -580,8 +574,8 @@ function template_preprocess_form_element_label(&$variables) {
  *
  *   $nodes = entity_load_multiple_by_properties('node', array('uid' => $uid, 'type' => $type));
  *   $node = reset($nodes);
- *   $context['results'][] = $node->id() . ' : ' . String::checkPlain($node->label());
- *   $context['message'] = String::checkPlain($node->label());
+ *   $context['results'][] = $node->id() . ' : ' . SafeMarkup::checkPlain($node->label());
+ *   $context['message'] = SafeMarkup::checkPlain($node->label());
  * }
  *
  * // A more advanced example is a multi-step operation that loads all rows,
@@ -600,10 +594,10 @@ function template_preprocess_form_element_label(&$variables) {
  *     ->range(0, $limit)
  *     ->execute();
  *   foreach ($result as $row) {
- *     $context['results'][] = $row->id . ' : ' . String::checkPlain($row->title);
+ *     $context['results'][] = $row->id . ' : ' . SafeMarkup::checkPlain($row->title);
  *     $context['sandbox']['progress']++;
  *     $context['sandbox']['current_id'] = $row->id;
- *     $context['message'] = String::checkPlain($row->title);
+ *     $context['message'] = SafeMarkup::checkPlain($row->title);
  *   }
  *   if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
  *     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
@@ -682,6 +676,20 @@ function template_preprocess_form_element_label(&$variables) {
  *     the batch.
  *   - safe_strings: Internal use only. Used to store and retrieve strings
  *     marked as safe between requests.
+ *   - progressive: A Boolean that indicates whether or not the batch needs to
+ *     run progressively. TRUE indicates that the batch will run in more than
+ *     one run. FALSE (default) indicates that the batch will finish in a single
+ *     run.
+ *   - queue: An override of the default queue (with name and class fields
+ *     optional). An array containing two elements:
+ *     - name: Unique identifier for the queue.
+ *     - class: The name of a class that implements
+ *       \Drupal\Core\Queue\QueueInterface, including the full namespace but not
+ *       starting with a backslash. It must have a constructor with two
+ *       arguments: $name and a \Drupal\Core\Database\Connection object.
+ *       Typically, the class will either be \Drupal\Core\Queue\Batch or
+ *       \Drupal\Core\Queue\BatchMemory. Defaults to Batch if progressive is
+ *       TRUE, or to BatchMemory if progressive is FALSE.
  */
 function batch_set($batch_definition) {
   if ($batch_definition) {
@@ -915,7 +923,7 @@ function _batch_queue($batch_set) {
     $class = $batch_set['queue']['class'];
 
     if (!isset($queues[$class][$name])) {
-      $queues[$class][$name] = new $class($name, Database::getConnection());
+      $queues[$class][$name] = new $class($name, \Drupal::database());
     }
     return $queues[$class][$name];
   }

@@ -7,10 +7,11 @@
 
 namespace Drupal\views\Plugin\views\exposed_form;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Form\ViewsExposedForm;
+use Drupal\views\Plugin\CacheablePluginInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\PluginBase;
@@ -34,7 +35,7 @@ use Drupal\views\Plugin\views\PluginBase;
 /**
  * Base class for Views exposed filter form plugins.
  */
-abstract class ExposedFormPluginBase extends PluginBase {
+abstract class ExposedFormPluginBase extends PluginBase implements CacheablePluginInterface {
 
   /**
    * Overrides Drupal\views\Plugin\Plugin::$usesOptions.
@@ -43,13 +44,13 @@ abstract class ExposedFormPluginBase extends PluginBase {
 
   protected function defineOptions() {
     $options = parent::defineOptions();
-    $options['submit_button'] = array('default' => 'Apply');
+    $options['submit_button'] = array('default' => $this->t('Apply'));
     $options['reset_button'] = array('default' => FALSE);
-    $options['reset_button_label'] = array('default' => 'Reset');
-    $options['exposed_sorts_label'] = array('default' => 'Sort by');
+    $options['reset_button_label'] = array('default' => $this->t('Reset'));
+    $options['exposed_sorts_label'] = array('default' => $this->t('Sort by'));
     $options['expose_sort_order'] = array('default' => TRUE);
-    $options['sort_asc_label'] = array('default' => 'Asc');
-    $options['sort_desc_label'] = array('default' => 'Desc');
+    $options['sort_asc_label'] = array('default' => $this->t('Asc'));
+    $options['sort_desc_label'] = array('default' => $this->t('Desc'));
     return $options;
   }
 
@@ -150,7 +151,6 @@ abstract class ExposedFormPluginBase extends PluginBase {
       $form_state->set('ajax', TRUE);
     }
 
-    $form_state->set('exposed_form_plugin', $this);
     $form = \Drupal::formBuilder()->buildForm('\Drupal\views\Form\ViewsExposedForm', $form_state);
 
     if (!$this->view->display_handler->displaysExposed() || (!$block && $this->view->display_handler->getOption('exposed_block'))) {
@@ -211,7 +211,7 @@ abstract class ExposedFormPluginBase extends PluginBase {
     $exposed_sorts = array();
     foreach ($this->view->sort as $id => $handler) {
       if ($handler->canExpose() && $handler->isExposed()) {
-        $exposed_sorts[$id] = String::checkPlain($handler->options['expose']['label']);
+        $exposed_sorts[$id] = SafeMarkup::checkPlain($handler->options['expose']['label']);
       }
     }
 
@@ -259,6 +259,7 @@ abstract class ExposedFormPluginBase extends PluginBase {
       );
 
       // Get an array of exposed filters, keyed by identifier option.
+      $exposed_filters = [];
       foreach ($this->view->filter as $id => $handler) {
         if ($handler->canExpose() && $handler->isExposed() && !empty($handler->options['expose']['identifier'])) {
           $exposed_filters[$handler->options['expose']['identifier']] = $id;
@@ -286,7 +287,7 @@ abstract class ExposedFormPluginBase extends PluginBase {
   }
 
   /**
-   * This function is executed when exposed form is submited.
+   * This function is executed when exposed form is submitted.
    *
    * @param $form
    *   Nested array of form elements that comprise the form.
@@ -330,6 +331,37 @@ abstract class ExposedFormPluginBase extends PluginBase {
 
     $form_state->setRedirect('<current>');
     $form_state->setValues([]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isCacheable() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    $contexts = [];
+    if ($this->options['expose_sort_order']) {
+      // The sort order query arg is just important in case there is a exposed
+      // sort order.
+      $has_exposed_sort_handler = FALSE;
+      /** @var \Drupal\views\Plugin\views\sort\SortPluginBase $sort_handler */
+      foreach ($this->displayHandler->getHandlers('sort') as $sort_handler) {
+        if ($sort_handler->isExposed()) {
+          $has_exposed_sort_handler = TRUE;
+        }
+      }
+
+      if ($has_exposed_sort_handler) {
+        $contexts[] = 'url.query_args:sort_order';
+      }
+    }
+
+    return $contexts;
   }
 
 }

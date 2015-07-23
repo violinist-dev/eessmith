@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @image
+ * @file
  * Contains \Drupal\image\Plugin\Field\FieldType\ImageItem.
  */
 
@@ -23,6 +23,7 @@ use Drupal\file\Plugin\Field\FieldType\FileItem;
  *   id = "image",
  *   label = @Translation("Image"),
  *   description = @Translation("This field stores the ID of an image file as an integer value."),
+ *   category = @Translation("Reference"),
  *   default_widget = "image_image",
  *   default_formatter = "image",
  *   column_groups = {
@@ -75,8 +76,8 @@ class ImageItem extends FileItem {
   public static function defaultFieldSettings() {
     $settings = array(
       'file_extensions' => 'png gif jpg jpeg',
-      'alt_field' => 0,
-      'alt_field_required' => 0,
+      'alt_field' => 1,
+      'alt_field_required' => 1,
       'title_field' => 0,
       'title_field_required' => 0,
       'max_resolution' => '',
@@ -262,7 +263,7 @@ class ImageItem extends FileItem {
       '#type' => 'checkbox',
       '#title' => t('Enable <em>Alt</em> field'),
       '#default_value' => $settings['alt_field'],
-      '#description' => t('The alt attribute may be used by search engines, screen readers, and when the image cannot be loaded. Enabling this field is recommended'),
+      '#description' => t('The alt attribute may be used by search engines, screen readers, and when the image cannot be loaded. Enabling this field is recommended.'),
       '#weight' => 9,
     );
     $element['alt_field_required'] = array(
@@ -273,7 +274,7 @@ class ImageItem extends FileItem {
       '#weight' => 10,
       '#states' => array(
         'visible' => array(
-          ':input[name="field[settings][alt_field]"]' => array('checked' => TRUE),
+          ':input[name="settings[alt_field]"]' => array('checked' => TRUE),
         ),
       ),
     );
@@ -291,7 +292,7 @@ class ImageItem extends FileItem {
       '#weight' => 12,
       '#states' => array(
         'visible' => array(
-          ':input[name="field[settings][title_field]"]' => array('checked' => TRUE),
+          ':input[name="settings[title_field]"]' => array('checked' => TRUE),
         ),
       ),
     );

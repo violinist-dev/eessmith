@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\views_test_data\Plugin\views\display_extender\DisplayExtenderTest.
+ * Contains \Drupal\views_test_data\Plugin\views\display_extender\DisplayExtenderTest.
  */
 
 namespace Drupal\views_test_data\Plugin\views\display_extender;
@@ -33,7 +33,7 @@ class DisplayExtenderTest extends DisplayExtenderPluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['test_extender_test_option'] = ['default' => 'Empty'];
+    $options['test_extender_test_option'] = ['default' => $this->t('Empty')];
 
     return $options;
   }

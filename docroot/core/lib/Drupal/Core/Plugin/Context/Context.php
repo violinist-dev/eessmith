@@ -9,7 +9,7 @@ namespace Drupal\Core\Plugin\Context;
 
 use Drupal\Component\Plugin\Context\Context as ComponentContext;
 use Drupal\Component\Plugin\Exception\ContextException;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\Core\TypedData\TypedDataTrait;
 
@@ -40,13 +40,20 @@ class Context extends ComponentContext implements ContextInterface {
   public function getContextValue() {
     if (!isset($this->contextData)) {
       $definition = $this->getContextDefinition();
-      if ($definition->isRequired()) {
-        $type = $definition->getDataType();
-        throw new ContextException(String::format("The @type context is required and not present.", array('@type' => $type)));
+      $default_value = $definition->getDefaultValue();
+
+      if (isset($default_value)) {
+        // Keep the default value here so that subsequent calls don't have to
+        // look it up again.
+        $this->setContextValue($default_value);
       }
-      return NULL;
+      elseif ($definition->isRequired()) {
+        $type = $definition->getDataType();
+        throw new ContextException(SafeMarkup::format("The @type context is required and not present.", array('@type' => $type)));
+      }
+      return $default_value;
     }
-    return $this->contextData->getValue();
+    return $this->getTypedDataManager()->getCanonicalRepresentation($this->contextData);
   }
 
   /**
@@ -72,6 +79,15 @@ class Context extends ComponentContext implements ContextInterface {
    * {@inheritdoc}
    */
   public function getContextData() {
+    if (!isset($this->contextData)) {
+      $definition = $this->getContextDefinition();
+      $default_value = $definition->getDefaultValue();
+      if (isset($default_value)) {
+        // Store the default value so that subsequent calls don't have to look
+        // it up again.
+        $this->contextData = $this->getTypedDataManager()->create($definition->getDataDefinition(), $default_value);
+      }
+    }
     return $this->contextData;
   }
 

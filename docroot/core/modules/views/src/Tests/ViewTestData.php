@@ -56,6 +56,9 @@ class ViewTestData {
         }
       }
     }
+
+    // Rebuild the router once.
+    \Drupal::service('router.builder')->rebuild();
   }
 
   /**
@@ -72,7 +75,7 @@ class ViewTestData {
         ),
         'name' => array(
           'description' => "A person's name",
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 255,
           'not null' => TRUE,
           'default' => '',

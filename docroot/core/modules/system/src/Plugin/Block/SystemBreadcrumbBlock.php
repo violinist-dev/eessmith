@@ -84,4 +84,13 @@ class SystemBreadcrumbBlock extends BlockBase implements ContainerFactoryPluginI
     }
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @todo Make cacheable in https://www.drupal.org/node/2483183
+   */
+  public function getCacheMaxAge() {
+    return 0;
+  }
+
 }

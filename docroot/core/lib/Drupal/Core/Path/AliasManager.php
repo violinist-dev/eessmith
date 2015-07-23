@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Core\Path\AliasManager.
+ * Contains \Drupal\Core\Path\AliasManager.
  */
 
 namespace Drupal\Core\Path;
@@ -38,7 +38,7 @@ class AliasManager implements AliasManagerInterface, CacheDecoratorInterface {
   /**
    * Whether the cache needs to be written.
    *
-   * @var boolean
+   * @var bool
    */
   protected $cacheNeedsWriting = FALSE;
 
@@ -144,7 +144,7 @@ class AliasManager implements AliasManagerInterface, CacheDecoratorInterface {
 
       if (!empty($path_lookups)) {
         $twenty_four_hours = 60 * 60 * 24;
-        $this->cache->set($this->cacheKey, $path_lookups, REQUEST_TIME + $twenty_four_hours);
+        $this->cache->set($this->cacheKey, $path_lookups, $this->getRequestTime() + $twenty_four_hours);
       }
     }
   }
@@ -187,6 +187,9 @@ class AliasManager implements AliasManagerInterface, CacheDecoratorInterface {
    * {@inheritdoc}
    */
   public function getAliasByPath($path, $langcode = NULL) {
+    if ($path[0] !== '/') {
+      throw new \InvalidArgumentException(sprintf('Source path %s has to start with a slash.', $path));
+    }
     // If no language is explicitly specified we default to the current URL
     // language. If we used a language different from the one conveyed by the
     // requested URL, we might end up being unable to check if there is a path
@@ -196,7 +199,7 @@ class AliasManager implements AliasManagerInterface, CacheDecoratorInterface {
     // Check the path whitelist, if the top-level part before the first /
     // is not in the list, then there is no need to do anything further,
     // it is not in the database.
-    if (empty($path) || !$this->whitelist->get(strtok($path, '/'))) {
+    if ($path === '/' || !$this->whitelist->get(strtok(trim($path, '/'), '/'))) {
       return $path;
     }
 
@@ -285,5 +288,14 @@ class AliasManager implements AliasManagerInterface, CacheDecoratorInterface {
      }
     }
     $this->whitelist->clear();
+  }
+
+  /**
+   * Wrapper method for REQUEST_TIME constant.
+   *
+   * @return int
+   */
+  protected function getRequestTime() {
+    return defined('REQUEST_TIME') ? REQUEST_TIME : (int) $_SERVER['REQUEST_TIME'];
   }
 }

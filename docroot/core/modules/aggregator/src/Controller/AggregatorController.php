@@ -82,7 +82,7 @@ class AggregatorController extends ControllerBase {
     if ($items) {
       $build['items'] = $this->entityManager()->getViewBuilder('aggregator_item')
         ->viewMultiple($items, 'default');
-      $build['pager'] = array('#theme' => 'pager');
+      $build['pager'] = array('#type' => 'pager');
     }
     return $build;
   }
@@ -124,11 +124,11 @@ class AggregatorController extends ControllerBase {
     foreach ($feeds as $feed) {
       $row = array();
       $row[] = $feed->link();
-      $row[] = $this->dateFormatter->formatInterval($entity_manager->getStorage('aggregator_item')->getItemCount($feed), '1 item', '@count items');
+      $row[] = $this->formatPlural($entity_manager->getStorage('aggregator_item')->getItemCount($feed), '1 item', '@count items');
       $last_checked = $feed->getLastCheckedTime();
       $refresh_rate = $feed->getRefreshRate();
-      $row[] = ($last_checked ? $this->t('@time ago', array('@time' => $this->dateFormatter->formatInterval(REQUEST_TIME - $last_checked))) : $this->t('never'));
-      $row[] = ($last_checked && $refresh_rate ? $this->t('%time left', array('%time' => $this->dateFormatter->formatInterval($last_checked + $refresh_rate - REQUEST_TIME))) : $this->t('never'));
+      $row[] = ($last_checked ? $this->t('@time ago', array('@time' => $this->dateFormatter->formatTimeDiffSince($last_checked))) : $this->t('never'));
+      $row[] = ($last_checked && $refresh_rate ? $this->t('@time left', array('@time' => $this->dateFormatter->formatTimeDiffUntil($last_checked + $refresh_rate))) : $this->t('never'));
       $links['edit'] = [
         'title' => $this->t('Edit'),
         'url' => Url::fromRoute('entity.aggregator_feed.edit_form', ['aggregator_feed' => $feed->id()]),

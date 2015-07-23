@@ -9,13 +9,19 @@ namespace Drupal\Core\Render\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Component\Utility\Html as HtmlUtility;
 
 /**
  * Provides a form element for a table with radios or checkboxes in left column.
  *
- * Build the table headings and columns with the #headers property, and the rows
- * with the #options property. See https://www.drupal.org/node/94510 for a full
- * explanation.
+ * Properties:
+ * - #headers: Table headers used in the table.
+ * - #options: An associative array where each key is the value returned when
+ *   a user selects the radio button or checkbox, and each value is the row of
+ *   table data.
+ *
+ * Usage example:
+ * See https://www.drupal.org/node/945102 for an example and full explanation.
  *
  * @see \Drupal\Core\Render\Element\Table
  *
@@ -236,7 +242,7 @@ class Tableselect extends Table {
               '#default_value' => ($element['#default_value'] == $key) ? $key : NULL,
               '#attributes' => $element['#attributes'],
               '#parents' => $element['#parents'],
-              '#id' => drupal_html_id('edit-' . implode('-', $parents_for_id)),
+              '#id' => HtmlUtility::getUniqueId('edit-' . implode('-', $parents_for_id)),
               '#ajax' => isset($element['#ajax']) ? $element['#ajax'] : NULL,
             );
           }

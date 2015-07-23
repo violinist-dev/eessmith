@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Block admin behaviors.
+ */
+
 (function ($, Drupal) {
 
   "use strict";
@@ -8,15 +13,21 @@
    * Text search input: input.block-filter-text
    * Target element:    input.block-filter-text[data-element]
    * Source text:       .block-filter-text-source
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.blockFilterByText = {
     attach: function (context, settings) {
       var $input = $('input.block-filter-text').once('block-filter-text');
       var $element = $($input.attr('data-element'));
-      var $blocks, $details;
+      var $blocks;
+      var $details;
 
       /**
-       * Hides the <details> element for a category if it has no visible blocks.
+       * Hides the `<details>` element for a category if it has no visible blocks.
+       *
+       * @param {number} index
+       * @param {HTMLElement} element
        */
       function hideCategoryDetails(index, element) {
         var $catDetails = $(element);
@@ -25,12 +36,17 @@
 
       /**
        * Filters the block list.
+       *
+       * @param {jQuery.Event} e
        */
       function filterBlockList(e) {
         var query = $(e.target).val().toLowerCase();
 
         /**
          * Shows or hides the block entry based on the query.
+         *
+         * @param {number} index
+         * @param {HTMLElement} block
          */
         function showBlockEntry(index, block) {
           var $block = $(block);
@@ -70,16 +86,18 @@
 
   /**
    * Highlights the block that was just placed into the block listing.
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.blockHighlightPlacement = {
     attach: function (context, settings) {
       if (settings.blockPlacement) {
-        $('#blocks').once('block-highlight', function () {
+        $(context).find('[data-drupal-selector="edit-blocks"]').once('block-highlight').each(function () {
           var $container = $(this);
           // Just scrolling the document.body will not work in Firefox. The html
           // element is needed as well.
           $('html, body').animate({
-            scrollTop: $('#block-placed').offset().top - $container.offset().top + $container.scrollTop()
+            scrollTop: $('.js-block-placed').offset().top - $container.offset().top + $container.scrollTop()
           }, 500);
         });
       }

@@ -7,11 +7,11 @@
 
   "use strict";
 
-  /**
-   * Backbone view for the toolbar element. Listens to mouse & touch.
-   */
-  Drupal.toolbar.ToolbarVisualView = Backbone.View.extend({
+  Drupal.toolbar.ToolbarVisualView = Backbone.View.extend(/** @lends Drupal.toolbar.ToolbarVisualView# */{
 
+    /**
+     * @return {object}
+     */
     events: function () {
       // Prevents delay and simulated mouse events.
       var touchEndToClick = function (event) {
@@ -28,7 +28,14 @@
     },
 
     /**
-     * {@inheritdoc}
+     * Backbone view for the toolbar element. Listens to mouse & touch.
+     *
+     * @constructs
+     *
+     * @augments Backbone.View
+     *
+     * @param {object} options
+     * @param {object} options.strings
      */
     initialize: function (options) {
       this.strings = options.strings;
@@ -48,7 +55,9 @@
     },
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     *
+     * @return {Drupal.toolbar.ToolbarVisualView}
      */
     render: function () {
       this.updateTabs();
@@ -81,7 +90,7 @@
     /**
      * Responds to a toolbar tab click.
      *
-     * @param jQuery.Event event
+     * @param {jQuery.Event} event
      */
     onTabClick: function (event) {
       // If this tab has a tray associated with it, it is considered an
@@ -101,7 +110,7 @@
     /**
      * Toggles the orientation of a toolbar tray.
      *
-     * @param jQuery.Event event
+     * @param {jQuery.Event} event
      */
     onOrientationToggleClick: function (event) {
       var orientation = this.model.get('orientation');
@@ -135,16 +144,16 @@
       var $tab = $(this.model.get('activeTab'));
       // Deactivate the previous tab.
       $(this.model.previous('activeTab'))
-        .removeClass('active')
+        .removeClass('is-active')
         .prop('aria-pressed', false);
       // Deactivate the previous tray.
       $(this.model.previous('activeTray'))
-        .removeClass('active');
+        .removeClass('is-active');
 
       // Activate the selected tab.
       if ($tab.length > 0) {
         $tab
-          .addClass('active')
+          .addClass('is-active')
           // Mark the tab as pressed.
           .prop('aria-pressed', true);
         var name = $tab.attr('data-toolbar-tray');
@@ -156,7 +165,7 @@
         // Activate the associated tray.
         var $tray = this.$el.find('[data-toolbar-tray="' + name + '"].toolbar-tray');
         if ($tray.length) {
-          $tray.addClass('active');
+          $tray.addClass('is-active');
           this.model.set('activeTray', $tray.get(0));
         }
         else {
@@ -218,9 +227,9 @@
       // Remove data-offset attributes from the trays so they can be refreshed.
       $trays.removeAttr('data-offset-left data-offset-right data-offset-top');
       // If an active vertical tray exists, mark it as an offset element.
-      $trays.filter('.toolbar-tray-vertical.active').attr('data-offset-' + edge, '');
+      $trays.filter('.toolbar-tray-vertical.is-active').attr('data-offset-' + edge, '');
       // If an active horizontal tray exists, mark it as an offset element.
-      $trays.filter('.toolbar-tray-horizontal.active').attr('data-offset-top', '');
+      $trays.filter('.toolbar-tray-horizontal.is-active').attr('data-offset-top', '');
     },
 
     /**

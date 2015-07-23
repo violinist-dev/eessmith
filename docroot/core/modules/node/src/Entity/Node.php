@@ -8,6 +8,7 @@
 namespace Drupal\node\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -45,6 +46,7 @@ use Drupal\user\UserInterface;
  *   revision_table = "node_revision",
  *   revision_data_table = "node_field_revision",
  *   translatable = TRUE,
+ *   list_cache_contexts = { "user.node_grants:view" },
  *   entity_keys = {
  *     "id" = "nid",
  *     "revision" = "vid",
@@ -55,16 +57,20 @@ use Drupal\user\UserInterface;
  *   },
  *   bundle_entity_type = "node_type",
  *   field_ui_base_route = "entity.node_type.edit_form",
+ *   common_reference_target = TRUE,
  *   permission_granularity = "bundle",
  *   links = {
  *     "canonical" = "/node/{node}",
  *     "delete-form" = "/node/{node}/delete",
  *     "edit-form" = "/node/{node}/edit",
  *     "version-history" = "/node/{node}/revisions",
+ *     "revision" = "/node/{node}/revisions/{node_revision}/view",
  *   }
  * )
  */
 class Node extends ContentEntityBase implements NodeInterface {
+
+  use EntityChangedTrait;
 
   /**
    * {@inheritdoc}
@@ -353,6 +359,7 @@ class Node extends ContentEntityBase implements NodeInterface {
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language'))
       ->setDescription(t('The node language code.'))
+      ->setTranslatable(TRUE)
       ->setRevisionable(TRUE)
       ->setDisplayOptions('view', array(
         'type' => 'hidden',
@@ -364,7 +371,6 @@ class Node extends ContentEntityBase implements NodeInterface {
 
     $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Title'))
-      ->setDescription(t('The title of this node, always treated as non-markup plain text.'))
       ->setRequired(TRUE)
       ->setTranslatable(TRUE)
       ->setRevisionable(TRUE)
@@ -487,6 +493,13 @@ class Node extends ContentEntityBase implements NodeInterface {
           'rows' => 4,
         ),
       ));
+
+    $fields['revision_translation_affected'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Revision translation affected'))
+      ->setDescription(t('Indicates if the last edit of a translation belongs to current revision.'))
+      ->setReadOnly(TRUE)
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
 
     return $fields;
   }

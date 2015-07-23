@@ -102,4 +102,20 @@ Interface TypedConfigManagerInterface extends PluginManagerInterface, CachedDisc
    */
   public function hasConfigSchema($name);
 
+  /**
+   * Gets a specific plugin definition.
+   *
+   * @param string $plugin_id
+   *   A plugin id.
+   * @param bool $exception_on_invalid
+   *   Ignored with TypedConfigManagerInterface. Kept for compatibility with
+   *   DiscoveryInterface.
+   *
+   * @return array
+   *   A plugin definition array. If the given plugin id does not have typed
+   *   configuration definition assigned, the definition of an undefined
+   *   element type is returned.
+   */
+  public function getDefinition($plugin_id, $exception_on_invalid = TRUE);
+
 }

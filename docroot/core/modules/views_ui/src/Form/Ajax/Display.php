@@ -16,7 +16,7 @@ use Drupal\views\ViewEntityInterface;
 class Display extends ViewsFormBase {
 
   /**
-   * Constucts a new Display object.
+   * Constructs a new Display object.
    */
   public function __construct($type = NULL) {
     $this->setType($type);
@@ -64,7 +64,10 @@ class Display extends ViewsFormBase {
     $display_id = $form_state->get('display_id');
 
     $executable = $view->getExecutable();
-    $executable->setDisplay($display_id);
+    if (!$executable->setDisplay($display_id)) {
+      $form['markup'] = array('#markup' => $this->t('Invalid display id @display', array('@display' => $display_id)));
+      return $form;
+    }
 
     // Get form from the handler.
     $form['options'] = array(

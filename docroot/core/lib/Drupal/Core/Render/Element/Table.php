@@ -9,6 +9,7 @@ namespace Drupal\Core\Render\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Component\Utility\Html as HtmlUtility;
 
 /**
  * Provides a render element for a table.
@@ -131,9 +132,10 @@ class Table extends FormElement {
 
         // Since the #parents of the tableselect form element will equal the
         // #parents of the row element, prevent FormBuilder from auto-generating
-        // an #id for the row element, since drupal_html_id() would automatically
+        // an #id for the row element, since
+        // \Drupal\Component\Utility\Html::getUniqueId() would automatically
         // append a suffix to the tableselect form element's #id otherwise.
-        $row['#id'] = drupal_html_id('edit-' . implode('-', $element_parents) . '-row');
+        $row['#id'] = HtmlUtility::getUniqueId('edit-' . implode('-', $element_parents) . '-row');
 
         // Do not overwrite manually created children.
         if (!isset($row['select'])) {
@@ -171,7 +173,7 @@ class Table extends FormElement {
           $row = array('select' => array()) + $row;
           $row['select'] += array(
             '#type' => $element['#multiple'] ? 'checkbox' : 'radio',
-            '#id' => drupal_html_id('edit-' . implode('-', $element_parents)),
+            '#id' => HtmlUtility::getUniqueId('edit-' . implode('-', $element_parents)),
             // @todo If rows happen to use numeric indexes instead of string keys,
             //   this results in a first row with $key === 0, which is always FALSE.
             '#return_value' => $key,
@@ -307,7 +309,7 @@ class Table extends FormElement {
       }
       // Turn second-level elements into table row columns.
       // @todo Do not render a cell for children of #type 'value'.
-      // @see http://drupal.org/node/1248940
+      // @see https://www.drupal.org/node/1248940
       foreach (Element::children($element[$first]) as $second) {
         // Assign the element by reference, so any potential changes to the
         // original element are taken over.

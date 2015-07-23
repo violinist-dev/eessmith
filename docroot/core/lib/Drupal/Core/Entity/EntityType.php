@@ -7,7 +7,7 @@
 
 namespace Drupal\Core\Entity;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\Exception\EntityTypeIdLengthException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -203,11 +203,35 @@ class EntityType implements EntityTypeInterface {
   protected $field_ui_base_route;
 
   /**
+   * Indicates whether this entity type is commonly used as a reference target.
+   *
+   * This is used by the Entity reference field to promote an entity type in the
+   * add new field select list in Field UI.
+   *
+   * @var bool
+   */
+  protected $common_reference_target = FALSE;
+
+  /**
+   * The list cache contexts for this entity type.
+   *
+   * @var string[]
+   */
+  protected $list_cache_contexts = [];
+
+  /**
    * The list cache tags for this entity type.
    *
-   * @var array
+   * @var string[]
    */
-  protected $list_cache_tags = array();
+  protected $list_cache_tags = [];
+
+  /**
+   * Entity constraint definitions.
+   *
+   * @var array[]
+   */
+  protected $constraints = array();
 
   /**
    * Constructs a new EntityType.
@@ -221,7 +245,7 @@ class EntityType implements EntityTypeInterface {
   public function __construct($definition) {
     // Throw an exception if the entity type ID is longer than 32 characters.
     if (Unicode::strlen($definition['id']) > static::ID_MAX_LENGTH) {
-      throw new EntityTypeIdLengthException(String::format(
+      throw new EntityTypeIdLengthException(SafeMarkup::format(
         'Attempt to create an entity type with an ID longer than @max characters: @id.', array(
           '@max' => static::ID_MAX_LENGTH,
           '@id' => $definition['id'],
@@ -238,10 +262,17 @@ class EntityType implements EntityTypeInterface {
       'revision' => '',
       'bundle' => '',
       'langcode' => '',
+      'default_langcode' => 'default_langcode',
     );
     $this->handlers += array(
       'access' => 'Drupal\Core\Entity\EntityAccessControlHandler',
     );
+
+    // Automatically add the EntityChanged constraint if the entity type tracks
+    // the changed time.
+    if ($this->isSubclassOf('Drupal\Core\Entity\EntityChangedInterface') ) {
+      $this->addConstraint('EntityChanged');
+    }
 
     // Ensure a default list cache tag is set.
     if (empty($this->list_cache_tags)) {
@@ -623,13 +654,6 @@ class EntityType implements EntityTypeInterface {
   /**
    * {@inheritdoc}
    */
-  public function getConfigPrefix() {
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getRevisionDataTable() {
     return $this->revision_data_table;
   }
@@ -695,6 +719,13 @@ class EntityType implements EntityTypeInterface {
   /**
    * {@inheritdoc}
    */
+  public function getListCacheContexts() {
+    return $this->list_cache_contexts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getListCacheTags() {
     return $this->list_cache_tags;
   }
@@ -707,6 +738,36 @@ class EntityType implements EntityTypeInterface {
     // is that dependencies on other configuration entities are hard
     // dependencies and have to exist before creating the dependent entity.
     return 'content';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isCommonReferenceTarget() {
+    return $this->common_reference_target;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConstraints() {
+    return $this->constraints;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setConstraints(array $constraints) {
+    $this->constraints = $constraints;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addConstraint($constraint_name, $options = NULL) {
+    $this->constraints[$constraint_name] = $options;
+    return $this;
   }
 
 }

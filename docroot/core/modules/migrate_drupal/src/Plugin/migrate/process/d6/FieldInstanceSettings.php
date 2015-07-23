@@ -1,12 +1,12 @@
 <?php
 /**
  * @file
- * Contains Drupal\migrate_drupal\Plugin\migrate\d6\FieldInstanceSettings
+ * Contains \Drupal\migrate_drupal\Plugin\migrate\process\d6\FieldInstanceSettings.
  */
 
 namespace Drupal\migrate_drupal\Plugin\migrate\process\d6;
 
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\ProcessPluginBase;
 use Drupal\migrate\Row;
 
@@ -22,7 +22,7 @@ class FieldInstanceSettings extends ProcessPluginBase {
    *
    * Set the field instance defaults.
    */
-  public function transform($value, MigrateExecutable $migrate_executable, Row $row, $destination_property) {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     list($widget_type, $widget_settings, $field_settings) = $value;
     $settings = array();
     switch ($widget_type) {

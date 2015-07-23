@@ -169,6 +169,8 @@ class EntityViewBuilder extends EntityHandlerBase implements EntityHandlerInterf
       // Collect cache defaults for this entity.
       '#cache' => array(
         'tags' => Cache::mergeTags($this->getCacheTags(), $entity->getCacheTags()),
+        'contexts' => $entity->getCacheContexts(),
+        'max-age' => $entity->getCacheMaxAge(),
       ),
     );
 
@@ -181,13 +183,6 @@ class EntityViewBuilder extends EntityHandlerBase implements EntityHandlerInterf
           $this->entityTypeId,
           $entity->id(),
           $view_mode,
-        ),
-        'contexts' => array(
-          'theme',
-          'user.roles',
-          // @todo Move this out of here and into field formatters that depend
-          //       on the timezone. Blocked on https://drupal.org/node/2099137.
-          'timezone',
         ),
         'bin' => $this->cacheBin,
       );
@@ -279,9 +274,9 @@ class EntityViewBuilder extends EntityHandlerBase implements EntityHandlerInterf
         $this->alterBuild($build_list[$key], $entity, $display, $view_mode, $langcode);
 
         // Assign the weights configured in the display.
-        // @todo: Once https://drupal.org/node/1875974 provides the missing API,
-        //   only do it for 'extra fields', since other components have been
-        //   taken care of in EntityViewDisplay::buildMultiple().
+        // @todo: Once https://www.drupal.org/node/1875974 provides the missing
+        //   API, only do it for 'extra fields', since other components have
+        //   been taken care of in EntityViewDisplay::buildMultiple().
         foreach ($display->getComponents() as $name => $options) {
           if (isset($build_list[$key][$name])) {
             $build_list[$key][$name]['#weight'] = $options['weight'];
@@ -383,7 +378,7 @@ class EntityViewBuilder extends EntityHandlerBase implements EntityHandlerInterf
   }
 
   /**
-   * Returns TRUE if the view mode is cacheable.
+   * Determines whether the view mode is cacheable.
    *
    * @param string $view_mode
    *   Name of the view mode that should be rendered.
@@ -442,7 +437,7 @@ class EntityViewBuilder extends EntityHandlerBase implements EntityHandlerInterf
   }
 
   /**
-   * Returns an EntityViewDisplay for rendering an individual field.
+   * Gets an EntityViewDisplay for rendering an individual field.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.

@@ -98,7 +98,7 @@ class ConfigEntityMapper extends ConfigNamesMapper {
       $plugin_definition,
       $container->get('config.factory'),
       $container->get('config.typed'),
-      $container->get('locale.config.typed'),
+      $container->get('locale.config_manager'),
       $container->get('plugin.manager.config_translation.mapper'),
       $container->get('router.route_provider'),
       $container->get('string_translation'),
@@ -234,7 +234,7 @@ class ConfigEntityMapper extends ConfigNamesMapper {
    */
   public function getContextualLinkGroup() {
     // @todo Contextual groups do not map to entity types in a predictable
-    //   way. See https://drupal.org/node/2134841 to make them predictable.
+    //   way. See https://www.drupal.org/node/2134841 to make them predictable.
     switch ($this->entityType) {
       case 'menu':
       case 'block':

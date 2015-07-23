@@ -9,7 +9,7 @@ namespace Drupal\user;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,21 +22,31 @@ class AccountSettingsForm extends ConfigFormBase {
   /**
    * The module handler.
    *
-   * @var \Drupal\Core\Extension\ModuleHandler
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
+
+  /**
+   * The role storage used when changing the admin role.
+   *
+   * @var \Drupal\user\RoleStorageInterface
+   */
+  protected $roleStorage;
 
   /**
    * Constructs a \Drupal\user\AccountSettingsForm object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
+   * @param \Drupal\user\RoleStorageInterface $role_storage
+   *   The role storage.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandler $module_handler) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, RoleStorageInterface $role_storage) {
     parent::__construct($config_factory);
     $this->moduleHandler = $module_handler;
+    $this->roleStorage = $role_storage;
   }
 
   /**
@@ -45,7 +55,8 @@ class AccountSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('module_handler')
+      $container->get('module_handler'),
+      $container->get('entity.manager')->getStorage('user_role')
     );
   }
 
@@ -101,14 +112,23 @@ class AccountSettingsForm extends ConfigFormBase {
     // Do not allow users to set the anonymous or authenticated user roles as the
     // administrator role.
     $roles = user_role_names(TRUE);
-    unset($roles[DRUPAL_AUTHENTICATED_RID]);
+    unset($roles[RoleInterface::AUTHENTICATED_ID]);
+
+    $admin_roles = $this->roleStorage->getQuery()
+      ->condition('is_admin', TRUE)
+      ->execute();
+    $default_value = reset($admin_roles);
+
     $form['admin_role']['user_admin_role'] = array(
       '#type' => 'select',
       '#title' => $this->t('Administrator role'),
       '#empty_value' => '',
-      '#default_value' => $config->get('admin_role'),
+      '#default_value' => $default_value,
       '#options' => $roles,
       '#description' => $this->t('This role will be automatically assigned new permissions whenever a module is enabled. Changing this setting will not affect existing permissions.'),
+      // Don't allow to select a single admin role in case multiple roles got
+      // marked as admin role already.
+      '#access' => count($admin_roles) <= 1,
     );
 
     // @todo Remove this check once language settings are generalized.
@@ -165,21 +185,6 @@ class AccountSettingsForm extends ConfigFormBase {
         $form['registration_cancellation']['user_cancel_method'][$key]['#access'] = FALSE;
       }
     }
-
-    // Account settings.
-    $filter_exists = $this->moduleHandler->moduleExists('filter');
-    $form['personalization'] = array(
-      '#type' => 'details',
-      '#title' => $this->t('Personalization'),
-      '#open' => TRUE,
-      '#access' => $filter_exists,
-    );
-    $form['personalization']['user_signatures'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enable signatures'),
-      '#default_value' => $filter_exists ? $config->get('signatures') : 0,
-      '#access' => $filter_exists,
-    );
 
     // Default notifications address.
     $form['mail_notification_address'] = array(
@@ -427,11 +432,9 @@ class AccountSettingsForm extends ConfigFormBase {
 
     $this->config('user.settings')
       ->set('anonymous', $form_state->getValue('anonymous'))
-      ->set('admin_role', $form_state->getValue('user_admin_role'))
       ->set('register', $form_state->getValue('user_register'))
       ->set('password_strength', $form_state->getValue('user_password_strength'))
       ->set('verify_mail', $form_state->getValue('user_email_verification'))
-      ->set('signatures', $form_state->getValue('user_signatures'))
       ->set('cancel_method', $form_state->getValue('user_cancel_method'))
       ->set('notify.status_activated', $form_state->getValue('user_mail_status_activated_notify'))
       ->set('notify.status_blocked', $form_state->getValue('user_mail_status_blocked_notify'))
@@ -459,8 +462,21 @@ class AccountSettingsForm extends ConfigFormBase {
       ->set('mail_notification', $form_state->getValue('mail_notification_address'))
       ->save();
 
-    // Clear field definition cache for signatures.
-    \Drupal::entityManager()->clearCachedFieldDefinitions();
+    // Change the admin role.
+    if ($form_state->hasValue('user_admin_role')) {
+      $admin_roles = $this->roleStorage->getQuery()
+        ->condition('is_admin', TRUE)
+        ->execute();
+
+      foreach ($admin_roles as $rid) {
+        $this->roleStorage->load($rid)->setIsAdmin(FALSE)->save();
+      }
+
+      $new_admin_role = $form_state->getValue('user_admin_role');
+      if ($new_admin_role) {
+        $this->roleStorage->load($new_admin_role)->setIsAdmin(TRUE)->save();
+      }
+    }
   }
 
 }

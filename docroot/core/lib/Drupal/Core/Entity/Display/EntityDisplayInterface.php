@@ -8,13 +8,12 @@
 namespace Drupal\Core\Entity\Display;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
-use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 
 /**
  * Provides a common interface for entity displays.
  */
-interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPluginCollectionInterface, ThirdPartySettingsInterface {
+interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPluginCollectionInterface {
 
   /**
    * Creates a duplicate of the entity display object on a different view mode.
@@ -73,7 +72,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function removeComponent($name);
 
   /**
-   * Returns the highest weight of the components in the display.
+   * Gets the highest weight of the components in the display.
    *
    * @return int|null
    *   The highest weight of the components in the display, or NULL if the
@@ -82,7 +81,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function getHighestWeight();
 
   /**
-   * Returns the renderer plugin for a field (e.g. widget, formatter).
+   * Gets the renderer plugin for a field (e.g. widget, formatter).
    *
    * @param string $field_name
    *   The field name.
@@ -93,7 +92,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function getRenderer($field_name);
 
   /**
-   * Returns the entity type for which this display is used.
+   * Gets the entity type for which this display is used.
    *
    * @return string
    *   The entity type id.
@@ -101,7 +100,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function getTargetEntityTypeId();
 
   /**
-   * Returns the view or form mode to be displayed.
+   * Gets the view or form mode to be displayed.
    *
    * @return string
    *   The mode to be displayed.
@@ -109,7 +108,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function getMode();
 
   /**
-   * Returns the original view or form mode that was requested.
+   * Gets the original view or form mode that was requested.
    *
    * @return string
    *   The original mode that was requested.
@@ -117,7 +116,7 @@ interface EntityDisplayInterface extends ConfigEntityInterface, EntityWithPlugin
   public function getOriginalMode();
 
   /**
-   * Returns the bundle to be displayed.
+   * Gets the bundle to be displayed.
    *
    * @return string
    *   The bundle to be displayed.

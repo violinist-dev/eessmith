@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\migrate_drupal\Plugin\migrate\source\d6\FilterFormats.
+ * Contains \Drupal\migrate_drupal\Plugin\migrate\source\d6\FilterFormat.
  */
 
 namespace Drupal\migrate_drupal\Plugin\migrate\source\d6;
@@ -37,7 +37,7 @@ class FilterFormat extends DrupalSqlBase {
       'format' => $this->t('Format ID.'),
       'name' => $this->t('The name of the filter format.'),
       'roles' => $this->t('The user roles that can use the format.'),
-      'cache' => $this->t('Flag to indicate whether format is cachable. (1 = cachable, 0 = not cachable).'),
+      'cache' => $this->t('Flag to indicate whether format is cacheable. (1 = cacheable, 0 = not cacheable).'),
     );
   }
 

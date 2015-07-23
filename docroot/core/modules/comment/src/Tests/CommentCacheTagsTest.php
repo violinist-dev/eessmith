@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\system\Tests\Entity\EntityWithUriCacheTagsTestBase;
 use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
 
 /**
  * Tests the Comment entity's cache tags.
@@ -35,7 +36,7 @@ class CommentCacheTagsTest extends EntityWithUriCacheTagsTestBase {
 
     // Give anonymous users permission to view comments, so that we can verify
     // the cache tags of cached versions of comment pages.
-    $user_role = Role::load(DRUPAL_ANONYMOUS_RID);
+    $user_role = Role::load(RoleInterface::ANONYMOUS_ID);
     $user_role->grantPermission('access comments');
     $user_role->save();
   }
@@ -53,7 +54,7 @@ class CommentCacheTagsTest extends EntityWithUriCacheTagsTestBase {
 
     // Display comments in a flat list; threaded comments are not render cached.
     $field = FieldConfig::loadByName('entity_test', 'bar', 'comment');
-    $field->settings['default_mode'] = CommentManagerInterface::COMMENT_MODE_FLAT;
+    $field->setSetting('default_mode', CommentManagerInterface::COMMENT_MODE_FLAT);
     $field->save();
 
     // Create a "Camelids" test entity.
@@ -78,6 +79,18 @@ class CommentCacheTagsTest extends EntityWithUriCacheTagsTestBase {
     $comment->save();
 
     return $comment;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getAdditionalCacheContextsForEntity(EntityInterface $entity) {
+    return [
+      // Field access for the user picture rendered as part of the node that
+      // this comment is created on.
+      'user.permissions',
+    ];
   }
 
   /**

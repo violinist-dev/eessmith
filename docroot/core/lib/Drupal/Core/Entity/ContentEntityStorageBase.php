@@ -7,7 +7,7 @@
 
 namespace Drupal\Core\Entity;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -60,7 +60,7 @@ abstract class ContentEntityStorageBase extends EntityStorageBase implements Dyn
     $bundle = FALSE;
     if ($this->bundleKey) {
       if (!isset($values[$this->bundleKey])) {
-        throw new EntityStorageException(String::format('Missing bundle for entity type @type', array('@type' => $this->entityTypeId)));
+        throw new EntityStorageException(SafeMarkup::format('Missing bundle for entity type @type', array('@type' => $this->entityTypeId)));
       }
       $bundle = $values[$this->bundleKey];
     }
@@ -130,7 +130,7 @@ abstract class ContentEntityStorageBase extends EntityStorageBase implements Dyn
    * Reads values to be purged for a single field.
    *
    * This method is called during field data purge, on fields for which
-   * onFieldDelete() or onFieldDelete() has previously run.
+   * onFieldDefinitionDelete() has previously run.
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
@@ -202,6 +202,58 @@ abstract class ContentEntityStorageBase extends EntityStorageBase implements Dyn
       $translation = $entity->getTranslation($langcode);
       foreach ($translation->getFields() as $field) {
         $field->$method();
+      }
+    }
+  }
+
+  /**
+   * Checks whether the field values changed compared to the original entity.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   Field definition of field to compare for changes.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Entity to check for field changes.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $original
+   *   Original entity to compare against.
+   *
+   * @return bool
+   *   True if the field value changed from the original entity.
+   */
+  protected function hasFieldValueChanged(FieldDefinitionInterface $field_definition, ContentEntityInterface $entity, ContentEntityInterface $original) {
+    $field_name = $field_definition->getName();
+    $langcodes = array_keys($entity->getTranslationLanguages());
+    if ($langcodes !== array_keys($original->getTranslationLanguages())) {
+      // If the list of langcodes has changed, we need to save.
+      return TRUE;
+    }
+    foreach ($langcodes as $langcode) {
+      $items = $entity->getTranslation($langcode)->get($field_name)->filterEmptyItems();
+      $original_items = $original->getTranslation($langcode)->get($field_name)->filterEmptyItems();
+      // If the field items are not equal, we need to save.
+      if (!$items->equals($original_items)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Populates the affected flag for all the revision translations.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   An entity object being saved.
+   */
+  protected function populateAffectedRevisionTranslations(ContentEntityInterface $entity) {
+    if ($this->entityType->isTranslatable() && $this->entityType->isRevisionable()) {
+      $languages = $entity->getTranslationLanguages();
+      foreach ($languages as $langcode => $language) {
+        $translation = $entity->getTranslation($langcode);
+        // Avoid populating the value if it was already manually set.
+        $affected = $translation->isRevisionTranslationAffected();
+        if (!isset($affected) && $translation->hasTranslationChanges()) {
+          $translation->setRevisionTranslationAffected(TRUE);
+        }
       }
     }
   }

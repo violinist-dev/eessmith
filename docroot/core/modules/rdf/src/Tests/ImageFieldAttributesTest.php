@@ -7,6 +7,7 @@
 
 namespace Drupal\rdf\Tests;
 
+use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Tests\ImageFieldTestBase;
 use Drupal\node\Entity\Node;
 
@@ -66,7 +67,7 @@ class ImageFieldAttributesTest extends ImageFieldTestBase {
     $image = current($this->drupalGetTestFiles('image'));
 
     // Save a node with the image.
-    $nid = $this->uploadNodeImage($image, $this->fieldName, 'article');
+    $nid = $this->uploadNodeImage($image, $this->fieldName, 'article', $this->randomMachineName());
     $this->node = Node::load($nid);
     $this->file = file_load($this->node->{$this->fieldName}->target_id);
   }
@@ -86,7 +87,7 @@ class ImageFieldAttributesTest extends ImageFieldTestBase {
 
     // Render the teaser.
     $node_render_array = node_view($this->node, 'teaser');
-    $html = drupal_render($node_render_array);
+    $html = \Drupal::service('renderer')->renderRoot($node_render_array);
 
     // Parse the teaser.
     $parser = new \EasyRdf_Parser_Rdfa();
@@ -96,7 +97,7 @@ class ImageFieldAttributesTest extends ImageFieldTestBase {
 
     // Construct the node and image URIs for testing.
     $node_uri = $this->node->url('canonical', ['absolute' => TRUE]);
-    $image_uri = entity_load('image_style', 'medium')->buildUrl($this->file->getFileUri());
+    $image_uri = ImageStyle::load('medium')->buildUrl($this->file->getFileUri());
 
     // Test relations from node to image.
     $expected_value = array(

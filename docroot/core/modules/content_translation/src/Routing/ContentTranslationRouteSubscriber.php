@@ -94,11 +94,9 @@ class ContentTranslationRouteSubscriber extends RouteSubscriberBase {
 
         ),
         array(
-          '_permission' => 'translate any entity',
           '_access_content_translation_manage' => 'create',
         ),
         array(
-          '_access_mode' => AccessManagerInterface::ACCESS_MODE_ANY,
           'parameters' => array(
             'source' => array(
               'type' => 'language',
@@ -124,11 +122,9 @@ class ContentTranslationRouteSubscriber extends RouteSubscriberBase {
           'entity_type_id' => $entity_type_id,
         ),
         array(
-          '_permission' => 'translate any entity',
           '_access_content_translation_manage' => 'update',
         ),
         array(
-          '_access_mode' => AccessManagerInterface::ACCESS_MODE_ANY,
           'parameters' => array(
             'language' => array(
               'type' => 'language',
@@ -145,13 +141,12 @@ class ContentTranslationRouteSubscriber extends RouteSubscriberBase {
       $route = new Route(
         $path . '/delete/{language}',
         array(
-          '_form' => '\Drupal\content_translation\Form\ContentTranslationDeleteForm',
+          '_entity_form' => $entity_type_id . '.content_translation_deletion',
           'language' => NULL,
           '_title' => 'Delete',
           'entity_type_id' => $entity_type_id,
         ),
         array(
-          '_permission' => 'translate any entity',
           '_access_content_translation_manage' => 'delete',
         ),
         array(
@@ -163,7 +158,6 @@ class ContentTranslationRouteSubscriber extends RouteSubscriberBase {
               'type' => 'entity:' . $entity_type_id,
             ),
           ),
-          '_access_mode' => AccessManagerInterface::ACCESS_MODE_ANY,
           '_admin_route' => $is_admin,
         )
       );

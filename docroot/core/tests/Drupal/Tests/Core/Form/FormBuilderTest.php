@@ -9,10 +9,13 @@ namespace Drupal\Tests\Core\Form;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\EnforcedResponseException;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @coversDefaultClass \Drupal\Core\Form\FormBuilder
@@ -354,24 +357,6 @@ class FormBuilderTest extends FormTestBase {
   }
 
   /**
-   * Tests the sendResponse() method.
-   *
-   * @expectedException \Exception
-   */
-  public function testSendResponse() {
-    $form_id = 'test_form_id';
-    $expected_form = $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $form_arg = $this->getMockForm($form_id, $expected_form);
-
-    // Do an initial build of the form and track the build ID.
-    $form_state = new FormState();
-    $this->formBuilder->buildForm($form_arg, $form_state);
-  }
-
-  /**
    * Tests that HTML IDs are unique when rebuilding a form with errors.
    */
   public function testUniqueHtmlId() {
@@ -388,17 +373,80 @@ class FormBuilderTest extends FormTestBase {
       ->method('buildForm')
       ->will($this->returnValue($expected_form));
 
-    $form_state = $this->getMockBuilder('Drupal\Core\Form\FormState')
-      ->setMethods(array('drupalSetMessage'))
-      ->getMock();
+    $form_state = new FormState();
     $form = $this->simulateFormSubmission($form_id, $form_arg, $form_state);
     $this->assertSame('test-form-id', $form['#id']);
 
-    $form_state = $this->getMockBuilder('Drupal\Core\Form\FormState')
-      ->setMethods(array('drupalSetMessage'))
-      ->getMock();
+    $form_state = new FormState();
     $form = $this->simulateFormSubmission($form_id, $form_arg, $form_state);
     $this->assertSame('test-form-id--2', $form['#id']);
+  }
+
+  /**
+   * Tests that a cached form is deleted after submit.
+   */
+  public function testFormCacheDeletionCached() {
+    $form_id = 'test_form_id';
+    $form_build_id = $this->randomMachineName();
+
+    $expected_form = $form_id();
+    $expected_form['#build_id'] = $form_build_id;
+    $form_arg = $this->getMockForm($form_id, $expected_form);
+    $form_arg->expects($this->once())
+      ->method('submitForm')
+      ->willReturnCallback(function (array &$form, FormStateInterface $form_state) {
+        // Mimic EntityForm by cleaning the $form_state upon submit.
+        $form_state->cleanValues();
+      });
+
+    $this->formCache->expects($this->once())
+      ->method('deleteCache')
+      ->with($form_build_id);
+
+    $form_state = new FormState();
+    $form_state->setCached();
+    $this->simulateFormSubmission($form_id, $form_arg, $form_state);
+  }
+
+  /**
+   * Tests that an uncached form does not trigger cache set or delete.
+   */
+  public function testFormCacheDeletionUncached() {
+    $form_id = 'test_form_id';
+    $form_build_id = $this->randomMachineName();
+
+    $expected_form = $form_id();
+    $expected_form['#build_id'] = $form_build_id;
+    $form_arg = $this->getMockForm($form_id, $expected_form);
+
+    $this->formCache->expects($this->never())
+      ->method('deleteCache');
+
+    $form_state = new FormState();
+    $this->simulateFormSubmission($form_id, $form_arg, $form_state);
+  }
+
+  /**
+   * @covers ::buildForm
+   *
+   * @expectedException \Drupal\Core\Form\Exception\BrokenPostRequestException
+   */
+  public function testExceededFileSize() {
+    $request = new Request([FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]);
+    $request_stack = new RequestStack();
+    $request_stack->push($request);
+    $this->formBuilder = $this->getMockBuilder('\Drupal\Core\Form\FormBuilder')
+      ->setConstructorArgs([$this->formValidator, $this->formSubmitter, $this->formCache, $this->moduleHandler, $this->eventDispatcher, $request_stack, $this->classResolver, $this->elementInfo, $this->themeManager, $this->csrfToken])
+      ->setMethods(['getFileUploadMaxSize'])
+      ->getMock();
+    $this->formBuilder->expects($this->once())
+      ->method('getFileUploadMaxSize')
+      ->willReturn(33554432);
+
+    $form_arg = $this->getMockForm('test_form_id');
+    $form_state = new FormState();
+
+    $this->formBuilder->buildForm($form_arg, $form_state);
   }
 
 }

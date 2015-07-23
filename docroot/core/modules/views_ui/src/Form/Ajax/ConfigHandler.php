@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ConfigHandler extends ViewsFormBase {
 
   /**
-   * Constucts a new ConfigHandler object.
+   * Constructs a new ConfigHandler object.
    */
   public function __construct($type = NULL, $id = NULL) {
     $this->setType($type);
@@ -69,7 +69,10 @@ class ConfigHandler extends ViewsFormBase {
     );
     $executable = $view->getExecutable();
     $save_ui_cache = FALSE;
-    $executable->setDisplay($display_id);
+    if (!$executable->setDisplay($display_id)) {
+      $form['markup'] = array('#markup' => $this->t('Invalid display id @display', array('@display' => $display_id)));
+      return $form;
+    }
     $item = $executable->getHandler($display_id, $type, $id);
 
     if ($item) {
@@ -181,6 +184,7 @@ class ConfigHandler extends ViewsFormBase {
         '#ajax' => array(
           'url' => Url::fromRoute('<current>'),
         ),
+        '#button_type' => 'danger',
       );
     }
 

@@ -18,6 +18,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "text_with_summary",
  *   label = @Translation("Text (formatted, long, with summary)"),
  *   description = @Translation("This field stores long text with a format and an optional summary."),
+ *   category = @Translation("Text"),
  *   default_widget = "text_textarea_with_summary",
  *   default_formatter = "text_default"
  * )
@@ -67,7 +68,7 @@ class TextWithSummaryItem extends TextItemBase {
           'size' => 'big',
         ),
         'format' => array(
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 255,
         ),
       ),

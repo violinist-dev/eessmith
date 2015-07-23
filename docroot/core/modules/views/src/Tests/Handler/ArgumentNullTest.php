@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\views\Tests\Handler\ArgumentNullTest.
+ * Contains \Drupal\views\Tests\Handler\ArgumentNullTest.
  */
 
 namespace Drupal\views\Tests\Handler;
@@ -11,7 +11,7 @@ use Drupal\views\Tests\ViewUnitTestBase;
 use Drupal\views\Views;
 
 /**
- * Tests the core Drupal\views\Plugin\views\argument\Null handler.
+ * Tests the core Drupal\views\Plugin\views\argument\NullArgument handler.
  *
  * @group views
  */

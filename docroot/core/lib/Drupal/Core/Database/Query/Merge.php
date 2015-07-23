@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Database\Query\Merge
+ * Contains \Drupal\Core\Database\Query\Merge.
  */
 
 namespace Drupal\Core\Database\Query;
@@ -119,7 +119,7 @@ class Merge extends Query implements ConditionInterface {
   /**
    * Flag indicating whether an UPDATE is necessary.
    *
-   * @var boolean
+   * @var bool
    */
   protected $needsUpdate = FALSE;
 

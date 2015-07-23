@@ -7,13 +7,14 @@
 
 namespace Drupal\migrate\Entity;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\migrate\Exception\RequirementsException;
 use Drupal\migrate\MigrateException;
 use Drupal\migrate\MigrateSkipRowException;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
 use Drupal\migrate\Plugin\RequirementsInterface;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Defines the Migration entity.
@@ -76,6 +77,9 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
 
   /**
    * The configuration describing the process plugins.
+   *
+   * This is a strictly internal property and should not returned to calling
+   * code, use getProcess() instead.
    *
    * @var array
    */
@@ -194,11 +198,40 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
   protected $requirements = [];
 
   /**
-   * These migrations, if ran at all, must be executed before this migration.
+   * These migrations, if run, must be executed before this migration.
+   *
+   * These are different from the configuration dependencies. Migration
+   * dependencies are only used to store relationships between migrations.
+   *
+   * The migration_dependencies value is structured like this:
+   * @code
+   * array(
+   *   'required' => array(
+   *     // An array of migration IDs that must be run before this migration.
+   *   ),
+   *   'optional' => array(
+   *     // An array of migration IDs that, if they exist, must be run before
+   *     // this migration.
+   *   ),
+   * );
+   * @endcode
    *
    * @var array
    */
   protected $migration_dependencies = [];
+
+  /**
+   * The migration's configuration dependencies.
+   *
+   * These store any dependencies on modules or other configuration (including
+   * other migrations) that must be available before the migration can be
+   * created.
+   *
+   * @see \Drupal\Core\Config\Entity\ConfigDependencyManager
+   *
+   * @var array
+   */
+  protected $dependencies = [];
 
   /**
    * The entity manager.
@@ -275,9 +308,9 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
   /**
    * {@inheritdoc}
    */
-  public function getDestinationPlugin($stub = FALSE) {
+  public function getDestinationPlugin($stub_being_requested = FALSE) {
     if (!isset($this->destinationPlugin)) {
-      if ($stub && !empty($this->destination['no_stub'])) {
+      if ($stub_being_requested && !empty($this->destination['no_stub'])) {
         throw new MigrateSkipRowException;
       }
       $this->destinationPlugin = \Drupal::service('plugin.manager.migrate.destination')->createInstance($this->destination['plugin'], $this->destination, $this);
@@ -348,7 +381,7 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
       }
     }
     if ($missing_migrations) {
-      throw new RequirementsException(String::format('Missing migrations @requirements.', ['@requirements' => implode(', ', $missing_migrations)]), ['requirements' => $missing_migrations]);
+      throw new RequirementsException(SafeMarkup::format('Missing migrations @requirements.', ['@requirements' => implode(', ', $missing_migrations)]), ['requirements' => $missing_migrations]);
     }
   }
 
@@ -391,8 +424,20 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
   /**
    * {@inheritdoc}
    */
+  public function set($property_name, $value) {
+    if ($property_name == 'source') {
+      // Invalidate the source plugin.
+      unset($this->sourcePlugin);
+    }
+    return parent::set($property_name, $value);
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function getProcess() {
-    return $this->process;
+    return $this->getProcessNormalized($this->process);
   }
 
   /**
@@ -400,6 +445,31 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
    */
   public function setProcess(array $process) {
     $this->process = $process;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setProcessOfProperty($property, $process_of_property) {
+    $this->process[$property] = $process_of_property;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function mergeProcessOfProperty($property, array $process_of_property) {
+    // If we already have a process value then merge the incoming process array
+    //otherwise simply set it.
+    $current_process = $this->getProcess();
+    if (isset($current_process[$property])) {
+      $this->process = NestedArray::mergeDeepArray([$current_process, $this->getProcessNormalized([$property => $process_of_property])], TRUE);
+    }
+    else {
+      $this->setProcessOfProperty($property, $process_of_property);
+    }
+
     return $this;
   }
 
@@ -437,6 +507,31 @@ class Migration extends ConfigEntityBase implements MigrationInterface, Requirem
    * {@inheritdoc}
    */
   public function getMigrationDependencies() {
-    return $this->migration_dependencies;
+    return $this->migration_dependencies + ['required' => [], 'optional' => []];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function trustData() {
+    // Migrations cannot be trusted since they are often written by hand and not
+    // through a UI.
+    $this->trustedData = FALSE;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+    $this->calculatePluginDependencies($this->getSourcePlugin());
+    $this->calculatePluginDependencies($this->getDestinationPlugin());
+    // Add dependencies on required migration dependencies.
+    foreach ($this->getMigrationDependencies()['required'] as $dependency) {
+      $this->addDependency('config', $this->getEntityType()->getConfigPrefix() . '.' . $dependency);
+    }
+
+    return $this->dependencies;
   }
 }

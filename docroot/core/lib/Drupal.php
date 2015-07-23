@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal.
+ * Contains \Drupal.
  */
 
 use Drupal\Core\DependencyInjection\ContainerNotInitializedException;
@@ -81,7 +81,7 @@ class Drupal {
   /**
    * The current system version.
    */
-  const VERSION = '8.0.0-dev';
+  const VERSION = '8.0.0-beta12';
 
   /**
    * Core API compatibility.
@@ -504,17 +504,22 @@ class Drupal {
    *   (optional) An associative array of parameter names and values.
    * @param array $options
    *   (optional) An associative array of additional options.
+   * @param bool $collect_cacheability_metadata
+   *   (optional) Defaults to FALSE. When TRUE, both the generated URL and its
+   *   associated cacheability metadata are returned.
    *
-   * @return string
-   *   The generated URL for the given route.
+   * @return string|\Drupal\Core\GeneratedUrl
+   *   A string containing a URL to the given path.
+   *   When $collect_cacheability_metadata is TRUE, a GeneratedUrl object is
+   *   returned, containing the generated URL plus cacheability metadata.
    *
    * @see \Drupal\Core\Routing\UrlGeneratorInterface::generateFromRoute()
    * @see \Drupal\Core\Url
    * @see \Drupal\Core\Url::fromRoute()
    * @see \Drupal\Core\Url::fromUri()
    */
-  public static function url($route_name, $route_parameters = array(), $options = array()) {
-    return static::getContainer()->get('url_generator')->generateFromRoute($route_name, $route_parameters, $options);
+  public static function url($route_name, $route_parameters = array(), $options = array(), $collect_cacheability_metadata = FALSE) {
+    return static::getContainer()->get('url_generator')->generateFromRoute($route_name, $route_parameters, $options, $collect_cacheability_metadata);
   }
 
   /**
@@ -537,15 +542,20 @@ class Drupal {
    *   The link text for the anchor tag.
    * @param \Drupal\Core\Url $url
    *   The URL object used for the link.
+   * @param bool $collect_cacheability_metadata
+   *   (optional) Defaults to FALSE. When TRUE, both the generated URL and its
+   *   associated cacheability metadata are returned.
    *
-   * @return string
+   * @return string|\Drupal\Core\GeneratedLink
    *   An HTML string containing a link to the given route and parameters.
+   *   When $collect_cacheability_metadata is TRUE, a GeneratedLink object is
+   *   returned, containing the generated link plus cacheability metadata.
    *
    * @see \Drupal\Core\Utility\LinkGeneratorInterface::generate()
    * @see \Drupal\Core\Url
    */
-  public static function l($text, Url $url) {
-    return static::getContainer()->get('link_generator')->generate($text, $url);
+  public static function l($text, Url $url, $collect_cacheability_metadata = FALSE) {
+    return static::getContainer()->get('link_generator')->generate($text, $url, $collect_cacheability_metadata);
   }
 
   /**
@@ -665,6 +675,16 @@ class Drupal {
    */
   public static function accessManager() {
     return static::getContainer()->get('access_manager');
+  }
+
+  /**
+   * Returns the redirect destination helper.
+   *
+   * @return \Drupal\Core\Routing\RedirectDestinationInterface
+   *   The redirect destination helper.
+   */
+  public static function destination() {
+    return static::getContainer()->get('redirect.destination');
   }
 
 }

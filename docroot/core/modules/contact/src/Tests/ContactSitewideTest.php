@@ -13,6 +13,7 @@ use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\user\RoleInterface;
 
 /**
  * Tests site-wide contact form functionality.
@@ -54,6 +55,10 @@ class ContactSitewideTest extends WebTestBase {
     ));
     $this->drupalLogin($admin_user);
 
+    // Check the presence of expected cache tags.
+    $this->drupalGet('contact');
+    $this->assertCacheTag('config:contact.settings');
+
     $flood_limit = 3;
     $this->config('contact.settings')
       ->set('flood.limit', $flood_limit)
@@ -72,7 +77,7 @@ class ContactSitewideTest extends WebTestBase {
     // User form could not be changed or deleted.
     // Cannot use ::assertNoLinkByHref as it does partial url matching and with
     // field_ui enabled admin/structure/contact/manage/personal/fields exists.
-    // @todo: See https://drupal.org/node/2031223 for the above
+    // @todo: See https://www.drupal.org/node/2031223 for the above.
     $edit_link = $this->xpath('//a[@href=:href]', array(
       ':href' => \Drupal::url('entity.contact_form.edit_form', array('contact_form' => 'personal'))
     ));
@@ -91,7 +96,7 @@ class ContactSitewideTest extends WebTestBase {
     $this->assertNoLinkByHref('admin/structure/contact/manage/feedback');
 
     // Ensure that the contact form won't be shown without forms.
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access site-wide contact form'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access site-wide contact form'));
     $this->drupalLogout();
     $this->drupalGet('contact');
     $this->assertResponse(404);
@@ -155,7 +160,7 @@ class ContactSitewideTest extends WebTestBase {
     $this->config('contact.settings')->set('default_form', $id)->save();
 
     // Ensure that the contact form is shown without a form selection input.
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access site-wide contact form'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access site-wide contact form'));
     $this->drupalLogout();
     $this->drupalGet('contact');
     $this->assertText(t('Your email address'));
@@ -181,12 +186,12 @@ class ContactSitewideTest extends WebTestBase {
     $this->drupalLogout();
 
     // Check to see that anonymous user cannot see contact page without permission.
-    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, array('access site-wide contact form'));
+    user_role_revoke_permissions(RoleInterface::ANONYMOUS_ID, array('access site-wide contact form'));
     $this->drupalGet('contact');
     $this->assertResponse(403);
 
     // Give anonymous user permission and see that page is viewable.
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access site-wide contact form'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access site-wide contact form'));
     $this->drupalGet('contact');
     $this->assertResponse(200);
 
@@ -225,9 +230,8 @@ class ContactSitewideTest extends WebTestBase {
       $this->assertText(t('Your message has been sent.'));
     }
     // Submit contact form one over limit.
-    $this->drupalGet('contact');
-    $this->assertResponse(403);
-    $this->assertRaw(t('You cannot send more than %number messages in @interval. Try again later.', array('%number' => $this->config('contact.settings')->get('flood.limit'), '@interval' => \Drupal::service('date.formatter')->formatInterval(600))));
+    $this->submitContact($this->randomMachineName(16), $recipients[0], $this->randomMachineName(16), $id, $this->randomMachineName(64));
+    $this->assertRaw(t('You cannot send more than %number messages in 10 min. Try again later.', array('%number' => $this->config('contact.settings')->get('flood.limit'))));
 
     // Test listing controller.
     $this->drupalLogin($admin_user);
@@ -301,7 +305,7 @@ class ContactSitewideTest extends WebTestBase {
 
     // Log the current user out in order to test the name and email fields.
     $this->drupalLogout();
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access site-wide contact form'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access site-wide contact form'));
 
     // Test the auto-reply for form 'foo'.
     $email = $this->randomMachineName(32) . '@example.com';

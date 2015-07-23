@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Route;
 /**
  * Defines an access check for entity form mode routes.
  *
- * @see \Drupal\entity\Entity\EntityFormMode
+ * @see \Drupal\Core\Entity\Entity\EntityFormMode
  */
 class FormModeAccessCheck implements AccessInterface {
 
@@ -64,7 +64,7 @@ class FormModeAccessCheck implements AccessInterface {
   public function access(Route $route, RouteMatchInterface $route_match, AccountInterface $account, $form_mode_name = 'default', $bundle = NULL) {
     $access = AccessResult::neutral();
     if ($entity_type_id = $route->getDefault('entity_type_id')) {
-      if (!isset($bundle)) {
+      if (empty($bundle)) {
         $entity_type = $this->entityManager->getDefinition($entity_type_id);
         $bundle = $route_match->getRawParameter($entity_type->getBundleEntityType());
       }

@@ -6,8 +6,10 @@
  */
 
 namespace Drupal\node\Tests\Views;
-use Drupal\Component\Utility\String;
+
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Tests if entity access is respected on a node bulk operations form.
@@ -52,7 +54,7 @@ class BulkFormAccessTest extends NodeTestBase {
 
     $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('node');
 
-    node_access_test_add_field(entity_load('node_type', 'article'));
+    node_access_test_add_field(NodeType::load('article'));
 
     // After enabling a node access module, the access table has to be rebuild.
     node_access_rebuild();
@@ -91,7 +93,7 @@ class BulkFormAccessTest extends NodeTestBase {
       'action' => 'node_unpublish_action',
     );
     $this->drupalPostForm('test-node-bulk-form', $edit, t('Apply'));
-    $this->assertRaw(String::format('No access to execute %action on the @entity_type_label %entity_label.', [
+    $this->assertRaw(SafeMarkup::format('No access to execute %action on the @entity_type_label %entity_label.', [
       '%action' => 'Unpublish content',
       '@entity_type_label' => 'Content',
       '%entity_label' => $node->label(),
@@ -103,7 +105,7 @@ class BulkFormAccessTest extends NodeTestBase {
 
     // Create an account that may view the private node, but can update the
     // status.
-    $account = $this->drupalCreateUser(array('administer nodes', 'edit any article content', 'node test view'));
+    $account = $this->drupalCreateUser(array('administer nodes', 'node test view'));
     $this->drupalLogin($account);
 
     // Ensure the node is published.

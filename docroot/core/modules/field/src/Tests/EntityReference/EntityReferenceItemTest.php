@@ -11,9 +11,15 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\entity_reference\Tests\EntityReferenceTestTrait;
+use Drupal\entity_test\Entity\EntityTest;
+use Drupal\entity_test\Entity\EntityTestStringId;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Tests\FieldUnitTestBase;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
+
 
 /**
  * Tests the new entity API for the entity reference field type.
@@ -22,12 +28,14 @@ use Drupal\taxonomy\Entity\Vocabulary;
  */
 class EntityReferenceItemTest extends FieldUnitTestBase {
 
+  use EntityReferenceTestTrait;
+
   /**
    * Modules to install.
    *
    * @var array
    */
-  public static $modules = array('entity_reference', 'taxonomy', 'text', 'filter');
+  public static $modules = array('entity_reference', 'taxonomy', 'text', 'filter', 'views');
 
   /**
    * The taxonomy vocabulary to test with.
@@ -44,11 +52,19 @@ class EntityReferenceItemTest extends FieldUnitTestBase {
   protected $term;
 
   /**
+   * The test entity with a string ID.
+   *
+   * @var \Drupal\entity_test\Entity\EntityTestStringId
+   */
+  protected $entityStringId;
+
+  /**
    * Sets up the test.
    */
   protected function setUp() {
     parent::setUp();
 
+    $this->installEntitySchema('entity_test_string_id');
     $this->installEntitySchema('taxonomy_term');
 
     $this->vocabulary = entity_create('taxonomy_vocabulary', array(
@@ -65,9 +81,15 @@ class EntityReferenceItemTest extends FieldUnitTestBase {
     ));
     $this->term->save();
 
+    $this->entityStringId = EntityTestStringId::create([
+      'id' => $this->randomMachineName(),
+    ]);
+    $this->entityStringId->save();
+
     // Use the util to create an instance.
-    entity_reference_create_field('entity_test', 'entity_test', 'field_test_taxonomy_term', 'Test content entity reference', 'taxonomy_term');
-    entity_reference_create_field('entity_test', 'entity_test', 'field_test_taxonomy_vocabulary', 'Test config entity reference', 'taxonomy_vocabulary');
+    $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_taxonomy_term', 'Test content entity reference', 'taxonomy_term');
+    $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_entity_test_string_id', 'Test content entity reference with string ID', 'entity_test_string_id');
+    $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_taxonomy_vocabulary', 'Test config entity reference', 'taxonomy_vocabulary');
   }
 
   /**
@@ -147,6 +169,18 @@ class EntityReferenceItemTest extends FieldUnitTestBase {
   }
 
   /**
+   * Tests referencing content entities with string IDs.
+   */
+  public function testContentEntityReferenceItemWithStringId() {
+    $entity = EntityTest::create();
+    $entity->field_test_entity_test_string_id->target_id = $this->entityStringId->id();
+    $entity->save();
+    $storage = \Drupal::entityManager()->getStorage('entity_test');
+    $storage->resetCache();
+    $this->assertEqual($this->entityStringId->id(), $storage->load($entity->id())->field_test_entity_test_string_id->target_id);
+  }
+
+  /**
    * Tests the entity reference field type for referencing config entities.
    */
   public function testConfigEntityReferenceItem() {
@@ -212,6 +246,38 @@ class EntityReferenceItemTest extends FieldUnitTestBase {
     // And then the entity.
     $entity->save();
     $this->assertEqual($entity->field_test_taxonomy_term->entity->id(), $term->id());
+  }
+
+  /**
+   * Tests that the 'handler' field setting stores the proper plugin ID.
+   */
+  public function testSelectionHandlerSettings() {
+    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_storage = FieldStorageConfig::create(array(
+      'field_name' => $field_name,
+      'entity_type' => 'entity_test',
+      'type' => 'entity_reference',
+      'settings' => array(
+        'target_type' => 'entity_test'
+      ),
+    ));
+    $field_storage->save();
+
+    // Do not specify any value for the 'handler' setting in order to verify
+    // that the default value is properly used.
+    $field = FieldConfig::create(array(
+      'field_storage' => $field_storage,
+      'bundle' => 'entity_test',
+    ));
+    $field->save();
+
+    $field = FieldConfig::load($field->id());
+    $this->assertTrue($field->getSetting('handler') == 'default:entity_test');
+
+    $field->setSetting('handler', 'views');
+    $field->save();
+    $field = FieldConfig::load($field->id());
+    $this->assertTrue($field->getSetting('handler') == 'views');
   }
 
 }

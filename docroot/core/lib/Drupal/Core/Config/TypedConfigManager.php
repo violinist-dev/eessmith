@@ -8,7 +8,7 @@
 namespace Drupal\Core\Config;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\Schema\ArrayElement;
 use Drupal\Core\Config\Schema\ConfigSchemaAlterException;
@@ -56,10 +56,20 @@ class TypedConfigManager extends TypedDataManager implements TypedConfigManagerI
     $this->configStorage = $configStorage;
     $this->schemaStorage = $schemaStorage;
     $this->setCacheBackend($cache, 'typed_config_definitions');
-    $this->discovery = new ConfigSchemaDiscovery($schemaStorage);
     $this->alterInfo('config_schema_info');
     $this->moduleHandler = $module_handler;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getDiscovery() {
+    if (!isset($this->discovery)) {
+      $this->discovery = new ConfigSchemaDiscovery($this->schemaStorage);
+    }
+    return $this->discovery;
+  }
+
 
   /**
    * Gets typed configuration data.
@@ -73,7 +83,7 @@ class TypedConfigManager extends TypedDataManager implements TypedConfigManagerI
   public function get($name) {
     $data = $this->configStorage->read($name);
     $type_definition = $this->getDefinition($name);
-    $data_definition =  $this->buildDataDefinition($type_definition, $data);
+    $data_definition = $this->buildDataDefinition($type_definition, $data);
     return $this->create($data_definition, $data);
   }
 
@@ -141,10 +151,11 @@ class TypedConfigManager extends TypedDataManager implements TypedConfigManagerI
       $this->definitions[$type] = $definition;
     }
     // Add type and default definition class.
-    return $definition + array(
+    $definition += array(
       'definition_class' => '\Drupal\Core\TypedData\DataDefinition',
       'type' => $type,
     );
+    return $definition;
   }
 
   /**
@@ -324,7 +335,7 @@ class TypedConfigManager extends TypedDataManager implements TypedConfigManagerI
       else {
         $message = 'Invoking hook_config_schema_info_alter() has removed (@removed) schema definitions';
       }
-      throw new ConfigSchemaAlterException(String::format($message, ['@added' => implode(',', $added_keys), '@removed' => implode(',', $removed_keys)]));
+      throw new ConfigSchemaAlterException(SafeMarkup::format($message, ['@added' => implode(',', $added_keys), '@removed' => implode(',', $removed_keys)]));
     }
   }
 

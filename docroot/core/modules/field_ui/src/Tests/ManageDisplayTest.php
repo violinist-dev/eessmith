@@ -10,7 +10,9 @@ namespace Drupal\field_ui\Tests;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\node\Entity\NodeType;
 use Drupal\simpletest\WebTestBase;
+use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Tests the Field UI "Manage display" and "Manage form display" screens.
@@ -45,7 +47,7 @@ class ManageDisplayTest extends WebTestBase {
     $this->type = $type->id();
 
     // Create a default vocabulary.
-    $vocabulary = entity_create('taxonomy_vocabulary', array(
+    $vocabulary = Vocabulary::create(array(
       'name' => $this->randomMachineName(),
       'description' => $this->randomMachineName(),
       'vid' => Unicode::strtolower($this->randomMachineName()),
@@ -375,13 +377,13 @@ class ManageDisplayTest extends WebTestBase {
    */
   function testNoFieldsDisplayOverview() {
     // Create a fresh content type without any fields.
-    entity_create('node_type', array(
+    NodeType::create(array(
       'type' => 'no_fields',
       'name' => 'No fields',
     ))->save();
 
     $this->drupalGet('admin/structure/types/manage/no_fields/display');
-    $this->assertRaw(t('There are no fields yet added. You can add new fields on the <a href="@link">Manage fields</a> page.', array('@link' => \Drupal::url('entity.node_type.field_ui_fields', array('node_type' => 'no_fields')))));
+    $this->assertRaw(t('There are no fields yet added. You can add new fields on the <a href="@link">Manage fields</a> page.', array('@link' => \Drupal::url('entity.node.field_ui_fields', array('node_type' => 'no_fields')))));
   }
 
   /**
@@ -452,7 +454,7 @@ class ManageDisplayTest extends WebTestBase {
     // Render a cloned node, so that we do not alter the original.
     $clone = clone $node;
     $element = node_view($clone, $view_mode);
-    $output = drupal_render($element);
+    $output = \Drupal::service('renderer')->renderRoot($element);
     $this->verbose(t('Rendered node - view mode: @view_mode', array('@view_mode' => $view_mode)) . '<hr />'. $output);
 
     // Assign content so that WebTestBase functions can be used.

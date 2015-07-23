@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\file\Tests\FileFieldTestBase.
+ * Contains \Drupal\file\Tests\FileFieldTestBase.
  */
 
 namespace Drupal\file\Tests;
@@ -24,12 +24,17 @@ abstract class FileFieldTestBase extends WebTestBase {
   */
   public static $modules = array('node', 'file', 'file_module_test', 'field_ui');
 
-  protected $admin_user;
+  /**
+   * An user with administration permissions.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $adminUser;
 
   protected function setUp() {
     parent::setUp();
-    $this->admin_user = $this->drupalCreateUser(array('access content', 'access administration pages', 'administer site configuration', 'administer users', 'administer permissions', 'administer content types', 'administer node fields', 'administer node display', 'administer nodes', 'bypass node access'));
-    $this->drupalLogin($this->admin_user);
+    $this->adminUser = $this->drupalCreateUser(array('access content', 'access administration pages', 'administer site configuration', 'administer users', 'administer permissions', 'administer content types', 'administer node fields', 'administer node display', 'administer nodes', 'bypass node access'));
+    $this->drupalLogin($this->adminUser);
     $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
   }
 
@@ -56,17 +61,17 @@ abstract class FileFieldTestBase extends WebTestBase {
   /**
    * Creates a new file field.
    *
-   * @param $name
+   * @param string $name
    *   The name of the new field (all lowercase), exclude the "field_" prefix.
-   * @param $entity_type
+   * @param string $entity_type
    *   The entity type.
-   * @param $bundle
+   * @param string $bundle
    *   The bundle that this field will be added to.
-   * @param $storage_settings
+   * @param array $storage_settings
    *   A list of field storage settings that will be added to the defaults.
-   * @param $field_settings
+   * @param array $field_settings
    *   A list of instance settings that will be added to the instance defaults.
-   * @param $widget_settings
+   * @param array $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
   function createFileField($name, $entity_type, $bundle, $storage_settings = array(), $field_settings = array(), $widget_settings = array()) {
@@ -86,15 +91,15 @@ abstract class FileFieldTestBase extends WebTestBase {
   /**
    * Attaches a file field to an entity.
    *
-   * @param $name
+   * @param string $name
    *   The name of the new field (all lowercase), exclude the "field_" prefix.
-   * @param $entity_type
+   * @param string $entity_type
    *   The entity type this field will be added to.
-   * @param $bundle
+   * @param string $bundle
    *   The bundle this field will be added to.
-   * @param $field_settings
+   * @param array $field_settings
    *   A list of field settings that will be added to the defaults.
-   * @param $widget_settings
+   * @param array $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
   function attachFileField($name, $entity_type, $bundle, $field_settings = array(), $widget_settings = array()) {
@@ -128,7 +133,7 @@ abstract class FileFieldTestBase extends WebTestBase {
    */
   function updateFileField($name, $type_name, $field_settings = array(), $widget_settings = array()) {
     $field = FieldConfig::loadByName('node', $type_name, $name);
-    $field->settings = array_merge($field->settings, $field_settings);
+    $field->setSettings(array_merge($field->getSettings(), $field_settings));
     $field->save();
 
     entity_get_form_display('node', $type_name, 'default')

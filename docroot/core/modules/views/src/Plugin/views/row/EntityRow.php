@@ -7,7 +7,7 @@
 
 namespace Drupal\views\Plugin\views\row;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -92,7 +92,7 @@ class EntityRow extends RowPluginBase {
 
     $this->entityTypeId = $this->definition['entity_type'];
     $this->entityType = $this->entityManager->getDefinition($this->entityTypeId);
-    $this->base_table = $this->entityType->getBaseTable();
+    $this->base_table = $this->entityType->getDataTable() ?: $this->entityType->getBaseTable();
     $this->base_field = $this->entityType->getKey('id');
   }
 
@@ -160,7 +160,7 @@ class EntityRow extends RowPluginBase {
   public function summaryTitle() {
     $options = \Drupal::entityManager()->getViewModeOptions($this->entityTypeId);
     if (isset($options[$this->options['view_mode']])) {
-      return String::checkPlain($options[$this->options['view_mode']]);
+      return SafeMarkup::checkPlain($options[$this->options['view_mode']]);
     }
     else {
       return $this->t('No view mode selected');

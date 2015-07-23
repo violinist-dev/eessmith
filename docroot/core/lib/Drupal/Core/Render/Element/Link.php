@@ -8,6 +8,9 @@
 namespace Drupal\Core\Render\Element;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\Html as HtmlUtility;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Url as CoreUrl;
 
 /**
  * Provides a link render element.
@@ -69,14 +72,19 @@ class Link extends RenderElement {
     if (isset($element['#ajax']) && !isset($element['#ajax_processed'])) {
       // If no HTML ID was found above, automatically create one.
       if (!isset($element['#id'])) {
-        $element['#id'] = $element['#options']['attributes']['id'] = drupal_html_id('ajax-link');
+        $element['#id'] = $element['#options']['attributes']['id'] = HtmlUtility::getUniqueId('ajax-link');
       }
       $element = static::preRenderAjaxForm($element);
     }
 
-    if (!empty($element['#url'])) {
+    if (!empty($element['#url']) && $element['#url'] instanceof CoreUrl) {
       $options = NestedArray::mergeDeep($element['#url']->getOptions(), $element['#options']);
-      $element['#markup'] = \Drupal::l($element['#title'], $element['#url']->setOptions($options));
+      /** @var \Drupal\Core\Utility\LinkGenerator $link_generator */
+      $link_generator = \Drupal::service('link_generator');
+      $generated_link = $link_generator->generate($element['#title'], $element['#url']->setOptions($options), TRUE);
+      $element['#markup'] = $generated_link->getGeneratedLink();
+      $generated_link->merge(CacheableMetadata::createFromRenderArray($element))
+        ->applyTo($element);
     }
     return $element;
   }

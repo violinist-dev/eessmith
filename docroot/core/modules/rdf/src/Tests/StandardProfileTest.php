@@ -8,6 +8,8 @@
 namespace Drupal\rdf\Tests;
 
 use Drupal\Core\Url;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\simpletest\WebTestBase;
 
@@ -164,7 +166,7 @@ class StandardProfileTest extends WebTestBase {
     // Set URIs.
     // Image.
     $image_file = $this->article->get('field_image')->entity;
-    $this->imageUri = entity_load('image_style', 'large')->buildUrl($image_file->getFileUri());
+    $this->imageUri = ImageStyle::load('large')->buildUrl($image_file->getFileUri());
     // Term.
     $this->termUri = $this->term->url('canonical', array('absolute' => TRUE));
     // Article.
@@ -223,7 +225,7 @@ class StandardProfileTest extends WebTestBase {
     // @todo Once the image points to the original instead of the processed
     //   image, move this to testArticleProperties().
     $image_file = $this->article->get('field_image')->entity;
-    $image_uri = entity_load('image_style', 'medium')->buildUrl($image_file->getFileUri());
+    $image_uri = ImageStyle::load('medium')->buildUrl($image_file->getFileUri());
     $expected_value = array(
       'type' => 'uri',
       'value' => $image_uri,
@@ -272,7 +274,7 @@ class StandardProfileTest extends WebTestBase {
     // The standard profile hides the created date on pages. Revert display to
     // true for testing.
     // @todo Clean-up standard profile defaults.
-    $node_type = entity_load('node_type', 'page');
+    $node_type = NodeType::load('page');
     $node_type->setDisplaySubmitted(TRUE);
     $node_type->save();
 
@@ -327,7 +329,7 @@ class StandardProfileTest extends WebTestBase {
     $this->assertTrue($graph->hasProperty($this->termUri, 'http://schema.org/name', $expected_value), "Term name was found (schema:name) on term page.");
 
     // @todo Add test for term description once it is a field:
-    //   https://drupal.org/node/569434
+    //   https://www.drupal.org/node/569434.
   }
 
   /**
@@ -402,7 +404,7 @@ class StandardProfileTest extends WebTestBase {
     $this->assertTrue($graph->hasProperty($this->articleUri, 'http://schema.org/about', $expected_value), "$message_prefix tag was found (schema:about).");
 
     // Tag type.
-    // @todo enable with https://drupal.org/node/2072791
+    // @todo Enable with https://www.drupal.org/node/2072791.
     //$this->assertEqual($graph->type($this->termUri), 'schema:Thing', 'Tag type was found (schema:Thing).');
 
     // Tag name.
@@ -411,7 +413,7 @@ class StandardProfileTest extends WebTestBase {
       'value' => $this->term->getName(),
       'lang' => 'en',
     );
-    // @todo enable with https://drupal.org/node/2072791
+    // @todo Enable with https://www.drupal.org/node/2072791.
     //$this->assertTrue($graph->hasProperty($this->termUri, 'http://schema.org/name', $expected_value), "$message_prefix name was found (schema:name).");
   }
 

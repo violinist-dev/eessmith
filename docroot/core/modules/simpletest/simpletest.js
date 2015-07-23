@@ -1,13 +1,20 @@
+/**
+ * @file
+ * Simpletest behaviors.
+ */
+
 (function ($) {
 
   "use strict";
 
   /**
    * Collapses table rows followed by group rows on the test listing page.
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.simpleTestGroupCollapse = {
     attach: function (context) {
-      $(context).find('.simpletest-group').once('simpletest-group-collapse', function () {
+      $(context).find('.simpletest-group').once('simpletest-group-collapse').each(function () {
         var $group = $(this);
         var $image = $group.find('.simpletest-image');
         $image
@@ -25,10 +32,12 @@
 
   /**
    * Toggles test checkboxes to match the group checkbox.
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.simpleTestSelectAll = {
     attach: function (context) {
-      $(context).find('.simpletest-group').once('simpletest-group-select-all', function () {
+      $(context).find('.simpletest-group').once('simpletest-group-select-all').each(function () {
         var $group = $(this);
         var $cell = $group.find('.simpletest-group-select-all');
         var $groupCheckbox = $('<input type="checkbox" id="' + $cell.attr('id') + '-group-select-all" class="form-checkbox" />');
@@ -64,6 +73,8 @@
    * Text search input: input.table-filter-text
    * Target table:      input.table-filter-text[data-table]
    * Source text:       .table-filter-text-source
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.simpletestTableFilterByText = {
     attach: function (context) {

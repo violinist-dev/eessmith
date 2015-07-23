@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Database\Driver\sqlite\Statement
+ * Contains \Drupal\Core\Database\Driver\sqlite\Statement.
  */
 
 namespace Drupal\Core\Database\Driver\sqlite;
@@ -19,7 +19,7 @@ use Drupal\Core\Database\StatementInterface;
  * user-space mock of PDOStatement that buffers all the data and doesn't
  * have those limitations.
  */
-class Statement extends StatementPrefetch implements \Iterator, StatementInterface {
+class Statement extends StatementPrefetch implements StatementInterface {
 
   /**
    * SQLite specific implementation of getStatement().
@@ -84,7 +84,7 @@ class Statement extends StatementPrefetch implements \Iterator, StatementInterfa
       }
     }
 
-    return $this->dbh->prepare($query);
+    return $this->pdoConnection->prepare($query);
   }
 
   public function execute($args = array(), $options = array()) {

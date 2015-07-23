@@ -27,7 +27,7 @@ use Drupal\link\LinkItemInterface;
  *   description = @Translation("Stores a URL string, optional varchar link text, and optional blob of attributes to assemble a link."),
  *   default_widget = "link_default",
  *   default_formatter = "link",
- *   constraints = {"LinkType" = {}, "LinkAccess" = {}}
+ *   constraints = {"LinkType" = {}, "LinkAccess" = {}, "LinkExternalProtocols" = {}, "LinkNotExistingInternal" = {}}
  * )
  */
 class LinkItem extends FieldItemBase implements LinkItemInterface {
@@ -177,11 +177,21 @@ class LinkItem extends FieldItemBase implements LinkItemInterface {
    * {@inheritdoc}
    */
   public function setValue($values, $notify = TRUE) {
+    // Treat the values as property value of the main property, if no array is
+    // given.
+    if (isset($values) && !is_array($values)) {
+      $values = [static::mainPropertyName() => $values];
+    }
+    if (isset($values)) {
+      $values += [
+        'options' => [],
+      ];
+    }
     // Unserialize the values.
     // @todo The storage controller should take care of this, see
     //   SqlContentEntityStorage::loadFieldItems, see
     //   https://www.drupal.org/node/2414835
-    if (isset($values['options']) && is_string($values['options'])) {
+    if (is_string($values['options'])) {
       $values['options'] = unserialize($values['options']);
     }
     parent::setValue($values, $notify);

@@ -7,6 +7,14 @@ system.ajax:
   requirements:
     _access: 'TRUE'
 
+system.401:
+  path: '/system/401'
+  defaults:
+    _controller: '\Drupal\system\Controller\Http4xxController:on401'
+    _title: 'Unauthorized'
+  requirements:
+    _access: 'TRUE'
+
 system.403:
   path: '/system/403'
   defaults:
@@ -123,6 +131,8 @@ system.cron:
   path: '/cron/{key}'
   defaults:
     _controller: '\Drupal\system\CronController::run'
+  options:
+    no_cache: TRUE
   requirements:
     _access_system_cron: 'TRUE'
 
@@ -217,8 +227,11 @@ system.run_cron:
   path: '/admin/reports/status/run-cron'
   defaults:
     _controller: '\Drupal\system\CronController::runManually'
+  options:
+    no_cache: TRUE
   requirements:
     _permission: 'administer site configuration'
+    _csrf_token: 'TRUE'
 
 entity.date_format.collection:
   path: '/admin/config/regional/date-time'
@@ -463,9 +476,8 @@ system.admin_content:
     _permission: 'access administration pages'
 
 system.entity_autocomplete:
-  path: '/entity_reference_autocomplete/{target_type}/{selection_handler}/{selection_settings}'
+  path: '/entity_reference_autocomplete/{target_type}/{selection_handler}/{selection_settings_key}'
   defaults:
     _controller: '\Drupal\system\Controller\EntityAutocompleteController::handleAutocomplete'
-    selection_settings: ''
   requirements:
     _access: 'TRUE'

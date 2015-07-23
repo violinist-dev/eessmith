@@ -7,13 +7,13 @@
 
 namespace Drupal\options\Plugin\views\argument;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Field\AllowedTagsXssTrait;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\field\Views\FieldAPIHandlerTrait;
+use Drupal\views\FieldAPIHandlerTrait;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
-use Drupal\views\Plugin\views\argument\Numeric;
+use Drupal\views\Plugin\views\argument\NumericArgument;
 
 /**
  * Argument handler for list field to show the human readable name in the
@@ -23,7 +23,7 @@ use Drupal\views\Plugin\views\argument\Numeric;
  *
  * @ViewsArgument("number_list_field")
  */
-class NumberListField extends Numeric {
+class NumberListField extends NumericArgument {
 
   use AllowedTagsXssTrait;
   use FieldAPIHandlerTrait;
@@ -84,7 +84,7 @@ class NumberListField extends Numeric {
     }
     // Else, fallback to the key.
     else {
-      return String::checkPlain($value);
+      return SafeMarkup::checkPlain($value);
     }
   }
 

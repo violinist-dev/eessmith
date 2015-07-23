@@ -35,13 +35,6 @@ class RoutePreloaderTest extends UnitTestCase {
   protected $state;
 
   /**
-   * The mocked content negotiator.
-   *
-   * @var \Drupal\Core\ContentNegotiation|\PHPUnit_Framework_MockObject_MockObject
-   */
-  protected $negotiation;
-
-  /**
    * The tested preloader.
    *
    * @var \Drupal\Core\Routing\RoutePreloader
@@ -52,12 +45,9 @@ class RoutePreloaderTest extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function setUp() {
-    $this->routeProvider = $this->getMock('Drupal\Core\Routing\RouteProviderInterface');
+    $this->routeProvider = $this->getMock('Drupal\Core\Routing\PreloadableRouteProviderInterface');
     $this->state = $this->getMock('\Drupal\Core\State\StateInterface');
-    $this->negotiation = $this->getMockBuilder('\Drupal\Core\ContentNegotiation')
-      ->disableOriginalConstructor()
-      ->getMock();
-    $this->preloader = new RoutePreloader($this->routeProvider, $this->state, $this->negotiation);
+    $this->preloader = new RoutePreloader($this->routeProvider, $this->state);
   }
 
   /**
@@ -136,12 +126,10 @@ class RoutePreloaderTest extends UnitTestCase {
       ->disableOriginalConstructor()
       ->getMock();
     $request = new Request();
+    $request->setRequestFormat('non-html');
     $event->expects($this->any())
       ->method('getRequest')
       ->will($this->returnValue($request));
-    $this->negotiation->expects($this->once())
-      ->method('getContentType')
-      ->will($this->returnValue('non-html'));
 
     $this->routeProvider->expects($this->never())
       ->method('getRoutesByNames');
@@ -159,16 +147,14 @@ class RoutePreloaderTest extends UnitTestCase {
       ->disableOriginalConstructor()
       ->getMock();
     $request = new Request();
+    $request->setRequestFormat('html');
     $event->expects($this->any())
       ->method('getRequest')
       ->will($this->returnValue($request));
-    $this->negotiation->expects($this->once())
-      ->method('getContentType')
-      ->will($this->returnValue('html'));
 
     $this->routeProvider->expects($this->once())
-      ->method('getRoutesByNames')
-      ->with(array('test2'));
+      ->method('preLoadRoutes')
+      ->with(['test2']);
     $this->state->expects($this->once())
       ->method('get')
       ->with('routing.non_admin_routes')

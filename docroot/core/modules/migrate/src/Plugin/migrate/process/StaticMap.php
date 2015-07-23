@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\migrate\Plugin\migrate\process\MultipleColumnsMap.
+ * Contains \Drupal\migrate\Plugin\migrate\process\StaticMap.
  */
 
 namespace Drupal\migrate\Plugin\migrate\process;
@@ -10,14 +10,14 @@ namespace Drupal\migrate\Plugin\migrate\process;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\migrate\ProcessPluginBase;
 use Drupal\migrate\MigrateException;
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\Row;
 use Drupal\migrate\MigrateSkipRowException;
 
 /**
  * This plugin changes the current value based on a static lookup map.
  *
- * @see https://drupal.org/node/2143521
+ * @see https://www.drupal.org/node/2143521
  *
  * @MigrateProcessPlugin(
  *   id = "static_map"
@@ -28,7 +28,7 @@ class StaticMap extends ProcessPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function transform($value, MigrateExecutable $migrate_executable, Row $row, $destination_property) {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     $new_value = $value;
     if (is_array($value)) {
       if (!$value) {

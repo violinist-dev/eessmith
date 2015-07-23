@@ -7,6 +7,7 @@
 
 namespace Drupal\views\Tests\Plugin;
 
+use Drupal\system\Tests\Cache\AssertPageCacheContextsAndTagsTrait;
 use Drupal\views\Views;
 
 /**
@@ -15,6 +16,8 @@ use Drupal\views\Views;
  * @group views
  */
 class DisplayPageWebTest extends PluginTestBase {
+
+  use AssertPageCacheContextsAndTagsTrait;
 
   /**
    * Views used by this test.
@@ -50,6 +53,7 @@ class DisplayPageWebTest extends PluginTestBase {
 
     $this->drupalGet('test_route_with_argument/1');
     $this->assertResponse(200);
+    $this->assertCacheContexts(['languages:language_interface', 'theme', 'url']);
     $result = $this->xpath('//span[@class="field-content"]');
     $this->assertEqual(count($result), 1, 'Ensure that just the filtered entry was returned.');
     $this->assertEqual((string) $result[0], 1, 'The passed ID was returned.');
@@ -87,7 +91,7 @@ class DisplayPageWebTest extends PluginTestBase {
     $this->assertResponse(200);
     $element = $this->xpath('//ul[contains(@class, :ul_class)]//a[contains(@class, :a_class)]', array(
       ':ul_class' => 'tabs primary',
-      ':a_class' => 'active',
+      ':a_class' => 'is-active',
     ));
     $this->assertEqual((string) $element[0], t('Test default tab'));
     $this->assertTitle(t('Test default page | Drupal'));
@@ -99,7 +103,7 @@ class DisplayPageWebTest extends PluginTestBase {
     $this->assertResponse(200);
     $element = $this->xpath('//ul[contains(@class, :ul_class)]//a[contains(@class, :a_class)]', array(
       ':ul_class' => 'tabs primary',
-      ':a_class' => 'active',
+      ':a_class' => 'is-active',
     ));
     $this->assertEqual((string) $element[0], t('Test local tab'));
     $this->assertTitle(t('Test local page | Drupal'));

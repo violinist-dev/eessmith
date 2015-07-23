@@ -41,7 +41,9 @@ class ThemeManager implements ThemeManagerInterface {
   protected $activeTheme;
 
   /**
-   * @var \Drupal\Core\Theme\ThemeInitialization
+   * The theme initialization.
+   *
+   * @var \Drupal\Core\Theme\ThemeInitializationInterface
    */
   protected $themeInitialization;
 
@@ -62,23 +64,33 @@ class ThemeManager implements ThemeManagerInterface {
    *
    * @param string $root
    *   The app root.
-   * @param \Drupal\Core\Theme\Registry $theme_registry
-   *   The theme registry.
    * @param \Drupal\Core\Theme\ThemeNegotiatorInterface $theme_negotiator
    *   The theme negotiator.
-   * @param \Drupal\Core\Theme\ThemeInitialization $theme_initialization
+   * @param \Drupal\Core\Theme\ThemeInitializationInterface $theme_initialization
    *   The theme initialization.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    */
-  public function __construct($root, Registry $theme_registry, ThemeNegotiatorInterface $theme_negotiator, ThemeInitialization $theme_initialization, RequestStack $request_stack, ModuleHandlerInterface $module_handler) {
+  public function __construct($root, ThemeNegotiatorInterface $theme_negotiator, ThemeInitializationInterface $theme_initialization, RequestStack $request_stack, ModuleHandlerInterface $module_handler) {
     $this->root = $root;
     $this->themeNegotiator = $theme_negotiator;
-    $this->themeRegistry = $theme_registry;
     $this->themeInitialization = $theme_initialization;
     $this->requestStack = $request_stack;
     $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * Sets the theme registry.
+   *
+   * @param \Drupal\Core\Theme\Registry $theme_registry
+   *   The theme registry.
+   *
+   * @return $this
+   */
+  public function setThemeRegistry(Registry $theme_registry) {
+    $this->themeRegistry = $theme_registry;
+    return $this;
   }
 
   /**
@@ -402,7 +414,7 @@ class ThemeManager implements ThemeManagerInterface {
    *
    * @todo Should we cache some of these information?
    */
-  public function alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
+  public function alterForTheme(ActiveTheme $theme, $type, &$data, &$context1 = NULL, &$context2 = NULL) {
     // Most of the time, $type is passed as a string, so for performance,
     // normalize it to that. When passed as an array, usually the first item in
     // the array is a generic type, and additional items in the array are more
@@ -419,7 +431,6 @@ class ThemeManager implements ThemeManagerInterface {
     }
 
     $theme_keys = array();
-    $theme = $this->getActiveTheme();
     foreach ($theme->getBaseThemes() as $base) {
       $theme_keys[] = $base->getName();
     }
@@ -444,6 +455,14 @@ class ThemeManager implements ThemeManagerInterface {
     foreach ($functions as $function) {
       $function($data, $context1, $context2);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
+    $theme = $this->getActiveTheme();
+    $this->alterForTheme($theme, $type, $data, $context1, $context2);
   }
 
 }

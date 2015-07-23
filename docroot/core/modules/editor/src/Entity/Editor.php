@@ -18,6 +18,12 @@ use Drupal\editor\EditorInterface;
  *   label = @Translation("Text Editor"),
  *   entity_keys = {
  *     "id" = "format"
+ *   },
+ *   config_export = {
+ *     "format",
+ *     "editor",
+ *     "settings",
+ *     "image_upload",
  *   }
  * )
  */
@@ -139,6 +145,14 @@ class Editor extends ConfigEntityBase implements EditorInterface {
    */
   public function getEditor() {
     return $this->editor;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEditor($editor) {
+    $this->editor = $editor;
+    return $this;
   }
 
   /**

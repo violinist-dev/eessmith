@@ -11,7 +11,7 @@ use GuzzleHttp\Exception\RequestException;
  * Load the common translation API.
  */
 // @todo Combine functions differently in files to avoid unnecessary includes.
-// Follow-up issue http://drupal.org/node/1834298
+// Follow-up issue: https://www.drupal.org/node/1834298.
 require_once __DIR__ . '/locale.translation.inc';
 
 /**
@@ -247,17 +247,18 @@ function locale_translation_http_check($uri) {
   }
   catch (RequestException $e) {
     // Handle 4xx and 5xx http responses.
-    $response = $e->getResponse();
-    if ($response->getStatusCode() == 404) {
-      // File not found occurs when a translation file is not yet available
-      // at the translation server. But also if a custom module or custom
-      // theme does not define the location of a translation file. By default
-      // the file is checked at the translation server, but it will not be
-      // found there.
-      $logger->notice('Translation file not found: @uri.', array('@uri' => $uri));
-      return TRUE;
+    if ($response = $e->getResponse()) {
+      if ($response->getStatusCode() == 404) {
+        // File not found occurs when a translation file is not yet available
+        // at the translation server. But also if a custom module or custom
+        // theme does not define the location of a translation file. By default
+        // the file is checked at the translation server, but it will not be
+        // found there.
+        $logger->notice('Translation file not found: @uri.', array('@uri' => $uri));
+        return TRUE;
+      }
+      $logger->notice('HTTP request to @url failed with error: @error.', array('@url' => $uri, '@error' => $response->getStatusCode() . ' ' . $response->getReasonPhrase()));
     }
-    $logger->notice('HTTP request to @url failed with error: @error.', array('@url' => $uri, '@error' => $response->getStatusCode() . ' ' . $response->getReasonPhrase()));
   }
 
   return FALSE;

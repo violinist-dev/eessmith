@@ -26,7 +26,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
-
+use Drupal\user\Entity\User;
 use GuzzleHttp\Exception\RequestException;
 
 /**
@@ -98,7 +98,7 @@ function install_drupal($class_loader, $settings = array()) {
   //   infrastructure in https://www.drupal.org/node/2389243
   if (is_array($class_loader) && $settings === array()) {
     $settings = $class_loader;
-    $class_loader = require __DIR__ . '/../vendor/autoload.php';
+    $class_loader = require __DIR__ . '/../../autoload.php';
   }
 
   global $install_state;
@@ -141,6 +141,10 @@ function install_drupal($class_loader, $settings = array()) {
   // installations can send output to the browser or redirect the user to the
   // next page.
   if ($state['interactive']) {
+    // If a session has been initiated in this request, make sure to save it.
+    if ($session = \Drupal::request()->getSession()) {
+      $session->save();
+    }
     if ($state['parameters_changed']) {
       // Redirect to the correct page if the URL parameters have changed.
       install_goto(install_redirect_url($state));
@@ -298,12 +302,19 @@ function install_begin_request($class_loader, &$install_state) {
   // Allow command line scripts to override server variables used by Drupal.
   require_once __DIR__ . '/bootstrap.inc';
 
+  // Before having installed the system module and being able to do a module
+  // rebuild, prime the drupal_get_filename() static cache with the module's
+  // exact location.
+  // @todo Remove as part of https://www.drupal.org/node/2186491
+  drupal_get_filename('module', 'system', 'core/modules/system/system.info.yml');
+
   // If the hash salt leaks, it becomes possible to forge a valid testing user
   // agent, install a new copy of Drupal, and take over the original site.
   // The user agent header is used to pass a database prefix in the request when
   // running tests. However, for security reasons, it is imperative that no
   // installation be permitted using such a prefix.
-  if ($install_state['interactive'] && strpos($request->server->get('HTTP_USER_AGENT'), 'simpletest') !== FALSE && !drupal_valid_test_ua()) {
+  $user_agent = $request->cookies->get('SIMPLETEST_USER_AGENT') ?: $request->server->get('HTTP_USER_AGENT');
+  if ($install_state['interactive'] && strpos($user_agent, 'simpletest') !== FALSE && !drupal_valid_test_ua()) {
     header($request->server->get('SERVER_PROTOCOL') . ' 403 Forbidden');
     exit;
   }
@@ -356,7 +367,7 @@ function install_begin_request($class_loader, &$install_state) {
 
   // Determine whether base system services are ready to operate.
   $install_state['config_verified'] = install_ensure_config_directory(CONFIG_ACTIVE_DIRECTORY) && install_ensure_config_directory(CONFIG_STAGING_DIRECTORY);
-  $install_state['database_verified'] = install_verify_database_settings();
+  $install_state['database_verified'] = install_verify_database_settings($site_path);
   $install_state['settings_verified'] = $install_state['config_verified'] && $install_state['database_verified'];
 
   // Install factory tables only after checking the database.
@@ -545,7 +556,8 @@ function install_run_tasks(&$install_state) {
  * Runs an individual installation task.
  *
  * @param $task
- *   An array of information about the task to be run.
+ *   An array of information about the task to be run as returned by
+ *   hook_install_tasks().
  * @param $install_state
  *   An array of information about the current installation state. This is
  *   passed in by reference so that it can be modified by the task.
@@ -594,8 +606,9 @@ function install_run_task($task, &$install_state) {
       $url = Url::fromUri('base:install.php', ['query' => $install_state['parameters'], 'script' => '']);
       $response = batch_process($url, clone $url);
       if ($response instanceof Response) {
-        // Save $_SESSION data from batch.
-        \Drupal::service('session')->save();
+        if ($session = \Drupal::request()->getSession()) {
+          $session->save();
+        }
         // Send the response.
         $response->send();
         exit;
@@ -678,11 +691,15 @@ function install_tasks_to_perform($install_state) {
  * hasn't been selected yet, we don't yet know which profile tasks will be
  * available).
  *
+ * You can override this using hook_install_tasks() or
+ * hook_install_tasks_alter().
+ *
  * @param $install_state
  *   An array of information about the current installation state.
  *
  * @return
- *   A list of tasks, with associated metadata.
+ *   A list of tasks, with associated metadata as returned by
+ *   hook_install_tasks().
  */
 function install_tasks($install_state) {
   // Determine whether a translation file must be imported during the
@@ -725,6 +742,8 @@ function install_tasks($install_state) {
       'run' => $install_state['settings_verified'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
       'function' => 'Drupal\Core\Installer\Form\SiteSettingsForm',
     ),
+    'install_write_profile' => array(
+    ),
     'install_verify_database_ready' => array(
       'run' => $install_state['database_ready'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     ),
@@ -740,6 +759,8 @@ function install_tasks($install_state) {
       'type' => 'batch',
     ),
     'install_profile_themes' => array(
+    ),
+    'install_install_profile' => array(
     ),
     'install_import_translations' => array(
       'display_name' => t('Set up translations'),
@@ -963,7 +984,8 @@ function install_display_output($output, $install_state) {
     $regions['sidebar_first'] = $task_list;
   }
 
-  $response = new Response();
+  $bare_html_page_renderer = \Drupal::service('bare_html_page_renderer');
+  $response = $bare_html_page_renderer->renderBarePage($output, $output['#title'], 'install_page', $regions);
   $default_headers = array(
     'Expires' => 'Sun, 19 Nov 1978 05:00:00 GMT',
     'Last-Modified' => gmdate(DATE_RFC1123, REQUEST_TIME),
@@ -971,7 +993,6 @@ function install_display_output($output, $install_state) {
     'ETag' => '"' . REQUEST_TIME . '"',
   );
   $response->headers->add($default_headers);
-  $response->setContent(\Drupal::service('bare_html_page_renderer')->renderBarePage($output, $output['#title'], 'install_page', $regions));
   $response->send();
   exit;
 }
@@ -1014,6 +1035,11 @@ function install_base_system(&$install_state) {
   // system.module in order to work.
   file_ensure_htaccess();
 
+  // Prime the drupal_get_filename() static cache with the user module's
+  // exact location.
+  // @todo Remove as part of https://www.drupal.org/node/2186491
+  drupal_get_filename('module', 'user', 'core/modules/user/user.info.yml');
+
   // Enable the user module so that sessions can be recorded during the
   // upcoming bootstrap step.
   \Drupal::service('module_installer')->install(array('user'), FALSE);
@@ -1021,10 +1047,6 @@ function install_base_system(&$install_state) {
   // Save the list of other modules to install for the upcoming tasks.
   // State can be set to the database now that system.module is installed.
   $modules = $install_state['profile_info']['dependencies'];
-
-  // The installation profile is also a module, which needs to be installed
-  // after all the dependencies have been installed.
-  $modules[] = drupal_get_profile();
 
   \Drupal::state()->set('install_profile_modules', array_diff($modules, array('system')));
   $install_state['base_system_verified'] = TRUE;
@@ -1055,11 +1077,17 @@ function install_verify_completed_task() {
 
 /**
  * Verifies that settings.php specifies a valid database connection.
+ *
+ * @param string $site_path
+ *  The site path.
+ *
+ * @return bool
+ *  TRUE if there are no database errors.
  */
-function install_verify_database_settings() {
+function install_verify_database_settings($site_path) {
   if ($database = Database::getConnectionInfo()) {
     $database = $database['default'];
-    $settings_file = './' . conf_path(FALSE) . '/settings.php';
+    $settings_file = './' . $site_path . '/settings.php';
     $errors = install_database_errors($database, $settings_file);
     if (empty($errors)) {
       return TRUE;
@@ -1156,15 +1184,13 @@ function install_select_profile(&$install_state) {
  * Determines the installation profile to use in the installer.
  *
  * A profile will be selected in the following order of conditions:
- *
- * 1. Only one profile is available.
- * 2. A specific profile name is requested in installation parameters:
- *    - for interactive installations via request query parameters.
- *    - for non-interactive installations via install_drupal() settings.
- * 3. A discovered profile that is a distribution.
- *    If multiple profiles are distributions, then the first discovered profile
- *    will be selected.
- * 4. Only one visible profile is available.
+ * - Only one profile is available.
+ * - A specific profile name is requested in installation parameters:
+ *   - For interactive installations via request query parameters.
+ *   - For non-interactive installations via install_drupal() settings.
+ * - A discovered profile that is a distribution. If multiple profiles are
+ *   distributions, then the first discovered profile will be selected.
+ * - Only one visible profile is available.
  *
  * @param array $install_state
  *   The current installer state, containing a 'profiles' key, which is an
@@ -1545,12 +1571,13 @@ function install_load_profile(&$install_state) {
 
 /**
  * Performs a full bootstrap of Drupal during installation.
- *
- * @param $install_state
- *   An array of information about the current installation state.
  */
 function install_bootstrap_full() {
-  \Drupal::service('session')->start();
+  // Store the session on the request object and start it.
+  /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
+  $session = \Drupal::service('session');
+  \Drupal::request()->setSession($session);
+  $session->start();
 }
 
 /**
@@ -1571,10 +1598,7 @@ function install_profile_modules(&$install_state) {
   // the modules.
   $required = array();
   $non_required = array();
-  // Although the profile module is marked as required, it needs to go after
-  // every dependency, including non-required ones. So clear its required
-  // flag for now to allow it to install late.
-  $files[$install_state['parameters']['profile']]->info['required'] = FALSE;
+
   // Add modules that other modules depend on.
   foreach ($modules as $module) {
     if ($files[$module]->requires) {
@@ -1616,21 +1640,35 @@ function install_profile_modules(&$install_state) {
  *   An array of information about the current installation state.
  */
 function install_profile_themes(&$install_state) {
-  $theme_handler = \Drupal::service('theme_handler');
-
-  // ThemeHandler::install() resets the current list of themes. The theme used
-  // in the installer is not necessarily in the list of themes to install, so
-  // retain the current list.
-  // @see _drupal_maintenance_theme()
-  $current_themes = $theme_handler->listInfo();
-
   // Install the themes specified by the installation profile.
   $themes = $install_state['profile_info']['themes'];
-  $theme_handler->install($themes);
+  \Drupal::service('theme_handler')->install($themes);
 
-  foreach ($current_themes as $theme) {
-    $theme_handler->addTheme($theme);
-  }
+  // Ensure that the install profile's theme is used.
+  // @see _drupal_maintenance_theme()
+  \Drupal::service('theme.manager')->resetActiveTheme();
+}
+
+/**
+ * Installs the install profile.
+ *
+ * @param $install_state
+ *   An array of information about the current installation state.
+ */
+function install_install_profile(&$install_state) {
+  \Drupal::service('module_installer')->install(array(drupal_get_profile()), FALSE);
+  // Install all available optional config. During installation the module order
+  // is determined by dependencies. If there are no dependencies between modules
+  // then the order in which they are installed is dependent on random factors
+  // like PHP version. Optional configuration therefore might or might not be
+  // created depending on this order. Ensuring that we have installed all of the
+  // optional configuration whose dependencies can be met at this point removes
+  // any disparities that this creates.
+  \Drupal::service('config.installer')->installOptionalConfig();
+
+  // Ensure that the install profile's theme is used.
+  // @see _drupal_maintenance_theme()
+  \Drupal::service('theme.manager')->resetActiveTheme();
 }
 
 /**
@@ -1655,7 +1693,10 @@ function install_download_additional_translations_operations(&$install_state) {
   // If a non-English language was selected, change the default language and
   // remove English.
   if ($langcode != 'en') {
-    \Drupal::configFactory()->getEditable('system.site')->set('langcode', $langcode)->save();
+    \Drupal::configFactory()->getEditable('system.site')
+      ->set('langcode', $langcode)
+      ->set('default_langcode', $langcode)
+      ->save();
     \Drupal::service('language.default')->set($language);
     if (empty($install_state['profile_info']['keep_english'])) {
       entity_delete_multiple('configurable_language', array('en'));
@@ -1827,7 +1868,7 @@ function install_finished(&$install_state) {
     // Load current user and perform final login tasks.
     // This has to be done after drupal_flush_all_caches()
     // to avoid session regeneration.
-    $account = user_load(1);
+    $account = User::load(1);
     user_login_finalize($account);
   }
 
@@ -1843,10 +1884,6 @@ function install_finished(&$install_state) {
  * Performs batch installation of modules.
  */
 function _install_module_batch($module, $module_name, &$context) {
-  // Install and enable the module right away, so that the module will be
-  // loaded by drupal_bootstrap in subsequent batch requests, and other
-  // modules possibly depending on it can safely perform their installation
-  // steps.
   \Drupal::service('module_installer')->install(array($module), FALSE);
   $context['results'][] = $module;
   $context['message'] = t('Installed %module module.', array('%module' => $module_name));
@@ -1871,8 +1908,9 @@ function install_check_translations($langcode, $server_pattern) {
   $readable = FALSE;
   $writable = FALSE;
   // @todo: Make this configurable.
-  $files_directory = conf_path() . '/files';
-  $translations_directory = conf_path() . '/files/translations';
+  $site_path = \Drupal::service('site.path');
+  $files_directory =  $site_path . '/files';
+  $translations_directory = $site_path . '/files/translations';
   $translations_directory_exists = FALSE;
   $translation_available = FALSE;
   $online = FALSE;
@@ -1948,7 +1986,7 @@ function install_check_translations($langcode, $server_pattern) {
         'title'       => t('Translations directory'),
         'value'       => t('The translations directory is not readable.'),
         'severity'    => REQUIREMENT_ERROR,
-        'description' => t('The installer requires read permissions to %translations_directory at all times. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array('%translations_directory' => $translations_directory, '@handbook_url' => 'http://drupal.org/server-permissions')),
+        'description' => t('The installer requires read permissions to %translations_directory at all times. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array('%translations_directory' => $translations_directory, '@handbook_url' => 'https://www.drupal.org/server-permissions')),
       );
     }
     // If translations directory is not writable, throw an error.
@@ -1957,7 +1995,7 @@ function install_check_translations($langcode, $server_pattern) {
         'title'       => t('Translations directory'),
         'value'       => t('The translations directory is not writable.'),
         'severity'    => REQUIREMENT_ERROR,
-        'description' => t('The installer requires write permissions to %translations_directory during the installation process. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array('%translations_directory' => $translations_directory, '@handbook_url' => 'http://drupal.org/server-permissions')),
+        'description' => t('The installer requires write permissions to %translations_directory during the installation process. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array('%translations_directory' => $translations_directory, '@handbook_url' => 'https://www.drupal.org/server-permissions')),
       );
     }
     else {
@@ -2050,12 +2088,12 @@ function install_check_requirements($install_state) {
   foreach ($default_files as $default_file_info) {
     $readable = FALSE;
     $writable = FALSE;
-    $conf_path = './' . conf_path(FALSE);
-    $file = $conf_path . "/{$default_file_info['file']}";
+    $site_path = './' . \Drupal::service('site.path');
+    $file = $site_path . "/{$default_file_info['file']}";
     $default_file = "./sites/default/{$default_file_info['file_default']}";
     $exists = FALSE;
     // Verify that the directory exists.
-    if (drupal_verify_install_file($conf_path, FILE_EXIST, 'dir')) {
+    if (drupal_verify_install_file($site_path, FILE_EXIST, 'dir')) {
       if (drupal_verify_install_file($file, FILE_EXIST)) {
         // If it does, make sure it is writable.
         $readable = drupal_verify_install_file($file, FILE_READABLE);
@@ -2080,7 +2118,7 @@ function install_check_requirements($install_state) {
     // Otherwise, if $file does not exist yet, we can try to copy
     // $default_file to create it.
     elseif (!$exists) {
-      $copied = drupal_verify_install_file($conf_path, FILE_EXIST | FILE_WRITABLE, 'dir') && @copy($default_file, $file);
+      $copied = drupal_verify_install_file($site_path, FILE_EXIST | FILE_WRITABLE, 'dir') && @copy($default_file, $file);
       if ($copied) {
         // If the new $file file has the same owner as $default_file this means
         // $default_file is owned by the webserver user. This is an inherent
@@ -2152,7 +2190,7 @@ function install_check_requirements($install_state) {
           'description' => t('@drupal requires read permissions to %file at all times. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array(
               '@drupal' => drupal_install_profile_distribution_name(),
               '%file' => $file,
-              '@handbook_url' => 'http://drupal.org/server-permissions'
+              '@handbook_url' => 'https://www.drupal.org/server-permissions'
             )),
         );
       }
@@ -2165,7 +2203,7 @@ function install_check_requirements($install_state) {
           'description' => t('The @drupal installer requires write permissions to %file during the installation process. If you are unsure how to grant file permissions, consult the <a href="@handbook_url">online handbook</a>.', array(
               '@drupal' => drupal_install_profile_distribution_name(),
               '%file' => $file,
-              '@handbook_url' => 'http://drupal.org/server-permissions'
+              '@handbook_url' => 'https://www.drupal.org/server-permissions'
             )),
         );
       }
@@ -2185,7 +2223,7 @@ function install_check_requirements($install_state) {
               '%file' => $file,
               '%default_file' => $default_file,
               '@install_txt' => base_path() . 'core/INSTALL.txt',
-              '@handbook_url' => 'http://drupal.org/server-permissions'
+              '@handbook_url' => 'https://www.drupal.org/server-permissions'
             )),
         );
       }
@@ -2248,5 +2286,22 @@ function install_display_requirements($install_state, $requirements) {
         throw new InstallerException(implode("\n\n", $failures));
       }
     }
+  }
+}
+
+/**
+ * Installation task; ensures install profile is written to settings.php.
+ *
+ * @param array $install_state
+ *   An array of information about the current installation state.
+ */
+function install_write_profile($install_state) {
+  if (Settings::get('install_profile') !== $install_state['parameters']['profile']) {
+    // Remember the profile which was used.
+    $settings['settings']['install_profile'] = (object) array(
+      'value' => $install_state['parameters']['profile'],
+      'required' => TRUE,
+    );
+    drupal_rewrite_settings($settings);
   }
 }

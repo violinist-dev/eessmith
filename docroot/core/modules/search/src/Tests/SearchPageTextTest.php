@@ -2,16 +2,16 @@
 
 /**
  * @file
- * Definition of Drupal\search\Tests\SearchPageTextTest.
+ * Contains \Drupal\search\Tests\SearchPageTextTest.
  */
 
 namespace Drupal\search\Tests;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 
 /**
- * Tests the bike shed text on no results page, and text on the search page.
+ * Tests the search help text and search page text.
  *
  * @group search
  */
@@ -44,13 +44,17 @@ class SearchPageTextTest extends SearchTestBase {
     $search_terms = 'bike shed ' . $this->randomMachineName();
     $edit['keys'] = $search_terms;
     $this->drupalPostForm('search/node', $edit, t('Search'));
-    $this->assertText(t('Consider loosening your query with OR. bike OR shed will often show more results than bike shed.'), 'Help text is displayed when search returns no results.');
+    $this->assertText('search yielded no results');
     $this->assertText(t('Search'));
     $title_source = 'Search for @keywords | Drupal';
     $this->assertTitle(t($title_source, array('@keywords' => Unicode::truncate($search_terms, 60, TRUE, TRUE))), 'Search page title is correct');
     $this->assertNoText('Node', 'Erroneous tab and breadcrumb text is not present');
     $this->assertNoText(t('Node'), 'Erroneous translated tab and breadcrumb text is not present');
     $this->assertText(t('Content'), 'Tab and breadcrumb text is present');
+
+    $this->clickLink('Search help');
+    $this->assertText('Search help', 'Correct title is on search help page');
+    $this->assertText('Use upper-case OR to get more results', 'Correct text is on content search help page');
 
     // Search for a longer text, and see that it is in the title, truncated.
     $edit = array();
@@ -64,12 +68,16 @@ class SearchPageTextTest extends SearchTestBase {
     $edit['keys'] = $search_terms;
     $this->drupalPostForm('search/node', $edit, t('Search'));
     $actual_title = (string) current($this->xpath('//title'));
-    $this->assertEqual($actual_title, String::decodeEntities(t($title_source, array('@keywords' => Unicode::truncate($search_terms, 60, TRUE, TRUE)))), 'Search page title is correct');
+    $this->assertEqual($actual_title, Html::decodeEntities(t($title_source, array('@keywords' => Unicode::truncate($search_terms, 60, TRUE, TRUE)))), 'Search page title is correct');
 
     $edit['keys'] = $this->searchingUser->getUsername();
     $this->drupalPostForm('search/user', $edit, t('Search'));
     $this->assertText(t('Search'));
     $this->assertTitle(t($title_source, array('@keywords' => Unicode::truncate($this->searchingUser->getUsername(), 60, TRUE, TRUE))));
+
+    $this->clickLink('Search help');
+    $this->assertText('Search help', 'Correct title is on search help page');
+    $this->assertText('user names and partial user names', 'Correct text is on user search help page');
 
     // Test that search keywords containing slashes are correctly loaded
     // from the GET params and displayed in the search form.
@@ -117,13 +125,13 @@ class SearchPageTextTest extends SearchTestBase {
     $this->assertNoText('You must include at least one positive keyword', 'Keyword message is not displayed when searching for long word after short word search');
 
     // Test that if you search for a URL with .. in it, you still end up at
-    // the search page. See issue https://drupal.org/node/890058.
+    // the search page. See issue https://www.drupal.org/node/890058.
     $this->drupalPostForm('search/node', array('keys' => '../../admin'), t('Search'));
     $this->assertResponse(200, 'Searching for ../../admin with non-admin user does not lead to a 403 error');
     $this->assertText('no results', 'Searching for ../../admin with non-admin user gives you a no search results page');
 
     // Test that if you search for a URL starting with "./", you still end up
-    // at the search page. See issue https://drupal.org/node/1421560.
+    // at the search page. See issue https://www.drupal.org/node/1421560.
     $this->drupalPostForm('search/node', array('keys' => '.something'), t('Search'));
     $this->assertResponse(200, 'Searching for .something does not lead to a 403 error');
     $this->assertText('no results', 'Searching for .something gives you a no search results page');

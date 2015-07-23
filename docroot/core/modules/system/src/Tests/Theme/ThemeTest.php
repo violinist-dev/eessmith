@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\Theme\ThemeTest.
+ * Contains \Drupal\system\Tests\Theme\ThemeTest.
  */
 
 namespace Drupal\system\Tests\Theme;
@@ -79,7 +79,7 @@ class ThemeTest extends WebTestBase {
   function testThemeSuggestions() {
     // Set the front page as something random otherwise the CLI
     // test runner fails.
-    $this->config('system.site')->set('page.front', 'nobody-home')->save();
+    $this->config('system.site')->set('page.front', '/nobody-home')->save();
     $args = array('node', '1', 'edit');
     $suggestions = theme_get_suggestions($args, 'page');
     $this->assertEqual($suggestions, array('page__node', 'page__node__%', 'page__node__1', 'page__node__edit'), 'Found expected node edit page suggestions');
@@ -146,7 +146,7 @@ class ThemeTest extends WebTestBase {
     $request->attributes->set(RouteObjectInterface::ROUTE_NAME, 'user.login');
     $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('/user/login'));
     \Drupal::requestStack()->push($request);
-    $this->config('system.site')->set('page.front', 'user/login')->save();
+    $this->config('system.site')->set('page.front', '/user/login')->save();
     $suggestions = theme_get_suggestions(array('user', 'login'), 'page');
     // Set it back to not annoy the batch runner.
     \Drupal::requestStack()->pop();
@@ -181,7 +181,7 @@ class ThemeTest extends WebTestBase {
   }
 
   /**
-   * Ensures a themes template is overrideable based on the 'template' filename.
+   * Ensures a themes template is overridable based on the 'template' filename.
    */
   function testTemplateOverride() {
     $this->config('system.theme')
@@ -207,12 +207,9 @@ class ThemeTest extends WebTestBase {
     $theme_handler->install(array('test_subtheme'));
     $themes = $theme_handler->listInfo();
 
-    $themes = \Drupal::service('theme_handler')->listInfo();
-    // Check if drupal_theme_access() retrieves enabled themes properly from
-    // ThemeHandlerInterface::listInfo().
-    $this->assertTrue(drupal_theme_access('test_theme'), 'Installed theme detected');
+    // Check if ThemeHandlerInterface::listInfo() retrieves enabled themes.
+    $this->assertIdentical(1, $themes['test_theme']->status, 'Installed theme detected');
 
-    $this->assertTrue(drupal_theme_access('test_theme'), 'Enabled theme detected');
     // Check if ThemeHandlerInterface::listInfo() returns disabled themes.
     // Check for base theme and subtheme lists.
     $base_theme_list = array('test_basetheme' => 'Theme test base theme');

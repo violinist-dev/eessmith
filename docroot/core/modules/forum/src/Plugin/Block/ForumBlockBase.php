@@ -7,6 +7,7 @@
 
 namespace Drupal\forum\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -59,7 +60,7 @@ abstract class ForumBlockBase extends BlockBase {
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    return $account->hasPermission('access content');
+    return AccessResult::allowedIfHasPermission($account, 'access content');
   }
 
   /**
@@ -69,7 +70,7 @@ abstract class ForumBlockBase extends BlockBase {
     $range = range(2, 20);
     $form['block_count'] = array(
       '#type' => 'select',
-      '#title' => t('Number of topics'),
+      '#title' => $this->t('Number of topics'),
       '#default_value' => $this->configuration['block_count'],
       '#options' => array_combine($range, $range),
     );
@@ -86,8 +87,15 @@ abstract class ForumBlockBase extends BlockBase {
   /**
    * {@inheritdoc}
    */
-  public function getCacheKeys() {
-    return array_merge(parent::getCacheKeys(), Cache::keyFromQuery($this->buildForumQuery()));
+  public function getCacheContexts() {
+    return ['user.node_grants:view'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return ['node_list'];
   }
 
 }

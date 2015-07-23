@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\hal\Tests\NormalizeTest.
+ * Contains \Drupal\hal\Tests\EntityTest.
  */
 
 namespace Drupal\hal\Tests;
@@ -35,6 +35,7 @@ class EntityTest extends NormalizerTestBase {
     $this->installSchema('system', array('sequences'));
     $this->installSchema('comment', array('comment_entity_statistics'));
     $this->installEntitySchema('taxonomy_term');
+    $this->installConfig(['node', 'comment']);
   }
 
   /**

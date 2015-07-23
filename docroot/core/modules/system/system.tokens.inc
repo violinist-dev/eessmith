@@ -7,7 +7,7 @@
  * This file handles tokens for the global 'site' and 'date' tokens.
  */
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Xss;
 
 /**
@@ -68,7 +68,7 @@ function system_token_info() {
   );
   $date['since'] = array(
     'name' => t("Time-since"),
-    'description' => t("A date in 'time-since' format. (%date)", array('%date' => \Drupal::service('date.formatter')->formatInterval(REQUEST_TIME - 360, 2))),
+    'description' => t("A date in 'time-since' format. (%date)", array('%date' => \Drupal::service('date.formatter')->formatTimeDiffSince(REQUEST_TIME - 360))),
   );
   $date['raw'] = array(
     'name' => t("Raw timestamp"),
@@ -107,7 +107,7 @@ function system_tokens($type, $tokens, array $data = array(), array $options = a
       switch ($name) {
         case 'name':
           $site_name = \Drupal::config('system.site')->get('name');
-          $replacements[$original] = $sanitize ? String::checkPlain($site_name) : $site_name;
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($site_name) : $site_name;
           break;
 
         case 'slogan':
@@ -157,11 +157,11 @@ function system_tokens($type, $tokens, array $data = array(), array $options = a
           break;
 
         case 'since':
-          $replacements[$original] = \Drupal::service('date.formatter')->formatInterval((REQUEST_TIME - $date), 2, $langcode);
+          $replacements[$original] = \Drupal::service('date.formatter')->formatTimeDiffSince($date, array('langcode' => $langcode));
           break;
 
         case 'raw':
-          $replacements[$original] = $sanitize ? String::checkPlain($date) : $date;
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($date) : $date;
           break;
       }
     }

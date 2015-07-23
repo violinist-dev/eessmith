@@ -10,7 +10,8 @@ use Drupal\migrate_drupal\Plugin\migrate\source\Variable;
 
 /**
  * @MigrateSource(
- *   id = "d6_contact_settings"
+ *   id = "d6_contact_settings",
+ *   source_provider = "contact"
  * )
  */
 class ContactSettings extends Variable {
@@ -18,7 +19,7 @@ class ContactSettings extends Variable {
   /**
    * {@inheritdoc}
    */
-  function runQuery() {
+  function initializeIterator() {
     $default_category = $this->select('contact', 'c')
       ->fields('c', array('cid'))
       ->condition('selected', 1)

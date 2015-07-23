@@ -8,6 +8,46 @@ h1#page-title {
   font-size: 2em;
   line-height: 1;
 }
+.main-content .section {
+  padding: 0 15px;
+}
+@media all and (min-width: 851px) {
+  .main-content {
+    float: left; /* LTR */
+    position: relative;
+  }
+  [dir="rtl"] .main-content {
+    float: right;
+  }
+  .layout-two-sidebars .main-content {
+    margin-left: 25%;
+    margin-right: 25%;
+    width: 50%;
+  }
+  .layout-one-sidebar .main-content {
+    width: 75%;
+  }
+  .layout-no-sidebars .main-content {
+    width: 100%;
+  }
+  .layout-sidebar-first .main-content {
+    margin-left: 25%; /* LTR */
+    margin-right: 0; /* LTR */
+  }
+  [dir="rtl"] .layout-sidebar-first .main-content {
+    margin-left: 0;
+    margin-right: 25%;
+  }
+  .layout-sidebar-second .main-content {
+    margin-right: 25%; /* LTR */
+    margin-left: 0; /* LTR */
+  }
+  [dir="rtl"] .layout-sidebar-second .main-content {
+    margin-right: 0;
+    margin-left: 25%;
+  }
+}
+
 #content h2 {
   margin-bottom: 2px;
   font-size: 1.429em;
@@ -56,38 +96,38 @@ h1#page-title {
   margin-left: 20px;
   margin-right: 0;
 }
-.field-type-taxonomy-term-reference {
+.field-name-field-tags {
   margin: 0 0 1.2em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-.field-type-taxonomy-term-reference .field-label {
+.field-name-field-tags .field-label {
   font-weight: normal;
   margin: 0;
   padding-right: 5px; /* LTR */
 }
-[dir="rtl"] .field-type-taxonomy-term-reference .field-label {
+[dir="rtl"] .field-name-field-tags .field-label {
   padding-left: 5px;
   padding-right: 0;
 }
-.field-type-taxonomy-term-reference .field-label,
-.field-type-taxonomy-term-reference ul.links {
+.field-name-field-tags .field-label,
+.field-name-field-tags ul.links {
   font-size: 0.8em;
 }
-.node--view-mode-teaser .field-type-taxonomy-term-reference .field-label,
-.node--view-mode-teaser .field-type-taxonomy-term-reference ul.links {
+.node--view-mode-teaser .field-name-field-tags .field-label,
+.node--view-mode-teaser .field-name-field-tags ul.links {
   font-size: 0.821em;
 }
-.field-type-taxonomy-term-reference ul.links {
+.field-name-field-tags ul.links {
   padding: 0;
   margin: 0;
   list-style: none;
 }
-.field-type-taxonomy-term-reference ul.links li {
+.field-name-field-tags ul.links li {
   float: left; /* LTR */
   padding: 0 1em 0 0; /* LTR */
   white-space: nowrap;
 }
-[dir="rtl"] .field-type-taxonomy-term-reference ul.links li {
+[dir="rtl"] .field-name-field-tags ul.links li {
   padding: 0 0 0 1em;
   float: right;
 }
@@ -114,6 +154,9 @@ h1#page-title {
 .field-name-field-user-picture img {
   margin: 0 0 1em;
 }
+.field-type-image a {
+  border-bottom: none;
+}
 ul.links {
   color: #68696b;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -122,11 +165,6 @@ ul.links {
 .node--unpublished,
 .unpublished {
   padding: 20px 15px 0;
-}
-.node--unpublished .comment-text .comment-arrow,
-.unpublished .comment-text .comment-arrow {
-  border-left: 1px solid #fff4f4;
-  border-right: 1px solid #fff4f4;
 }
 .node-preview-container {
   background: #d1e8f5;

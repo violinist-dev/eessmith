@@ -17,7 +17,7 @@ use Drupal\views\ViewExecutable;
 class ConfigHandlerExtra extends ViewsFormBase {
 
   /**
-   * Constucts a new ConfigHandlerExtra object.
+   * Constructs a new ConfigHandlerExtra object.
    */
   public function __construct($type = NULL, $id = NULL) {
     $this->setType($type);
@@ -64,7 +64,10 @@ class ConfigHandlerExtra extends ViewsFormBase {
       ),
     );
     $executable = $view->getExecutable();
-    $executable->setDisplay($display_id);
+    if (!$executable->setDisplay($display_id)) {
+      $form['markup'] = array('#markup' => $this->t('Invalid display id @display', array('@display' => $display_id)));
+      return $form;
+    }
     $item = $executable->getHandler($display_id, $type, $id);
 
     if ($item) {

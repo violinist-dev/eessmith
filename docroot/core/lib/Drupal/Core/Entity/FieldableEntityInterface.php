@@ -99,7 +99,7 @@ interface FieldableEntityInterface extends EntityInterface {
   public static function bundleFieldDefinitions(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions);
 
   /**
-   * Returns whether the entity has a field with the given name.
+   * Determines whether the entity has a field with the given name.
    *
    * @param string $field_name
    *   The field name.
@@ -131,7 +131,7 @@ interface FieldableEntityInterface extends EntityInterface {
   public function getFieldDefinitions();
 
   /**
-   * Returns an array of all field values.
+   * Gets an array of all field values.
    *
    * Gets an array of plain field values, including only non-computed values.
    * Note that the structure varies by entity type and bundle.
@@ -192,13 +192,21 @@ interface FieldableEntityInterface extends EntityInterface {
    *
    * @param string $field_name
    *   The name of the field which is changed.
+   *
+   * @throws \InvalidArgumentException
+   *   When trying to assign a value to the language field that matches an
+   *   existing translation.
+   * @throws \LogicException
+   *   When trying to change:
+   *   - The language of a translation.
+   *   - The value of the flag identifying the default translation object.
    */
   public function onChange($field_name);
 
   /**
    * Validates the currently set values.
    *
-   * @return \Symfony\Component\Validator\ConstraintViolationListInterface
+   * @return \Drupal\Core\Entity\EntityConstraintViolationListInterface
    *   A list of constraint violations. If the list is empty, validation
    *   succeeded.
    */

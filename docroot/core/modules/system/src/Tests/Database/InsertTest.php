@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\Database\InsertTest.
+ * Contains \Drupal\system\Tests\Database\InsertTest.
  */
 
 namespace Drupal\system\Tests\Database;
@@ -104,7 +104,7 @@ class InsertTest extends DatabaseTestBase {
   /**
    * Tests that we can specify fields without values and specify values later.
    */
-  function testInsertFieldOnlyDefinintion() {
+  function testInsertFieldOnlyDefinition() {
     // This is useful for importers, when we want to create a query and define
     // its fields once, then loop over a multi-insert execution.
     db_insert('test')

@@ -2,11 +2,12 @@
 
 /**
  * @file
- * Contains Drupal\search\Controller\SearchController
+ * Contains \Drupal\search\Controller\SearchController.
  */
 
 namespace Drupal\search\Controller;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\search\SearchPageInterface;
@@ -109,35 +110,53 @@ class SearchController extends ControllerBase {
       );
     }
 
-    $no_results = t('<ul>
-    <li>Check if your spelling is correct.</li>
-    <li>Remove quotes around phrases to search for each word individually. <em>bike shed</em> will often show more results than <em>&quot;bike shed&quot;</em>.</li>
-    <li>Consider loosening your query with <em>OR</em>. <em>bike OR shed</em> will often show more results than <em>bike shed</em>.</li>
-    </ul>');
     $build['search_results'] = array(
       '#theme' => array('item_list__search_results__' . $plugin->getPluginId(), 'item_list__search_results'),
       '#items' => $results,
       '#empty' => array(
-        // @todo Revisit where this help text is added.
-        '#markup' => '<h3>' . $this->t('Your search yielded no results.') . '</h3>' . $no_results,
+        '#markup' => '<h3>' . $this->t('Your search yielded no results.') . '</h3>',
       ),
       '#list_type' => 'ol',
-      '#attributes' => array(
-        'class' => array(
-          'search-results',
-          $plugin->getPluginId() . '-results',
-        ),
-      ),
       '#cache' => array(
         'tags' => $entity->getCacheTags(),
       ),
+      '#context' => array(
+        'plugin' => $plugin->getPluginId(),
+      ),
     );
 
+    // If this plugin uses a search index, then also add the cache tag tracking
+    // that search index, so that cached search result pages are invalidated
+    // when necessary.
+    if ($plugin->getType()) {
+      $build['search_results']['#cache']['tags'][] = 'search_index';
+      $build['search_results']['#cache']['tags'][] = 'search_index:' . $plugin->getType();
+    }
+
     $build['pager'] = array(
-      '#theme' => 'pager',
+      '#type' => 'pager',
     );
 
     $build['#attached']['library'][] = 'search/drupal.search.results';
+
+    return $build;
+  }
+
+  /**
+   * Creates a render array for the search help page.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   * @param \Drupal\search\SearchPageInterface $entity
+   *   The search page entity.
+   *
+   * @return array
+   *   The search help page.
+   */
+  public function searchHelp(SearchPageInterface $entity) {
+    $build = array();
+
+    $build['search_help'] = $entity->getPlugin()->getHelp();
 
     return $build;
   }

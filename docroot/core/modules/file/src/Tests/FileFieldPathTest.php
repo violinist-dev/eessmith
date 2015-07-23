@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\file\Tests\FileFieldPathTest.
+ * Contains \Drupal\file\Tests\FileFieldPathTest.
  */
 
 namespace Drupal\file\Tests;
@@ -57,7 +57,7 @@ class FileFieldPathTest extends FileFieldTestBase {
     $node_file = file_load($node->{$field_name}->target_id);
     // Do token replacement using the same user which uploaded the file, not
     // the user running the test case.
-    $data = array('user' => $this->admin_user);
+    $data = array('user' => $this->adminUser);
     $subdirectory = \Drupal::token()->replace('[user:uid]/[user:name]', $data);
     $this->assertPathMatch('public://' . $subdirectory . '/' . $test_file->getFilename(), $node_file->getFileUri(), format_string('The file %file was uploaded to the correct path with token replacements.', array('%file' => $node_file->getFileUri())));
   }
@@ -65,12 +65,12 @@ class FileFieldPathTest extends FileFieldTestBase {
   /**
    * Asserts that a file is uploaded to the right location.
    *
-   * @param $expected_path
+   * @param string $expected_path
    *   The location where the file is expected to be uploaded. Duplicate file
    *   names to not need to be taken into account.
-   * @param $actual_path
+   * @param string $actual_path
    *   Where the file was actually uploaded.
-   * @param $message
+   * @param string $message
    *   The message to display with this assertion.
    */
   function assertPathMatch($expected_path, $actual_path, $message) {

@@ -8,9 +8,7 @@
 namespace Drupal\Core\EventSubscriber;
 
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\String;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\ContentNegotiation;
 use Drupal\Core\Render\BareHtmlPageRendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Utility\Error;
@@ -53,7 +51,7 @@ class DefaultExceptionSubscriber implements EventSubscriberInterface {
   protected $bareHtmlPageRenderer;
 
   /**
-   * Constructs a new DefaultExceptionHtmlSubscriber.
+   * Constructs a new DefaultExceptionSubscriber.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
@@ -108,7 +106,7 @@ class DefaultExceptionSubscriber implements EventSubscriberInterface {
       }
       // Do not translate the string to avoid errors producing more errors.
       unset($error['backtrace']);
-      $message = String::format('%type: !message in %function (line %line of %file).', $error);
+      $message = SafeMarkup::format('%type: !message in %function (line %line of %file).', $error);
 
       // Check if verbose error reporting is on.
       if ($this->getErrorLevel() == ERROR_REPORTING_DISPLAY_VERBOSE) {
@@ -130,12 +128,12 @@ class DefaultExceptionSubscriber implements EventSubscriberInterface {
       drupal_set_message(SafeMarkup::set($message), $class, TRUE);
     }
 
-    $content = $this->t('The website has encountered an error. Please try again later.');
-    $output = $this->bareHtmlPageRenderer->renderBarePage(['#markup' => $content], $this->t('Error'), 'maintenance_page');
-    $response = new Response($output);
+    $content = $this->t('The website encountered an unexpected error. Please try again later.');
+    $response = $this->bareHtmlPageRenderer->renderBarePage(['#markup' => $content], $this->t('Error'), 'maintenance_page');
 
     if ($exception instanceof HttpExceptionInterface) {
       $response->setStatusCode($exception->getStatusCode());
+      $response->headers->add($exception->getHeaders());
     }
     else {
       $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR, '500 Service unavailable (with message)');
@@ -160,12 +158,13 @@ class DefaultExceptionSubscriber implements EventSubscriberInterface {
     // of message to be displayed,
     $data = NULL;
     if (error_displayable($error) && $message = $exception->getMessage()) {
-      $data = ['error' => sprintf('A fatal error occurred: %s', $message)];
+      $data = ['message' => sprintf('A fatal error occurred: %s', $message)];
     }
 
     $response = new JsonResponse($data, Response::HTTP_INTERNAL_SERVER_ERROR);
     if ($exception instanceof HttpExceptionInterface) {
       $response->setStatusCode($exception->getStatusCode());
+      $response->headers->add($exception->getHeaders());
     }
 
     $event->setResponse($response);
@@ -198,14 +197,7 @@ class DefaultExceptionSubscriber implements EventSubscriberInterface {
    *   The format as which to treat the exception.
    */
   protected function getFormat(Request $request) {
-    // @todo We are trying to switch to a more robust content negotiation
-    // library in https://www.drupal.org/node/1505080 that will make
-    // $request->getRequestFormat() reliable as a better alternative
-    // to this code. We therefore use this style for now on the expectation
-    // that it will get replaced with better code later. This approach makes
-    // that change easier when we get to it.
-    $conneg = new ContentNegotiation();
-    $format = $conneg->getContentType($request);
+    $format = $request->query->get(MainContentViewSubscriber::WRAPPER_FORMAT, $request->getRequestFormat());
 
     // These are all JSON errors for our purposes. Any special handling for
     // them can/should happen in earlier listeners if desired.

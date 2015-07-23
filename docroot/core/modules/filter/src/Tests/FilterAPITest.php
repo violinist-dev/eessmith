@@ -7,7 +7,8 @@
 
 namespace Drupal\filter\Tests;
 
-use Drupal\Component\Utility\String;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\Core\TypedData\OptionsProviderInterface;
 use Drupal\Core\TypedData\DataDefinition;
@@ -28,7 +29,7 @@ class FilterAPITest extends EntityUnitTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->installConfig(array('system', 'filter'));
+    $this->installConfig(array('system', 'filter', 'filter_test'));
   }
 
   /**
@@ -66,9 +67,9 @@ class FilterAPITest extends EntityUnitTestBase {
    * Tests the ability to apply only a subset of filters.
    */
   function testCheckMarkupFilterSubset() {
-    $text = "Text with <marquee>evil content and</marquee> a URL: http://drupal.org!";
-    $expected_filtered_text = "Text with evil content and a URL: <a href=\"http://drupal.org\">http://drupal.org</a>!";
-    $expected_filter_text_without_html_generators = "Text with evil content and a URL: http://drupal.org!";
+    $text = "Text with <marquee>evil content and</marquee> a URL: https://www.drupal.org!";
+    $expected_filtered_text = "Text with evil content and a URL: <a href=\"https://www.drupal.org\">https://www.drupal.org</a>!";
+    $expected_filter_text_without_html_generators = "Text with evil content and a URL: https://www.drupal.org!";
 
     $actual_filtered_text = check_markup($text, 'filtered_html', '', array());
     $this->verbose("Actual:<pre>$actual_filtered_text</pre>Expected:<pre>$expected_filtered_text</pre>");
@@ -200,7 +201,7 @@ class FilterAPITest extends EntityUnitTestBase {
    * check_markup() is a wrapper for the 'processed_text' element, for use in
    * simple scenarios; the 'processed_text' element has more advanced features:
    * it lets filters attach assets, associate cache tags and define
-   * #post_render_cache callbacks.
+   * #lazy_builder callbacks.
    * This test focuses solely on those advanced features.
    */
   function testProcessedTextElement() {
@@ -216,13 +217,16 @@ class FilterAPITest extends EntityUnitTestBase {
           'weight' => 0,
           'status' => TRUE,
         ),
-        'filter_test_post_render_cache' => array(
+        'filter_test_cache_contexts' => array(
+          'weight' => 0,
+          'status' => TRUE,
+        ),
+        'filter_test_placeholders' => array(
           'weight' => 1,
           'status' => TRUE,
         ),
         // Run the HTML corrector filter last, because it has the potential to
-        // break the render cache placeholders added by the
-        // filter_test_post_render_cache filter.
+        // break the placeholders added by the filter_test_placeholders filter.
         'filter_htmlcorrector' => array(
           'weight' => 10,
           'status' => TRUE,
@@ -237,14 +241,16 @@ class FilterAPITest extends EntityUnitTestBase {
     );
     drupal_render_root($build);
 
-    // Verify the assets, cache tags and #post_render_cache callbacks.
-    $expected_assets = array(
+    // Verify the attachments and cacheability metadata.
+    $expected_attachments = array(
       // The assets attached by the filter_test_assets filter.
       'library' => array(
         'filter/caption',
       ),
+      // The placeholders attached that still need to be processed.
+      'placeholders' => [],
     );
-    $this->assertEqual($expected_assets, $build['#attached'], 'Expected assets present');
+    $this->assertEqual($expected_attachments, $build['#attached'], 'Expected attachments present');
     $expected_cache_tags = array(
       // The cache tag set by the processed_text element itself.
       'config:filter.format.element_test',
@@ -253,8 +259,16 @@ class FilterAPITest extends EntityUnitTestBase {
       'foo:baz',
     );
     $this->assertEqual($expected_cache_tags, $build['#cache']['tags'], 'Expected cache tags present.');
+    $expected_cache_contexts = [
+      // The cache context set by the filter_test_cache_contexts filter.
+      'languages:' . LanguageInterface::TYPE_CONTENT,
+      // The default cache contexts for Renderer.
+      'languages:' . LanguageInterface::TYPE_INTERFACE,
+      'theme',
+    ];
+    $this->assertEqual($expected_cache_contexts, $build['#cache']['contexts'], 'Expected cache contexts present.');
     $expected_markup = '<p>Hello, world!</p><p>This is a dynamic llama.</p>';
-    $this->assertEqual($expected_markup, $build['#markup'], 'Expected #post_render_cache callback has been applied.');
+    $this->assertEqual($expected_markup, $build['#markup'], 'Expected #lazy_builder callback has been applied.');
   }
 
   /**
@@ -402,18 +416,6 @@ class FilterAPITest extends EntityUnitTestBase {
   public function testDependencyRemoval() {
     $this->installSchema('user', array('users_data'));
     $filter_format = \Drupal\filter\Entity\FilterFormat::load('filtered_html');
-
-    // Enable the filter_test_restrict_tags_and_attributes filter plugin on the
-    // filtered_html filter format.
-    $filter_config = [
-      'weight' => 10,
-      'status' => 1,
-    ];
-    $filter_format->setFilterConfig('filter_test_restrict_tags_and_attributes', $filter_config)->save();
-
-    $module_data = _system_rebuild_module_data();
-    $this->assertTrue($module_data['filter_test']->info['required'], 'The filter_test module is required.');
-    $this->assertEqual($module_data['filter_test']->info['explanation'], String::format('Provides a filter plugin that is in use in the following filter formats: %formats', array('%formats' => $filter_format->label())));
 
     // Disable the filter_test_restrict_tags_and_attributes filter plugin but
     // have custom configuration so that the filter plugin is still configured

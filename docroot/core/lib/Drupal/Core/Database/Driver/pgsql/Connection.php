@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Database\Driver\pgsql\Connection
+ * Contains \Drupal\Core\Database\Driver\pgsql\Connection.
  */
 
 namespace Drupal\Core\Database\Driver\pgsql;
@@ -102,67 +102,22 @@ class Connection extends DatabaseConnection {
     return $pdo;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function query($query, array $args = array(), $options = array()) {
-
     $options += $this->defaultOptions();
 
-    // The PDO PostgreSQL driver has a bug which
-    // doesn't type cast booleans correctly when
-    // parameters are bound using associative
-    // arrays.
-    // See http://bugs.php.net/bug.php?id=48383
+    // The PDO PostgreSQL driver has a bug which doesn't type cast booleans
+    // correctly when parameters are bound using associative arrays.
+    // @see http://bugs.php.net/bug.php?id=48383
     foreach ($args as &$value) {
       if (is_bool($value)) {
         $value = (int) $value;
       }
     }
 
-    try {
-      if ($query instanceof StatementInterface) {
-        $stmt = $query;
-        $stmt->execute(NULL, $options);
-      }
-      else {
-        $this->expandArguments($query, $args);
-        $stmt = $this->prepareQuery($query);
-        $stmt->execute($args, $options);
-      }
-
-      switch ($options['return']) {
-        case Database::RETURN_STATEMENT:
-          return $stmt;
-        case Database::RETURN_AFFECTED:
-          $stmt->allowRowCount = TRUE;
-          return $stmt->rowCount();
-        case Database::RETURN_INSERT_ID:
-          return $this->connection->lastInsertId($options['sequence_name']);
-        case Database::RETURN_NULL:
-          return;
-        default:
-          throw new \PDOException('Invalid return directive: ' . $options['return']);
-      }
-    }
-    catch (\PDOException $e) {
-      if ($options['throw_exception']) {
-        // Match all SQLSTATE 23xxx errors.
-        if (substr($e->getCode(), -6, -3) == '23') {
-          $e = new IntegrityConstraintViolationException($e->getMessage(), $e->getCode(), $e);
-        }
-        else {
-          $e = new DatabaseExceptionWrapper($e->getMessage(), 0, $e);
-        }
-        // Add additional debug information.
-        if ($query instanceof StatementInterface) {
-          $e->query_string = $stmt->getQueryString();
-        }
-        else {
-          $e->query_string = $query;
-        }
-        $e->args = $args;
-        throw $e;
-      }
-      return NULL;
-    }
+    return parent::query($query, $args, $options);
   }
 
   public function prepareQuery($query) {
@@ -184,6 +139,64 @@ class Connection extends DatabaseConnection {
     $tablename = $this->generateTemporaryTableName();
     $this->query('CREATE TEMPORARY TABLE {' . $tablename . '} AS ' . $query, $args, $options);
     return $tablename;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function escapeField($field) {
+    $escaped = parent::escapeField($field);
+
+    // Remove any invalid start character.
+    $escaped = preg_replace('/^[^A-Za-z0-9_]/', '', $escaped);
+
+    // The pgsql database driver does not support field names that contain
+    // periods (supported by PostgreSQL server) because this method may be
+    // called by a field with a table alias as part of SQL conditions or
+    // order by statements. This will consider a period as a table alias
+    // identifier, and split the string at the first period.
+    if (preg_match('/^([A-Za-z0-9_]+)"?[.]"?([A-Za-z0-9_.]+)/', $escaped, $parts)) {
+      $table = $parts[1];
+      $column = $parts[2];
+
+      // Use escape alias because escapeField may contain multiple periods that
+      // need to be escaped.
+      $escaped = $this->escapeTable($table) . '.' . $this->escapeAlias($column);
+    }
+    elseif (preg_match('/[A-Z]/', $escaped)) {
+      // Quote the field name for case-sensitivity.
+      $escaped = '"' . $escaped . '"';
+    }
+
+    return $escaped;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function escapeAlias($field) {
+    $escaped = preg_replace('/[^A-Za-z0-9_]+/', '', $field);
+
+    // Escape the alias in quotes for case-sensitivity.
+    if (preg_match('/[A-Z]/', $escaped)) {
+      $escaped = '"' . $escaped . '"';
+    }
+
+    return $escaped;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function escapeTable($table) {
+    $escaped = parent::escapeTable($table);
+
+    // Quote identifier to make it case-sensitive.
+    if (preg_match('/[A-Z]/', $escaped)) {
+      $escaped = '"' . $escaped . '"';
+    }
+
+    return $escaped;
   }
 
   public function driver() {
@@ -277,6 +290,19 @@ class Connection extends DatabaseConnection {
     $this->query("SELECT pg_advisory_unlock(" . self::POSTGRESQL_NEXTID_LOCK . ")");
 
     return $id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFullQualifiedTableName($table) {
+    $options = $this->getConnectionOptions();
+    $prefix = $this->tablePrefix($table);
+
+    // The fully qualified table name in PostgreSQL is in the form of
+    // <database>.<schema>.<table>, so we have to include the 'public' schema in
+    // the return value.
+    return $options['database'] . '.public.' . $prefix . $table;
   }
 
   /**

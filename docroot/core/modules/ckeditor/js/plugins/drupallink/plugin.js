@@ -1,6 +1,8 @@
 /**
  * @file
  * Drupal Link plugin.
+ *
+ * @ignore
  */
 
 (function ($, Drupal, drupalSettings, CKEDITOR) {
@@ -25,7 +27,8 @@
             linkDOMElement = linkElement.$;
 
             // Populate an array with the link's current attributes.
-            var attribute = null, attributeName;
+            var attribute = null;
+            var attributeName;
             for (var attrIndex = 0; attrIndex < linkDOMElement.attributes.length; attrIndex++) {
               attribute = linkDOMElement.attributes.item(attrIndex);
               attributeName = attribute.nodeName.toLowerCase();
@@ -198,6 +201,7 @@
    *
    * The following selection will all return the link element.
    *
+   * @example
    *  <a href="#">li^nk</a>
    *  <a href="#">[link]</a>
    *  text[<a href="#">link]</a>
@@ -206,6 +210,8 @@
    *  [<a href="#"><b>li]nk</b></a>
    *
    * @param {CKEDITOR.editor} editor
+   *
+   * @return {?bool}
    */
   function getSelectedLink(editor) {
     var selection = editor.getSelection();

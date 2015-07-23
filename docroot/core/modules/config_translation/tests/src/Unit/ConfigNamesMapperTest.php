@@ -446,10 +446,6 @@ class ConfigNamesMapperTest extends UnitTestCase {
     catch (\RuntimeException $e) {}
   }
 
-  // @todo Test ConfigNamesMapper::getLanguageWithFallback() once
-  //   https://drupal.org/node/1862202 lands in core, because then we can
-  //   remove the direct language_load() call.
-
   /**
    * Tests ConfigNamesMapper::getConfigData().
    */
@@ -593,7 +589,7 @@ class ConfigNamesMapperTest extends UnitTestCase {
 
     $map = array();
     foreach ($config_names as $i => $config_name) {
-      $map[] = array($config_name, $language, $mock_return_values[$i]);
+      $map[] = array($config_name, $language->getId(), $mock_return_values[$i]);
     }
     $this->localeConfigManager
       ->expects($this->any())

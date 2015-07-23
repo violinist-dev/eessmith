@@ -11,7 +11,7 @@ use Drupal\Tests\UnitTestCase;
 use Drupal\views\Ajax\ViewAjaxResponse;
 use Drupal\views\Controller\ViewAjaxController;
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @coversDefaultClass \Drupal\views\Controller\ViewAjaxController
@@ -47,6 +47,23 @@ class ViewAjaxControllerTest extends UnitTestCase {
    */
   protected $currentPath;
 
+  /**
+   * The redirect destination.
+   *
+   * @var \Drupal\Core\Routing\RedirectDestinationInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $redirectDestination;
+
+  /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $renderer;
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     $this->viewStorage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $this->executableFactory = $this->getMockBuilder('Drupal\views\ViewExecutableFactory')
@@ -62,8 +79,17 @@ class ViewAjaxControllerTest extends UnitTestCase {
     $this->currentPath = $this->getMockBuilder('Drupal\Core\Path\CurrentPathStack')
       ->disableOriginalConstructor()
       ->getMock();
+    $this->redirectDestination = $this->getMock('\Drupal\Core\Routing\RedirectDestinationInterface');
 
-    $this->viewAjaxController = new ViewAjaxController($this->viewStorage, $this->executableFactory, $this->renderer, $this->currentPath);
+    $this->viewAjaxController = new ViewAjaxController($this->viewStorage, $this->executableFactory, $this->renderer, $this->currentPath, $this->redirectDestination);
+
+    $this->renderer = $this->getMockBuilder('Drupal\Core\Render\Renderer')
+      ->disableOriginalConstructor()
+      ->setMethods(NULL)
+      ->getMock();
+    $container = new ContainerBuilder();
+    $container->set('renderer', $this->renderer);
+    \Drupal::setContainer($container);
   }
 
   /**
@@ -238,7 +264,7 @@ class ViewAjaxControllerTest extends UnitTestCase {
 
     $commands = $this->getCommands($response);
     $this->assertEquals('viewsScrollTop', $commands[0]['command']);
-    $this->assertEquals('.view-dom-id-' . $dom_id, $commands[0]['selector']);
+    $this->assertEquals('.js-view-dom-id-' . $dom_id, $commands[0]['selector']);
 
     $this->assertViewResultCommand($response, 1);
   }
@@ -308,12 +334,3 @@ class ViewAjaxControllerTest extends UnitTestCase {
 
 }
 
-namespace {
-  // @todo Remove once drupal_get_destination is converted to autoloadable code.
-  if (!function_exists('drupal_static')) {
-    function &drupal_static($key) {
-      return $key;
-    }
-  }
-
-}

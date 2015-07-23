@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\user\Plugin\views\field\Permissions.
+ * Contains \Drupal\user\Plugin\views\field\Permissions.
  */
 
 namespace Drupal\user\Plugin\views\field;
@@ -71,7 +71,7 @@ class Permissions extends PrerenderList {
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
     parent::init($view, $display, $options);
 
-    $this->additional_fields['uid'] = array('table' => 'users', 'field' => 'uid');
+    $this->additional_fields['uid'] = array('table' => 'users_field_data', 'field' => 'uid');
   }
 
   public function query() {

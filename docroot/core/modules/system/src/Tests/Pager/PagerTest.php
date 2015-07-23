@@ -23,6 +23,13 @@ class PagerTest extends WebTestBase {
    */
   public static $modules = array('dblog', 'pager_test');
 
+  /**
+   * A user with permission to access site reports.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $adminUser;
+
   protected $profile = 'testing';
 
   protected function setUp() {
@@ -34,10 +41,10 @@ class PagerTest extends WebTestBase {
       $logger->debug($this->randomString());
     }
 
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->adminUser = $this->drupalCreateUser(array(
       'access site reports',
     ));
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
   }
 
   /**
@@ -63,22 +70,25 @@ class PagerTest extends WebTestBase {
   }
 
   /**
-   * Test proper functioning of the query parameters.
+   * Test proper functioning of the query parameters and the pager cache context.
    */
-  protected function testPagerQueryParameters() {
+  protected function testPagerQueryParametersAndCacheContext() {
     // First page.
     $this->drupalGet('pager-test/query-parameters');
     $this->assertText(t('Pager calls: 0'), 'Initial call to pager shows 0 calls.');
+    $this->assertText('pager.0.0');
 
     // Go to last page, the count of pager calls need to go to 1.
     $elements = $this->xpath('//li[contains(@class, :class)]/a', array(':class' => 'pager__item--last'));
     $this->drupalGet($GLOBALS['base_root'] . $elements[0]['href'], array('external' => TRUE));
     $this->assertText(t('Pager calls: 1'), 'First link call to pager shows 1 calls.');
+    $this->assertText('pager.0.60');
 
     // Go back to first page, the count of pager calls need to go to 2.
     $elements = $this->xpath('//li[contains(@class, :class)]/a', array(':class' => 'pager__item--first'));
     $this->drupalGet($GLOBALS['base_root'] . $elements[0]['href'], array('external' => TRUE));
     $this->assertText(t('Pager calls: 2'), 'Second link call to pager shows 2 calls.');
+    $this->assertText('pager.0.0');
   }
 
   /**
@@ -88,7 +98,7 @@ class PagerTest extends WebTestBase {
    *   The current pager page the internal browser is on.
    */
   protected function assertPagerItems($current_page) {
-    $elements = $this->xpath('//ul[@class=:class]/li', array(':class' => 'pager__items'));
+    $elements = $this->xpath('//ul[contains(@class, :class)]/li', array(':class' => 'pager__items'));
     $this->assertTrue(!empty($elements), 'Pager found.');
 
     // Make current page 1-based.

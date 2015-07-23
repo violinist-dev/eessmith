@@ -9,7 +9,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\PhpStorage\FileStorage;
 use Drupal\Component\Utility\Bytes;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
@@ -285,7 +285,7 @@ function file_stream_wrapper_get_instance_by_scheme($scheme) {
  *   '/', nothing is done and the same string is returned. If a stream wrapper
  *   could not be found to generate an external URL, then FALSE is returned.
  *
- * @see http://drupal.org/node/515192
+ * @see https://www.drupal.org/node/515192
  * @see file_url_transform_relative()
  */
 function file_create_url($uri) {
@@ -463,7 +463,7 @@ function file_save_htaccess($directory, $private = TRUE, $force_overwrite = FALS
     return drupal_chmod($htaccess_path, 0444);
   }
   else {
-    $variables = array('%directory' => $directory, '!htaccess' => '<br />' . nl2br(String::checkPlain($htaccess_lines)));
+    $variables = array('%directory' => $directory, '!htaccess' => '<br />' . nl2br(SafeMarkup::checkPlain($htaccess_lines)));
     \Drupal::logger('security')->error("Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables);
     return FALSE;
   }
@@ -1215,8 +1215,9 @@ function file_directory_temp() {
       // everything to use slash which is supported on all platforms.
       $temporary_directory = str_replace('\\', '/', $temporary_directory);
     }
-    // Save the path of the discovered directory.
-    $config->set('path.temporary', $temporary_directory)->save();
+    // Save the path of the discovered directory. Do not check config schema on
+    // save.
+    $config->set('path.temporary', (string) $temporary_directory)->save(TRUE);
   }
 
   return $temporary_directory;

@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Definition of Drupal\node\Tests\NodeTokenReplaceTest.
+ * Contains \Drupal\node\Tests\NodeTokenReplaceTest.
  */
 
 namespace Drupal\node\Tests;
 
 use Drupal\system\Tests\System\TokenReplaceUnitTestBase;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Generates text using placeholders for dummy content to check node token
@@ -30,7 +30,7 @@ class NodeTokenReplaceTest extends TokenReplaceUnitTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->installConfig(array('filter'));
+    $this->installConfig(array('filter', 'node'));
 
     $node_type = entity_create('node_type', array('type' => 'article', 'name' => 'Article'));
     $node_type->save();
@@ -64,17 +64,17 @@ class NodeTokenReplaceTest extends TokenReplaceUnitTestBase {
     $tests['[node:vid]'] = $node->getRevisionId();
     $tests['[node:type]'] = 'article';
     $tests['[node:type-name]'] = 'Article';
-    $tests['[node:title]'] = String::checkPlain($node->getTitle());
+    $tests['[node:title]'] = SafeMarkup::checkPlain($node->getTitle());
     $tests['[node:body]'] = $node->body->processed;
     $tests['[node:summary]'] = $node->body->summary_processed;
-    $tests['[node:langcode]'] = String::checkPlain($node->language()->getId());
+    $tests['[node:langcode]'] = SafeMarkup::checkPlain($node->language()->getId());
     $tests['[node:url]'] = $node->url('canonical', $url_options);
     $tests['[node:edit-url]'] = $node->url('edit-form', $url_options);
-    $tests['[node:author]'] = String::checkPlain($account->getUsername());
+    $tests['[node:author]'] = SafeMarkup::checkPlain($account->getUsername());
     $tests['[node:author:uid]'] = $node->getOwnerId();
-    $tests['[node:author:name]'] = String::checkPlain($account->getUsername());
-    $tests['[node:created:since]'] = \Drupal::service('date.formatter')->formatInterval(REQUEST_TIME - $node->getCreatedTime(), 2, $this->interfaceLanguage->getId());
-    $tests['[node:changed:since]'] = \Drupal::service('date.formatter')->formatInterval(REQUEST_TIME - $node->getChangedTime(), 2, $this->interfaceLanguage->getId());
+    $tests['[node:author:name]'] = SafeMarkup::checkPlain($account->getUsername());
+    $tests['[node:created:since]'] = \Drupal::service('date.formatter')->formatTimeDiffSince($node->getCreatedTime(), array('langcode' => $this->interfaceLanguage->getId()));
+    $tests['[node:changed:since]'] = \Drupal::service('date.formatter')->formatTimeDiffSince($node->getChangedTime(), array('langcode' => $this->interfaceLanguage->getId()));
 
     // Test to make sure that we generated something for each token.
     $this->assertFalse(in_array(0, array_map('strlen', $tests)), 'No empty tokens generated.');

@@ -8,7 +8,6 @@
 namespace Drupal\views_ui\Controller;
 
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\String;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\views\ViewExecutable;
@@ -90,7 +89,7 @@ class ViewsUIController extends ControllerBase {
     $header = array(t('Field name'), t('Used in'));
     $rows = array();
     foreach ($fields as $field_name => $views) {
-      $rows[$field_name]['data'][0] = String::checkPlain($field_name);
+      $rows[$field_name]['data'][0] = SafeMarkup::checkPlain($field_name);
       foreach ($views as $view) {
         $rows[$field_name]['data'][1][] = $this->l($view, new Url('entity.view.edit_form', array('view' => $view)));
       }
@@ -158,7 +157,7 @@ class ViewsUIController extends ControllerBase {
     if ($request->request->get('js')) {
       $list = $this->entityManager()->getListBuilder('view')->render();
       $response = new AjaxResponse();
-      $response->addCommand(new ReplaceCommand('#views-entity-list', drupal_render($list)));
+      $response->addCommand(new ReplaceCommand('#views-entity-list', $list));
       return $response;
     }
 

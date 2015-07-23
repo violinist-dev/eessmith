@@ -106,30 +106,6 @@ function entity_revision_delete($entity_type, $revision_id) {
 }
 
 /**
- * Loads an entity by UUID.
- *
- * Note that some entity types may not support UUIDs.
- *
- * @param string $entity_type_id
- *   The entity type to load; e.g., 'node' or 'user'.
- * @param string $uuid
- *   The UUID of the entity to load.
- *
- * @return EntityInterface|FALSE
- *   The entity object, or FALSE if there is no entity with the given UUID.
- *
- * @throws \Drupal\Core\Entity\EntityStorageException
- *   Thrown in case the requested entity type does not support UUIDs.
- *
- * @see \Drupal\Core\Entity\EntityManagerInterface
- *
- * @deprecated Use \Drupal::entityManager()->loadEntityByUuid();
- */
-function entity_load_by_uuid($entity_type_id, $uuid) {
-  return \Drupal::entityManager()->loadEntityByUuid($entity_type_id, $uuid);
-}
-
-/**
  * Loads multiple entities from the database.
  *
  * This function should be used whenever you need to load more than one entity
@@ -237,6 +213,11 @@ function entity_delete_multiple($entity_type, array $ids) {
  *
  * @return \Drupal\Core\Entity\EntityInterface
  *   A new entity object.
+ *
+ * @deprecated in Drupal 8.x-dev, will be removed before Drupal 9.0.0. Use
+ *    the <EntityType>::create($values) method if the entity type is known or
+ *    \Drupal::entityManager()->getStorage($entity_type)->create($values) if the
+ *    entity type is variable.
  */
 function entity_create($entity_type, array $values = array()) {
   return \Drupal::entityManager()

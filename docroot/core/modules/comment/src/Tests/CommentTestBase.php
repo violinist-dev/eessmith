@@ -12,6 +12,7 @@ use Drupal\comment\Entity\Comment;
 use Drupal\comment\CommentInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
+use Drupal\node\Entity\NodeType;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -54,7 +55,7 @@ abstract class CommentTestBase extends WebTestBase {
 
     // Create an article content type only if it does not yet exist, so that
     // child classes may specify the standard profile.
-    $types = node_type_get_types();
+    $types = NodeType::loadMultiple();
     if (empty($types['article'])) {
       $this->drupalCreateContentType(array('type' => 'article', 'name' => t('Article')));
     }
@@ -116,7 +117,7 @@ abstract class CommentTestBase extends WebTestBase {
     else {
       $field = FieldConfig::loadByName('node', 'article', $field_name);
     }
-    $preview_mode = $field->settings['preview'];
+    $preview_mode = $field->getSetting('preview');
 
     // Must get the page before we test for fields.
     if ($entity !== NULL) {
@@ -178,7 +179,7 @@ abstract class CommentTestBase extends WebTestBase {
    *
    * @param \Drupal\comment\CommentInterface $comment
    *   The comment object.
-   * @param boolean $reply
+   * @param bool $reply
    *   Boolean indicating whether the comment is a reply to another comment.
    *
    * @return boolean
@@ -313,7 +314,7 @@ abstract class CommentTestBase extends WebTestBase {
    */
   public function setCommentSettings($name, $value, $message, $field_name = 'comment') {
     $field = FieldConfig::loadByName('node', 'article', $field_name);
-    $field->settings[$name] = $value;
+    $field->setSetting($name, $value);
     $field->save();
     // Display status message.
     $this->pass($message);
@@ -336,7 +337,7 @@ abstract class CommentTestBase extends WebTestBase {
    *   Comment to perform operation on.
    * @param string $operation
    *   Operation to perform.
-   * @param boolean $aproval
+   * @param bool $approval
    *   Operation is found on approval page.
    */
   function performCommentOperation(CommentInterface $comment, $operation, $approval = FALSE) {

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\system\Tests\Database\SchemaTest.
+ * Contains \Drupal\system\Tests\Database\SchemaTest.
  */
 
 namespace Drupal\system\Tests\Database;
@@ -23,7 +23,7 @@ class SchemaTest extends KernelTestBase {
   /**
    * A global counter for table and field creation.
    */
-  var $counter;
+  protected $counter;
 
   /**
    * Tests database interactions.
@@ -49,6 +49,11 @@ class SchemaTest extends KernelTestBase {
           'default' => "'\"funky default'\"",
           'description' => 'Schema column description for string.',
         ),
+        'test_field_string_ascii'  => array(
+          'type' => 'varchar_ascii',
+          'length' => 255,
+          'description' => 'Schema column description for ASCII string.',
+        ),
       ),
     );
     db_create_table('test_table', $table_specification);
@@ -61,6 +66,21 @@ class SchemaTest extends KernelTestBase {
 
     // Assert that the column comment has been set.
     $this->checkSchemaComment($table_specification['fields']['test_field']['description'], 'test_table', 'test_field');
+
+    if (Database::getConnection()->databaseType() == 'mysql') {
+      // Make sure that varchar fields have the correct collation.
+      $columns = db_query('SHOW FULL COLUMNS FROM {test_table}');
+      foreach ($columns as $column) {
+        if ($column->Field == 'test_field_string') {
+          $string_check = ($column->Collation == 'utf8mb4_general_ci');
+        }
+        if ($column->Field == 'test_field_string_ascii') {
+          $string_ascii_check = ($column->Collation == 'ascii_general_ci');
+        }
+      }
+      $this->assertTrue(!empty($string_check), 'string field has the right collation.');
+      $this->assertTrue(!empty($string_ascii_check), 'ASCII string field has the right collation.');
+    }
 
     // An insert without a value for the column 'test_table' should fail.
     $this->assertFalse($this->tryInsert(), 'Insert without a default failed.');
@@ -219,6 +239,101 @@ class SchemaTest extends KernelTestBase {
   }
 
   /**
+   * Tests that indexes on string fields are limited to 191 characters on MySQL.
+   *
+   * @see \Drupal\Core\Database\Driver\mysql\Schema::getNormalizedIndexes()
+   */
+  function testIndexLength() {
+    if (Database::getConnection()->databaseType() != 'mysql') {
+      return;
+    }
+    $table_specification = array(
+      'fields' => array(
+        'id'  => array(
+          'type' => 'int',
+          'default' => NULL,
+        ),
+        'test_field_text'  => array(
+          'type' => 'text',
+          'not null' => TRUE,
+        ),
+        'test_field_string_long'  => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+        ),
+        'test_field_string_ascii_long'  => array(
+          'type' => 'varchar_ascii',
+          'length' => 255,
+        ),
+        'test_field_string_short'  => array(
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ),
+      ),
+      'indexes' => array(
+        'test_regular' => array(
+          'test_field_text',
+          'test_field_string_long',
+          'test_field_string_ascii_long',
+          'test_field_string_short',
+        ),
+        'test_length' => array(
+          array('test_field_text', 128),
+          array('test_field_string_long', 128),
+          array('test_field_string_ascii_long', 128),
+          array('test_field_string_short', 128),
+        ),
+        'test_mixed' => array(
+          array('test_field_text', 200),
+          'test_field_string_long',
+          array('test_field_string_ascii_long', 200),
+          'test_field_string_short',
+        ),
+      ),
+    );
+    db_create_table('test_table_index_length', $table_specification);
+
+    // Get index information.
+    $results = db_query('SHOW INDEX FROM {test_table_index_length}');
+    $expected_lengths = array(
+      'test_regular' => array(
+        'test_field_text' => 191,
+        'test_field_string_long' => 191,
+        'test_field_string_ascii_long' => NULL,
+        'test_field_string_short' => NULL,
+      ),
+      'test_length' => array(
+        'test_field_text' => 128,
+        'test_field_string_long' => 128,
+        'test_field_string_ascii_long' => 128,
+        'test_field_string_short' => NULL,
+      ),
+      'test_mixed' => array(
+        'test_field_text' => 191,
+        'test_field_string_long' => 191,
+        'test_field_string_ascii_long' => 200,
+        'test_field_string_short' => NULL,
+      ),
+    );
+
+    // Count the number of columns defined in the indexes.
+    $column_count = 0;
+    foreach ($table_specification['indexes'] as $index) {
+      foreach ($index as $field) {
+        $column_count++;
+      }
+    }
+    $test_count = 0;
+    foreach ($results as $result) {
+      $this->assertEqual($result->Sub_part, $expected_lengths[$result->Key_name][$result->Column_name], 'Index length matches expected value.');
+      $test_count++;
+    }
+    $this->assertEqual($test_count, $column_count, 'Number of tests matches expected value.');
+  }
+
+  /**
    * Tests inserting data into an existing table.
    *
    * @param $table
@@ -365,8 +480,8 @@ class SchemaTest extends KernelTestBase {
     // Test numeric types.
     foreach (array(1, 5, 10, 40, 65) as $precision) {
       foreach (array(0, 2, 10, 30) as $scale) {
+        // Skip combinations where precision is smaller than scale.
         if ($precision <= $scale) {
-          // Precision must be smaller then scale.
           continue;
         }
 
@@ -444,6 +559,11 @@ class SchemaTest extends KernelTestBase {
 
     // Clean-up.
     db_drop_field($table_name, 'test_field');
+
+    // Add back the field and then try to delete a field which is also a primary
+    // key.
+    db_add_field($table_name, 'test_field', $field_spec);
+    db_drop_field($table_name, 'serial_column');
     db_drop_table($table_name);
   }
 
@@ -476,7 +596,65 @@ class SchemaTest extends KernelTestBase {
         ->fetchField();
       $this->assertEqual($field_value, $field_spec['default'], 'Default value registered.');
     }
+  }
 
-    db_drop_field($table_name, $field_name);
+  /**
+   * Tests changing columns between numeric types.
+   */
+  function testSchemaChangeField() {
+    $field_specs = array(
+      array('type' => 'int', 'size' => 'normal','not null' => FALSE),
+      array('type' => 'int', 'size' => 'normal', 'not null' => TRUE, 'initial' => 1, 'default' => 17),
+      array('type' => 'float', 'size' => 'normal', 'not null' => FALSE),
+      array('type' => 'float', 'size' => 'normal', 'not null' => TRUE, 'initial' => 1, 'default' => 7.3),
+      array('type' => 'numeric', 'scale' => 2, 'precision' => 10, 'not null' => FALSE),
+      array('type' => 'numeric', 'scale' => 2, 'precision' => 10, 'not null' => TRUE, 'initial' => 1, 'default' => 7),
+    );
+
+    foreach ($field_specs as $i => $old_spec) {
+      foreach ($field_specs as $j => $new_spec) {
+        if ($i === $j) {
+          // Do not change a field into itself.
+          continue;
+        }
+        $this->assertFieldChange($old_spec, $new_spec);
+      }
+    }
+  }
+
+  /**
+   * Asserts that a field can be changed from one spec to another.
+   *
+   * @param $old_spec
+   *   The beginning field specification.
+   * @param $new_spec
+   *   The ending field specification.
+   */
+  protected function assertFieldChange($old_spec, $new_spec) {
+    $table_name = 'test_table_' . ($this->counter++);
+    $table_spec = array(
+      'fields' => array(
+        'serial_column' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+        'test_field' => $old_spec,
+      ),
+      'primary key' => array('serial_column'),
+    );
+    db_create_table($table_name, $table_spec);
+    $this->pass(format_string('Table %table created.', array('%table' => $table_name)));
+
+    // Check the characteristics of the field.
+    $this->assertFieldCharacteristics($table_name, 'test_field', $old_spec);
+
+    // Remove inserted rows.
+    db_truncate($table_name)->execute();
+
+    // Change the field.
+    db_change_field($table_name, 'test_field', 'test_field', $new_spec);
+
+    // Check the field was changed.
+    $this->assertFieldCharacteristics($table_name, 'test_field', $new_spec);
+
+    // Clean-up.
+    db_drop_table($table_name);
   }
 }

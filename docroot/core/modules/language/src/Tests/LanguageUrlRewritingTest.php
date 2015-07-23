@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\language\Tests\LanguageUrlRewritingTest.
+ * Contains \Drupal\language\Tests\LanguageUrlRewritingTest.
  */
 
 namespace Drupal\language\Tests;
@@ -148,7 +148,7 @@ class LanguageUrlRewritingTest extends WebTestBase {
 
     $this->assertEqual($url, $expected, 'The right port is used.');
 
-    // If we set the port explicitly, it should not be overriden.
+    // If we set the port explicitly, it should not be overridden.
     $url = Url::fromRoute('<none>', [], [
       'absolute' => TRUE,
       'language' => $language,
@@ -157,7 +157,7 @@ class LanguageUrlRewritingTest extends WebTestBase {
 
     $expected = $index_php ? 'http://example.fr:90/index.php' : 'http://example.fr:90' . rtrim(base_path(), '/') . '/';
 
-    $this->assertEqual($url, $expected, 'A given port is not overriden.');
+    $this->assertEqual($url, $expected, 'A given port is not overridden.');
 
   }
 

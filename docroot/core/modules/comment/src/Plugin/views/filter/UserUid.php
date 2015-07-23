@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\comment\Plugin\views\filter\UserUid.
+ * Contains \Drupal\comment\Plugin\views\filter\UserUid.
  */
 
 namespace Drupal\comment\Plugin\views\filter;
@@ -22,7 +22,7 @@ class UserUid extends FilterPluginBase {
   public function query() {
     $this->ensureMyTable();
 
-    $subselect = db_select('comment', 'c');
+    $subselect = db_select('comment_field_data', 'c');
     $subselect->addField('c', 'cid');
     $subselect->condition('c.uid', $this->value, $this->operator);
 

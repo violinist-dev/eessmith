@@ -10,7 +10,7 @@ namespace Drupal\Core\Menu;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\Discovery\ContainerDerivativeDiscoveryDecorator;
 use Drupal\Core\Plugin\Discovery\YamlDiscovery;
@@ -118,7 +118,6 @@ class MenuLinkManager implements MenuLinkManagerInterface {
   public function __construct(MenuTreeStorageInterface $tree_storage, StaticMenuLinkOverridesInterface $overrides, ModuleHandlerInterface $module_handler) {
     $this->treeStorage = $tree_storage;
     $this->overrides = $overrides;
-    $this->factory = new ContainerFactory($this);
     $this->moduleHandler = $module_handler;
   }
 
@@ -143,21 +142,28 @@ class MenuLinkManager implements MenuLinkManagerInterface {
   }
 
   /**
-   * Instantiates if necessary and returns a YamlDiscovery instance.
+   * Gets the plugin discovery.
    *
-   * Since the discovery is very rarely used - only when the rebuild() method
-   * is called - it's instantiated only when actually needed instead of in the
-   * constructor.
-   *
-   * @return \Drupal\Core\Plugin\Discovery\ContainerDerivativeDiscoveryDecorator
-   *   A plugin discovery instance.
+   * @return \Drupal\Component\Plugin\Discovery\DiscoveryInterface
    */
   protected function getDiscovery() {
-    if (empty($this->discovery)) {
-      $yaml = new YamlDiscovery('links.menu', $this->moduleHandler->getModuleDirectories());
-      $this->discovery = new ContainerDerivativeDiscoveryDecorator($yaml);
+    if (!isset($this->discovery)) {
+      $this->discovery = new YamlDiscovery('links.menu', $this->moduleHandler->getModuleDirectories());
+      $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->discovery);
     }
     return $this->discovery;
+  }
+
+  /**
+   * Gets the plugin factory.
+   *
+   * @return \Drupal\Component\Plugin\Factory\FactoryInterface
+   */
+  protected function getFactory() {
+    if (!isset($this->factory)) {
+      $this->factory = new ContainerFactory($this);
+    }
+    return $this->factory;
   }
 
   /**
@@ -234,7 +240,7 @@ class MenuLinkManager implements MenuLinkManagerInterface {
    *   If the instance cannot be created, such as if the ID is invalid.
    */
   public function createInstance($plugin_id, array $configuration = array()) {
-    return $this->factory->createInstance($plugin_id, $configuration);
+    return $this->getFactory()->createInstance($plugin_id, $configuration);
   }
 
   /**
@@ -281,7 +287,7 @@ class MenuLinkManager implements MenuLinkManagerInterface {
       }
     }
     else {
-      throw new PluginException(String::format('Menu link plugin with ID @id does not support deletion', array('@id' => $id)));
+      throw new PluginException(SafeMarkup::format('Menu link plugin with ID @id does not support deletion', array('@id' => $id)));
     }
     $this->treeStorage->delete($id);
   }
@@ -349,7 +355,7 @@ class MenuLinkManager implements MenuLinkManagerInterface {
    */
   public function addDefinition($id, array $definition) {
     if ($this->treeStorage->load($id) || $id === '') {
-      throw new PluginException(String::format('The ID @id already exists as a plugin definition or is not valid', array('@id' => $id)));
+      throw new PluginException(SafeMarkup::format('The ID @id already exists as a plugin definition or is not valid', array('@id' => $id)));
     }
     // Add defaults, so there is no requirement to specify everything.
     $this->processDefinition($definition, $id);
@@ -396,7 +402,7 @@ class MenuLinkManager implements MenuLinkManagerInterface {
     $id = $instance->getPluginId();
 
     if (!$instance->isResettable()) {
-      throw new PluginException(String::format('Menu link %id is not resettable', array('%id' => $id)));
+      throw new PluginException(SafeMarkup::format('Menu link %id is not resettable', array('%id' => $id)));
     }
     // Get the original data from disk, reset the override and re-save the menu
     // tree for this link.

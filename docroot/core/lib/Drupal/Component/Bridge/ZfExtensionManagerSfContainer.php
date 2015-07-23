@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\Component\Bridge\ZfExtensionManagerSfContainer
+ * Contains \Drupal\Component\Bridge\ZfExtensionManagerSfContainer.
  */
 namespace Drupal\Component\Bridge;
 
@@ -37,6 +37,20 @@ class ZfExtensionManagerSfContainer implements ReaderManagerInterface, WriterMan
    * @var string
    */
   protected $prefix = '';
+
+  /**
+   * The service container.
+   *
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   */
+  protected $container;
+
+  /**
+   * A local cache of computed canonical names.
+   *
+   * @var string[]
+   */
+  protected $canonicalNames;
 
   /**
    * Constructs a ZfExtensionManagerSfContainer object.

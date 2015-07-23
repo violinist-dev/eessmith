@@ -9,7 +9,7 @@ namespace Drupal\block\Tests;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\UrlCacheContext;
+use Drupal\Core\Cache\Context\UrlCacheContext;
 use Drupal\simpletest\KernelTestBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -44,6 +44,13 @@ class BlockViewBuilderTest extends KernelTestBase {
   protected $controller;
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -64,6 +71,8 @@ class BlockViewBuilderTest extends KernelTestBase {
     $this->block->save();
 
     $this->container->get('cache.render')->deleteAll();
+
+    $this->renderer = $this->container->get('renderer');
   }
 
   /**
@@ -90,7 +99,7 @@ class BlockViewBuilderTest extends KernelTestBase {
     $expected[] = '  </div>';
     $expected[] = '';
     $expected_output = implode("\n", $expected);
-    $this->assertEqual(drupal_render($output), $expected_output);
+    $this->assertEqual($this->renderer->renderRoot($output), $expected_output);
 
     // Reset the HTML IDs so that the next render is not affected.
     Html::resetSeenIds();
@@ -115,7 +124,7 @@ class BlockViewBuilderTest extends KernelTestBase {
     $expected[] = '  </div>';
     $expected[] = '';
     $expected_output = implode("\n", $expected);
-    $this->assertEqual(drupal_render($output), $expected_output);
+    $this->assertEqual($this->renderer->renderRoot($output), $expected_output);
   }
 
   /**
@@ -144,24 +153,15 @@ class BlockViewBuilderTest extends KernelTestBase {
    * @see ::testBlockViewBuilderCache()
    */
   protected function verifyRenderCacheHandling() {
-    // Force a request via GET so we can get drupal_render() cache working.
+    // Force a request via GET so we can test the render cache.
     $request = \Drupal::request();
     $request_method = $request->server->get('REQUEST_METHOD');
     $request->setMethod('GET');
 
-    // Test that entities with caching disabled do not generate a cache entry.
-    $build = $this->getBlockRenderArray();
-    $this->assertTrue(isset($build['#cache']) && array_keys($build['#cache']) == array('tags'), 'The render array element of uncacheable blocks is not cached, but does have cache tags set.');
-
-    // Enable block caching.
-    $this->setBlockCacheConfig(array(
-      'max_age' => 600,
-    ));
-
     // Test that a cache entry is created.
     $build = $this->getBlockRenderArray();
     $cid = 'entity_view:block:test_block:en:core';
-    drupal_render($build);
+    $this->renderer->renderRoot($build);
     $this->assertTrue($this->container->get('cache.render')->get($cid), 'The block render element has been cached.');
 
     // Re-save the block and check that the cache entry has been deleted.
@@ -175,7 +175,7 @@ class BlockViewBuilderTest extends KernelTestBase {
     // removes it.
     $build['#block'] = $this->block;
 
-    drupal_render($build);
+    $this->renderer->renderRoot($build);
     $this->assertTrue($this->container->get('cache.render')->get($cid), 'The block render element has been cached.');
     $this->block->delete();
     $this->assertFalse($this->container->get('cache.render')->get($cid), 'The block render cache entry has been cleared when the block was deleted.');
@@ -190,44 +190,35 @@ class BlockViewBuilderTest extends KernelTestBase {
   public function testBlockViewBuilderAlter() {
     // Establish baseline.
     $build = $this->getBlockRenderArray();
-    $this->assertIdentical(drupal_render($build), 'Llamas &gt; unicorns!');
+    $this->assertIdentical($this->renderer->renderRoot($build), 'Llamas &gt; unicorns!');
 
     // Enable the block view alter hook that adds a suffix, for basic testing.
     \Drupal::state()->set('block_test_view_alter_suffix', TRUE);
-
-    // Basic: non-empty block.
+    Cache::invalidateTags($this->block->getCacheTags());
     $build = $this->getBlockRenderArray();
     $this->assertTrue(isset($build['#suffix']) && $build['#suffix'] === '<br>Goodbye!', 'A block with content is altered.');
-    $this->assertIdentical(drupal_render($build), 'Llamas &gt; unicorns!<br>Goodbye!');
-
-    // Basic: empty block.
-    \Drupal::state()->set('block_test.content', NULL);
-    $build = $this->getBlockRenderArray();
-    $this->assertTrue(isset($build['#suffix']) && $build['#suffix'] === '<br>Goodbye!', 'A block without content is altered.');
-    $this->assertIdentical(drupal_render($build), '<br>Goodbye!');
-
-    // Disable the block view alter hook that adds a suffix, for basic testing.
+    $this->assertIdentical($this->renderer->renderRoot($build), 'Llamas &gt; unicorns!<br>Goodbye!');
     \Drupal::state()->set('block_test_view_alter_suffix', FALSE);
 
-    // Force a request via GET so we can get drupal_render() cache working.
+    // Force a request via GET so we can test the render cache.
     $request = \Drupal::request();
     $request_method = $request->server->get('REQUEST_METHOD');
     $request->setMethod('GET');
 
+    \Drupal::state()->set('block_test.content', NULL);
+    Cache::invalidateTags($this->block->getCacheTags());
+
     $default_keys = array('entity_view', 'block', 'test_block');
-    $default_tags = array('block_view', 'config:block.block.test_block', 'block_plugin:test_cache');
+    $default_tags = array('block_view', 'config:block.block.test_block');
 
     // Advanced: cached block, but an alter hook adds an additional cache key.
-    $this->setBlockCacheConfig(array(
-      'max_age' => 600,
-    ));
     $alter_add_key = $this->randomMachineName();
     \Drupal::state()->set('block_test_view_alter_cache_key', $alter_add_key);
     $cid = 'entity_view:block:test_block:' . $alter_add_key . ':en:core';
     $expected_keys = array_merge($default_keys, array($alter_add_key));
     $build = $this->getBlockRenderArray();
     $this->assertIdentical($expected_keys, $build['#cache']['keys'], 'An altered cacheable block has the expected cache keys.');
-    $this->assertIdentical(drupal_render($build), '');
+    $this->assertIdentical($this->renderer->renderRoot($build), '');
     $cache_entry = $this->container->get('cache.render')->get($cid);
     $this->assertTrue($cache_entry, 'The block render element has been cached with the expected cache ID.');
     $expected_tags = array_merge($default_tags, ['rendered']);
@@ -242,7 +233,7 @@ class BlockViewBuilderTest extends KernelTestBase {
     $build = $this->getBlockRenderArray();
     sort($build['#cache']['tags']);
     $this->assertIdentical($expected_tags, $build['#cache']['tags'], 'An altered cacheable block has the expected cache tags.');
-    $this->assertIdentical(drupal_render($build), '');
+    $this->assertIdentical($this->renderer->renderRoot($build), '');
     $cache_entry = $this->container->get('cache.render')->get($cid);
     $this->assertTrue($cache_entry, 'The block render element has been cached with the expected cache ID.');
     $expected_tags = array_merge($default_tags, [$alter_add_tag, 'rendered']);
@@ -254,81 +245,12 @@ class BlockViewBuilderTest extends KernelTestBase {
     // alter the eventual content.
     \Drupal::state()->set('block_test_view_alter_append_pre_render_prefix', TRUE);
     $build = $this->getBlockRenderArray();
-    $this->assertFalse(isset($build['#prefix']), 'The appended #pre_render callback has not yet run before calling drupal_render().');
-    $this->assertIdentical(drupal_render($build), 'Hiya!<br>');
+    $this->assertFalse(isset($build['#prefix']), 'The appended #pre_render callback has not yet run before rendering.');
+    $this->assertIdentical($this->renderer->renderRoot($build), 'Hiya!<br>');
     $this->assertTrue(isset($build['#prefix']) && $build['#prefix'] === 'Hiya!<br>', 'A cached block without content is altered.');
 
     // Restore the previous request method.
     $request->setMethod($request_method);
-  }
-
-  /**
-   * Tests block render cache handling with configurable cache contexts.
-   *
-   * This is only intended to test that an existing block can be configured with
-   * additional contexts, not to test that each context works correctly.
-   *
-   * @see \Drupal\block\Tests\BlockCacheTest
-   */
-  public function testBlockViewBuilderCacheContexts() {
-    $cache_contexts = \Drupal::service("cache_contexts");
-
-    // Force a request via GET so we can get drupal_render() cache working.
-    $request = \Drupal::request();
-    $request_method = $request->server->get('REQUEST_METHOD');
-    $request->setMethod('GET');
-
-    // First: no cache context.
-    $this->setBlockCacheConfig(array(
-      'max_age' => 600,
-    ));
-    $build = $this->getBlockRenderArray();
-    $cid = implode(':', $build['#cache']['keys']);
-    drupal_render($build);
-    $this->assertTrue($this->container->get('cache.render', $cid), 'The block render element has been cached.');
-
-    // Second: the "per URL" cache context.
-    $this->setBlockCacheConfig(array(
-      'max_age' => 600,
-      'contexts' => array('url'),
-    ));
-    $old_cid = $cid;
-    $build = $this->getBlockRenderArray();
-    $cid_parts = array_merge($build['#cache']['keys'], $cache_contexts->convertTokensToKeys($build['#cache']['contexts']));
-    $cid = implode(':', $cid_parts);
-    drupal_render($build);
-    $this->assertTrue($this->container->get('cache.render', $cid), 'The block render element has been cached.');
-    $this->assertNotEqual($cid, $old_cid, 'The cache ID has changed.');
-
-    // Third: the same block configuration, but a different URL.
-    $original_url_cache_context = $this->container->get('cache_context.url');
-    $request_stack = new RequestStack();
-    $request_stack->push(Request::create('/foo'));
-    $temp_context = new UrlCacheContext($request_stack);
-    $this->container->set('cache_context.url', $temp_context);
-    $old_cid = $cid;
-    $build = $this->getBlockRenderArray();
-    $cid_parts = array_merge($build['#cache']['keys'], $cache_contexts->convertTokensToKeys($build['#cache']['contexts']));
-    $cid = implode(':', $cid_parts);
-    drupal_render($build);
-    $this->assertTrue($this->container->get('cache.render', $cid), 'The block render element has been cached.');
-    $this->assertNotEqual($cid, $old_cid, 'The cache ID has changed.');
-    $this->container->set('cache_context.url', $original_url_cache_context);
-
-    // Restore the previous request method.
-    $request->setMethod($request_method);
-  }
-
-  /**
-   * Sets the test block's cache configuration.
-   *
-   * @param array $cache_config
-   *   The desired cache configuration.
-   */
-  protected function setBlockCacheConfig(array $cache_config) {
-    $block = $this->block->getPlugin();
-    $block->setConfigurationValue('cache', $cache_config);
-    $this->block->save();
   }
 
   /**

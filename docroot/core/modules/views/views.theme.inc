@@ -7,7 +7,6 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
@@ -109,8 +108,9 @@ function template_preprocess_views_view_fields(&$variables) {
         $field_output = $pre . '>' . $field_output . '</' . $object->element_type . '>';
       }
 
-      // Protect ourself somewhat for backward compatibility. This will prevent
-      // old templates from producing invalid HTML when no element type is selected.
+      // Protect ourselves somewhat for backward compatibility. This will
+      // prevent old templates from producing invalid HTML when no element type
+      // is selected.
       if (empty($object->element_type)) {
         $object->element_type = 'span';
       }
@@ -159,7 +159,7 @@ function template_preprocess_views_view_fields(&$variables) {
 
       // Set up the label for the value and the HTML to make it easier
       // on the template.
-      $object->label = String::checkPlain($view->field[$id]->label());
+      $object->label = SafeMarkup::checkPlain($view->field[$id]->label());
       $object->label_html = '';
       if ($object->label) {
         $object->label_html .= $object->label;
@@ -208,6 +208,8 @@ function template_preprocess_views_view_fields(&$variables) {
  *     - wrapper_suffix: A string added to the end of the fields.
  *
  * @see template_preprocess_views_view_fields()
+ *
+ * @ingroup themeable
  */
 function theme_views_view_fields($variables) {
   $fields = $variables['fields'];
@@ -252,6 +254,8 @@ function template_preprocess_views_view_grouping(&$variables) {
  * Interesting bits of info:
  * $field->field_alias says what the raw value in $row will be. Reach it like
  * this: @code { $row->{$field->field_alias} @endcode
+ *
+ * @ingroup themeable
  */
 function theme_views_view_field($variables) {
   return $variables['output'];
@@ -458,12 +462,12 @@ function template_preprocess_views_view_table(&$variables) {
     // what the CSS classes should be.
     $variables['fields'][$field] = Html::cleanCssIdentifier($field);
     if ($active == $field) {
-      $variables['fields'][$field] .= ' active';
+      $variables['fields'][$field] .= ' is-active';
     }
 
     // Render the header labels.
     if ($field == $column && empty($fields[$field]->options['exclude'])) {
-      $label = String::checkPlain(!empty($fields[$field]) ? $fields[$field]->label() : '');
+      $label = SafeMarkup::checkPlain(!empty($fields[$field]) ? $fields[$field]->label() : '');
       if (empty($options['info'][$field]['sortable']) || !$fields[$field]->clickSortable()) {
         $variables['header'][$field]['content'] = $label;
       }
@@ -487,7 +491,6 @@ function template_preprocess_views_view_table(&$variables) {
         $query['order'] = $field;
         $query['sort'] = $initial;
         $link_options = array(
-          'html' => TRUE,
           'attributes' => array('title' => $title),
           'query' => $query,
         );
@@ -517,7 +520,7 @@ function template_preprocess_views_view_table(&$variables) {
           $variables['header'][$field]['content'] = '<' . $element_label_type . '>' . $variables['header'][$field]['content'] . '</' . $element_label_type . '>';
         }
         // Improves accessibility of complex tables.
-        $variables['header'][$field]['attributes']['id'] = drupal_html_id('view-' . $field . '-table-column');
+        $variables['header'][$field]['attributes']['id'] = Html::getUniqueId('view-' . $field . '-table-column');
       }
       // Check if header label is not empty.
       if (!empty($variables['header'][$field]['content'])) {
@@ -850,7 +853,7 @@ function template_preprocess_views_view_rss(&$variables) {
   // The RSS 2.0 "spec" doesn't indicate HTML can be used in the description.
   // We strip all HTML tags, but need to prevent double encoding from properly
   // escaped source data (such as &amp becoming &amp;amp;).
-  $variables['description'] = String::checkPlain(String::decodeEntities(strip_tags($style->getDescription())));
+  $variables['description'] = SafeMarkup::checkPlain(Html::decodeEntities(strip_tags($style->getDescription())));
 
   if ($view->display_handler->getOption('sitename_title')) {
     $title = $config->get('name');
@@ -861,7 +864,7 @@ function template_preprocess_views_view_rss(&$variables) {
   else {
     $title = $view->getTitle();
   }
-  $variables['title'] = String::checkPlain($title);
+  $variables['title'] = SafeMarkup::checkPlain($title);
 
   // Figure out which display which has a path we're using for this feed. If
   // there isn't one, use the global $base_url
@@ -880,19 +883,17 @@ function template_preprocess_views_view_rss(&$variables) {
     // Compare the link to the default home page; if it's the default home page,
     // just use $base_url.
     $url_string = $url->setOptions($url_options)->toString();
-    // @todo Should page.front be stored with a leading slash? See
-    //   https://www.drupal.org/node/2430595.
-    if ($url_string === Url::fromUserInput('/' . $config->get('page.front'))->toString()) {
+    if ($url_string === Url::fromUserInput($config->get('page.front'))->toString()) {
       $url_string = Url::fromRoute('<front>')->setAbsolute()->toString();
     }
 
     $variables['link'] = $url_string;
   }
 
-  $variables['langcode'] = String::checkPlain(\Drupal::languageManager()->getCurrentLanguage()->getId());
+  $variables['langcode'] = SafeMarkup::checkPlain(\Drupal::languageManager()->getCurrentLanguage()->getId());
   $variables['namespaces'] = new Attribute($style->namespaces);
   $variables['items'] = $items;
-  $variables['channel_elements'] = format_xml_elements($style->channel_elements);
+  $variables['channel_elements'] = \Drupal::service('renderer')->render($style->channel_elements);
 
   // During live preview we don't want to output the header since the contents
   // of the feed are being displayed inside a normal HTML page.
@@ -912,11 +913,21 @@ function template_preprocess_views_view_rss(&$variables) {
  */
 function template_preprocess_views_view_row_rss(&$variables) {
   $item = $variables['row'];
-
-  $variables['title'] = String::checkPlain($item->title);
+  $variables['title'] = $item->title;
   $variables['link'] = $item->link;
-  $variables['description'] = String::checkPlain($item->description);
-  $variables['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
+
+  /** @var \Drupal\Core\Render\RendererInterface $renderer */
+  $renderer = \Drupal::service('renderer');
+  // We render the item description. It might contain entities, which attach rss
+  // elements via hook_entity_view, see comment_entity_view().
+  $variables['description'] = is_array($item->description) ? $renderer->render($item->description) : $item->description;
+  $variables['item_elements'] = array();
+  foreach ($item->elements as $element) {
+    if (isset($element['attributes']) && is_array($element['attributes'])) {
+      $element['attributes'] = new Attribute($element['attributes']);
+    }
+    $variables['item_elements'][] = $element;
+  }
 }
 
 /**
@@ -944,7 +955,7 @@ function template_preprocess_views_view_opml(&$variables) {
   else {
     $title = $view->getTitle();
   }
-  $variables['title'] = String::checkPlain($title);
+  $variables['title'] = SafeMarkup::checkPlain($title);
   $variables['items'] = $items;
   $variables['updated'] = gmdate(DATE_RFC2822, REQUEST_TIME);
 
@@ -1029,7 +1040,6 @@ function template_preprocess_views_mini_pager(&$variables) {
     $variables['items']['previous']['attributes'] = new Attribute();
   }
 
-  $li_next = array();
   if ($pager_page_array[$element] < ($pager_total[$element] - 1)) {
     $options = array(
       'query' => pager_query_add_page($parameters, $element, $pager_page_array[$element] + 1),
@@ -1087,6 +1097,7 @@ function template_preprocess_views_mini_pager(&$variables) {
  * Important! When adding a new template to your theme, be sure to flush the
  * theme registry cache!
  *
+ * @ingroup views_overview
  * @see \Drupal\views\ViewExecutable::buildThemeFunctions()
  * @}
  */

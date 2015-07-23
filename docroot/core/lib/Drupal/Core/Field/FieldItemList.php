@@ -43,6 +43,13 @@ class FieldItemList extends ItemList implements FieldItemListInterface {
   /**
    * {@inheritdoc}
    */
+  protected function createItem($offset = 0, $value = NULL) {
+    return \Drupal::service('plugin.manager.field.field_type')->createFieldItem($this, $offset, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getEntity() {
     // The "parent" is the TypedData object for the entity, we need to unwrap
     // the actual entity.
@@ -91,6 +98,7 @@ class FieldItemList extends ItemList implements FieldItemListInterface {
     $this->filter(function ($item) {
       return !$item->isEmpty();
     });
+    return $this;
   }
 
   /**
@@ -306,7 +314,7 @@ class FieldItemList extends ItemList implements FieldItemListInterface {
     $widget->extractFormValues($this, $element, $form_state);
     // Force a non-required field definition.
     // @see self::defaultValueWidget().
-    $this->definition->required = FALSE;
+    $this->getFieldDefinition()->setRequired(FALSE);
     $violations = $this->validate();
 
     // Assign reported errors to the correct form element.
@@ -346,8 +354,9 @@ class FieldItemList extends ItemList implements FieldItemListInterface {
       $entity = $this->getEntity();
 
       // Force a non-required widget.
-      $this->getFieldDefinition()->required = FALSE;
-      $this->getFieldDefinition()->description = '';
+      $definition = $this->getFieldDefinition();
+      $definition->setRequired(FALSE);
+      $definition->setDescription('');
 
       // Use the widget currently configured for the 'default' form mode, or
       // fallback to the default widget for the field type.
@@ -361,6 +370,40 @@ class FieldItemList extends ItemList implements FieldItemListInterface {
     }
 
     return $form_state->get('default_value_widget');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function equals(FieldItemListInterface $list_to_compare) {
+    $columns = $this->getFieldDefinition()->getFieldStorageDefinition()->getColumns();
+    $count1 = count($this);
+    $count2 = count($list_to_compare);
+    if ($count1 === 0 && $count2 === 0) {
+      // Both are empty we can safely assume that it did not change.
+      return TRUE;
+    }
+    if ($count1 !== $count2) {
+      // One of them is empty but not the other one so the value changed.
+      return FALSE;
+    }
+    $value1 = $this->getValue();
+    $value2 = $list_to_compare->getValue();
+    if ($value1 === $value2) {
+      return TRUE;
+    }
+    // If the values are not equal ensure a consistent order of field item
+    // properties and remove properties which will not be saved.
+    $callback = function (&$value) use ($columns) {
+      if (is_array($value)) {
+        $value = array_intersect_key($value, $columns);
+        ksort($value);
+      }
+    };
+    array_walk($value1, $callback);
+    array_walk($value2, $callback);
+
+    return $value1 == $value2;
   }
 
 }

@@ -2,14 +2,17 @@
 
 /**
  * @file
- * Definition of Drupal\tracker\Tests\TrackerTest.
+ * Contains \Drupal\tracker\Tests\TrackerTest.
  */
 
 namespace Drupal\tracker\Tests;
 
 use Drupal\comment\CommentInterface;
 use Drupal\comment\Tests\CommentTestTrait;
+use Drupal\Core\Cache\Cache;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\simpletest\WebTestBase;
+use Drupal\system\Tests\Cache\AssertPageCacheContextsAndTagsTrait;
 
 /**
  * Create and delete nodes and check for their display in the tracker listings.
@@ -19,13 +22,14 @@ use Drupal\simpletest\WebTestBase;
 class TrackerTest extends WebTestBase {
 
   use CommentTestTrait;
+  use AssertPageCacheContextsAndTagsTrait;
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = array('comment', 'tracker', 'history');
+  public static $modules = array('comment', 'tracker', 'history', 'node_test');
 
   /**
    * The main user for testing.
@@ -72,10 +76,30 @@ class TrackerTest extends WebTestBase {
     $this->assertText($published->label(), 'Published node shows up in the tracker listing.');
     $this->assertLink(t('My recent content'), 0, 'User tab shows up on the global tracker page.');
 
+    // Assert cache contexts, specifically the pager and node access contexts.
+    $this->assertCacheContexts(['languages:language_interface', 'theme', 'url.query_args.pagers:0', 'user.node_grants:view', 'user.permissions']);
+    // Assert cache tags for the visible node and node list cache tag.
+    $this->assertCacheTags(Cache::mergeTags($published->getCacheTags(), $published->getOwner()->getCacheTags(), ['node_list', 'rendered']));
+
     // Delete a node and ensure it no longer appears on the tracker.
     $published->delete();
     $this->drupalGet('activity');
     $this->assertNoText($published->label(), 'Deleted node does not show up in the tracker listing.');
+
+    // Test proper display of time on activity page when comments are disabled.
+    // Disable comments.
+    FieldStorageConfig::loadByName('node', 'comment')->delete();
+    $node = $this->drupalCreateNode([
+      // This title is required to trigger the custom changed time set in the
+      // node_test module. This is needed in order to ensure a sufficiently
+      // large 'time ago' interval that isn't numbered in seconds.
+      'title' => 'testing_node_presave',
+      'status' => 1,
+    ]);
+
+    $this->drupalGet('activity');
+    $this->assertText($node->label(), 'Published node shows up in the tracker listing.');
+    $this->assertText(\Drupal::service('date.formatter')->formatTimeDiffSince($node->getChangedTime()), 'The changed time was displayed on the tracker listing.');
   }
 
   /**
@@ -115,6 +139,21 @@ class TrackerTest extends WebTestBase {
     $this->assertText($my_published->label(), "Published nodes show up in the user's tracker listing.");
     $this->assertNoText($other_published_no_comment->label(), "Another user's nodes do not show up in the user's tracker listing.");
     $this->assertText($other_published_my_comment->label(), "Nodes that the user has commented on appear in the user's tracker listing.");
+
+    // Assert cache contexts; the node grant context is not directly visible due
+    // to it being implied by the user context.
+    $this->assertCacheContexts(['languages:language_interface', 'theme', 'url.query_args.pagers:0', 'user']);
+    // Assert cache tags for the visible nodes (including owners) and node list
+    // cache tag.
+    $tags = Cache::mergeTags(
+      $my_published->getCacheTags(),
+      $my_published->getOwner()->getCacheTags(),
+      $other_published_my_comment->getCacheTags(),
+      $other_published_my_comment->getOwner()->getCacheTags(),
+      ['node_list', 'rendered']
+    );
+    $this->assertCacheTags($tags);
+
     $this->assertLink($my_published->label());
     $this->assertNoLink($unpublished->label());
     // Verify that title and tab title have been set correctly.
@@ -146,7 +185,8 @@ class TrackerTest extends WebTestBase {
 
     $this->drupalGet('node/' . $node->id());
     // Simulate the JavaScript on the node page to mark the node as read.
-    // @todo Get rid of curlExec() once https://drupal.org/node/2074037 lands.
+    // @todo Get rid of curlExec() once https://www.drupal.org/node/2074037
+    //   lands.
     $this->curlExec(array(
       CURLOPT_URL => \Drupal::url('history.read_node', ['node' => $node->id()], array('absolute' => TRUE)),
       CURLOPT_HTTPHEADER => array(
@@ -162,7 +202,8 @@ class TrackerTest extends WebTestBase {
 
     $this->drupalGet('node/' . $node->id());
     // Simulate the JavaScript on the node page to mark the node as read.
-    // @todo Get rid of curlExec() once https://drupal.org/node/2074037 lands.
+    // @todo Get rid of curlExec() once https://www.drupal.org/node/2074037
+    //   lands.
     $this->curlExec(array(
       CURLOPT_URL => \Drupal::url('history.read_node', ['node' => $node->id()], array('absolute' => TRUE)),
       CURLOPT_HTTPHEADER => array(
@@ -191,7 +232,8 @@ class TrackerTest extends WebTestBase {
     $this->drupalPostForm('comment/reply/node/' . $node->id() . '/comment', $comment, t('Save'));
     // The new comment is automatically viewed by the current user. Simulate the
     // JavaScript that does this.
-    // @todo Get rid of curlExec() once https://drupal.org/node/2074037 lands.
+    // @todo Get rid of curlExec() once https://www.drupal.org/node/2074037
+    //   lands.
     $this->curlExec(array(
       CURLOPT_URL => \Drupal::url('history.read_node', ['node' => $node->id()], array('absolute' => TRUE)),
       CURLOPT_HTTPHEADER => array(
@@ -347,6 +389,7 @@ class TrackerTest extends WebTestBase {
    */
   function testTrackerAdminUnpublish() {
     \Drupal::service('module_installer')->install(array('views'));
+    \Drupal::service('router.builder')->rebuild();
     $admin_user = $this->drupalCreateUser(array('access content overview', 'administer nodes', 'bypass node access'));
     $this->drupalLogin($admin_user);
 

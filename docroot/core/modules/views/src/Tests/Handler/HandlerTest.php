@@ -69,26 +69,6 @@ class HandlerTest extends ViewTestBase {
   }
 
   /**
-   * @todo
-   * This should probably moved to a filter related test.
-   */
-  function testFilterInOperatorUi() {
-    $admin_user = $this->drupalCreateUser(array('administer views', 'administer site configuration'));
-    $this->drupalLogin($admin_user);
-
-    $path = 'admin/structure/views/nojs/handler/test_filter_in_operator_ui/default/filter/type';
-    $this->drupalGet($path);
-    $this->assertFieldByName('options[expose][reduce]', FALSE);
-
-    $edit = array(
-      'options[expose][reduce]' => TRUE,
-    );
-    $this->drupalPostForm($path, $edit, t('Apply'));
-    $this->drupalGet($path);
-    $this->assertFieldByName('options[expose][reduce]', TRUE);
-  }
-
-  /**
    * Tests the breakString method.
    */
   public function testBreakString() {
@@ -272,7 +252,7 @@ class HandlerTest extends ViewTestBase {
     $this->assertNoFieldByName($relationship_name, NULL, 'Make sure that no relationship option is available');
 
     // Create a view of comments with node relationship.
-    View::create(['base_table' => 'comment', 'id' => 'test_get_entity_type'])->save();
+    View::create(['base_table' => 'comment_field_data', 'id' => 'test_get_entity_type'])->save();
     $this->drupalPostForm('admin/structure/views/nojs/add-handler/test_get_entity_type/default/relationship', ['name[comment_field_data.node]' => 'comment_field_data.node'], t('Add and configure relationships'));
     $this->drupalPostForm(NULL, [], t('Apply'));
     // Add a content type filter.

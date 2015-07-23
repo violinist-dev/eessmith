@@ -8,7 +8,7 @@
 namespace Drupal\Core\Menu;
 
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -476,7 +476,7 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
         $limit = $this->maxDepth() - 1;
       }
       if ($parent['depth'] > $limit) {
-        throw new PluginException(String::format('The link with ID @id or its children exceeded the maximum depth of @depth', array('@id' => $fields['id'], '@depth' => $this->maxDepth())));
+        throw new PluginException(SafeMarkup::format('The link with ID @id or its children exceeded the maximum depth of @depth', array('@id' => $fields['id'], '@depth' => $this->maxDepth())));
       }
       $fields['depth'] = $parent['depth'] + 1;
       $i = 1;
@@ -637,7 +637,7 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
     foreach ($properties as $name => $value) {
       if (!in_array($name, $this->definitionFields(), TRUE)) {
         $fields = implode(', ', $this->definitionFields());
-        throw new \InvalidArgumentException(String::format('An invalid property name, @name was specified. Allowed property names are: @fields.', array('@name' => $name, '@fields' => $fields)));
+        throw new \InvalidArgumentException(SafeMarkup::format('An invalid property name, @name was specified. Allowed property names are: @fields.', array('@name' => $name, '@fields' => $fields)));
       }
       $query->condition($name, $value);
     }
@@ -1193,7 +1193,7 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
       'fields' => array(
         'menu_name' => array(
           'description' => "The menu name. All links with the same menu name (such as 'tools') are part of the same menu.",
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 32,
           'not null' => TRUE,
           'default' => '',
@@ -1206,20 +1206,20 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
         ),
         'id' => array(
           'description' => 'Unique machine name: the plugin ID.',
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 255,
           'not null' => TRUE,
         ),
         'parent' => array(
           'description' => 'The plugin ID for the parent of this link.',
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 255,
           'not null' => TRUE,
           'default' => '',
         ),
         'route_name' => array(
           'description' => 'The machine name of a defined Symfony Route this menu item represents.',
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => 255,
         ),
         'route_param_key' => array(
@@ -1281,7 +1281,7 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
         ),
         'provider' => array(
           'description' => 'The name of the module that generated this link.',
-          'type' => 'varchar',
+          'type' => 'varchar_ascii',
           'length' => DRUPAL_EXTENSION_NAME_MAX_LENGTH,
           'not null' => TRUE,
           'default' => 'system',

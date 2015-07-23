@@ -9,6 +9,7 @@ namespace Drupal\views\Tests\Entity;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\views\Tests\ViewTestData;
 use Drupal\views\Tests\ViewUnitTestBase;
 use Drupal\views\Views;
 
@@ -37,16 +38,11 @@ class ViewEntityDependenciesTest extends ViewUnitTestBase {
    * {@inheritdoc}
    */
   protected function setUp() {
-    parent::setUp();
+    parent::setUp(FALSE);
+
     // Install the necessary dependencies for node type creation to work.
     $this->installEntitySchema('node');
     $this->installConfig(array('field', 'node'));
-  }
-
-  /**
-   * Tests the calculateDependencies method.
-   */
-  public function testCalculateDependencies() {
 
     $comment_type = entity_create('comment_type', array(
       'id' => 'comment',
@@ -55,6 +51,7 @@ class ViewEntityDependenciesTest extends ViewUnitTestBase {
       'target_entity_type_id' => 'node',
     ));
     $comment_type->save();
+
     $content_type = entity_create('node_type', array(
       'type' => $this->randomMachineName(),
       'name' => $this->randomString(),
@@ -81,9 +78,14 @@ class ViewEntityDependenciesTest extends ViewUnitTestBase {
       'label' => $this->randomMachineName() . '_body',
       'settings' => array('display_summary' => TRUE),
     ))->save();
-    // Force a flush of the in-memory storage.
-    $this->container->get('views.views_data')->clear();
 
+    ViewTestData::createTestViews(get_class($this), array('views_test_config'));
+  }
+
+  /**
+   * Tests the calculateDependencies method.
+   */
+  public function testCalculateDependencies() {
     $expected = [];
     $expected['test_field_get_entity'] = [
       'module' => [
@@ -149,6 +151,7 @@ class ViewEntityDependenciesTest extends ViewUnitTestBase {
         'ArgumentValidatorTest'
       ],
       'module' => [
+        'core',
         'node',
         'search',
         'user',
@@ -160,7 +163,7 @@ class ViewEntityDependenciesTest extends ViewUnitTestBase {
         'field.storage.node.body'
       ],
       'module' => [
-        'node',
+        'core',
         'text',
         'views'
       ],

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\user\Plugin\views\wizard\Users.
+ * Contains \Drupal\user\Plugin\views\wizard\Users.
  */
 
 namespace Drupal\user\Plugin\views\wizard;
@@ -18,7 +18,7 @@ use Drupal\views\Plugin\views\wizard\WizardPluginBase;
  *
  * @ViewsWizard(
  *   id = "users",
- *   base_table = "users",
+ *   base_table = "users_field_data",
  *   title = @Translation("Users")
  * )
  */
@@ -73,9 +73,7 @@ class Users extends WizardPluginBase {
     $display_options['fields']['name']['alter']['html'] = 0;
     $display_options['fields']['name']['hide_empty'] = 0;
     $display_options['fields']['name']['empty_zero'] = 0;
-    $display_options['fields']['name']['link_to_user'] = 1;
-    $display_options['fields']['name']['overwrite_anonymous'] = 0;
-    $display_options['fields']['name']['plugin_id'] = 'user_name';
+    $display_options['fields']['name']['plugin_id'] = 'field';
 
     return $display_options;
   }

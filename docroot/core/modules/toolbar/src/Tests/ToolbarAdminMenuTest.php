@@ -11,6 +11,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\simpletest\WebTestBase;
+use Drupal\user\RoleInterface;
 
 /**
  * Tests the caching of the admin menu subtree items.
@@ -151,7 +152,7 @@ class ToolbarAdminMenuTest extends WebTestBase {
   function testUserRoleUpdateSubtreesHashCacheClear() {
     // Find the new role ID.
     $all_rids = $this->adminUser->getRoles();
-    unset($all_rids[array_search(DRUPAL_AUTHENTICATED_RID, $all_rids)]);
+    unset($all_rids[array_search(RoleInterface::AUTHENTICATED_ID, $all_rids)]);
     $rid = reset($all_rids);
 
     $edit = array();
@@ -480,6 +481,16 @@ class ToolbarAdminMenuTest extends WebTestBase {
     // subtree hash are different.
     $this->assertTrue($new_subtree_hash, 'A valid hash value for the admin menu subtrees was created.');
     $this->assertNotEqual($this->hash, $new_subtree_hash, 'The user-specific subtree menu hash has been updated.');
+  }
+
+  /**
+   * Test that back to site link exists on admin pages, not on content pages.
+   */
+  public function testBackToSiteLink() {
+    // Back to site link should exist in the markup.
+    $this->drupalGet('test-page');
+    $back_link = $this->cssSelect('.home-toolbar-tab');
+    $this->assertTrue($back_link);
   }
 
   /**

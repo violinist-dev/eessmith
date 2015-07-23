@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Contains Drupal\link\Tests\LinkFieldTest.
+ * Contains \Drupal\link\Tests\LinkFieldTest.
  */
 
 namespace Drupal\link\Tests;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Url;
 use Drupal\link\LinkItemInterface;
@@ -92,7 +92,7 @@ class LinkFieldTest extends WebTestBase {
     $this->assertRaw('placeholder="http://example.com"');
 
     // Create a path alias.
-    \Drupal::service('path.alias_storage')->save('admin', 'a/path/alias');
+    \Drupal::service('path.alias_storage')->save('/admin', '/a/path/alias');
 
     // Create a node to test the link widget.
     $node = $this->drupalCreateNode();
@@ -136,16 +136,14 @@ class LinkFieldTest extends WebTestBase {
     // Define some invalid URLs.
     $validation_error_1 = "The path '@link_path' is invalid.";
     $validation_error_2 = 'Manually entered paths should start with /, ? or #.';
+    $validation_error_3 = "The path '@link_path' is inaccessible.";
     $invalid_external_entries = array(
-      // Missing protcol
-      'not-an-url' => $validation_error_2,
       // Invalid protocol
       'invalid://not-a-valid-protocol' => $validation_error_1,
       // Missing host name
       'http://' => $validation_error_1,
     );
     $invalid_internal_entries = array(
-      '/non/existing/path' => $validation_error_1,
       'no-leading-slash' => $validation_error_2,
       'entity:non_existing_entity_type/yar' => $validation_error_1,
     );
@@ -155,16 +153,24 @@ class LinkFieldTest extends WebTestBase {
     $this->assertInvalidEntries($field_name, $invalid_external_entries + $invalid_internal_entries);
 
     // Test external URLs for 'link_type' = LinkItemInterface::LINK_EXTERNAL.
-    $this->field->settings['link_type'] = LinkItemInterface::LINK_EXTERNAL;
+    $this->field->setSetting('link_type', LinkItemInterface::LINK_EXTERNAL);
     $this->field->save();
     $this->assertValidEntries($field_name, $valid_external_entries);
     $this->assertInvalidEntries($field_name, $valid_internal_entries + $invalid_external_entries);
 
     // Test external URLs for 'link_type' = LinkItemInterface::LINK_INTERNAL.
-    $this->field->settings['link_type'] = LinkItemInterface::LINK_INTERNAL;
+    $this->field->setSetting('link_type', LinkItemInterface::LINK_INTERNAL);
     $this->field->save();
     $this->assertValidEntries($field_name, $valid_internal_entries);
     $this->assertInvalidEntries($field_name, $valid_external_entries + $invalid_internal_entries);
+
+    // Ensure that users with 'link to any page', don't apply access checking.
+    $this->drupalLogin($this->drupalCreateUser([
+      'view test entity',
+      'administer entity_test content',
+    ]));
+    $this->assertValidEntries($field_name, ['/entity_test/add' => '/entity_test/add']);
+    $this->assertInValidEntries($field_name, ['/admin' => $validation_error_3]);
   }
 
   /**
@@ -247,7 +253,7 @@ class LinkFieldTest extends WebTestBase {
     // Verify that the link text field works according to the field setting.
     foreach (array(DRUPAL_DISABLED, DRUPAL_REQUIRED, DRUPAL_OPTIONAL) as $title_setting) {
       // Update the link title field setting.
-      $this->field->settings['title'] = $title_setting;
+      $this->field->setSetting('title', $title_setting);
       $this->field->save();
 
       // Display creation form.
@@ -414,39 +420,39 @@ class LinkFieldTest extends WebTestBase {
           case 'trim_length':
             $url = $url1;
             $title = isset($new_value) ? Unicode::truncate($title1, $new_value, FALSE, TRUE) : $title1;
-            $this->assertRaw('<a href="' . String::checkPlain($url) . '">' . String::checkPlain($title) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url) . '">' . SafeMarkup::checkPlain($title) . '</a>');
 
             $url = $url2;
             $title = isset($new_value) ? Unicode::truncate($title2, $new_value, FALSE, TRUE) : $title2;
-            $this->assertRaw('<a href="' . String::checkPlain($url) . '">' . String::checkPlain($title) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url) . '">' . SafeMarkup::checkPlain($title) . '</a>');
             break;
 
           case 'rel':
             $rel = isset($new_value) ? ' rel="' . $new_value . '"' : '';
-            $this->assertRaw('<a href="' . String::checkPlain($url1) . '"' . $rel . '>' . String::checkPlain($title1) . '</a>');
-            $this->assertRaw('<a href="' . String::checkPlain($url2) . '"' . $rel . '>' . String::checkPlain($title2) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url1) . '"' . $rel . '>' . SafeMarkup::checkPlain($title1) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url2) . '"' . $rel . '>' . SafeMarkup::checkPlain($title2) . '</a>');
             break;
 
           case 'target':
             $target = isset($new_value) ? ' target="' . $new_value . '"' : '';
-            $this->assertRaw('<a href="' . String::checkPlain($url1) . '"' . $target . '>' . String::checkPlain($title1) . '</a>');
-            $this->assertRaw('<a href="' . String::checkPlain($url2) . '"' . $target . '>' . String::checkPlain($title2) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url1) . '"' . $target . '>' . SafeMarkup::checkPlain($title1) . '</a>');
+            $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url2) . '"' . $target . '>' . SafeMarkup::checkPlain($title2) . '</a>');
             break;
 
           case 'url_only':
             // In this case, $new_value is an array.
             if (!$new_value['url_only']) {
-              $this->assertRaw('<a href="' . String::checkPlain($url1) . '">' . String::checkPlain($title1) . '</a>');
-              $this->assertRaw('<a href="' . String::checkPlain($url2) . '">' . String::checkPlain($title2) . '</a>');
+              $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url1) . '">' . SafeMarkup::checkPlain($title1) . '</a>');
+              $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url2) . '">' . SafeMarkup::checkPlain($title2) . '</a>');
             }
             else {
               if (empty($new_value['url_plain'])) {
-                $this->assertRaw('<a href="' . String::checkPlain($url1) . '">' . String::checkPlain($url1) . '</a>');
-                $this->assertRaw('<a href="' . String::checkPlain($url2) . '">' . String::checkPlain($url2) . '</a>');
+                $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url1) . '">' . SafeMarkup::checkPlain($url1) . '</a>');
+                $this->assertRaw('<a href="' . SafeMarkup::checkPlain($url2) . '">' . SafeMarkup::checkPlain($url2) . '</a>');
               }
               else {
-                $this->assertNoRaw('<a href="' . String::checkPlain($url1) . '">' . String::checkPlain($url1) . '</a>');
-                $this->assertNoRaw('<a href="' . String::checkPlain($url2) . '">' . String::checkPlain($url2) . '</a>');
+                $this->assertNoRaw('<a href="' . SafeMarkup::checkPlain($url1) . '">' . SafeMarkup::checkPlain($url1) . '</a>');
+                $this->assertNoRaw('<a href="' . SafeMarkup::checkPlain($url2) . '">' . SafeMarkup::checkPlain($url2) . '</a>');
                 $this->assertEscaped($url1);
                 $this->assertEscaped($url2);
               }
@@ -534,7 +540,7 @@ class LinkFieldTest extends WebTestBase {
             $url = $url1;
             $url_title = isset($new_value) ? Unicode::truncate($url, $new_value, FALSE, TRUE) : $url;
             $expected = '<div class="link-item">';
-            $expected .= '<div class="link-url"><a href="' . String::checkPlain($url) . '">' . String::checkPlain($url_title) . '</a></div>';
+            $expected .= '<div class="link-url"><a href="' . SafeMarkup::checkPlain($url) . '">' . SafeMarkup::checkPlain($url_title) . '</a></div>';
             $expected .= '</div>';
             $this->assertRaw($expected);
 
@@ -542,22 +548,22 @@ class LinkFieldTest extends WebTestBase {
             $url_title = isset($new_value) ? Unicode::truncate($url, $new_value, FALSE, TRUE) : $url;
             $title = isset($new_value) ? Unicode::truncate($title2, $new_value, FALSE, TRUE) : $title2;
             $expected = '<div class="link-item">';
-            $expected .= '<div class="link-title">' . String::checkPlain($title) . '</div>';
-            $expected .= '<div class="link-url"><a href="' . String::checkPlain($url) . '">' . String::checkPlain($url_title) . '</a></div>';
+            $expected .= '<div class="link-title">' . SafeMarkup::checkPlain($title) . '</div>';
+            $expected .= '<div class="link-url"><a href="' . SafeMarkup::checkPlain($url) . '">' . SafeMarkup::checkPlain($url_title) . '</a></div>';
             $expected .= '</div>';
             $this->assertRaw($expected);
             break;
 
           case 'rel':
             $rel = isset($new_value) ? ' rel="' . $new_value . '"' : '';
-            $this->assertRaw('<div class="link-url"><a href="' . String::checkPlain($url1) . '"' . $rel . '>' . String::checkPlain($url1) . '</a></div>');
-            $this->assertRaw('<div class="link-url"><a href="' . String::checkPlain($url2) . '"' . $rel . '>' . String::checkPlain($url2) . '</a></div>');
+            $this->assertRaw('<div class="link-url"><a href="' . SafeMarkup::checkPlain($url1) . '"' . $rel . '>' . SafeMarkup::checkPlain($url1) . '</a></div>');
+            $this->assertRaw('<div class="link-url"><a href="' . SafeMarkup::checkPlain($url2) . '"' . $rel . '>' . SafeMarkup::checkPlain($url2) . '</a></div>');
             break;
 
           case 'target':
             $target = isset($new_value) ? ' target="' . $new_value . '"' : '';
-            $this->assertRaw('<div class="link-url"><a href="' . String::checkPlain($url1) . '"' . $target . '>' . String::checkPlain($url1) . '</a></div>');
-            $this->assertRaw('<div class="link-url"><a href="' . String::checkPlain($url2) . '"' . $target . '>' . String::checkPlain($url2) . '</a></div>');
+            $this->assertRaw('<div class="link-url"><a href="' . SafeMarkup::checkPlain($url1) . '"' . $target . '>' . SafeMarkup::checkPlain($url1) . '</a></div>');
+            $this->assertRaw('<div class="link-url"><a href="' . SafeMarkup::checkPlain($url2) . '"' . $target . '>' . SafeMarkup::checkPlain($url2) . '</a></div>');
             break;
         }
       }
@@ -582,7 +588,7 @@ class LinkFieldTest extends WebTestBase {
     $entity = entity_load('entity_test', $id);
     $display = entity_get_display($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
     $content = $display->build($entity);
-    $output = drupal_render($content);
+    $output = \Drupal::service('renderer')->renderRoot($content);
     $this->setRawContent($output);
     $this->verbose($output);
   }

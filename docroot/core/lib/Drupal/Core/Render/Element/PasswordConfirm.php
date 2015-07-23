@@ -26,6 +26,7 @@ class PasswordConfirm extends FormElement {
     $class = get_class($this);
     return array(
       '#input' => TRUE,
+      '#markup' => '',
       '#process' => array(
         array($class, 'processPasswordConfirm'),
       ),
@@ -52,14 +53,16 @@ class PasswordConfirm extends FormElement {
       '#title' => t('Password'),
       '#value' => empty($element['#value']) ? NULL : $element['#value']['pass1'],
       '#required' => $element['#required'],
-      '#attributes' => array('class' => array('password-field')),
+      '#attributes' => array('class' => array('password-field', 'js-password-field')),
+      '#error_no_message' => TRUE,
     );
     $element['pass2'] =  array(
       '#type' => 'password',
       '#title' => t('Confirm password'),
       '#value' => empty($element['#value']) ? NULL : $element['#value']['pass2'],
       '#required' => $element['#required'],
-      '#attributes' => array('class' => array('password-confirm')),
+      '#attributes' => array('class' => array('password-confirm', 'js-password-confirm')),
+      '#error_no_message' => TRUE,
     );
     $element['#element_validate'] = array(array(get_called_class(), 'validatePasswordConfirm'));
     $element['#tree'] = TRUE;

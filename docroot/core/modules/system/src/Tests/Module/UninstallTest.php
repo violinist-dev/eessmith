@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\Module\UninstallTest.
+ * Contains \Drupal\system\Tests\Module\UninstallTest.
  */
 
 namespace Drupal\system\Tests\Module;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -56,7 +56,8 @@ class UninstallTest extends WebTestBase {
     $this->drupalGet('admin/modules/uninstall');
     $this->assertTitle(t('Uninstall') . ' | Drupal');
 
-    $this->assertText(\Drupal::translation()->translate('The following reasons prevents Node from being uninstalled: There is content for the entity type: Content'), 'Content prevents uninstalling node module.');
+    $this->assertText(\Drupal::translation()->translate('The following reason prevents Node from being uninstalled:'));
+    $this->assertText(\Drupal::translation()->translate('There is content for the entity type: Content'));
     // Delete the node to allow node to be uninstalled.
     $node->delete();
 
@@ -66,7 +67,7 @@ class UninstallTest extends WebTestBase {
     $this->drupalPostForm('admin/modules/uninstall', $edit, t('Uninstall'));
     $this->assertNoText(\Drupal::translation()->translate('Configuration deletions'), 'No configuration deletions listed on the module install confirmation page.');
     $this->assertText(\Drupal::translation()->translate('Configuration updates'), 'Configuration updates listed on the module install confirmation page.');
-    $this->assertText($node_type->label(), String::format('The entity label "!label" found.', array('!label' => $node_type->label())));
+    $this->assertText($node_type->label(), SafeMarkup::format('The entity label "!label" found.', array('!label' => $node_type->label())));
     $this->drupalPostForm(NULL, NULL, t('Uninstall'));
     $this->assertText(t('The selected modules have been uninstalled.'), 'Modules status has been updated.');
 
@@ -82,7 +83,7 @@ class UninstallTest extends WebTestBase {
     $entity_types = array();
     foreach ($node_dependencies as $entity) {
       $label = $entity->label() ?: $entity->id();
-      $this->assertText($label, String::format('The entity label "!label" found.', array('!label' => $label)));
+      $this->assertText($label, SafeMarkup::format('The entity label "!label" found.', array('!label' => $label)));
       $entity_types[] = $entity->getEntityTypeId();
     }
     $entity_types = array_unique($entity_types);
@@ -97,7 +98,7 @@ class UninstallTest extends WebTestBase {
     // cleared during the uninstall.
     \Drupal::cache()->set('uninstall_test', 'test_uninstall_page', Cache::PERMANENT);
     $cached = \Drupal::cache()->get('uninstall_test');
-    $this->assertEqual($cached->data, 'test_uninstall_page', String::format('Cache entry found: @bin', array('@bin' => $cached->data)));
+    $this->assertEqual($cached->data, 'test_uninstall_page', SafeMarkup::format('Cache entry found: @bin', array('@bin' => $cached->data)));
 
     $this->drupalPostForm(NULL, NULL, t('Uninstall'));
     $this->assertText(t('The selected modules have been uninstalled.'), 'Modules status has been updated.');
@@ -106,5 +107,14 @@ class UninstallTest extends WebTestBase {
     // Make sure our unique cache entry is gone.
     $cached = \Drupal::cache()->get('uninstall_test');
     $this->assertFalse($cached, 'Cache entry not found');
+    // Make sure we get an error message when we try to confirm uninstallation
+    // of an empty list of modules.
+    $this->drupalGet('admin/modules/uninstall/confirm');
+    $this->assertText(t('The selected modules could not be uninstalled, either due to a website problem or due to the uninstall confirmation form timing out. Please try again.'), 'Module uninstall confirmation form displays error message');
+
+    // Make sure confirmation page is accessible only during uninstall process.
+    $this->drupalGet('admin/modules/uninstall/confirm');
+    $this->assertUrl('admin/modules/uninstall');
+    $this->assertTitle(t('Uninstall') . ' | Drupal');
   }
 }

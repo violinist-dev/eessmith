@@ -5,7 +5,7 @@
  * Builds placeholder replacement tokens for taxonomy terms and vocabularies.
  */
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Xss;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -97,7 +97,7 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
 
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
-
+  $taxonomy_storage = \Drupal::entityManager()->getStorage('taxonomy_term');
   if ($type == 'term' && !empty($data['term'])) {
     $term = $data['term'];
 
@@ -108,7 +108,7 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
           break;
 
         case 'name':
-          $replacements[$original] = $sanitize ? String::checkPlain($term->getName()) : $term->getName();
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($term->getName()) : $term->getName();
           break;
 
         case 'description':
@@ -129,13 +129,13 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
 
         case 'vocabulary':
           $vocabulary = Vocabulary::load($term->bundle());
-          $replacements[$original] = String::checkPlain($vocabulary->label());
+          $replacements[$original] = SafeMarkup::checkPlain($vocabulary->label());
           break;
 
         case 'parent':
-          if ($parents = taxonomy_term_load_parents($term->id())) {
+          if ($parents = $taxonomy_storage->loadParents($term->id())) {
             $parent = array_pop($parents);
-            $replacements[$original] = String::checkPlain($parent->getName());
+            $replacements[$original] = SafeMarkup::checkPlain($parent->getName());
           }
           break;
       }
@@ -146,7 +146,7 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
       $replacements += $token_service->generate('vocabulary', $vocabulary_tokens, array('vocabulary' => $vocabulary), $options);
     }
 
-    if (($vocabulary_tokens = $token_service->findWithPrefix($tokens, 'parent')) && $parents = taxonomy_term_load_parents($term->id())) {
+    if (($vocabulary_tokens = $token_service->findWithPrefix($tokens, 'parent')) && $parents = $taxonomy_storage->loadParents($term->id())) {
       $parent = array_pop($parents);
       $replacements += $token_service->generate('term', $vocabulary_tokens, array('term' => $parent), $options);
     }
@@ -162,7 +162,7 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
           break;
 
         case 'name':
-          $replacements[$original] = $sanitize ? String::checkPlain($vocabulary->label()) : $vocabulary->label();
+          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($vocabulary->label()) : $vocabulary->label();
           break;
 
         case 'description':
@@ -178,7 +178,7 @@ function taxonomy_tokens($type, $tokens, array $data = array(), array $options =
           break;
 
         case 'node-count':
-          $replacements[$original] = \Drupal::entityManager()->getStorage('taxonomy_term')->nodeCount($vocabulary->id());
+          $replacements[$original] = $taxonomy_storage->nodeCount($vocabulary->id());
           break;
       }
     }

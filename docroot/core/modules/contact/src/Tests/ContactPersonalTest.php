@@ -7,9 +7,10 @@
 
 namespace Drupal\contact\Tests;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\simpletest\WebTestBase;
+use Drupal\user\RoleInterface;
 
 /**
  * Tests personal contact form functionality.
@@ -92,7 +93,7 @@ class ContactPersonalTest extends WebTestBase {
       '@sender_email' => $this->webUser->getEmail(),
       '@recipient_name' => $this->contactUser->getUsername()
     );
-    $this->assertText(String::format('@sender_name (@sender_email) sent @recipient_name an email.', $placeholders));
+    $this->assertText(SafeMarkup::format('@sender_name (@sender_email) sent @recipient_name an email.', $placeholders));
   }
 
   /**
@@ -144,18 +145,20 @@ class ContactPersonalTest extends WebTestBase {
 
     // Test that anonymous users can access the contact form.
     $this->drupalLogout();
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access user contact forms'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access user contact forms'));
     $this->drupalGet('user/' . $this->contactUser->id() . '/contact');
     $this->assertResponse(200);
 
     // Test that anonymous users can access admin user's contact form.
     $this->drupalGet('user/' . $this->adminUser->id() . '/contact');
     $this->assertResponse(200);
+    $this->assertCacheContext('user');
 
     // Revoke the personal contact permission for the anonymous user.
-    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, array('access user contact forms'));
+    user_role_revoke_permissions(RoleInterface::ANONYMOUS_ID, array('access user contact forms'));
     $this->drupalGet('user/' . $this->contactUser->id() . '/contact');
     $this->assertResponse(403);
+    $this->assertCacheContext('user');
     $this->drupalGet('user/' . $this->adminUser->id() . '/contact');
     $this->assertResponse(403);
 
@@ -234,7 +237,7 @@ class ContactPersonalTest extends WebTestBase {
     }
 
     // Submit contact form one over limit.
-    $this->drupalGet('user/' . $this->contactUser->id(). '/contact');
+    $this->submitPersonalContact($this->contactUser);
     $this->assertRaw(t('You cannot send more than %number messages in @interval. Try again later.', array('%number' => $flood_limit, '@interval' => \Drupal::service('date.formatter')->formatInterval($this->config('contact.settings')->get('flood.interval')))), 'Normal user denied access to flooded contact form.');
 
     // Test that the admin user can still access the contact form even though
@@ -247,7 +250,7 @@ class ContactPersonalTest extends WebTestBase {
    * Tests the personal contact form based access when an admin adds users.
    */
   function testAdminContact() {
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access user contact forms'));
+    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, array('access user contact forms'));
     $this->checkContactAccess(200);
     $this->checkContactAccess(403, FALSE);
     $config = $this->config('contact.settings');

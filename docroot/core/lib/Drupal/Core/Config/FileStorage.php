@@ -2,14 +2,14 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Config\FileStorage.
+ * Contains \Drupal\Core\Config\FileStorage.
  */
 
 namespace Drupal\Core\Config;
 
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Defines the file storage.
@@ -101,7 +101,7 @@ class FileStorage implements StorageInterface {
       $data = $this->decode($data);
     }
     catch (InvalidDataTypeException $e) {
-      throw new UnsupportedDataTypeConfigException(String::format('Invalid data type in config @name: !message', array(
+      throw new UnsupportedDataTypeConfigException(SafeMarkup::format('Invalid data type in config @name: !message', array(
         '@name' => $name,
         '!message' => $e->getMessage(),
       )));
@@ -130,7 +130,7 @@ class FileStorage implements StorageInterface {
       $data = $this->encode($data);
     }
     catch (InvalidDataTypeException $e) {
-      throw new StorageException(String::format('Invalid data type in config @name: !message', array(
+      throw new StorageException(SafeMarkup::format('Invalid data type in config @name: !message', array(
         '@name' => $name,
         '!message' => $e->getMessage(),
       )));

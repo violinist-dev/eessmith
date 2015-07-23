@@ -2,18 +2,17 @@
 
 /**
  * @file
- * Contains \Drupal\contact\Entity\ContactFormInterface.
+ * Contains \Drupal\contact\ContactFormInterface.
  */
 
 namespace Drupal\contact;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
-use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 
 /**
  * Provides an interface defining a contact form entity.
  */
-interface ContactFormInterface extends ConfigEntityInterface, ThirdPartySettingsInterface {
+interface ContactFormInterface extends ConfigEntityInterface {
 
   /**
    * Returns list of recipient e-mail addresses.

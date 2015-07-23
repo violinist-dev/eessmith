@@ -8,8 +8,8 @@ migrate.source.variable:
       type: sequence
       label: 'Variables'
       sequence:
-        - type: string
-          label: 'Variable'
+        type: string
+        label: 'Variable'
     constants:
       type: mapping
       label: 'Constants'
@@ -35,6 +35,9 @@ migrate.source.variable:
         status:
           type: boolean
           label: 'Status'
+        slash:
+          type: string
+          label: 'Slash'
 
 migrate.source.d6_comment:
   type: migrate_source_sql
@@ -132,8 +135,8 @@ migrate.source.variable_multirow:
       type: sequence
       label: 'Variables'
       sequence:
-        - type: string
-          label: 'Variable'
+        type: string
+        label: 'Variable'
 
 migrate.source.d6_comment_variable:
   type: migrate_source_sql
@@ -151,8 +154,8 @@ migrate.source.d6_contact_settings:
       type: sequence
       label: 'Variables'
       sequence:
-        - type: string
-          label: 'Variable'
+        type: string
+        label: 'Variable'
 
 migrate.source.d6_view_mode:
   type: migrate_source_sql
@@ -290,6 +293,9 @@ migrate_entity_constant:
     id:
       type: string
       label: 'ID'
+    target_entity_type:
+      type: string
+      label: 'Target entity type'
     view_mode:
       type: string
       label: 'View mode'
@@ -303,8 +309,8 @@ migrate_entity_constant:
       type: sequence
       label: 'Empty'
       sequence:
-        - type: string
-          label: 'Empty'
+        type: string
+        label: 'Empty'
     name:
       type: string
       label: 'Name'
@@ -328,19 +334,19 @@ migrate_entity_constant:
       label: 'Parent'
     langcode:
       type: string
-      label: 'Type'
+      label: 'Language code'
     third_party_settings:
       type: sequence
       label: 'Settings'
       sequence:
-        - type: ignore
-          label: 'Settings'
+        type: ignore
+        label: 'Settings'
     settings:
       type: sequence
       label: 'Settings'
       sequence:
-        - type: ignore
-          label: 'Settings'
+        type: ignore
+        label: 'Settings'
     options:
       type: mapping
       label: 'Options'
@@ -358,5 +364,15 @@ migrate_entity_constant:
           type: sequence
           label: 'Settings'
           sequence:
-            - type: string
-              label: 'Settings'
+            type: string
+            label: 'Settings'
+    selection_handler:
+      type: string
+      label: 'Entity reference selection handler'
+    auto_create:
+      type: boolean
+      label: 'Entity reference selection setting: Auto-create new entities'
+
+migrate.source.md_empty:
+  type: migrate.source.empty
+  label: 'Empty source for migrate_drupal migrations'

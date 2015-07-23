@@ -2,13 +2,12 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Database\Install\Tasks
+ * Contains \Drupal\Core\Database\Install\Tasks.
  */
 
 namespace Drupal\Core\Database\Install;
 
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\String;
 use Drupal\Core\Database\Database;
 
 /**
@@ -152,11 +151,11 @@ abstract class Tasks {
     $message = '';
     foreach ($this->results as $result => $success) {
       if (!$success) {
-        $message = SafeMarkup::isSafe($result) ? $result : String::checkPlain($result);
+        $message = SafeMarkup::isSafe($result) ? $result : SafeMarkup::checkPlain($result);
       }
     }
     if (!empty($message)) {
-      $message = SafeMarkup::set('Resolve all issues below to continue the installation. For help configuring your database server, see the <a href="http://drupal.org/getting-started/install">installation handbook</a>, or contact your hosting provider.' . $message);
+      $message = SafeMarkup::set('Resolve all issues below to continue the installation. For help configuring your database server, see the <a href="https://www.drupal.org/getting-started/install">installation handbook</a>, or contact your hosting provider.' . $message);
       throw new TaskException($message);
     }
   }

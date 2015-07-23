@@ -157,6 +157,7 @@ class CommentDefaultFormatter extends FormatterBase implements ContainerFactoryP
       // Unpublished comments are not included in
       // $entity->get($field_name)->comment_count, but unpublished comments
       // should display if the user is an administrator.
+      $elements['#cache']['contexts'][] = 'user.permissions';
       if ($this->currentUser->hasPermission('access comments') || $this->currentUser->hasPermission('administer comments')) {
         // This is a listing of Comment entities, so associate its list cache
         // tag for correct invalidation.
@@ -167,9 +168,8 @@ class CommentDefaultFormatter extends FormatterBase implements ContainerFactoryP
           $comments_per_page = $comment_settings['per_page'];
           $comments = $this->storage->loadThread($entity, $field_name, $mode, $comments_per_page, $this->getSetting('pager_id'));
           if ($comments) {
-            comment_prepare_thread($comments);
             $build = $this->viewBuilder->viewMultiple($comments);
-            $build['pager']['#theme'] = 'pager';
+            $build['pager']['#type'] = 'pager';
             if ($this->getSetting('pager_id')) {
               $build['pager']['#element'] = $this->getSetting('pager_id');
             }
@@ -182,6 +182,7 @@ class CommentDefaultFormatter extends FormatterBase implements ContainerFactoryP
       // display below the entity. Do not show the form for the print view mode.
       if ($status == CommentItemInterface::OPEN && $comment_settings['form_location'] == CommentItemInterface::FORM_BELOW && $this->viewMode != 'print') {
         // Only show the add comment form if the user has permission.
+        $elements['#cache']['contexts'][] = 'user.roles';
         if ($this->currentUser->hasPermission('post comments')) {
           // All users in the "anonymous" role can use the same form: it is fine
           // for this form to be stored in the render cache.
@@ -196,23 +197,17 @@ class CommentDefaultFormatter extends FormatterBase implements ContainerFactoryP
             $output['comment_form'] = $this->entityFormBuilder->getForm($comment);
           }
           // All other users need a user-specific form, which would break the
-          // render cache: hence use a #post_render_cache callback.
+          // render cache: hence use a #lazy_builder callback.
           else {
-            $callback = 'comment.post_render_cache:renderForm';
-            $context = array(
-              'entity_type' => $entity->getEntityTypeId(),
-              'entity_id' => $entity->id(),
-              'field_name' => $field_name,
-            );
-            $placeholder = drupal_render_cache_generate_placeholder($callback, $context);
-            $output['comment_form'] = array(
-              '#post_render_cache' => array(
-                $callback => array(
-                  $context,
-                ),
-              ),
-              '#markup' => $placeholder,
-            );
+            $output['comment_form'] = [
+              '#lazy_builder' => ['comment.lazy_builders:renderForm', [
+                $entity->getEntityTypeId(),
+                $entity->id(),
+                $field_name,
+                $this->getFieldSetting('comment_type'),
+              ]],
+              '#create_placeholder' => TRUE,
+            ];
           }
         }
       }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\update\Tests\UpdateContribTest.
+ * Contains \Drupal\update\Tests\UpdateContribTest.
  */
 
 namespace Drupal\update\Tests;
@@ -157,8 +157,8 @@ class UpdateContribTest extends UpdateTestBase {
     // Instead of just searching for 'BBB Update test' or something, we want
     // to use the full markup that starts the project entry itself, so that
     // we're really testing that the project listings are in the right order.
-    $bbb_project_link = '<div class="project"><a href="http://example.com/project/bbb_update_test">BBB Update test</a>';
-    $ccc_project_link = '<div class="project"><a href="http://example.com/project/ccc_update_test">CCC Update test</a>';
+    $bbb_project_link = '<div class="project-update__title"><a href="http://example.com/project/bbb_update_test">BBB Update test</a>';
+    $ccc_project_link = '<div class="project-update__title"><a href="http://example.com/project/ccc_update_test">CCC Update test</a>';
     $this->assertTrue(strpos($this->getRawContent(), $bbb_project_link) < strpos($this->getRawContent(), $ccc_project_link), "'BBB Update test' project is listed before the 'CCC Update test' project");
   }
 
@@ -292,8 +292,8 @@ class UpdateContribTest extends UpdateTestBase {
       ),
     );
     $this->config('update_test.settings')->set('system_info', $system_info)->save();
-    $projects = update_get_projects();
-    $theme_data = system_rebuild_theme_data();
+    $projects = \Drupal::service('update.manager')->getProjects();
+    $theme_data = \Drupal::service('theme_handler')->rebuildThemeData();
     $project_info = new ProjectInfo();
     $project_info->processInfoList($projects, $theme_data, 'theme', TRUE);
 
@@ -341,10 +341,10 @@ class UpdateContribTest extends UpdateTestBase {
     // It should say we failed to get data, not that we're missing an update.
     $this->assertNoText(t('Update available'));
 
-    // We need to check that this string is found as part of a project row,
-    // not just in the "Failed to get available update data for ..." message
-    // at the top of the page.
-    $this->assertRaw('<div class="version-status">' . t('Failed to get available update data'));
+    // We need to check that this string is found as part of a project row, not
+    // just in the "Failed to get available update data" message at the top of
+    // the page.
+    $this->assertRaw('<div class="project-update__status">' . t('Failed to get available update data'));
 
     // We should see the output messages from fetching manually.
     $this->assertUniqueText(t('Checked available update data for 3 projects.'));

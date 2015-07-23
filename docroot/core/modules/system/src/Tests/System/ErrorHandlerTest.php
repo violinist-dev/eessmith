@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\System\ErrorHandlerTest.
+ * Contains \Drupal\system\Tests\System\ErrorHandlerTest.
  */
 
 namespace Drupal\system\Tests\System;
@@ -46,6 +46,17 @@ class ErrorHandlerTest extends WebTestBase {
       '%function' => 'Drupal\error_test\Controller\ErrorTestController->generateWarnings()',
       '%file' => drupal_get_path('module', 'error_test') . '/error_test.module',
     );
+    $fatal_error = array(
+      '%type' => 'Recoverable fatal error',
+      '%function' => 'Drupal\error_test\Controller\ErrorTestController->Drupal\error_test\Controller\{closure}()',
+      '!message' => 'Argument 1 passed to Drupal\error_test\Controller\ErrorTestController::Drupal\error_test\Controller\{closure}() must be of the type array, string given, called in ' . \Drupal::root() . '/core/modules/system/tests/modules/error_test/src/Controller/ErrorTestController.php on line 66 and defined',
+    );
+    if (version_compare(PHP_VERSION, '7.0.0-dev') >= 0)  {
+      // In PHP 7, instead of a recoverable fatal error we get a TypeException.
+      $fatal_error['%type'] = 'TypeException';
+      // The error message also changes in PHP 7.
+      $fatal_error['!message'] = 'Argument 1 passed to Drupal\error_test\Controller\ErrorTestController::Drupal\error_test\Controller\{closure}() must be of the type array, string given, called in ' . \Drupal::root() . '/core/modules/system/tests/modules/error_test/src/Controller/ErrorTestController.php on line 66';
+    }
 
     // Set error reporting to display verbose notices.
     $this->config('system.logging')->set('error_level', ERROR_REPORTING_DISPLAY_VERBOSE)->save();
@@ -55,6 +66,25 @@ class ErrorHandlerTest extends WebTestBase {
     $this->assertErrorMessage($error_warning);
     $this->assertErrorMessage($error_user_notice);
     $this->assertRaw('<pre class="backtrace">', 'Found pre element with backtrace class.');
+
+    // Set error reporting to display verbose notices.
+    $this->config('system.logging')->set('error_level', ERROR_REPORTING_DISPLAY_VERBOSE)->save();
+    $this->drupalGet('error-test/generate-fatals');
+    $this->assertResponse(500, 'Received expected HTTP status code.');
+    $this->assertErrorMessage($fatal_error);
+    $this->assertRaw('<pre class="backtrace">', 'Found pre element with backtrace class.');
+
+    // Remove the recoverable fatal error from the assertions, it's wanted here.
+    // Ensure that we just remove this one recoverable fatal error (in PHP 7 this
+    // is a TypeException).
+    foreach ($this->assertions as $key => $assertion) {
+      if (in_array($assertion['message_group'], ['Recoverable fatal error', 'TypeException']) && strpos($assertion['message'], 'Argument 1 passed to Drupal\error_test\Controller\ErrorTestController::Drupal\error_test\Controller\{closure}() must be of the type array, string given, called in') !== FALSE) {
+        unset($this->assertions[$key]);
+        $this->deleteAssert($assertion['message_id']);
+      }
+    }
+    // Drop the single exception.
+    $this->results['#exception']--;
 
     // Set error reporting to collect notices.
     $config->set('error_level', ERROR_REPORTING_DISPLAY_ALL)->save();
@@ -119,7 +149,7 @@ class ErrorHandlerTest extends WebTestBase {
 
     $this->drupalGet('error-test/trigger-pdo-exception');
     $this->assertTrue(strpos($this->drupalGetHeader(':status'), '500 Service unavailable (with message)'), 'Received expected HTTP status line.');
-    // We cannot use assertErrorMessage() since the extact error reported
+    // We cannot use assertErrorMessage() since the exact error reported
     // varies from database to database. Check that the SQL string is displayed.
     $this->assertText($error_pdo_exception['%type'], format_string('Found %type in error page.', $error_pdo_exception));
     $this->assertText($error_pdo_exception['!message'], format_string('Found !message in error page.', $error_pdo_exception));
@@ -129,6 +159,17 @@ class ErrorHandlerTest extends WebTestBase {
     $this->drupalGet('error-test/trigger-renderer-exception');
     $this->assertTrue(strpos($this->drupalGetHeader(':status'), '500 Service unavailable (with message)'), 'Received expected HTTP status line.');
     $this->assertErrorMessage($error_renderer_exception);
+
+    // Disable error reporting, ensure that 5xx responses are not cached.
+    $this->config('system.logging')
+      ->set('error_level', ERROR_REPORTING_HIDE)
+      ->save();
+
+    $this->drupalGet('error-test/trigger-exception');
+    $this->assertFalse($this->drupalGetHeader('X-Drupal-Cache'));
+    $this->assertIdentical(strpos($this->drupalGetHeader('Cache-Control'), 'public'), FALSE, 'Received expected HTTP status line.');
+    $this->assertTrue(strpos($this->drupalGetHeader(':status'), '500 Service unavailable (with message)'), 'Received expected HTTP status line.');
+    $this->assertNoErrorMessage($error_exception);
 
     // The exceptions are expected. Do not interpret them as a test failure.
     // Not using File API; a potential error must trigger a PHP warning.

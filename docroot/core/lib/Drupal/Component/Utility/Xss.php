@@ -79,6 +79,10 @@ class Xss {
     $splitter = function ($matches) use ($html_tags, $class) {
       return $class::split($matches[1], $html_tags, $class);
     };
+    // Strip any tags that are not in the whitelist, then mark the text as safe
+    // for output. All other known XSS vectors have been filtered out by this
+    // point and any HTML tags remaining will have been deliberately allowed, so
+    // it is acceptable to call SafeMarkup::set() on the resultant string.
     return SafeMarkup::set(preg_replace_callback('%
       (
       <(?=[^a-zA-Z!/])  # a lone <
@@ -96,7 +100,7 @@ class Xss {
    *
    * Use only for fields where it is impractical to use the
    * whole filter system, but where some (mainly inline) mark-up
-   * is desired (so \Drupal\Component\Utility\String::checkPlain() is
+   * is desired (so \Drupal\Component\Utility\SafeMarkup::checkPlain() is
    * not acceptable).
    *
    * Allows all tags that can be used inside an HTML body, save
@@ -139,11 +143,10 @@ class Xss {
       return '&lt;';
     }
 
-    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9\-]+)([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
+    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9\-]+)\s*([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
       // Seriously malformed.
       return '';
     }
-
     $slash = trim($matches[1]);
     $elem = &$matches[2];
     $attrlist = &$matches[3];
@@ -192,6 +195,7 @@ class Xss {
     $mode = 0;
     $attribute_name = '';
     $skip = FALSE;
+    $skip_protocol_filtering = FALSE;
 
     while (strlen($attributes) != 0) {
       // Was the last operation successful?
@@ -203,6 +207,20 @@ class Xss {
           if (preg_match('/^([-a-zA-Z]+)/', $attributes, $match)) {
             $attribute_name = strtolower($match[1]);
             $skip = ($attribute_name == 'style' || substr($attribute_name, 0, 2) == 'on');
+
+            // Values for attributes of type URI should be filtered for
+            // potentially malicious protocols (for example, an href-attribute
+            // starting with "javascript:"). However, for some non-URI
+            // attributes performing this filtering causes valid and safe data
+            // to be mangled. We prevent this by skipping protocol filtering on
+            // such attributes.
+            // @see \Drupal\Component\Utility\UrlHelper::filterBadProtocol()
+            // @see http://www.w3.org/TR/html4/index/attributes.html
+            $skip_protocol_filtering = substr($attribute_name, 0, 5) === 'data-' || in_array($attribute_name, array(
+              'title',
+              'alt',
+            ));
+
             $working = $mode = 1;
             $attributes = preg_replace('/^[-a-zA-Z]+/', '', $attributes);
           }
@@ -228,7 +246,7 @@ class Xss {
         case 2:
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attributes, $match)) {
-            $thisval = UrlHelper::filterBadProtocol($match[1]);
+            $thisval = $skip_protocol_filtering ? $match[1] : UrlHelper::filterBadProtocol($match[1]);
 
             if (!$skip) {
               $attributes_array[] = "$attribute_name=\"$thisval\"";
@@ -240,7 +258,7 @@ class Xss {
           }
 
           if (preg_match("/^'([^']*)'(\s+|$)/", $attributes, $match)) {
-            $thisval = UrlHelper::filterBadProtocol($match[1]);
+            $thisval = $skip_protocol_filtering ? $match[1] : UrlHelper::filterBadProtocol($match[1]);
 
             if (!$skip) {
               $attributes_array[] = "$attribute_name='$thisval'";
@@ -251,7 +269,7 @@ class Xss {
           }
 
           if (preg_match("%^([^\s\"']+)(\s+|$)%", $attributes, $match)) {
-            $thisval = UrlHelper::filterBadProtocol($match[1]);
+            $thisval = $skip_protocol_filtering ? $match[1] : UrlHelper::filterBadProtocol($match[1]);
 
             if (!$skip) {
               $attributes_array[] = "$attribute_name=\"$thisval\"";

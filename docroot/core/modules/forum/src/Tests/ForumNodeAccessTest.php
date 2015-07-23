@@ -2,12 +2,13 @@
 
 /**
  * @file
- * Definition of Drupal\forum\Tests\ForumNodeAccessTest.
+ * Contains \Drupal\forum\Tests\ForumNodeAccessTest.
  */
 
 namespace Drupal\forum\Tests;
 
 use Drupal\simpletest\WebTestBase;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Tests forum block view for private node access.
@@ -26,7 +27,7 @@ class ForumNodeAccessTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
     node_access_rebuild();
-    node_access_test_add_field(entity_load('node_type', 'forum'));
+    node_access_test_add_field(NodeType::load('forum'));
     \Drupal::state()->set('node_access_test.private', TRUE);
   }
 

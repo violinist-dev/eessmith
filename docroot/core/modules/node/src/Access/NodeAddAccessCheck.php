@@ -15,6 +15,8 @@ use Drupal\node\NodeTypeInterface;
 
 /**
  * Determines access to for node add pages.
+ *
+ * @ingroup node_access
  */
 class NodeAddAccessCheck implements AccessInterface {
 
@@ -50,6 +52,9 @@ class NodeAddAccessCheck implements AccessInterface {
   public function access(AccountInterface $account, NodeTypeInterface $node_type = NULL) {
     $access_control_handler = $this->entityManager->getAccessControlHandler('node');
     // If checking whether a node of a particular type may be created.
+    if ($account->hasPermission('administer content types')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
     if ($node_type) {
       return $access_control_handler->createAccess($node_type->id(), $account, [], TRUE);
     }

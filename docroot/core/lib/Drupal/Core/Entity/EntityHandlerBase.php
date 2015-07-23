@@ -14,7 +14,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 /**
  * Provides a base class for entity handlers.
  *
- * @todo Convert this to a trait.
+ * @todo Deprecate this in https://www.drupal.org/node/2471663.
  */
 abstract class EntityHandlerBase {
   use StringTranslationTrait;
@@ -28,7 +28,7 @@ abstract class EntityHandlerBase {
   protected $moduleHandler;
 
   /**
-   * Returns the module handler.
+   * Gets the module handler.
    *
    * @return \Drupal\Core\Extension\ModuleHandlerInterface
    *   The module handler.

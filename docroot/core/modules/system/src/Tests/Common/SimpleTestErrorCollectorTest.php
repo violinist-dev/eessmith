@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\Common\SimpleTestErrorCollectorTest.
+ * Contains \Drupal\system\Tests\Common\SimpleTestErrorCollectorTest.
  */
 
 namespace Drupal\system\Tests\Common;
@@ -26,7 +26,7 @@ class SimpleTestErrorCollectorTest extends WebTestBase {
   /**
    * Errors triggered during the test.
    *
-   * Errors are intercepted by the overriden implementation
+   * Errors are intercepted by the overridden implementation
    * of Drupal\simpletest\WebTestBase::error() below.
    *
    * @var Array

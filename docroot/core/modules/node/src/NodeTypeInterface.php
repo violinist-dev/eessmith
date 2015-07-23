@@ -8,12 +8,11 @@
 namespace Drupal\node;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
-use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 
 /**
  * Provides an interface defining a node type entity.
  */
-interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInterface {
+interface NodeTypeInterface extends ConfigEntityInterface {
 
   /**
    * Determines whether the node type is locked.
@@ -24,7 +23,7 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function isLocked();
 
   /**
-   * Returns whether a new revision should be created by default.
+   * Gets whether a new revision should be created by default.
    *
    * @return bool
    *   TRUE if a new revision should be created by default.
@@ -32,7 +31,7 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function isNewRevision();
 
   /**
-   * Set whether a new revision should be created by default.
+   * Sets whether a new revision should be created by default.
    *
    * @param bool $new_revision_
    *   TRUE if a new revision should be created by default.
@@ -40,7 +39,7 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function setNewRevision($new_revision);
 
   /**
-   * Returns whether 'Submitted by' information should be shown.
+   * Gets whether 'Submitted by' information should be shown.
    *
    * @return bool
    *   TRUE if the submitted by information should be shown.
@@ -48,15 +47,15 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function displaySubmitted();
 
   /**
-   * Set whether 'Submitted by' information should be shown.
+   * Sets whether 'Submitted by' information should be shown.
    *
    * @param bool $display_submitted
    *   TRUE if the submitted by information should be shown.
    */
-  public function setDisplaySubmitted($display_submtited);
+  public function setDisplaySubmitted($display_submitted);
 
   /**
-   * Returns the preview mode.
+   * Gets the preview mode.
    *
    * @return int
    *   DRUPAL_DISABLED, DRUPAL_OPTIONAL or DRUPAL_REQUIRED.
@@ -72,7 +71,7 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function setPreviewMode($preview_mode);
 
   /**
-   * Returns the help information.
+   * Gets the help information.
    *
    * @return string
    *   The help information of this node type.
@@ -80,7 +79,7 @@ interface NodeTypeInterface extends ConfigEntityInterface, ThirdPartySettingsInt
   public function getHelp();
 
   /**
-   * Returns the description.
+   * Gets the description.
    *
    * @return string
    *   The description of this node type.

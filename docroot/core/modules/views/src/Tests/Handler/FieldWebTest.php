@@ -7,9 +7,10 @@
 
 namespace Drupal\views\Tests\Handler;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\system\Tests\Cache\AssertPageCacheContextsAndTagsTrait;
 use Drupal\views\Views;
 
 /**
@@ -19,6 +20,8 @@ use Drupal\views\Views;
  * @see \Drupal\views\Plugin\views\field\FieldPluginBase
  */
 class FieldWebTest extends HandlerTestBase {
+
+  use AssertPageCacheContextsAndTagsTrait;
 
   /**
    * Views used by this test.
@@ -62,10 +65,21 @@ class FieldWebTest extends HandlerTestBase {
   public function testClickSorting() {
     $this->drupalGet('test_click_sort');
     $this->assertResponse(200);
+
     // Only the id and name should be click sortable, but not the name.
     $this->assertLinkByHref(\Drupal::url('view.test_click_sort.page_1', [], ['query' => ['order' => 'id', 'sort' => 'asc']]));
     $this->assertLinkByHref(\Drupal::url('view.test_click_sort.page_1', [], ['query' => ['order' => 'name', 'sort' => 'desc']]));
     $this->assertNoLinkByHref(\Drupal::url('view.test_click_sort.page_1', [], ['query' => ['order' => 'created']]));
+
+    // Check that the view returns the click sorting cache contexts.
+    $expected_contexts = [
+      'languages:language_interface',
+      'theme',
+      'url.query_args.pagers:0',
+      'url.query_args:order',
+      'url.query_args:sort',
+    ];
+    $this->assertCacheContexts($expected_contexts);
 
     // Clicking a click sort should change the order.
     $this->clickLink(t('ID'));
@@ -208,8 +222,6 @@ class FieldWebTest extends HandlerTestBase {
 
     // Some generic test code adapted from the UrlTest class, which tests
     // mostly the different options for the path.
-    global $base_url, $script_path;
-
     foreach (array(FALSE, TRUE) as $absolute) {
       $alter = &$id_field->options['alter'];
       $alter['path'] = 'node/123';
@@ -232,14 +244,14 @@ class FieldWebTest extends HandlerTestBase {
       $expected_result = \Drupal::url('entity.node.canonical', ['node' => '123'], ['query' => ['foo' => 'bar', 'bar' => 'baz'], 'absolute' => $absolute]);
       $alter['path'] = 'node/123?foo=bar&bar=baz';
       $result = $id_field->theme($row);
-      $this->assertSubString(String::decodeEntities($result), String::decodeEntities($expected_result));
+      $this->assertSubString(Html::decodeEntities($result), Html::decodeEntities($expected_result));
 
       // @todo The route-based URL generator strips out NULL attributes.
       // $expected_result = \Drupal::url('entity.node.canonical', ['node' => '123'], ['query' => ['foo' => NULL], 'fragment' => 'bar', 'absolute' => $absolute]);
       $expected_result = \Drupal::urlGenerator()->generateFromPath('node/123', array('query' => array('foo' => NULL), 'fragment' => 'bar', 'absolute' => $absolute));
       $alter['path'] = 'node/123?foo#bar';
       $result = $id_field->theme($row);
-      $this->assertSubString(String::decodeEntities($result), String::decodeEntities($expected_result));
+      $this->assertSubString(Html::decodeEntities($result), Html::decodeEntities($expected_result));
 
       $expected_result = \Drupal::url('<front>', [], ['absolute' => $absolute]);
       $alter['path'] = '<front>';
@@ -260,15 +272,15 @@ class FieldWebTest extends HandlerTestBase {
     // Tests the external flag.
     // Switch on the external flag should output an external url as well.
     $id_field->options['alter']['external'] = TRUE;
-    $id_field->options['alter']['path'] = $path = 'drupal.org';
+    $id_field->options['alter']['path'] = $path = 'www.drupal.org';
     $output = $id_field->theme($row);
-    $this->assertSubString($output, 'http://drupal.org');
+    $this->assertSubString($output, 'http://www.drupal.org');
 
     // Setup a not external url, which shouldn't lead to an external url.
     $id_field->options['alter']['external'] = FALSE;
-    $id_field->options['alter']['path'] = $path = 'drupal.org';
+    $id_field->options['alter']['path'] = $path = 'www.drupal.org';
     $output = $id_field->theme($row);
-    $this->assertNotSubString($output, 'http://drupal.org');
+    $this->assertNotSubString($output, 'http://www.drupal.org');
 
     // Tests the transforming of the case setting.
     $id_field->options['alter']['path'] = $path = $this->randomMachineName();
@@ -295,7 +307,8 @@ class FieldWebTest extends HandlerTestBase {
     $this->assertSubString($output, UrlHelper::encodePath('Drupal Has A Great Community'));
     unset($id_field->options['alter']['path_case']);
 
-    // Tests the linkclass setting and see whether it actuall exists in the output.
+    // Tests the linkclass setting and see whether it actually exists in the
+    // output.
     $id_field->options['alter']['link_class'] = $class = $this->randomMachineName();
     $output = $id_field->theme($row);
     $elements = $this->xpathContent($output, '//a[contains(@class, :class)]', array(':class' => $class));
@@ -329,6 +342,8 @@ class FieldWebTest extends HandlerTestBase {
    * Tests the field/label/wrapper classes.
    */
   public function testFieldClasses() {
+    /** @var \Drupal\Core\Render\RendererInterface $renderer */
+    $renderer = $this->container->get('renderer');
     $view = Views::getView('test_field_classes');
     $view->initHandlers();
 
@@ -339,13 +354,13 @@ class FieldWebTest extends HandlerTestBase {
     // Setup some kind of label by default.
     $id_field->options['label'] = $this->randomMachineName();
     $output = $view->preview();
-    $output = drupal_render($output);
+    $output = $renderer->renderRoot($output);
     $this->assertFalse($this->xpathContent($output, '//div[contains(@class, :class)]', array(':class' => 'field-content')));
     $this->assertFalse($this->xpathContent($output, '//div[contains(@class, :class)]', array(':class' => 'field-label')));
 
     $id_field->options['element_default_classes'] = TRUE;
     $output = $view->preview();
-    $output = drupal_render($output);
+    $output = $renderer->renderRoot($output);
     // Per default the label and the element of the field are spans.
     $this->assertTrue($this->xpathContent($output, '//span[contains(@class, :class)]', array(':class' => 'field-content')));
     $this->assertTrue($this->xpathContent($output, '//span[contains(@class, :class)]', array(':class' => 'views-label')));
@@ -361,13 +376,13 @@ class FieldWebTest extends HandlerTestBase {
       // Set a custom wrapper element css class.
       $id_field->options['element_wrapper_class'] = $random_class;
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertTrue($this->xpathContent($output, "//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
 
       // Set no custom css class.
       $id_field->options['element_wrapper_class'] = '';
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertFalse($this->xpathContent($output, "//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
       $this->assertTrue($this->xpathContent($output, "//li[contains(@class, views-row)]/{$element_type}"));
     }
@@ -381,13 +396,13 @@ class FieldWebTest extends HandlerTestBase {
       // Set a custom label element css class.
       $id_field->options['element_label_class'] = $random_class;
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertTrue($this->xpathContent($output, "//li[contains(@class, views-row)]//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
 
       // Set no custom css class.
       $id_field->options['element_label_class'] = '';
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertFalse($this->xpathContent($output, "//li[contains(@class, views-row)]//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
       $this->assertTrue($this->xpathContent($output, "//li[contains(@class, views-row)]//{$element_type}"));
     }
@@ -401,13 +416,13 @@ class FieldWebTest extends HandlerTestBase {
       // Set a custom label element css class.
       $id_field->options['element_class'] = $random_class;
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertTrue($this->xpathContent($output, "//li[contains(@class, views-row)]//div[contains(@class, views-field)]//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
 
       // Set no custom css class.
       $id_field->options['element_class'] = '';
       $output = $view->preview();
-      $output = drupal_render($output);
+      $output = $renderer->renderRoot($output);
       $this->assertFalse($this->xpathContent($output, "//li[contains(@class, views-row)]//div[contains(@class, views-field)]//{$element_type}[contains(@class, :class)]", array(':class' => $random_class)));
       $this->assertTrue($this->xpathContent($output, "//li[contains(@class, views-row)]//div[contains(@class, views-field)]//{$element_type}"));
     }
@@ -503,7 +518,7 @@ class FieldWebTest extends HandlerTestBase {
     $random_text_2 = $this->randomMachineName(2);
     $random_text_4 = $this->randomMachineName(4);
     $random_text_8 = $this->randomMachineName(8);
-    $touples = array(
+    $tuples = array(
       // Create one string which doesn't fit at all into the limit.
       array(
         'value' => $random_text_8,
@@ -532,15 +547,15 @@ class FieldWebTest extends HandlerTestBase {
       )
     );
 
-    foreach ($touples as $touple) {
-      $row->views_test_data_name = $touple['value'];
+    foreach ($tuples as $tuple) {
+      $row->views_test_data_name = $tuple['value'];
       $output = $name_field->advancedRender($row);
 
-      if ($touple['trimmed']) {
-        $this->assertNotSubString($output, $touple['value'], format_string('The untrimmed value (!untrimmed) should not appear in the trimmed output (!output).', array('!untrimmed' => $touple['value'], '!output' => $output)));
+      if ($tuple['trimmed']) {
+        $this->assertNotSubString($output, $tuple['value'], format_string('The untrimmed value (!untrimmed) should not appear in the trimmed output (!output).', array('!untrimmed' => $tuple['value'], '!output' => $output)));
       }
-      if (!empty($touble['trimmed_value'])) {
-        $this->assertSubString($output, $touple['trimmed_value'], format_string('The trimmed value (!trimmed) should appear in the trimmed output (!output).', array('!trimmed' => $touple['trimmed_value'], '!output' => $output)));
+      if (!empty($tuple['trimmed_value'])) {
+        $this->assertSubString($output, $tuple['trimmed_value'], format_string('The trimmed value (!trimmed) should appear in the trimmed output (!output).', array('!trimmed' => $tuple['trimmed_value'], '!output' => $output)));
       }
     }
 

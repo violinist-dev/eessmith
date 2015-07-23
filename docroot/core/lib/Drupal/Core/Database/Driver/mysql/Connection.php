@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Database\Driver\mysql\Connection
+ * Contains \Drupal\Core\Database\Driver\mysql\Connection.
  */
 
 namespace Drupal\Core\Database\Driver\mysql;
@@ -30,7 +30,7 @@ class Connection extends DatabaseConnection {
   /**
    * Flag to indicate if the cleanup function in __destruct() should run.
    *
-   * @var boolean
+   * @var bool
    */
   protected $needsCleanup = FALSE;
 
@@ -64,7 +64,7 @@ class Connection extends DatabaseConnection {
     // Character set is added to dsn to ensure PDO uses the proper character
     // set when escaping. This has security implications. See
     // https://www.drupal.org/node/1201452 for further discussion.
-    $dsn .= ';charset=utf8';
+    $dsn .= ';charset=utf8mb4';
     if (!empty($connection_options['database'])) {
       $dsn .= ';dbname=' . $connection_options['database'];
     }
@@ -83,17 +83,22 @@ class Connection extends DatabaseConnection {
       // Because MySQL's prepared statements skip the query cache, because it's dumb.
       \PDO::ATTR_EMULATE_PREPARES => TRUE,
     );
+    if (defined('\PDO::MYSQL_ATTR_MULTI_STATEMENTS')) {
+      // An added connection option in PHP 5.5.21 to optionally limit SQL to a
+      // single statement like mysqli.
+      $connection_options['pdo'] += [\PDO::MYSQL_ATTR_MULTI_STATEMENTS => FALSE];
+    }
 
     $pdo = new \PDO($dsn, $connection_options['username'], $connection_options['password'], $connection_options['pdo']);
 
     // Force MySQL to use the UTF-8 character set. Also set the collation, if a
-    // certain one has been set; otherwise, MySQL defaults to 'utf8_general_ci'
-    // for UTF-8.
+    // certain one has been set; otherwise, MySQL defaults to
+    // 'utf8mb4_general_ci' for utf8mb4.
     if (!empty($connection_options['collation'])) {
-      $pdo->exec('SET NAMES utf8 COLLATE ' . $connection_options['collation']);
+      $pdo->exec('SET NAMES utf8mb4 COLLATE ' . $connection_options['collation']);
     }
     else {
-      $pdo->exec('SET NAMES utf8');
+      $pdo->exec('SET NAMES utf8mb4');
     }
 
     // Set MySQL init_commands if not already defined.  Default Drupal's MySQL
@@ -101,17 +106,19 @@ class Connection extends DatabaseConnection {
     // to run almost seamlessly on many different kinds of database systems.
     // These settings force MySQL to behave the same as postgresql, or sqlite
     // in regards to syntax interpretation and invalid data handling.  See
-    // http://drupal.org/node/344575 for further discussion. Also, as MySQL 5.5
-    // changed the meaning of TRADITIONAL we need to spell out the modes one by
-    // one.
+    // https://www.drupal.org/node/344575 for further discussion. Also, as MySQL
+    // 5.5 changed the meaning of TRADITIONAL we need to spell out the modes one
+    // by one.
     $connection_options += array(
       'init_commands' => array(),
     );
     $connection_options['init_commands'] += array(
-      'sql_mode' => "SET sql_mode = 'ANSI,STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER'",
+      'sql_mode' => "SET sql_mode = 'ANSI,STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,ONLY_FULL_GROUP_BY'",
     );
-    // Set connection options.
-    $pdo->exec(implode('; ', $connection_options['init_commands']));
+    // Execute initial commands.
+    foreach ($connection_options['init_commands'] as $sql) {
+      $pdo->exec($sql);
+    }
 
     return $pdo;
   }
@@ -204,7 +211,7 @@ class Connection extends DatabaseConnection {
   public function nextIdDelete() {
     // While we want to clean up the table to keep it up from occupying too
     // much storage and memory, we must keep the highest value in the table
-    // because InnoDB  uses an in-memory auto-increment counter as long as the
+    // because InnoDB uses an in-memory auto-increment counter as long as the
     // server runs. When the server is stopped and restarted, InnoDB
     // reinitializes the counter for each table for the first INSERT to the
     // table based solely on values from the table so deleting all values would

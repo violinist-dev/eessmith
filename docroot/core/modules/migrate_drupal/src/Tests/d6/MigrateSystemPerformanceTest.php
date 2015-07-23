@@ -37,11 +37,9 @@ class MigrateSystemPerformanceTest extends MigrateDrupal6TestBase {
    */
   public function testSystemPerformance() {
     $config = $this->config('system.performance');
-    $this->assertIdentical($config->get('css.preprocess'), FALSE);
-    $this->assertIdentical($config->get('js.preprocess'), FALSE);
-    $this->assertIdentical($config->get('cache.page.max_age'), 0);
-    $this->assertIdentical($config->get('cache.page.use_internal'), TRUE);
-    $this->assertIdentical($config->get('response.gzip'), TRUE);
+    $this->assertIdentical(FALSE, $config->get('css.preprocess'));
+    $this->assertIdentical(FALSE, $config->get('js.preprocess'));
+    $this->assertIdentical(0, $config->get('cache.page.max_age'));
   }
 
 }

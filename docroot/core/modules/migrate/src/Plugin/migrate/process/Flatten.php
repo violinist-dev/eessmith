@@ -6,7 +6,7 @@
  */
 
 namespace Drupal\migrate\Plugin\migrate\process;
-use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\ProcessPluginBase;
 use Drupal\migrate\Row;
 
@@ -17,7 +17,7 @@ use Drupal\migrate\Row;
  * once a single value gets transformed into multiple values. This plugin will
  * flatten them back down to single values again.
  *
- * @see https://drupal.org/node/2154215
+ * @see https://www.drupal.org/node/2154215
  *
  * @MigrateProcessPlugin(
  *   id = "flatten",
@@ -31,7 +31,7 @@ class Flatten extends ProcessPluginBase {
    *
    * For example, array(array(1, 2, array(3, 4))) becomes array(1, 2, 3, 4).
    */
-  public function transform($value, MigrateExecutable $migrate_executable, Row $row, $destination_property) {
+  public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     return iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveArrayIterator($value)), FALSE);
   }
 }

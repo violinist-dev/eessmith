@@ -28,20 +28,22 @@ use Drupal\views\Plugin\views\PluginBase;
  *   entity, create a class implementing
  *   \Drupal\views\EntityViewsDataInterface and reference this in the
  *   "views_data" annotation in the entity class. You can autogenerate big parts
- *   of the ingration if you extend the \Drupal\views\EntityViewsData base
+ *   of the integration if you extend the \Drupal\views\EntityViewsData base
  *   class. See the @link entity_api Entity API topic @endlink for more
  *   information about entities.
  * - Implement hooks: A few operations in Views can be influenced by hooks.
- *   See the @link Views hooks topic @endlink for a list.
+ *   See the @link views_hooks Views hooks topic @endlink for a list.
  * - Theming: See the @link views_templates Views templates topic @endlink
  *   for more information.
  *
  * @see \Drupal\views\ViewExecutable
+ * @see \Drupal\views\Views
  * @}
  */
 
 /**
  * @defgroup views_plugins Views plugins
+ * @{
  * Overview of views plugins
  *
  * Views plugins are objects that are used to build and render the view.
@@ -57,16 +59,20 @@ use Drupal\views\Plugin\views\PluginBase;
  * @todo Document specific options on the appropriate plugin base classes.
  * @todo Add examples.
  *
+ * @ingroup views_overview
  * @see \Drupal\views\Plugin\views\PluginBase
  * @see \Drupal\views\Plugin\views\HandlerBase
  * @see plugin_api
  * @see annotation
+ * @}
  */
 
 /**
  * @defgroup views_hooks Views hooks
  * @{
  * Hooks that allow other modules to implement the Views API.
+ * @ingroup views_overview
+ * @}
  */
 
 /**
@@ -183,7 +189,7 @@ function hook_views_data() {
     // for the other tables, given in their hook_views_data() implementations.
     // If the table listed here is from another module's hook_views_data()
     // implementation, make sure your module depends on that other module.
-    'node' => array(
+    'node_field_data' => array(
       // Primary key field in node to use in the join.
       'left_field' => 'nid',
       // Foreign key field in example_table to use in the join.
@@ -662,7 +668,7 @@ function hook_views_pre_view(ViewExecutable $view, $display_id, array &$args) {
  * @see \Drupal\views\ViewExecutable
  */
 function hook_views_pre_build(ViewExecutable $view) {
-  // Because of some unexplicable business logic, we should remove all
+  // Because of some inexplicable business logic, we should remove all
   // attachments from all views on Mondays.
   // (This alter could be done later in the execution process as well.)
   if (date('D') == 'Mon') {
@@ -819,7 +825,7 @@ function hook_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
   // (Example assuming a view with an exposed filter on node title.)
   // If the input for the title filter is a positive integer, filter against
   // node ID instead of node title.
-  if ($view->name == 'my_view' && is_numeric($view->exposed_raw_input['title']) && $view->exposed_raw_input['title'] > 0) {
+  if ($view->id() == 'my_view' && is_numeric($view->exposed_raw_input['title']) && $view->exposed_raw_input['title'] > 0) {
     // Traverse through the 'where' part of the query.
     foreach ($query->where as &$condition_group) {
       foreach ($condition_group['conditions'] as &$condition) {

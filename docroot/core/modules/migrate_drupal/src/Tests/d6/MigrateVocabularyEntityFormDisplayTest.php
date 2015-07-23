@@ -22,7 +22,7 @@ class MigrateVocabularyEntityFormDisplayTest extends MigrateDrupal6TestBase {
    *
    * @var array
    */
-  static $modules = array('taxonomy', 'field');
+  static $modules = array('node', 'taxonomy', 'field', 'text', 'entity_reference');
 
   /**
    * {@inheritdoc}
@@ -33,7 +33,10 @@ class MigrateVocabularyEntityFormDisplayTest extends MigrateDrupal6TestBase {
     entity_create('field_storage_config', array(
       'entity_type' => 'node',
       'field_name' => 'tags',
-      'type' => 'taxonomy_term_reference',
+      'type' => 'entity_reference',
+      'settings' => array(
+        'target_type' => 'taxonomy_term',
+      ),
     ))->save();
 
     foreach (array('page', 'article', 'story') as $type) {
@@ -45,6 +48,15 @@ class MigrateVocabularyEntityFormDisplayTest extends MigrateDrupal6TestBase {
         'entity_type' => 'node',
         'bundle' => $type,
         'required' => 1,
+        'settings' => array(
+          'handler' => 'default',
+          'handler_settings' => array(
+            'target_bundles' => array(
+              'tags' => 'tags',
+            ),
+            'auto_create' => TRUE,
+          ),
+        ),
       ))->save();
     }
 
@@ -76,8 +88,8 @@ class MigrateVocabularyEntityFormDisplayTest extends MigrateDrupal6TestBase {
   public function testVocabularyEntityFormDisplay() {
     // Test that the field exists.
     $component = entity_get_form_display('node', 'page', 'default')->getComponent('tags');
-    $this->assertIdentical($component['type'], 'options_select');
-    $this->assertIdentical($component['weight'], 20);
+    $this->assertIdentical('options_select', $component['type']);
+    $this->assertIdentical(20, $component['weight']);
     // Test the Id map.
     $this->assertIdentical(array('node', 'article', 'default', 'tags'), entity_load('migration', 'd6_vocabulary_entity_form_display')->getIdMap()->lookupDestinationID(array(4, 'article')));
   }

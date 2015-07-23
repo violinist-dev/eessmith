@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\options\Type\ListIntegerItem.
+ * Contains \Drupal\options\Plugin\Field\FieldType\ListIntegerItem.
  */
 
 namespace Drupal\options\Plugin\Field\FieldType;
@@ -17,6 +17,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "list_integer",
  *   label = @Translation("List (integer)"),
  *   description = @Translation("This field stores integer values from a list of allowed 'value => label' pairs, i.e. 'Lifetime in days': 1 => 1 day, 7 => 1 week, 31 => 1 month."),
+ *   category = @Translation("Number"),
  *   default_widget = "options_select",
  *   default_formatter = "list_default",
  * )
@@ -70,6 +71,13 @@ class ListIntegerItem extends ListItemBase {
     if (!preg_match('/^-?\d+$/', $option)) {
       return t('Allowed values list: keys must be integers.');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static function castAllowedValue($value) {
+    return (int) $value;
   }
 
 }

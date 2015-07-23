@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\rest\test\RESTTestBase.
+ * Contains \Drupal\rest\Tests\RESTTestBase.
  */
 
 namespace Drupal\rest\Tests;
@@ -154,12 +154,15 @@ abstract class RESTTestBase extends WebTestBase {
     }
 
     $response = $this->curlExec($curl_options);
+
+    // Ensure that any changes to variables in the other thread are picked up.
+    $this->refreshVariables();
+
     $headers = $this->drupalGetHeaders();
-    $headers = implode("\n", $headers);
 
     $this->verbose($method . ' request to: ' . $url .
       '<hr />Code: ' . curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE) .
-      '<hr />Response headers: ' . $headers .
+      '<hr />Response headers: ' . nl2br(print_r($headers, TRUE)) .
       '<hr />Response body: ' . $response);
 
     return $response;
@@ -258,29 +261,6 @@ abstract class RESTTestBase extends WebTestBase {
   }
 
   /**
-   * Check if a HTTP response header exists and has the expected value.
-   *
-   * @param string $header
-   *   The header key, example: Content-Type
-   * @param string $value
-   *   The header value.
-   * @param string $message
-   *   (optional) A message to display with the assertion.
-   * @param string $group
-   *   (optional) The group this message is in, which is displayed in a column
-   *   in test output. Use 'Debug' to indicate this is debugging output. Do not
-   *   translate this string. Defaults to 'Other'; most tests do not override
-   *   this default.
-   *
-   * @return bool
-   *   TRUE if the assertion succeeded, FALSE otherwise.
-   */
-  protected function assertHeader($header, $value, $message = '', $group = 'Browser') {
-    $header_value = $this->drupalGetHeader($header);
-    return $this->assertTrue($header_value == $value, $message ? $message : 'HTTP response header ' . $header . ' with value ' . $value . ' found.', $group);
-  }
-
-  /**
    * {@inheritdoc}
    *
    * This method is overridden to deal with a cURL quirk: the usage of
@@ -331,6 +311,16 @@ abstract class RESTTestBase extends WebTestBase {
             return array('edit any resttest content');
           case 'delete':
             return array('delete any resttest content');
+        }
+
+      case 'user':
+        switch ($operation) {
+          case 'view':
+            return ['access user profiles'];
+
+          default:
+            return ['administer users'];
+
         }
     }
   }
