@@ -656,6 +656,10 @@ class BaseFieldDefinition extends ListDataDefinition implements FieldDefinitionI
     return $this->schema;
   }
 
+  public function setSchema(array $schema) {
+    $this->schema = $schema;
+  }
+
   /**
    * {@inheritdoc}
    */
