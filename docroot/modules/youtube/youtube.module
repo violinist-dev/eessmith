@@ -8,7 +8,7 @@
 use GuzzleHttp\Exception\RequestException;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\String;
-use Drupal\field\Entity\FieldInstanceConfig;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
 
@@ -74,149 +74,136 @@ function youtube_size_options() {
 function youtube_theme($existing, $type, $theme, $path) {
   return array(
     'youtube_thumbnail' => array(
-      'function' => 'theme_youtube_thumbnail',
       'variables' => array(
         'video_id' => NULL,
         'entity_title' => NULL,
         'image_style' => NULL,
         'image_link' => NULL,
+        'image' => NULL,
       ),
     ),
     'youtube_video' => array(
-      'function' => 'theme_youtube_video',
       'variables' => array(
         'video_id' => NULL,
         'entity_title' => NULL,
-        'size' => NULL,
-        'width' => NULL,
-        'height' => NULL,
-        'autoplay' => FALSE,
-        'showinfo' => FALSE,
-        'controls' => FALSE,
-        'autohide' => FALSE,
-        'iv_load_policy' => FALSE,
+        'settings' => array(),
+        'alternative_content' => NULL,
       ),
     ),
   );
 }
 
 /**
- * Theme function for videos.
+ * Prepares variables for the YouTube Video template.
+ *
+ * Default template: youtube-video.html.twig.
  */
-function theme_youtube_video($variables) {
-  $id = $variables['video_id'];
-  $size = $variables['size'];
-  $width = $variables['width'];
-  $height = $variables['height'];
-  $autoplay = $variables['autoplay'];
-  $showinfo = $variables['showinfo'];
-  $controls = $variables['controls'];
-  $autohide = $variables['autohide'];
-  $iv_load_policy = $variables['iv_load_policy'];
+function template_preprocess_youtube_video(&$variables) {
+  // Add global YouTube module configuration to the settings array.
+  $variables['settings'] += array(
+    'youtube_suggest' => \Drupal::config('youtube.settings')->get('youtube_suggest'),
+    'youtube_privacy' => \Drupal::config('youtube.settings')->get('youtube_privacy'),
+    'youtube_player_class' => \Drupal::config('youtube.settings')->get('youtube_player_class'),
+    'youtube_modestbranding' => \Drupal::config('youtube.settings')->get('youtube_modestbranding'),
+    'youtube_theme' => \Drupal::config('youtube.settings')->get('youtube_theme'),
+    'youtube_color' => \Drupal::config('youtube.settings')->get('youtube_color'),
+    'youtube_enablejsapi' => \Drupal::config('youtube.settings')->get('youtube_enablejsapi'),
+    'youtube_wmode' => \Drupal::config('youtube.settings')->get('youtube_wmode'),
+  );
 
-  // Get YouTube settings.
-  $suggest = \Drupal::config('youtube.settings')->get('youtube_suggest');
-  $privacy = \Drupal::config('youtube.settings')->get('youtube_privacy');
-  $player_class = \Drupal::config('youtube.settings')->get('youtube_player_class');
-  $modestbranding = \Drupal::config('youtube.settings')->get('youtube_modestbranding');
-  $theme = \Drupal::config('youtube.settings')->get('youtube_theme');
-  $color = \Drupal::config('youtube.settings')->get('youtube_color');
-  $enablejsapi = \Drupal::config('youtube.settings')->get('youtube_enablejsapi');
-  $wmode = \Drupal::config('youtube.settings')->get('youtube_wmode');
-  $dimensions = youtube_get_dimensions($size, $width, $height);
-
-  // Query string changes based on setings.
+  // Build the query for the embedded video using module and field settings.
   $query = array();
-  if (!$suggest) {
+  if (!$variables['settings']['youtube_suggest']) {
     $query['rel'] = '0';
   }
-  if ($modestbranding) {
+  if ($variables['settings']['youtube_modestbranding']) {
     $query['modestbranding'] = '1';
   }
-  if ($theme) {
+  if ($variables['settings']['youtube_theme']) {
     $query['theme'] = 'light';
   }
-  if ($color) {
+  if ($variables['settings']['youtube_color']) {
     $query['color'] = 'white';
   }
-  if ($enablejsapi) {
+  if ($variables['settings']['youtube_enablejsapi']) {
     global $base_url;
     $query['enablejsapi'] = '1';
     $query['origin'] = $base_url;
   }
-  if ($wmode) {
+  if ($variables['settings']['youtube_wmode']) {
     $query['wmode'] = 'opaque';
   }
-  if ($autoplay) {
+  if ($variables['settings']['youtube_autoplay']) {
     $query['autoplay'] = '1';
   }
-  if ($showinfo) {
+  if ($variables['settings']['youtube_loop']) {
+    $query['loop'] = '1';
+    $query['playlist'] = $variables['video_id'];
+  }
+  if ($variables['settings']['youtube_showinfo']) {
     $query['showinfo'] = '0';
   }
-  if ($controls) {
+  if ($variables['settings']['youtube_controls']) {
     $query['controls'] = '0';
   }
-  if ($autohide) {
+  if ($variables['settings']['youtube_autohide']) {
     $query['autohide'] = '1';
   }
-  if ($iv_load_policy) {
+  if ($variables['settings']['youtube_iv_load_policy']) {
     $query['iv_load_policy'] = '3';
   }
 
-  // Domain changes based on settings.
-  $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
+  // Use the module's privacy configuration to determine the domain.
+  $domain = !$variables['settings']['youtube_privacy'] ? 'youtube.com' : 'youtube-nocookie.com';
+  $path = 'https://www.' . $domain . '/embed/' . $variables['video_id'];
 
-  $path = 'https://www.' . $domain . '/embed/' . $id;
-  $src = \Drupal\Core\Url::fromUri($path, ['query' => $query])->toString();
-  $player_id = Html::getUniqueId($player_class);
+  // Build the src attribute with the path and query array constructed above.
+  $url = \Drupal\Core\Url::fromUri($path, ['query' => $query]);
+  $variables['content_attributes']['src'] = $url->toString();
 
-  $player_title = t('Embedded video');
+  // Use the field's display settings to retrieve the video's dimensions.
+  $size = $variables['settings']['youtube_size'];
+  $width = $variables['settings']['youtube_width'];
+  $height = $variables['settings']['youtube_height'];
+  $dimensions = youtube_get_dimensions($size, $width, $height);
+  // Assign the retrieved dimensions as attributes on the iframe element.
+  $variables['content_attributes']['width'] = $dimensions['width'];
+  $variables['content_attributes']['height'] = $dimensions['height'];
+
+  // Build the iframe element's id attribute value.
+  $id = Html::getUniqueId($variables['settings']['youtube_player_class']);
+  $variables['content_attributes']['id'] = $id;
+
+  // Build the iframe element's title attribute value (for accessibility).
+  $variables['content_attributes']['title'] = t('Embedded video');
   if (!empty($variables['entity_title'])) {
-    $player_title .= t(' for @entity_title', array(
+    $variables['content_attributes']['title'] = t('Embedded video for @entity_title', array(
       '@entity_title' => $variables['entity_title'],
     ));
   }
 
-  $output = '<iframe id="' . $player_id . '" width="' . $dimensions['width'] . '"
-    height="' . $dimensions['height'] . '" src="' . $src . '" title="' . $player_title . '"
-    frameborder="0" allowfullscreen></iframe>';
+  // Alternative content for browsers that don't understand iframes (WCAG).
+  $variables['alternative_content'] = \Drupal::l($variables['content_attributes']['title'], $url);
 
+  // Add classes to the wrapping element.
+  $variables['attributes']['class'][] = 'youtube-container';
   if ($size == 'responsive') {
-    $output = '<div class="youtube-container--responsive">' . $output . '</div>';
+    // When the "responsive" size is chosen in the field's display settings,
+    // this class is used by the module's CSS to make the player responsive.
+    $variables['attributes']['class'][] = 'youtube-container--responsive';
   }
-
-  return $output;
 }
 
 /**
- * Theme function for thumbnails.
+ * Prepares variables for the YouTube Thumbnail template.
+ *
+ * Default template: youtube-thumnbail.html.twig.
  */
-function theme_youtube_thumbnail($variables) {
-  $id = $variables['video_id'];
-  $style = $variables['image_style'];
+function template_preprocess_youtube_thumbnail(&$variables) {
+  $video_id = $variables['video_id'];
+  $image_style = $variables['image_style'];
 
-  $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
-  $youtube_dir = empty($youtube_dir) ? 'youtube' : $youtube_dir;
-
-  $yt_dir_path = youtube_get_yt_dir();
-  $dest = $yt_dir_path . '/' . $id . '.png';
-
-  // Check to see if a thumbnail exists locally.
-  $build = array();
-  if (!file_exists($dest)) {
-    // Retrieve the image from YouTube.
-    if (!youtube_get_remote_image($id)) {
-      // Use the remote source if local copy fails.
-      $src = youtube_build_remote_image_path($id);
-      $build['image'] = array(
-        '#theme' => 'image',
-        '#uri' => $src,
-      );
-      $output = drupal_render($build);
-      return $output;
-    }
-  }
-
+  // Build the image element's alt attribute value (for accessibility).
   $alt = t('Embedded thumbnail');
   if (!empty($variables['entity_title'])) {
     $alt .= t(' for @entity_title', array(
@@ -224,35 +211,42 @@ function theme_youtube_thumbnail($variables) {
     ));
   }
 
-  if ($style) {
-    $uri = 'public://' . $youtube_dir . '/' . $id . '.png';
-    $build = array(
-      '#theme' => 'image_style',
-      '#uri' => $uri,
-      '#style_name' => $style,
-      '#alt' => $alt,
-    );
-  } else {
-    $uri = 'public://' . $youtube_dir . '/' . $id . '.png';
-    $build['image'] = array(
-      '#theme' => 'image',
-      '#uri' => $uri,
-      '#alt' => $alt,
-    );
+  // Check to see if a thumbnail exists locally.
+  $youtube_dir_path = youtube_get_yt_dir();
+  $destination = $youtube_dir_path . '/' . $video_id . '.png';
+  if (!file_exists($destination)) {
+    // Retrieve the image from YouTube.
+    if (!youtube_get_remote_image($video_id)) {
+      // Use the remote source if local copy fails.
+      $src = youtube_build_remote_image_path($video_id);
+      $variables['image'] = array(
+        '#theme' => 'image',
+        '#uri' => $src,
+        '#alt' => $alt,
+      );
+    }
   }
 
-  // Check if an url path is provided.
+  // Build the initial image render array.
+  $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
+  $uri = 'public://' . $youtube_dir . '/' . $video_id . '.png';
+  $variables['image'] = array(
+    '#theme' => 'image',
+    '#uri' => $uri,
+    '#alt' => $alt,
+  );
+
+  // If an image style has been chosen in the field's display settings, alter
+  // the render array to use that image style.
+  if ($image_style) {
+    $variables['image']['#theme'] = 'image_style';
+    $variables['image']['#style_name'] = $image_style;
+  }
+
+  // If a URL path is provided, create a link with the image and that path.
   if ($variables['image_link'] != NULL) {
-    $url = $variables['image_link'];
-    $link_text = \Drupal::l($build, $url);
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => $link_text,
-    );
+    $variables['image'] = \Drupal::l($variables['image'], $variables['image_link']);
   }
-
-  $output = drupal_render($build);
-  return $output;
 }
 
 /**
@@ -312,31 +306,10 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
 
   // Build the image url.
   if ($youtube_thumb_hires && !$force_small) {
-    // The high resolution image is not available via JSON-C API.
     $src = youtube_build_remote_image_path($video_id, 'maxresdefault');
   }
   else {
-    $path = 'http://gdata.youtube.com/feeds/api/videos/' . $video_id;
-    $query = array(
-      'v' => '2',
-      'alt' => 'jsonc'
-    );
-    $url = \Drupal\Core\Url::fromUri($path, ['query' => $query])->toString();
-    try {
-      $request = Drupal::httpClient()->get($url);
-    }
-    catch (RequestException $e) {
-      watchdog_exception('youtube', $e);
-      return FALSE;
-    }
-    $data = $request->getBody(TRUE);
-    $data = json_decode($data);
-    // Get the high quality default thumbnail.
-    if (!empty($data->data)) {
-      $src = $data->data->thumbnail->hqDefault;
-    } else {
-      $src = youtube_build_remote_image_path($video_id);
-    }
+    $src = youtube_build_remote_image_path($video_id);
   }
 
   // Make the request for the file.
@@ -459,11 +432,11 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
   foreach ($map as $entity_type => $map_ary) {
     foreach ($map_ary as $field_name => $field_info) {
       if ($field_info['type'] == 'youtube') {
-        $info = FieldInstanceConfig::loadByName($entity_type, $bundle_name, $field_name);
+        $info = FieldConfig::loadByName($entity_type, $bundle_name, $field_name);
         $targets[$field_name] = array(
-          'name' => String::checkPlain($info->label),
+          'name' => String::checkPlain($info->getLabel()),
           'callback' => 'youtube_set_target',
-          'description' => t('The @label field of the node.', array('@label' => $info->label)),
+          'description' => t('The @label field of the node.', array('@label' => $info->getLabel())),
         );
       }
     }
@@ -502,7 +475,7 @@ function youtube_token_info_alter(&$data) {
   // Get all youtube fields. Gather entity_type and bundle information.
   $youtube_fields = array();
   $entity_manager = \Drupal::service('entity.manager');
-  $field_map = $entity_manager::getFieldMap();
+  $field_map = $entity_manager->getFieldMap();
 
   foreach ($field_map as $entity_type_name => $fields) {
     foreach ($fields as $field_name => $field)
@@ -517,8 +490,8 @@ function youtube_token_info_alter(&$data) {
   }
 
   foreach ($youtube_fields as $field) {
-    $field_info = FieldInstanceConfig::loadByName($field['entity_type'], $field['bundle'], $field['field_name']);
-    $field_label = $field_info['label'];
+    $field_info = FieldConfig::loadByName($field['entity_type'], $field['bundle'], $field['field_name']);
+    $field_label = $field_info->getLabel();
 
     // Modify the default field token.
     $data['tokens'][$field['entity_type']][$field['field_name']] = array(

@@ -68,9 +68,15 @@ class YouTubeThumbFormatter extends FormatterBase {
    */
   public function settingsSummary() {
     $summary = array();
+    $image_style = $this->getSetting('image_style');
     $image_link = $this->getSetting('image_link');
-    $image_link = !empty($image_link) ? t("linked to @image_link", array('@image_link' => $image_link)) : "";
-    $summary[] = t('Image style: @image_style @image_link', array('@image_style' => $this->getSetting('image_style'), '@image_link' => $image_link));
+
+    if ($image_style) {
+      $summary[] = t('Image style: @style_name.', array('@style_name' => $image_style));
+    }
+    if ($image_link) {
+      $summary[] = t('Linked to: @image_link.', array('@image_link' => $image_link));
+    }
 
     return $summary;
   }

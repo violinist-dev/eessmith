@@ -34,6 +34,7 @@ class YouTubeFormatter extends FormatterBase {
       'youtube_width' => '',
       'youtube_height' => '',
       'youtube_autoplay' => '',
+      'youtube_loop' => '',
       'youtube_showinfo' => '',
       'youtube_controls' => '',
       'youtube_autohide' => '',
@@ -80,7 +81,11 @@ class YouTubeFormatter extends FormatterBase {
       '#title' => t('Play video automatically when loaded (autoplay).'),
       '#default_value' => $this->getSetting('youtube_autoplay'),
     );
-
+    $elements['youtube_loop'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Loop the playback of the video (loop).'),
+      '#default_value' => $this->getSetting('youtube_loop'),
+    );
     $elements['youtube_showinfo'] = array(
       '#type' => 'checkbox',
       '#title' => t('Hide video title and uploader info (showinfo).'),
@@ -114,6 +119,7 @@ class YouTubeFormatter extends FormatterBase {
 
     $parameters = array(
       $this->getSetting('youtube_autoplay'),
+      $this->getSetting('youtube_loop'),
       $this->getSetting('youtube_showinfo'),
       $this->getSetting('youtube_controls'),
       $this->getSetting('youtube_autohide'),
@@ -147,14 +153,7 @@ class YouTubeFormatter extends FormatterBase {
         '#theme' => 'youtube_video',
         '#video_id' => $item->video_id,
         '#entity_title' => $items->getEntity()->getTitle(),
-        '#size' => $settings['youtube_size'],
-        '#width' => $settings['youtube_width'],
-        '#height' => $settings['youtube_height'],
-        '#autoplay' => $settings['youtube_autoplay'],
-        '#showinfo' => $settings['youtube_showinfo'],
-        '#controls' => $settings['youtube_controls'],
-        '#autohide' => $settings['youtube_autohide'],
-        '#iv_load_policy' => $settings['youtube_iv_load_policy'],
+        '#settings' => $settings,
       );
     }
     return $element;

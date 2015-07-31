@@ -1,7 +1,7 @@
 # Schema for the configuration files of the YouTube module.
 
 youtube.settings:
-  type: mapping
+  type: config_object
   label: 'YouTube settings'
   mapping:
     youtube_suggest:
@@ -37,7 +37,7 @@ youtube.settings:
 
 field.formatter.settings.youtube_video:
   type: mapping
-  label: YouTube video formatter settings'
+  label: 'YouTube video formatter settings'
   mapping:
     youtube_size:
       type: string
@@ -50,7 +50,10 @@ field.formatter.settings.youtube_video:
       label: 'Youtube height'
     youtube_autoplay:
       type: boolean
-      label: 'Autoplay'
+      label: 'Play video automatically when loaded'
+    youtube_loop:
+      type: boolean
+      label: 'Loop the playback of the video'
     youtube_showinfo:
       type: boolean
       label: 'Hide video title and uploader info'
@@ -66,7 +69,7 @@ field.formatter.settings.youtube_video:
 
 field.formatter.settings.youtube_thumbnail:
   type: mapping
-  label: YouTube thumbnail formatter settings'
+  label: 'YouTube thumbnail formatter settings'
   mapping:
     image_style:
       type: string
