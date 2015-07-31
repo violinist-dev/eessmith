@@ -14,7 +14,7 @@ use Drupal\simpletest\WebTestBase;
  * Test custom dimensions and metrics functionality of Google Analytics module.
  *
  * @group Google Analytics
- * @requires module token
+ * @dependencies token
  */
 class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
 
@@ -23,7 +23,7 @@ class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('google_analytics', 'token');
+  public static $modules = ['google_analytics', 'token', 'node'];
 
   /**
    * {@inheritdoc}
@@ -31,10 +31,18 @@ class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $permissions = array(
+    $permissions = [
       'access administration pages',
       'administer google analytics',
-    );
+      'administer nodes',
+      'create article content',
+    ];
+
+    // Create node type.
+    $this->drupalCreateContentType(array(
+      'type' => 'article',
+      'name' => 'Article',
+    ));
 
     // User to set up google_analytics.
     $this->admin_user = $this->drupalCreateUser($permissions);
@@ -42,32 +50,35 @@ class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
 
   function testGoogleAnalyticsCustomDimensions() {
     $ua_code = 'UA-123456-3';
-    \Drupal::config('google_analytics.settings')->set('account', $ua_code)->save();
+    $this->config('google_analytics.settings')->set('account', $ua_code)->save();
+    $node = $this->drupalCreateNode([
+      'type' => 'article',
+    ]);
 
     // Basic test if the feature works.
-    $google_analytics_custom_dimension = array(
-      1 => array(
+    $google_analytics_custom_dimension = [
+      1 => [
         'index' => 1,
         'value' => 'Bar 1',
-      ),
-      2 => array(
+      ],
+      2 => [
         'index' => 2,
         'value' => 'Bar 2',
-      ),
-      3 => array(
+      ],
+      3 => [
         'index' => 3,
         'value' => 'Bar 3',
-      ),
-      4 => array(
+      ],
+      4 => [
         'index' => 4,
         'value' => 'Bar 4',
-      ),
-      5 => array(
+      ],
+      5 => [
         'index' => 5,
         'value' => 'Bar 5',
-      ),
-    );
-    \Drupal::config('google_analytics.settings')->set('custom.dimension', $google_analytics_custom_dimension)->save();
+      ],
+    ];
+    $this->config('google_analytics.settings')->set('custom.dimension', $google_analytics_custom_dimension)->save();
     $this->drupalGet('');
 
     foreach ($google_analytics_custom_dimension as $dimension) {
@@ -76,28 +87,32 @@ class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
 
     // Test whether tokens are replaced in custom dimension values.
     $site_slogan = $this->randomMachineName(16);
-    \Drupal::config('system.site')->set('slogan', $site_slogan)->save();
+    $this->config('system.site')->set('slogan', $site_slogan)->save();
 
-    $google_analytics_custom_dimension = array(
-      1 => array(
+    $google_analytics_custom_dimension = [
+      1 => [
         'index' => 1,
         'value' => 'Value: [site:slogan]',
-      ),
-      2 => array(
+      ],
+      2 => [
         'index' => 2,
         'value' => $this->randomMachineName(16),
-      ),
-      3 => array(
+      ],
+      3 => [
         'index' => 3,
         'value' => '',
-      ),
+      ],
       // #2300701: Custom dimensions and custom metrics not outputed on zero value.
-      4 => array(
+      4 => [
         'index' => 4,
         'value' => '0',
-      ),
-    );
-    \Drupal::config('google_analytics.settings')->set('custom.dimension', $google_analytics_custom_dimension)->save();
+      ],
+      5 => [
+        'index' => 5,
+        'value' => '[node:type]',
+      ],
+    ];
+    $this->config('google_analytics.settings')->set('custom.dimension', $google_analytics_custom_dimension)->save();
     $this->verbose('<pre>' . print_r($google_analytics_custom_dimension, TRUE) . '</pre>');
 
     $this->drupalGet('');
@@ -105,68 +120,69 @@ class GoogleAnalyticsCustomDimensionsAndMetricsTest extends WebTestBase {
     $this->assertRaw('ga("set", ' . Json::encode('dimension2') . ', ' . Json::encode($google_analytics_custom_dimension['2']['value']) . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Random value is shown.');
     $this->assertNoRaw('ga("set", ' . Json::encode('dimension3') . ', ' . Json::encode('') . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Empty value is not shown.');
     $this->assertRaw('ga("set", ' . Json::encode('dimension4') . ', ' . Json::encode('0') . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Value 0 is shown.');
+    $this->assertNoRaw('ga("set", ' . Json::encode('dimension5') . ', ' . Json::encode('article') . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Node tokens are shown.');
+
+    $this->drupalGet('node/' . $node->id());
+    $this->assertText($node->getTitle());
+    $this->assertRaw('ga("set", ' . Json::encode('dimension5') . ', ' . Json::encode('article') . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Node tokens are shown.');
   }
 
   function testGoogleAnalyticsCustomMetrics() {
     $ua_code = 'UA-123456-3';
-    \Drupal::config('google_analytics.settings')->set('account', $ua_code)->save();
+    $this->config('google_analytics.settings')->set('account', $ua_code)->save();
 
     // Basic test if the feature works.
-    $google_analytics_custom_metric = array(
-      1 => array(
+    $google_analytics_custom_metric = [
+      1 => [
         'index' => 1,
         'value' => '6',
-        'value_expected' => 6,
-      ),
-      2 => array(
+      ],
+      2 => [
         'index' => 2,
         'value' => '8000',
-        'value_expected' => 8000,
-      ),
-      3 => array(
+      ],
+      3 => [
         'index' => 3,
         'value' => '7.8654',
-        'value_expected' => 7.8654,
-      ),
-      4 => array(
+      ],
+      4 => [
         'index' => 4,
         'value' => '1123.4',
-        'value_expected' => 1123.4,
-      ),
-      5 => array(
+      ],
+      5 => [
         'index' => 5,
         'value' => '5,67',
-        'value_expected' => 5,
-      ),
-    );
-    \Drupal::config('google_analytics.settings')->set('custom.metric', $google_analytics_custom_metric)->save();
+      ],
+    ];
+
+    $this->config('google_analytics.settings')->set('custom.metric', $google_analytics_custom_metric)->save();
     $this->drupalGet('');
 
     foreach ($google_analytics_custom_metric as $metric) {
-      $this->assertRaw('ga("set", ' . Json::encode('metric' . $metric['index']) . ', ' . Json::encode($metric['value_expected']) . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Metric #' . $metric['index'] . ' is shown.');
+      $this->assertRaw('ga("set", ' . Json::encode('metric' . $metric['index']) . ', ' . Json::encode((float) $metric['value']) . ');', '[testGoogleAnalyticsCustomDimensionsAndMetrics]: Metric #' . $metric['index'] . ' is shown.');
     }
 
     // Test whether tokens are replaced in custom metric values.
-    $google_analytics_custom_metric = array(
-      1 => array(
+    $google_analytics_custom_metric = [
+      1 => [
         'index' => 1,
         'value' => '[current-user:roles:count]',
-      ),
-      2 => array(
+      ],
+      2 => [
         'index' => 2,
         'value' => mt_rand(),
-      ),
-      3 => array(
+      ],
+      3 => [
         'index' => 3,
         'value' => '',
-      ),
+      ],
       // #2300701: Custom dimensions and custom metrics not outputed on zero value.
-      4 => array(
+      4 => [
         'index' => 4,
         'value' => '0',
-      ),
-    );
-    \Drupal::config('google_analytics.settings')->set('custom.metric', $google_analytics_custom_metric)->save();
+      ],
+    ];
+    $this->config('google_analytics.settings')->set('custom.metric', $google_analytics_custom_metric)->save();
     $this->verbose('<pre>' . print_r($google_analytics_custom_metric, TRUE) . '</pre>');
 
     $this->drupalGet('');

@@ -1,7 +1,7 @@
-id: d7_google_analytics_settings
-label: Google Analytics 7 configuration
-migration_groups:
-  - Drupal 7
+id: d6_google_analytics_settings
+label: Google Analytics 6 configuration
+migration_tags:
+  - Drupal 6
 source:
   plugin: variable
   variables:
@@ -28,9 +28,9 @@ source:
     - googleanalytics_trackmailto
     - googleanalytics_trackurlfragments
     - googleanalytics_trackuserid
-    - googleanalytics_trackoutbound
+    - googleanalytics_trackoutgoing
     - googleanalytics_translation_set
-    - googleanalytics_visibility_pages
+    - googleanalytics_visibility
     - googleanalytics_visibility_roles
 process:
   account: googleanalytics_account
@@ -54,12 +54,16 @@ process:
   'track/site_search': googleanalytics_site_search
   'track/urlfragments': googleanalytics_trackurlfragments
   'track/userid': googleanalytics_trackuserid
-  'track/outbound': googleanalytics_trackoutbound
+  'track/outbound': googleanalytics_trackoutgoing
   'translation_set': googleanalytics_translation_set
   'visibility/pages': googleanalytics_pages
-  'visibility/pages_enabled': googleanalytics_visibility_pages
+  'visibility/pages_enabled': googleanalytics_visibility
   'visibility/roles': googleanalytics_roles
   'visibility/roles_enabled': googleanalytics_visibility_roles
 destination:
   plugin: config
   config_name: google_analytics.settings
+dependencies:
+  module:
+    - google_analytics
+    - migrate_drupal
