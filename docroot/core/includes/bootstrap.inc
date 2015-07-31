@@ -209,6 +209,10 @@ function config_get_config_directory($type = CONFIG_ACTIVE_DIRECTORY) {
  *   The filename of the requested item or NULL if the item is not found.
  */
 function drupal_get_filename($type, $name, $filename = NULL) {
+  if (empty($name)) {
+    return NULL;
+  }
+
   // The location of files will not change during the request, so do not use
   // drupal_static().
   static $files = array();
