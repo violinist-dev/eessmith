@@ -1,0 +1,69 @@
+<?php
+/**
+ * @file
+ * Process and preprocess for theme.
+ */
+
+use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\Core\Url;
+
+function bootstrap_clean_blog_css_alter(&$css, AttachedAssetsInterface $assets) {
+  // Add Google fonts.
+  $fonts = array(
+    '//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css',
+    '//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic',
+    '//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800',
+  );
+  foreach ($fonts as $font) {
+    $css[$font] = array(
+      'data' => $font,
+      'type' => 'external',
+      'every_page' => TRUE,
+      'media' => 'all',
+      'preprocess' => FALSE,
+      'group' => CSS_AGGREGATE_THEME,
+      'browsers' => array('IE' => TRUE, '!IE' => TRUE),
+//      'weight' => -1,
+    );
+  }
+
+}
+
+/**
+ * Implements hook_blog_preprocess_page().
+ */
+function bootstrap_clean_blog_preprocess_page(&$variables) {
+  $header_image = Url::fromUri('base:' . drupal_get_path('theme', 'bootstrap_clean_blog') . '/images/home-bg.jpg')->setAbsolute();
+
+  if (isset($variables['node'])) {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $variables['node'];
+
+    $field_header = theme_get_setting('bootstrap_clean_blog_header_image');
+
+    if (($node->{$field_header} instanceof \Drupal\file\Plugin\Field\FieldType\FileFieldItemList)
+    && (isset($node->{$field_header}[0])) && ($file = $node->{$field_header}[0]->entity)) {
+      /** @var \Drupal\file\FileInterface $file */
+      $header_image = $file->url();
+    }
+  }
+
+  $variables['header_image'] = $header_image;
+  $variables['facebook'] = theme_get_setting('bootstrap_clean_blog_social_facebook');
+  $variables['twitter'] = theme_get_setting('bootstrap_clean_blog_social_twitter');
+  $variables['github'] = theme_get_setting('bootstrap_clean_blog_social_github');
+}
+
+/**
+ * Implements hook_blog_preprocess_node().
+ */
+function bootstrap_clean_blog_preprocess_node(&$variables) {
+  if (!$variables['page']) {
+    $variables['attributes']['class'][] = 'post-preview';
+    $variables['title_attributes']['class'][] = 'post-title';
+    $variables['content_attributes']['class'][] = 'post-subtitle';
+  }
+  else {
+    $variables['content_attributes']['class'][] = 'content';
+  }
+}

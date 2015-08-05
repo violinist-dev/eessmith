@@ -24,11 +24,6 @@ class SqlContentEntityStorageSchemaIndexTest extends UpdatePathTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['update_order_test'];
-
-  /**
-   * {@inheritdoc}
-   */
   public function setUp() {
     $this->databaseDumpFiles = [
       __DIR__ . '/../../../../tests/fixtures/update/drupal-8.bare.standard.php.gz',

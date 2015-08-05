@@ -454,13 +454,6 @@ class FieldStorageConfig extends ConfigEntityBase implements FieldStorageConfigI
   /**
    * {@inheritdoc}
    */
-  public function setSchema(array $schema) {
-    $this->schema = $schema;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function hasCustomStorage() {
     return FALSE;
   }
