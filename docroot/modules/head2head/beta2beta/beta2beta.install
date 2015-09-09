@@ -135,10 +135,9 @@ function beta2beta_update_81005() {
 }
 
 /**
- * Update views to use the entity's field data table, if available.
+ + * Update views to use the entity's field data table, if available.
  *
  * Note, this runs after beta2beta_update_81004() in order to avoid missing
- * plugin exceptions when saving the views.
  */
 function beta2beta_update_81006() {
   beta2beta_update_helper('2429447', 10);
