@@ -6,8 +6,8 @@ configure: admin/config/development/beta2beta
 dependencies:
  - head2head
 
-# Information added by Drupal.org packaging script on 2015-07-28
+# Information added by Drupal.org packaging script on 2015-08-31
 version: '8.x-1.x-dev'
 core: '8.x'
 project: 'head2head'
-datestamp: 1438124640
+datestamp: 1441050264

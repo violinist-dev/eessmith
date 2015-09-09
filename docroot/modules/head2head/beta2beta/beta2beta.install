@@ -76,6 +76,13 @@ function beta2beta_update_8803() {
 }
 
 /**
+ * Admin role is now a flag on role storage.
+ */
+function beta2beta_update_8804() {
+  beta2beta_update_helper('2435075', 8);
+}
+
+/**
  * @} End of "defgroup updates-beta-7-to-8"
  */
 
@@ -175,6 +182,13 @@ function beta2beta_update_81103() {
 }
 
 /**
+ * Adds the custom block library listing view.
+ */
+function beta2beta_update_81104() {
+  beta2beta_update_helper('2375589', 11);
+}
+
+/**
  * @} End of "defgroup updates-beta-10-to-11"
  */
 
@@ -188,6 +202,20 @@ function beta2beta_update_81103() {
  */
 function beta2beta_update_81201() {
   beta2beta_update_helper(2509300, 12);
+}
+
+/**
+ * Upgrade path for MySQL switch to multibyte UTF8.
+ */
+function beta2beta_update_81202() {
+  beta2beta_update_helper(1314214, 12);
+}
+
+/**
+ * Set not null property on uid and status columns in node_field_data.
+ */
+function beta2beta_update_81203() {
+  beta2beta_update_helper(2498919, 12);
 }
 
 /**

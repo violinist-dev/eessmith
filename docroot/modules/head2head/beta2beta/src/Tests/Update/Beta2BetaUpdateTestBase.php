@@ -8,6 +8,7 @@
 namespace Drupal\beta2beta\Tests\Update;
 
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\system\Tests\Update\UpdatePathTestBase;
 
 /**
@@ -24,15 +25,10 @@ abstract class Beta2BetaUpdateTestBase extends UpdatePathTestBase {
 
   /**
    * {@inheritdoc}
-   */
-  protected static $modules = ['beta2beta'];
-
-  /**
-   * {@inheritdoc}
    *
    */
   public function setUp() {
-    $this->initBetaDb();
+    $this->setDatabaseDumpFiles();
     parent::setUp();
     $this->initBetaVersion();
 
@@ -61,7 +57,7 @@ abstract class Beta2BetaUpdateTestBase extends UpdatePathTestBase {
   /**
    * Sets the proper starting database using self::$startingBeta.
    */
-  protected function initBetaDb() {
+  protected function setDatabaseDumpFiles() {
     if (!static::$startingBeta) {
       throw new \RuntimeException('No starting beta version is set!');
     }
@@ -72,6 +68,9 @@ abstract class Beta2BetaUpdateTestBase extends UpdatePathTestBase {
     // This database should be the very first to be loaded.
     array_unshift($this->databaseDumpFiles, $file);
     $this->databaseDumpFiles = array_unique($this->databaseDumpFiles);
+
+    // Enable Head2Head and Beta2Beta.
+    $this->databaseDumpFiles[] = __DIR__ . '/../../../tests/fixtures/drupal-8.enable-h2h.php';
   }
 
   /**
@@ -82,8 +81,23 @@ abstract class Beta2BetaUpdateTestBase extends UpdatePathTestBase {
   protected function runUpdates() {
     parent::runUpdates();
 
+    // Apply entity schema updates, which are no longer automatically run.
+    if (\Drupal::entityDefinitionUpdateManager()->getChangeSummary()) {
+      \Drupal::entityDefinitionUpdateManager()->applyUpdates();
+    }
+
     // @todo should the core method do this instead?
     \Drupal::state()->set('system.maintenance_mode', FALSE);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Override to disable these.
+   * @todo remove when https://www.drupal.org/node/2551071 is fixed.
+   */
+  public function assertConfigSchema(TypedConfigManagerInterface $typed_config, $config_name, $config_data) {
+    // Do nothing.
   }
 
 }

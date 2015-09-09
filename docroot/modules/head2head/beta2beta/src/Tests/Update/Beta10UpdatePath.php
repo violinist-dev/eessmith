@@ -11,6 +11,7 @@ use Drupal\beta2beta\Tests\Update\TestTraits\FrontPage;
 use Drupal\beta2beta\Tests\Update\TestTraits\NewNode;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Database\Database;
+use Drupal\views\Entity\View;
 
 /**
  * Tests the beta 10 update path.
@@ -107,8 +108,10 @@ class Beta10UpdatePath extends Beta2BetaUpdateTestBase {
       'node__field_tags' => ['langcode'],
       'queue' => ['name'],
       'search_index' => ['langcode', 'type'],
+      'taxonomy_term_field_data' => ['description__format'],
       'url_alias' => ['langcode'],
       'users' => ['uuid'],
+      'user__roles' => ['roles_target_id', 'bundle'],
       'watchdog' => ['hostname'],
     ];
     foreach ($tables as $table => $fields) {
@@ -119,6 +122,14 @@ class Beta10UpdatePath extends Beta2BetaUpdateTestBase {
       }
     }
 
+    // Verify the expected automated entity definition updates.
+    $change_summary = \Drupal::service('entity.definition_update_manager')->getChangeSummary();
+    $this->assertPendingUpdates($change_summary, 4, 'file');
+    $this->assertPendingUpdates($change_summary, 2, 'node');
+    $this->assertPendingUpdates($change_summary, 1, 'comment');
+    $this->assertPendingUpdates($change_summary, 1, 'menu_link_content');
+    $this->assertPendingUpdates($change_summary, 1, 'taxonomy_term');
+
     $this->runUpdates();
 
     foreach ($tables as $table => $fields) {
@@ -128,6 +139,51 @@ class Beta10UpdatePath extends Beta2BetaUpdateTestBase {
         $this->assertIdentical($expected, $collation, SafeMarkup::format('Updated field schema (found: %collation, expected: %expected) for @table.@field', ['@table' => $table, '@field' => $field, '%collation' => $collation, '%expected' => $expected]));
       }
     }
+
+    // The varchar_ascii-related updates should be gone.
+    $change_summary = \Drupal::service('entity.definition_update_manager')->getChangeSummary();
+    $this->assertPendingUpdates($change_summary, 0, 'file');
+    $this->assertPendingUpdates($change_summary, 0, 'node');
+    $this->assertPendingUpdates($change_summary, 0, 'comment');
+    $this->assertPendingUpdates($change_summary, 0, 'menu_link_content');
+    $this->assertPendingUpdates($change_summary, 0, 'taxonomy_term');
+
+    $change_summary = \Drupal::service('entity.definition_update_manager')->getChangeSummary();
+    $this->assertTrue(empty($change_summary), 'No more pending updates found');
+
+    // Check a few stored entity field schemas.
+    $taxonomy = \Drupal::entityManager()->getLastInstalledFieldStorageDefinitions('taxonomy_term')['description'];
+    $schema = $taxonomy->getSchema();
+    $this->assertEqual('varchar_ascii', $schema['columns']['format']['type']);
+    $this->assertEqual('text', $schema['columns']['value']['type']);
   }
 
+  /**
+   * Test that the block_content view is properly created.
+   */
+  public function testUpdate81104() {
+    // View should not exist prior to updates.
+    $this->assertFalse(View::load('block_content'), 'The block_content view does not already exist.');
+    $this->runUpdates();
+    $this->assertTrue(View::load('block_content'), 'The block_content view has been created.');
+
+    // Browse to the listing page.
+    $account = $this->drupalCreateUser(['administer blocks']);
+    $this->drupalLogin($account);
+    $this->drupalGet('admin/structure/block/block-content');
+    $this->assertRaw('view-id-block_content');
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Helper function to assert pending updates.
+   */
+  protected function assertPendingUpdates(array $change_list, $expected, $entity_type) {
+    if ($expected === 0) {
+      $this->assertFalse(isset($change_list[$entity_type]), sprintf('There are no pending entity updates to the %s entity type', $entity_type));
+    }
+    else {
+      $this->assertIdentical(count($change_list[$entity_type]), $expected, sprintf('There are %s pending entity updates to the %s entity type', $expected, $entity_type));
+    }
+  }
 }

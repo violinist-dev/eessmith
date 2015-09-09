@@ -84,16 +84,19 @@ function beta2beta_field_formatter_info_alter(array &$info) {
   // 8.0.0-beta10.
   $info['taxonomy_term_reference_plain'] = [
     'id' => 'taxonomy_term_reference_plain',
+    'label' => 'Removed formatter',
     'class' => '\Drupal\beta2beta\PluginOverride\Field\FieldFormatter\TaxonomyFormatter',
     'field_types' => ['taxonomy_term_reference'],
   ];
   $info['taxonomy_term_reference_link'] = [
     'id' => 'taxonomy_term_reference_link',
+    'label' => 'Removed formatter',
     'class' => '\Drupal\beta2beta\PluginOverride\Field\FieldFormatter\TaxonomyFormatter',
     'field_types' => ['taxonomy_term_reference'],
   ];
   $info['taxonomy_term_reference_rss_category'] = [
     'id' => 'taxonomy_term_reference_rss_category',
+    'label' => 'Removed formatter',
     'class' => '\Drupal\beta2beta\PluginOverride\Field\FieldFormatter\TaxonomyFormatter',
     'field_types' => ['taxonomy_term_reference'],
   ];
@@ -106,6 +109,7 @@ function beta2beta_field_widget_info_alter(array &$info) {
   // The 'taxonomy_autocomplete' widget has been removed in 8.0.0-beta10.
   $info['taxonomy_autocomplete'] = [
     'id' => 'taxonomy_autocomplete',
+    'label' => 'Removed widget',
     'class' => '\Drupal\beta2beta\PluginOverride\Field\FieldWidget\TaxonomyWidget',
     'field_types' => ['taxonomy_term_reference'],
   ];

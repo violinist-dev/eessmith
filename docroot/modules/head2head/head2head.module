@@ -10,11 +10,14 @@ use Drupal\Core\Cache\DatabaseCacheTagsChecksum;
 use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
-use Drupal\Core\Entity\DynamicallyFieldableEntityStorageInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\views\Entity\View;
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\user\Entity\Role;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Converts Taxonomy term reference fields to Entity reference.
@@ -257,6 +260,21 @@ function head2head_2431329() {
 }
 
 /**
+ * Set the admin role flag.
+ */
+function head2head_2435075() {
+  $user_settings = \Drupal::configFactory()->getEditable('user.settings');
+  if ($admin_role_id = $user_settings->get('admin_role')) {
+    $role = Role::load($admin_role_id);
+    $role->set('permissions', []);
+    $role->setIsAdmin(TRUE);
+    $role->save();
+    $user_settings->clear('admin_role');
+    $user_settings->save();
+  }
+}
+
+/**
  * Updates views to use the entity's field data table, if available.
  */
 function head2head_2429447() {
@@ -298,6 +316,16 @@ function head2head_2429447() {
             $handler_entity_field = $handler_config['entity_field'];
 
             if (isset($base_table_mapping[$handler_config['table']]) && isset($data_table_fields[$handler_entity_type][$handler_entity_field])) {
+              $handler_config['table'] = $base_table_mapping[$handler_config['table']];
+              $changed = TRUE;
+            }
+          }
+          elseif (isset($handler_config['plugin_id']) && $handler_config['plugin_id'] === 'taxonomy_index_tid_depth') {
+            // This plugin does not have 'entity_field' set, but still needs its
+            // base table updated.
+            // @todo Find a more generic way and/or other plugin types that
+            //   need this?
+            if (isset($base_table_mapping[$handler_config['table']])) {
               $handler_config['table'] = $base_table_mapping[$handler_config['table']];
               $changed = TRUE;
             }
@@ -371,11 +399,13 @@ function head2head_2212069() {
  * Updates views to use Field API handlers instead of custom ones.
  */
 function head2head_2393339() {
-  $views = \Drupal\views\Entity\View::loadMultiple();
-  foreach ($views as $view) {
+  $names = \Drupal::configFactory()->listAll('views.view.');
+  foreach ($names as $name) {
+
+    $view = \Drupal::configFactory()->getEditable($name);
     // Iterate over all displays and update the table name.
-    foreach (array_keys($view->get('display')) as $display_id) {
-      $display = &$view->getDisplay($display_id);
+    $displays = $view->get('display');
+    foreach ($displays as $display_id => &$display) {
       foreach (\Drupal\views\Views::getHandlerTypes() as $handler_type) {
         $handler_type = $handler_type['plural'];
         if (!isset($display['display_options'][$handler_type])) {
@@ -459,7 +489,8 @@ function head2head_2393339() {
       }
     }
 
-    $view->save();
+    $view->set('display', $displays);
+    $view->save(TRUE);
   }
 }
 
@@ -911,65 +942,150 @@ function _head2head_1923406_get_entity_tables() {
   $entity_manager = \Drupal::entityManager();
 
   // Define schema templates for changed fields.
-  $template = [
-    'langcode' => [
-      'type' => 'varchar_ascii',
-      'length' => 32,
-      'not null' => TRUE,
-      'default' => '',
-      'description' => 'The language code for this data item.',
-    ],
-  ];
+  $ascii_varchar_fields = ['filemime', 'entity_type', 'shortcut_set', 'comment_type', 'preferred_langcode', 'menu_name', 'content_translation_source', 'preferred_admin_langcode'];
 
   // Based very closely on the entity manager change list.
   // @see \Drupal\Core\Entity\EntityDefinitionUpdateManager::getChangeList()
   foreach ($entity_manager->getDefinitions() as $entity_type_id => $entity_type) {
+
     // Entity changes.
     $storage = $entity_manager->getStorage($entity_type_id);
+    $original_definitions = $entity_manager->getLastInstalledFieldStorageDefinitions($entity_type_id);
     if ($storage instanceof SqlEntityStorageInterface) {
       $storage_definitions = $entity_manager->getFieldStorageDefinitions($entity_type_id);
-      $id_definition = $storage_definitions[$entity_type->getKey('id')];
-      $uuid_definition = $entity_type->getKey('uuid') ? $storage_definitions[$entity_type->getKey('uuid')] : FALSE;
-      $bundle_definition = $entity_type->getKey('bundle') ? $storage_definitions[$entity_type->getKey('bundle')] : FALSE;
+      $table_mapping = $storage->getTableMapping($storage_definitions);
 
-      /** @var  $storage \Drupal\Core\Entity\Sql\SqlEntityStorageInterface */
-      $table_mapping = $storage->getTableMapping();
-      foreach ($table_mapping->getTableNames() as $table) {
-        foreach ($table_mapping->getAllColumns($table) as $column) {
-          // For entity base tables, check for uuid and langcode.
-          if (in_array($column, array_keys($template))) {
-            $schema[$table]['fields'][$column] = $template[$column];
-          }
-          elseif ($id_definition &&($column == $id_definition->getName()) && ($id_definition->getType() != 'integer')) {
-            $schema[$table]['fields'][$column] = [
+      // Field data.
+      foreach ($storage_definitions as $field_id => $field_definition) {
+        $changed = [];
+        $current_field = \Drupal::keyValue('entity.storage_schema.sql')->get($entity_type_id . '.field_schema_data.' . $field_id, []);
+        $new_columns = $field_definition->getColumns();
+
+        // Add bundle and langcode for dedicated table storage.
+        $separator = '__';
+        if ($table_mapping->requiresDedicatedTableStorage($field_definition)) {
+          $new_columns += [
+            'bundle' => [
               'type' => 'varchar_ascii',
               'length' => 128,
               'not null' => TRUE,
-              'description' => 'The entity id this data is attached to',
-            ];
-          }
-          elseif ($uuid_definition && ($column == $uuid_definition->getName())) {
-            $schema[$table]['fields'][$column] = [
-              'type' => 'varchar_ascii',
-              'length' => 128,
-              'not null' => TRUE,
-            ];
-          }
-          elseif ($bundle_definition && ($column == $bundle_definition->getName())) {
-            $schema[$table]['fields'][$column] = [
+              'default' => '',
+              'description' => 'The field instance bundle to which this row belongs, used when deleting a field instance',
+            ],
+            'langcode' => [
               'type' => 'varchar_ascii',
               'length' => 32,
               'not null' => TRUE,
               'default' => '',
-              'description' => 'The ID of the target entity',
-            ];
+              'description' => 'The language code for this data item.',
+            ]
+          ];
+          $separator = '_';
+        }
+        elseif (count($new_columns) == 1) {
+          // A field in a shared table with a single column uses only the field
+          // name as the column name.
+          $new_columns = [$field_id => reset($new_columns)];
+        }
+
+        foreach ($current_field as $table => $spec) {
+          if (isset($spec['fields'])) {
+            foreach ($spec['fields'] as $field_name => $field_spec) {
+              $column_name = preg_replace('#^(' . $field_id . $separator . ')#', '', $field_name);
+              // First fix types that are now natively defined as varchar_ascii.
+              if (isset($new_columns[$column_name]) && (($new_columns[$column_name]['type'] === 'varchar_ascii') || !empty($new_columns[$column_name]['is_ascii']))) {
+                if (!empty($new_columns[$column_name]['is_ascii'])) {
+                  // Still unsure why there are 2 different ways of storing this.
+                  $field_spec['is_ascii'] = TRUE;
+                }
+                else {
+                  $field_spec['type'] = 'varchar_ascii';
+                }
+                $schema[$table]['fields'][$field_name] = $field_spec;
+                // The column names in the stored schema are always the actual
+                // column names. For base fields with a single column, we
+                // mapped it to the actual column name above, map it back here.
+                $changed[] = !$table_mapping->requiresDedicatedTableStorage($field_definition) && count($new_columns) == 1 ? $field_definition->getMainPropertyName() : $column_name;
+                $current_field[$table]['fields'][$field_name] = $field_spec;
+              }
+            }
           }
+        }
+
+        if (!empty($changed)) {
+          // Update stored sql definition.
+          \Drupal::keyValue('entity.storage_schema.sql')->set($entity_type_id . '.field_schema_data.' . $field_id, $current_field);
+          // Update stored field definition.
+          // @todo there must be a better way?!
+          $original_field_definition = $original_definitions[$field_id];
+          $reflection = new ReflectionObject($original_field_definition);
+          $schema_property = $reflection->getProperty('schema');
+          $schema_property->setAccessible(TRUE);
+          $original_schema = $schema_property->getValue($original_field_definition);
+          $new_schema = $field_definition->getSchema();
+          foreach (array_unique($changed) as $column_name) {
+            if (isset($original_schema['columns'][$column_name])) {
+              if ($new_schema['columns'][$column_name]['type'] == 'varchar') {
+                // Unsure why these are stored in 2 different ways.
+                $original_schema['columns'][$column_name]['is_ascii'] = TRUE;
+              }
+              else {
+                $original_schema['columns'][$column_name]['type'] = 'varchar_ascii';
+              }
+            }
+          }
+          $schema_property->setValue($original_field_definition, $original_schema);
+          $schema_property->setAccessible(FALSE);
+          \Drupal::keyValue('entity.definitions.installed')->set($entity_type_id . '.field_storage_definitions', $original_definitions);
         }
       }
     }
   }
 
   return $schema;
+}
+
+/**
+ * Determine if the main property column is varchar_ascii.
+ */
+
+/**
+ * @param \Drupal\Core\Field\FieldStorageDefinitionInterface $field_storage
+ *
+ * @return string|bool
+ *   Returns FALSE if the column is not ascii, other wise returns 'is_ascii'
+ *   for fields that are stored with that, otherwise 'varchar_ascii' for those.
+ */
+function _head2head_is_varchar_ascii(FieldStorageDefinitionInterface $field_storage) {
+  $columns = $field_storage->getColumns();
+  $main_property = $field_storage->getMainPropertyName();
+
+  if (!isset($columns[$main_property])) {
+    return FALSE;
+  }
+
+  if ($columns[$main_property]['type'] === 'varchar_ascii'
+    || (($columns[$main_property]['type'] === 'varchar') && !empty($columns[$main_property]['is_ascii']))
+  ) {
+    return $columns[$main_property]['type'] === 'varchar_ascii' ? 'varchar_ascii' : 'is_ascii';
+  }
+
+  return FALSE;
+}
+
+/**
+ * Add the custom block listing view.
+ */
+function head2head_2375589() {
+  // Only create if the view doesn't exist and views is enabled.
+  if (!View::load('block_content') && \Drupal::moduleHandler()->moduleExists('views')) {
+    $config_path = drupal_get_path('module', 'block_content') . '/config/optional/views.view.block_content.yml';
+    $data = Yaml::parse($config_path);
+    \Drupal::configFactory()->getEditable('views.view.block_content')->setData($data)->save(TRUE);
+  }
+  else {
+    drupal_set_message('Not creating views.view.block_content since it already exists.');
+  }
 }
 
 /**
@@ -1025,6 +1141,136 @@ function head2head_2509300() {
       $visibility['request_path']['pages'] = implode("\n", $pages);
       $block->set('visibility', $visibility);
       $block->save();
+    }
+  }
+}
+
+/**
+ * Upgrade path for MySQL switch to multibyte UTF8 (issue #1314214).
+ */
+function head2head_1314214() {
+  // The user name field length has changed.
+  $schema = \Drupal::keyValue('entity.storage_schema.sql')->get('user.field_schema_data.name');
+  $schema['users_field_data']['fields']['name']['length'] = USERNAME_MAX_LENGTH;
+  db_change_field('users_field_data', 'name', 'name', $schema['users_field_data']['fields']['name']);
+  \Drupal::keyValue('entity.storage_schema.sql')->set('user.field_schema_data.name', $schema);
+
+  // Nothing to do unless this is MySQL.
+  if (Database::getConnection()->databaseType() !== 'mysql') {
+    return;
+  }
+
+  // Process all hook_schema tables.
+  foreach (array_keys(\Drupal::moduleHandler()->getModuleList()) as $module) {
+    $schema = drupal_get_module_schema($module);
+    _head2head_1314214_update_table_collation($schema);
+  }
+
+  // Dynamic tables.
+  $schema = _head2head_get_dynamic_tables();
+  _head2head_1314214_update_table_collation($schema);
+
+  // Entity storage.
+  $schema = _head2head_1314214_get_entity_tables();
+  _head2head_1314214_update_table_collation($schema);
+}
+
+/**
+ * Update table collation for given tables.
+ *
+ * Any indexes will be dropped and re-created so they are the correct length.
+ *
+ * @param array $schema
+ *   Drupal schema array.
+ */
+function _head2head_1314214_update_table_collation($schema) {
+  foreach ($schema as $table => $definition) {
+    // Drop any indexes.
+    if (isset($definition['indexes'])) {
+      foreach ($definition['indexes'] as $index_name => $fields) {
+        db_drop_index($table, $index_name);
+      }
+    }
+
+    Database::getConnection()->query("ALTER TABLE {" . $table . "} COLLATE utf8mb4_general_ci")->execute();
+
+    // Re-create indexes.
+    if (isset($definition['indexes'])) {
+      foreach ($definition['indexes'] as $index_name => $fields) {
+        db_add_index($table, $index_name, $fields, $definition);
+      }
+    }
+  }
+}
+
+/**
+ * Update for core issue 2498919.
+ */
+function head2head_2498919() {
+  $table_columns = [
+    'node_field_data' => ['uid'],
+    'node_field_revision' => ['status', 'uid'],
+  ];
+
+  foreach ($table_columns as $table => $columns) {
+    foreach ($columns as $column) {
+      $current_schema = \Drupal::keyValue('entity.storage_schema.sql')->get('node.field_schema_data.' . $column, []);
+      $current_schema[$table]['fields'][$column]['not null'] = TRUE;
+      db_change_field($table, $column, $column, $current_schema[$table]['fields'][$column]);
+      \Drupal::keyValue('entity.storage_schema.sql')->set('node.field_schema_data.' . $column, $current_schema);
+    }
+  }
+}
+
+/**
+ * Get entity table schema definitions.
+ *
+ * @return array
+ *   Drupal schema array.
+ */
+function _head2head_1314214_get_entity_tables() {
+  $entity_manager = \Drupal::entityManager();
+  $schema = [];
+  foreach ($entity_manager->getDefinitions() as $entity_type_id => $entity_type) {
+    // Entity changes.
+    $storage = $entity_manager->getStorage($entity_type_id);
+    if ($storage instanceof SqlEntityStorageInterface) {
+      $current_schema = \Drupal::keyValue('entity.storage_schema.sql')->get($entity_type_id . '.entity_schema_data');
+
+      /** @var  $storage \Drupal\Core\Entity\Sql\SqlEntityStorageInterface */
+      $table_mapping = $storage->getTableMapping();
+      foreach ($table_mapping->getTableNames() as $table) {
+        if (isset($current_schema[$table])) {
+          $schema[$table] = $current_schema[$table];
+        }
+
+        // Need to add index field data.
+        _head2head_get_field_schema($entity_type_id, $table, $schema);
+      }
+    }
+  }
+
+  return $schema;
+}
+
+/**
+ * For a given entity type and table, provide the field schema.
+ */
+function _head2head_get_field_schema($entity_type_id, $table, &$schema) {
+  $entity_manager = \Drupal::entityManager();
+  foreach ($entity_manager->getFieldStorageDefinitions($entity_type_id) as $field_name => $field_definition) {
+    $current_field = \Drupal::keyValue('entity.storage_schema.sql')->get($entity_type_id . '.field_schema_data.' . $field_name, []);
+    if (isset($current_field[$table]['fields'])) {
+      if (!isset($schema[$table]['fields'])) {
+        $schema[$table]['fields'] = [];
+      }
+      $schema[$table]['fields'] += $current_field[$table]['fields'];
+    }
+    if (isset($current_field[$table]['indexes'])) {
+      if (!isset($schema[$table]['indexes'])) {
+        $schema[$table]['indexes'] = [];
+      }
+      $schema[$table]['indexes'] += $current_field[$table]['indexes'];
     }
   }
 }
