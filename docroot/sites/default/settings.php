@@ -637,6 +637,13 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  */
 
 /**
+*Possible D8 Fix for Acquia Hosting
+**/
+$config_directories['active'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/active';
+$config_directories['staging'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/staging';
+$config_directories['sync'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/sync';
+
+/**
  * Load local development override configuration, if available.
  *
  * Use settings.local.php to override variables on secondary (staging,
