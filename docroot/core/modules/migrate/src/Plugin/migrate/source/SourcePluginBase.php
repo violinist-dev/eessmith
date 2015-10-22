@@ -10,7 +10,6 @@ namespace Drupal\migrate\Plugin\migrate\source;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateException;
-use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\MigrateSkipRowException;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
 use Drupal\migrate\Plugin\MigrateSourceInterface;
@@ -213,7 +212,7 @@ abstract class SourcePluginBase extends PluginBase implements MigrateSourceInter
    *
    * @return \Iterator
    */
-  public function getIterator() {
+  protected function getIterator() {
     if (!isset($this->iterator)) {
       $this->iterator = $this->initializeIterator();
     }

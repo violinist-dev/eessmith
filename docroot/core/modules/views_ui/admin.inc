@@ -6,12 +6,8 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\Tags;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\views\ViewExecutable;
-use Drupal\views\Views;
-use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Converts a form element in the add view wizard to be AJAX-enabled.
@@ -315,7 +311,7 @@ function views_ui_build_form_url(FormStateInterface $form_state) {
 function views_ui_form_button_was_clicked($element, FormStateInterface $form_state) {
   $user_input = $form_state->getUserInput();
   $process_input = empty($element['#disabled']) && ($form_state->isProgrammed() || ($form_state->isProcessingInput() && (!isset($element['#access']) || $element['#access'])));
-  if ($process_input && !$form_state->getTriggeringElement() && !empty($element['#is_button']) && isset($user_input[$element['#name']]) && isset($element['#values']) && in_array($user_input[$element['#name']], $element['#values'], TRUE)) {
+  if ($process_input && !$form_state->getTriggeringElement() && !empty($element['#is_button']) && isset($user_input[$element['#name']]) && isset($element['#values']) && in_array($user_input[$element['#name']], array_map('strval', $element['#values']), TRUE)) {
     $form_state->setTriggeringElement($element);
   }
   return $element;

@@ -7,12 +7,8 @@
 
 namespace Drupal\comment\Plugin\Field\FieldFormatter;
 
-use Drupal\comment\CommentManagerInterface;
-use Drupal\comment\CommentStorageInterface;
-use Drupal\comment\Entity\Comment;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Entity\EntityViewBuilderInterface;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -189,6 +185,7 @@ class CommentDefaultFormatter extends FormatterBase implements ContainerFactoryP
               $field_name,
               $this->getFieldSetting('comment_type'),
             ]],
+            '#create_placeholder' => TRUE,
           ];
         }
       }

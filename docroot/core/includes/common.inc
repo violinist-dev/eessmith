@@ -9,35 +9,18 @@
  */
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Serialization\Yaml;
-use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\Component\Utility\Bytes;
-use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Number;
 use Drupal\Component\Utility\SortArray;
-use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Component\Utility\Tags;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Asset\AttachedAssets;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Render\Renderer;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Routing\GeneratorNotInitializedException;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
-use Drupal\Core\Template\Attribute;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Session\AnonymousUserSession;
 
 /**
  * @defgroup php_wrappers PHP wrapper functions
@@ -463,75 +446,6 @@ function drupal_js_defaults($data = NULL) {
     'data' => $data,
     'browsers' => array(),
   );
-}
-
-/**
- * Processes non-asset attachments in a render() structure.
- *
- * Libraries, JavaScript settings, feeds, HTML <head> tags and HTML <head> links
- * are attached to elements using the #attached property. The #attached property
- * is an associative array, where the keys are the attachment types and the
- * values are the attached data. For example:
- *
- * @code
- * $build['#attached'] = [
- *   'library' => ['core/jquery']
- * ];
- * $build['#attached']['http_header'] = [
- *   ['Content-Type', 'application/rss+xml; charset=utf-8'],
- * ];
- * @endcode
- *
- * The available keys are:
- * - 'library' (asset libraries)
- * - 'drupalSettings' (JavaScript settings)
- * - 'feed' (RSS feeds)
- * - 'html_head' (tags in HTML <head>)
- * - 'html_head_link' (<link> tags in HTML <head>)
- * - 'http_header' (HTTP headers)
- *
- * This function processes all non-asset attachments, to apply them to the
- * current response (that means all keys except 'library' and 'drupalSettings').
- *
- * @param array $elements
- *   The structured array describing the data being rendered.
- *
- * @see drupal_render()
- * @see hook_html_head_alter()
- * @see \Drupal\Core\Asset\AssetResolver
- * @see \Drupal\Core\EventSubscriber\FinishResponseSubscriber
- * @see \Symfony\Component\HttpKernel\KernelEvents::RESPONSE
- *
- * @throws LogicException
- *   When attaching something of a non-existing attachment type.
- *
- * @deprecated Will be removed before Drupal 8.0.0. Specify attached elements in
- *   the render array from a controller, using ['#attached']. They will be
- *   rendered into the response towards the end of the render process. For
- *   example:
- *   @code
- *   $build['#attached'] = [
- *     'library' => ['core/jquery']
- *   ];
- *   $build['#attached']['http_header'] = [
- *     ['Content-Type', 'application/rss+xml; charset=utf-8'],
- *   ];
- *   return $build;
- *   @endcode
- *   For manipulating attached renderable items in non-controller applications,
- *   there are three options:
- *   - Use hook_page_attachments() and/or hook_page_attachments_alter() to
- *     change attachments.
- *   - Set up an event subscriber for the
- *     Symfony\Component\HttpKernel\KernelEvents::RESPONSE event. See
- *     Drupal\Core\EventSubscriber\FinishResponseSubscriber for an example.
- *   - Specify $variables['#attached'] in theme preprocess functions.
- *   To render attachments without a controller, use the
- *   'bare_html_page_renderer' service.
- */
-function drupal_process_attached(array $elements) {
-  $build['#attached'] = $elements['#attached'];
-  \Drupal::service('renderer')->render($build);
 }
 
 /**

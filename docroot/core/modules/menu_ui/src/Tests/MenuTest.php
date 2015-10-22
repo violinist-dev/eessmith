@@ -10,7 +10,6 @@ namespace Drupal\menu_ui\Tests;
 use Drupal\block\Entity\Block;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Menu\MenuLinkInterface;
 use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
@@ -893,8 +892,7 @@ class MenuTest extends MenuWebTestBase {
     // the front page.
     /** @var \Drupal\Core\Menu\MenuLinkManagerInterface $menu_link_manager */
     $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
-    $result = $menu_link_manager->loadLinksByRoute('user.logout');
-    $instance = reset($result);
+    $instance = $menu_link_manager->getInstance(['id' => 'user.logout']);
 
     $this->assertTrue((bool) $instance, 'Standard menu link was loaded');
     return $instance;

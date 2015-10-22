@@ -4,23 +4,15 @@
  * Functions that need to be loaded on every Drupal request.
  */
 
-use Drupal\Component\Datetime\DateTimePlus;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\Environment;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\DrupalKernel;
-use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Utility\Error;
-use Symfony\Component\ClassLoader\ApcClassLoader;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Drupal\Core\Language\LanguageInterface;
 
 /**
  * Minimum supported version of PHP.
@@ -109,9 +101,20 @@ const DRUPAL_PHP_FUNCTION_PATTERN = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
 const CONFIG_ACTIVE_DIRECTORY = 'active';
 
 /**
+ * $config_directories key for sync directory.
+ *
+ * @see config_get_config_directory()
+ */
+const CONFIG_SYNC_DIRECTORY = 'sync';
+
+/**
  * $config_directories key for staging directory.
  *
  * @see config_get_config_directory()
+ * @see CONFIG_SYNC_DIRECTORY
+ *
+ * @deprecated in Drupal 8.0.x and will be removed before 9.0.0. The staging
+ *   directory was renamed to sync.
  */
 const CONFIG_STAGING_DIRECTORY = 'staging';
 
@@ -130,7 +133,7 @@ define('DRUPAL_ROOT', dirname(dirname(__DIR__)));
  *
  * @param string $type
  *   The type of config directory to return. Drupal core provides the
- *   CONFIG_STAGING_DIRECTORY constant to access the staging directory.
+ *   CONFIG_SYNC_DIRECTORY constant to access the sync directory.
  *
  * @return string
  *   The configuration directory path.
@@ -139,6 +142,11 @@ define('DRUPAL_ROOT', dirname(dirname(__DIR__)));
  */
 function config_get_config_directory($type) {
   global $config_directories;
+
+  // @todo Remove fallback in Drupal 9. https://www.drupal.org/node/2574943
+  if ($type == CONFIG_SYNC_DIRECTORY && !isset($config_directories[CONFIG_SYNC_DIRECTORY]) && isset($config_directories[CONFIG_STAGING_DIRECTORY])) {
+    $type = CONFIG_STAGING_DIRECTORY;
+  }
 
   if (!empty($config_directories[$type])) {
     return $config_directories[$type];

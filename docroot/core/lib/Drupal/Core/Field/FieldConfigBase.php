@@ -7,7 +7,6 @@
 
 namespace Drupal\Core\Field;
 
-use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -245,16 +244,19 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
     $bundle_config_dependency = $this->entityManager()->getDefinition($this->entity_type)->getBundleConfigDependency($this->bundle);
     $this->addDependency($bundle_config_dependency['type'], $bundle_config_dependency['name']);
 
-    return $this->dependencies;
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
   public function onDependencyRemoval(array $dependencies) {
+    $changed = parent::onDependencyRemoval($dependencies);
     $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
     $definition = $field_type_manager->getDefinition($this->getType());
-    $changed = $definition['class']::onDependencyRemoval($this, $dependencies);
+    if ($definition['class']::onDependencyRemoval($this, $dependencies)) {
+      $changed = TRUE;
+    }
     return $changed;
   }
 

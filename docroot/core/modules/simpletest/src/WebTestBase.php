@@ -680,14 +680,11 @@ abstract class WebTestBase extends TestBase {
     // Initialize user 1 and session name.
     $this->initUserSession();
 
-    // Get parameters for install_drupal() before removing global variables.
-    $parameters = $this->installParameters();
-
     // Prepare the child site settings.
     $this->prepareSettings();
 
     // Execute the non-interactive installer.
-    $this->doInstall($parameters);
+    $this->doInstall();
 
     // Import new settings.php written by the installer.
     $this->initSettings();
@@ -711,12 +708,9 @@ abstract class WebTestBase extends TestBase {
   /**
    * Execute the non-interactive installer.
    *
-   * @param array $parameters
-   *   Parameters to pass to install_drupal().
-   *
    * @see install_drupal()
    */
-  protected function doInstall(array $parameters = []) {
+  protected function doInstall() {
     require_once DRUPAL_ROOT . '/core/includes/install.core.inc';
     install_drupal($this->classLoader, $this->installParameters());
   }
@@ -785,7 +779,7 @@ abstract class WebTestBase extends TestBase {
       $services = $yaml->parse($content);
       $services['services']['simpletest.config_schema_checker'] = [
         'class' => 'Drupal\Core\Config\Testing\ConfigSchemaChecker',
-        'arguments' => ['@config.typed'],
+        'arguments' => ['@config.typed', $this->getConfigSchemaExclusions()],
         'tags' => [['name' => 'event_subscriber']]
       ];
       file_put_contents($directory . '/services.yml', $yaml->dump($services));
@@ -812,6 +806,10 @@ abstract class WebTestBase extends TestBase {
     // TestBase::restoreEnvironment() will delete the entire site directory.
     // Not using File API; a potential error must trigger a PHP warning.
     chmod(DRUPAL_ROOT . '/' . $this->siteDirectory, 0777);
+
+    // During tests, cacheable responses should get the debugging cacheability
+    // headers by default.
+    $this->setContainerParameter('http.response.debug_cacheability_headers', TRUE);
   }
 
   /**
@@ -2684,12 +2682,18 @@ abstract class WebTestBase extends TestBase {
    */
   protected function assertUrl($path, array $options = array(), $message = '', $group = 'Other') {
     if ($path instanceof Url)  {
-      $url = $path->setAbsolute()->toString();
+      $url_obj = $path;
+    }
+    elseif (UrlHelper::isExternal($path)) {
+      $url_obj = Url::fromUri($path, $options);
     }
     else {
-      $options['absolute'] = TRUE;
-      $url = $this->container->get('url_generator')->generateFromPath($path, $options);
+      $uri = $path === '<front>' ? 'base:/' : 'base:/' . $path;
+      // This is needed for language prefixing.
+      $options['path_processing'] = TRUE;
+      $url_obj = Url::fromUri($uri, $options);
     }
+    $url = $url_obj->setAbsolute()->toString();
     if (!$message) {
       $message = SafeMarkup::format('Expected @url matches current URL (@current_url).', array(
         '@url' => var_export($url, TRUE),
@@ -2915,7 +2919,7 @@ abstract class WebTestBase extends TestBase {
     $server = array_merge($server, $override_server_vars);
 
     $request = Request::create($request_path, 'GET', array(), array(), array(), $server);
-    // Ensure the the request time is REQUEST_TIME to ensure that API calls
+    // Ensure the request time is REQUEST_TIME to ensure that API calls
     // in the test use the right timestamp.
     $request->server->set('REQUEST_TIME', REQUEST_TIME);
     $this->container->get('request_stack')->push($request);
@@ -2950,8 +2954,19 @@ abstract class WebTestBase extends TestBase {
     // The URL generator service is not necessarily available yet; e.g., in
     // interactive installer tests.
     else if ($this->container->has('url_generator')) {
-      $options['absolute'] = TRUE;
-      return $this->container->get('url_generator')->generateFromPath($path, $options);
+      $force_internal = isset($options['external']) && $options['external'] == FALSE;
+      if (!$force_internal && UrlHelper::isExternal($path)) {
+        return Url::fromUri($path, $options)->toString();
+      }
+      else {
+        $uri = $path === '<front>' ? 'base:/' : 'base:/' . $path;
+        // Path processing is needed for language prefixing.  Skip it when a
+        // path that may look like an external URL is being used as internal.
+        $options['path_processing'] = !$force_internal;
+        return Url::fromUri($uri, $options)
+          ->setAbsolute()
+          ->toString();
+      }
     }
     else {
       return $this->getAbsoluteUrl($path);
@@ -3000,6 +3015,20 @@ abstract class WebTestBase extends TestBase {
   protected function assertNoCacheTag($cache_tag) {
     $cache_tags = explode(' ', $this->drupalGetHeader('X-Drupal-Cache-Tags'));
     $this->assertFalse(in_array($cache_tag, $cache_tags), "'" . $cache_tag . "' is absent in the X-Drupal-Cache-Tags header.");
+  }
+
+  /**
+   * Enables/disables the cacheability headers.
+   *
+   * Sets the http.response.debug_cacheability_headers container parameter.
+   *
+   * @param bool $value
+   *   (optional) Whether the debugging cacheability headers should be sent.
+   */
+  protected function setHttpResponseDebugCacheabilityHeaders($value = TRUE) {
+    $this->setContainerParameter('http.response.debug_cacheability_headers', $value);
+    $this->rebuildContainer();
+    $this->resetAll();
   }
 
 }

@@ -8,12 +8,10 @@
 namespace Drupal\views\Plugin\views\exposed_form;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Form\ViewsExposedForm;
-use Drupal\views\Plugin\CacheablePluginInterface;
-use Drupal\views\ViewExecutable;
-use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\PluginBase;
 
 /**
@@ -35,7 +33,7 @@ use Drupal\views\Plugin\views\PluginBase;
 /**
  * Base class for Views exposed filter form plugins.
  */
-abstract class ExposedFormPluginBase extends PluginBase implements CacheablePluginInterface {
+abstract class ExposedFormPluginBase extends PluginBase implements CacheableDependencyInterface {
 
   /**
    * Overrides Drupal\views\Plugin\Plugin::$usesOptions.
@@ -336,8 +334,8 @@ abstract class ExposedFormPluginBase extends PluginBase implements CacheablePlug
   /**
    * {@inheritdoc}
    */
-  public function isCacheable() {
-    return TRUE;
+  public function getCacheMaxAge() {
+    return Cache::PERMANENT;
   }
 
   /**
@@ -362,6 +360,13 @@ abstract class ExposedFormPluginBase extends PluginBase implements CacheablePlug
     }
 
     return $contexts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return [];
   }
 
 }

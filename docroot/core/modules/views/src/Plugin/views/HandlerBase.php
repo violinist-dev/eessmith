@@ -18,7 +18,6 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\ViewExecutable;
-use Drupal\Core\Database\Database;
 use Drupal\views\Views;
 use Drupal\views\ViewsData;
 
@@ -305,7 +304,9 @@ abstract class HandlerBase extends PluginBase implements ViewsHandlerInterface {
       '#type' => 'details',
       '#title' => $this->t('More'),
       '#weight' => 200,
+      '#optional' => TRUE,
     );
+
     // Allow to alter the default values brought into the form.
     // @todo Do we really want to keep this hook.
     $this->getModuleHandler()->alter('views_handler_options', $this->options, $this->view);

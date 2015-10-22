@@ -137,6 +137,7 @@ class TwigExtension extends \Twig_Extension {
       new \Twig_SimpleFunction('link', array($this, 'getLink')),
       new \Twig_SimpleFunction('file_url', 'file_create_url'),
       new \Twig_SimpleFunction('attach_library', [$this, 'attachLibrary']),
+      new \Twig_SimpleFunction('active_theme_path', [$this, 'getActiveThemePath']),
       new \Twig_SimpleFunction('active_theme', [$this, 'getActiveTheme']),
     ];
   }
@@ -295,6 +296,16 @@ class TwigExtension extends \Twig_Extension {
   }
 
   /**
+   * Gets the path of the active theme.
+   *
+   * @return string
+   *   The path to the active theme.
+   */
+  public function getActiveThemePath() {
+    return $this->themeManager->getActiveTheme()->getPath();
+  }
+
+  /**
    * Determines at compile time whether the generated URL will be safe.
    *
    * Saves the unneeded automatic escaping for performance reasons.
@@ -404,7 +415,7 @@ class TwigExtension extends \Twig_Extension {
     }
 
     // Keep Twig_Markup objects intact to support autoescaping.
-    if ($autoescape && ($arg instanceOf \Twig_Markup || $arg instanceOf MarkupInterface)) {
+    if ($autoescape && ($arg instanceof \Twig_Markup || $arg instanceof MarkupInterface)) {
       return $arg;
     }
 

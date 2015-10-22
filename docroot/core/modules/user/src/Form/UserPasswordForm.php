@@ -7,13 +7,11 @@
 
 namespace Drupal\user\Form;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\EmailItem;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\Element\Email;
 use Drupal\user\UserStorageInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -132,7 +130,7 @@ class UserPasswordForm extends FormBase {
       }
     }
     else {
-      $form_state->setErrorByName('name', $this->t('Sorry, %name is not recognized as a username or an email address.', array('%name' => $name)));
+      $form_state->setErrorByName('name', $this->t('%name is not recognized as a username or an email address.', array('%name' => $name)));
     }
   }
 

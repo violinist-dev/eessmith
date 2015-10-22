@@ -7,7 +7,6 @@
 
 namespace Drupal\text;
 
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\TypedData\DataDefinitionInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\Core\TypedData\TypedData;
@@ -41,7 +40,7 @@ class TextProcessed extends TypedData {
   /**
    * Implements \Drupal\Core\TypedData\TypedDataInterface::getValue().
    */
-  public function getValue($langcode = NULL) {
+  public function getValue() {
     if ($this->processed !== NULL) {
       return $this->processed;
     }

@@ -11,7 +11,6 @@ use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Template\Attribute;
@@ -34,18 +33,6 @@ class RendererTest extends RendererTestBase {
     '#attached' => [],
     '#children' => '',
   ];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    // Reset the static list of SafeStrings to prevent bleeding between tests.
-    $reflected_class = new \ReflectionClass('\Drupal\Component\Utility\SafeMarkup');
-    $reflected_property = $reflected_class->getProperty('safeStrings');
-    $reflected_property->setAccessible(true);
-    $reflected_property->setValue([]);
-  }
 
   /**
    * @covers ::render
@@ -109,7 +96,7 @@ class RendererTest extends RendererTestBase {
       '#plain_text' => '<em>foo</em>',
       '#markup' => 'bar',
     ], '&lt;em&gt;foo&lt;/em&gt;'];
-    // Safe strings in #plain_text are are still escaped.
+    // Safe strings in #plain_text are still escaped.
     $data[] = [[
       '#plain_text' => Markup::create('<em>foo</em>'),
     ], '&lt;em&gt;foo&lt;/em&gt;'];

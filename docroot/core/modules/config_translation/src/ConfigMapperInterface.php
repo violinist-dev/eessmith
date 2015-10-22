@@ -9,7 +9,6 @@ namespace Drupal\config_translation;
 
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -175,6 +174,9 @@ interface ConfigMapperInterface {
   /**
    * Adds the given configuration name to the list of names.
    *
+   * Note that it is the responsibility of the calling code to ensure that the
+   * configuration exists.
+   *
    * @param string $name
    *   Configuration name.
    */
@@ -253,11 +255,11 @@ interface ConfigMapperInterface {
   public function hasSchema();
 
   /**
-   * Checks that all pieces of this configuration mapper have translatables.
+   * Checks if pieces of this configuration mapper have translatables.
    *
    * @return bool
-   *   TRUE if all of the configuration elements have translatables, FALSE
-   *   otherwise.
+   *   TRUE if at least one of the configuration elements has translatables,
+   *   FALSE otherwise.
    */
   public function hasTranslatable();
 

@@ -21,7 +21,6 @@ use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Zend\Stdlib\ArrayObject;
 
 /**
  * @coversDefaultClass \Drupal\Core\Menu\LocalTaskManager
@@ -487,6 +486,10 @@ class LocalTaskManagerTest extends UnitTestCase {
     $container = \Drupal::hasContainer() ? \Drupal::getContainer() : new ContainerBuilder();
 
     $cache_context_manager = $this->prophesize(CacheContextsManager::class);
+
+    foreach ([NULL, ['user.permissions'], ['route'], ['route', 'context.example1'], ['context.example1', 'route'], ['context.example1', 'route', 'context.example2'], ['context.example1', 'context.example2', 'route'], ['context.example1', 'context.example2', 'route', 'user.permissions']] as $argument) {
+      $cache_context_manager->assertValidTokens($argument)->willReturn(TRUE);
+    }
 
     $container->set('cache_contexts_manager', $cache_context_manager->reveal());
     \Drupal::setContainer($container);

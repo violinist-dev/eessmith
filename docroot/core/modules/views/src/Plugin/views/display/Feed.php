@@ -12,7 +12,6 @@ use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -48,7 +47,7 @@ class Feed extends PathPluginBase implements ResponseDisplayPluginInterface {
   /**
    * Overrides \Drupal\views\Plugin\views\display\DisplayPluginBase::getType().
    */
-  protected function getType() {
+  public function getType() {
     return 'feed';
   }
 

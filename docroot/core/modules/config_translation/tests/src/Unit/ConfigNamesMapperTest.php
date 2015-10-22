@@ -15,7 +15,6 @@ use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Url;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\Routing\Route;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Tests the functionality provided by the configuration names mapper.
@@ -503,7 +502,7 @@ class ConfigNamesMapperTest extends UnitTestCase {
   }
 
   /**
-   * Provides data for for ConfigMapperTest::testHasSchema().
+   * Provides data for ConfigMapperTest::testHasSchema().
    *
    * @return array
    *   An array of arrays, where each inner array has an array of values that
@@ -538,7 +537,7 @@ class ConfigNamesMapperTest extends UnitTestCase {
 
     $map = array();
     foreach ($config_names as $i => $config_name) {
-      $map[] = array($config_name, $mock_return_values[$i]);
+      $map[] = isset($mock_return_values[$i]) ? array($config_name, $mock_return_values[$i]) : array();
     }
     $this->configMapperManager
       ->expects($this->any())
@@ -560,10 +559,12 @@ class ConfigNamesMapperTest extends UnitTestCase {
    */
   public function providerTestHasTranslatable() {
     return array(
+      array(array(), FALSE),
       array(array(TRUE), TRUE),
       array(array(FALSE), FALSE),
       array(array(TRUE, TRUE, TRUE), TRUE),
-      array(array(TRUE, FALSE, TRUE), FALSE),
+      array(array(FALSE, FALSE, FALSE), FALSE),
+      array(array(TRUE, FALSE, TRUE), TRUE),
     );
   }
 
