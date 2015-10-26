@@ -28,13 +28,13 @@ function bootstrap_preprocess_page(&$variables) {
 
   $variables['navbar_attributes'] = new Attribute();
   $variables['navbar_attributes']['class'] = array('navbar');
-  if (theme_get_setting('bootstrap_navbar_position') !== '') {
-    $variables['navbar_attributes']['class'][] = 'navbar-' . theme_get_setting('bootstrap_navbar_position');
+  if (bootstrap_setting('navbar_position') !== '') {
+    $variables['navbar_attributes']['class'][] = 'navbar-' . bootstrap_setting('navbar_position');
   }
   else {
     $variables['navbar_attributes']['class'][] = 'container';
   }
-  if (theme_get_setting('bootstrap_navbar_inverse')) {
+  if (bootstrap_setting('navbar_inverse')) {
     $variables['navbar_attributes']['class'][] = 'navbar-inverse';
   }
   else {
@@ -46,6 +46,11 @@ function bootstrap_preprocess_page(&$variables) {
   // Render the top-level administration menu links.
   $parameters = new MenuTreeParameters();
   $tree = $menu_tree->load('main', $parameters);
+  $manipulators = array(
+    array('callable' => 'menu.default_tree_manipulators:checkAccess'),
+    array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
+  );
+  $tree = $menu_tree->transform($tree, $manipulators);
   $variables['primary_nav'] = $menu_tree->build($tree);
   $variables['primary_nav']['#attributes']['class'][] = 'navbar-nav';
 

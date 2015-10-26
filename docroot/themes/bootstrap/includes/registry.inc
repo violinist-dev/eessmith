@@ -97,9 +97,6 @@ function _bootstrap_theme(&$existing, $type, $theme, $path) {
  * Implements hook_theme_registry_alter().
  */
 function bootstrap_theme_registry_alter(&$registry) {
-  // @todo - D8 no longer includes this for themes.
-  // @see https://www.drupal.org/node/2390973
-
   // Retrieve the active theme names.
   $themes = _bootstrap_get_base_themes(NULL, TRUE);
 
@@ -123,20 +120,29 @@ function bootstrap_theme_registry_alter(&$registry) {
 
   // Post-process theme registry. This happens after all altering has occurred.
   foreach ($registry as $hook => $info) {
+    // The 'base hook' is only applied to derivative hooks already registered
+    // from a pattern. This is typically set from
+    // drupal_find_theme_functions() and drupal_find_theme_templates().
+    // If a theme hook has a base hook, mark its preprocess functions always
+    // incomplete in order to inherit the base hook's preprocess functions.
+    if (!empty($info['incomplete preprocess functions'])) {
+      _bootstrap_complete_suggestion($hook, $registry);
+      unset($registry[$hook]['incomplete preprocess functions']);
+    }
     // Ensure uniqueness.
     if (!empty($registry[$hook]['includes'])) {
-      $registry[$hook]['includes'] = array_unique($info['includes']);
+      $registry[$hook]['includes'] = array_unique($registry[$hook]['includes']);
     }
     if (!empty($registry[$hook]['preprocess functions'])) {
-      $registry[$hook]['preprocess functions'] = array_unique($info['preprocess functions']);
+      $registry[$hook]['preprocess functions'] = array_unique($registry[$hook]['preprocess functions']);
     }
     if (!empty($registry[$hook]['process functions'])) {
-      $registry[$hook]['process functions'] = array_unique($info['process functions']);
+      $registry[$hook]['process functions'] = array_unique($registry[$hook]['process functions']);
     }
 
     // Ensure "theme path" is set.
     if (!isset($registry[$hook]['theme path'])) {
-      $registry[$hook]['theme path'] = $GLOBALS['theme_path'];
+      $registry[$hook]['theme path'] = \Drupal::theme()->getActiveTheme()->getPath();
     }
   }
 }
@@ -224,7 +230,7 @@ function _bootstrap_process_theme_registry(&$registry, $themes) {
       }
 
       // Process core's normal functionality.
-      _bootstrap_registry_process_extension($registry, $theme, $GLOBALS['theme_key'] === $theme ? 'theme' : 'base_theme', $theme, $path);
+      _bootstrap_registry_process_extension($registry, $theme, \Drupal::theme()->getActiveTheme()->getName() === $theme ? 'theme' : 'base_theme', $theme, $path);
 
       // Find necessary templates in the theme.
       $registry = NestedArray::mergeDeep($registry, drupal_find_theme_templates($registry, '.html.twig', $path));
@@ -242,7 +248,7 @@ function _bootstrap_process_theme_registry(&$registry, $themes) {
         }
 
         // Correct the type that is implementing this override.
-        $registry[$hook]['type'] = $GLOBALS['theme_path'] === $registry[$hook]['theme path'] ? 'theme' : 'base_theme';
+        $registry[$hook]['type'] = \Drupal::theme()->getActiveTheme()->getPath() === $registry[$hook]['theme path'] ? 'theme' : 'base_theme';
 
         // Sort the phase functions.
         // @see https://www.drupal.org/node/2098551
@@ -350,7 +356,7 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
     'process functions'    => 'process',
   );
 
-  $functions = get_defined_functions();
+  $grouped_functions = \Drupal::service('theme.registry')->getPrefixGroupedUserFunctions();
 
   // Iterate over each theme passed.
   foreach ($themes as $theme) {
@@ -366,11 +372,15 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
 
       // Iterate over the [pre]process phases.
       foreach ($variable_process_phases as $phase_key => $phase) {
-        // Find functions matching the specific theme, phase and pattern.
-        if ($matches = preg_grep('/^' . $theme . '_' . $phase . '_' . $pattern . '/', $functions['user'])) {
+        // Find functions matching the specific theme and phase prefix.
+        $prefix = $theme . '_' . $phase;
+
+        // Grep only the functions which are within the prefix group.
+        list($first_prefix,) = explode('_', $prefix, 2);
+        if (isset($grouped_functions[$first_prefix]) && ($matches = preg_grep('/^' . $prefix . '_' . $pattern . '/', $grouped_functions[$first_prefix]))) {
           foreach ($matches as $match) {
             // Determine the current theme implementation.
-            $hook = substr($match, strlen($theme . '_' . $phase) + 1);
+            $hook = substr($match, strlen($prefix) + 1);
             $base_hook = $hook;
 
             // If there's no current theme implementation, keep checking for
@@ -396,19 +406,6 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
 
             // Process specific base hook implementations if necessary.
             if ($base_hook) {
-              // Due to how theme() functions, if a base hook implements
-              // preprocess or process functions, then the base hook info is
-              // used to invoke the necessary phase functions instead of the
-              // suggestion hook info. To get around this, a helper function
-              // must be appended to the base hook info so it can call the
-              // theme suggestion implementation's phase function.
-              if (!empty($registry[$base_hook][$phase_key])) {
-                $function = '_bootstrap_' . $phase . '_theme_suggestion';
-                if (!in_array($function, $registry[$base_hook][$phase_key])) {
-                  $registry[$base_hook][$phase_key][] = $function;
-                }
-              }
-
               // The matched theme implementation does not exist in the
               // registry, one must be created if base hook information was
               // found, otherwise it will be ignored.
@@ -439,6 +436,17 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
               $registry[$hook] = NestedArray::mergeDeep($registry[$hook], array(
                 $phase_key => array($match),
               ));
+
+              // Due to how theme() functions, if a base hook implements
+              // preprocess or process functions, then the base hook info is
+              // used to invoke the necessary phase functions instead of the
+              // suggestion hook info. To get around this, a helper function
+              // must be appended to the base hook info so it can call the
+              // theme suggestion implementation's phase function.
+              $function = '_bootstrap_' . $phase . '_theme_suggestion';
+              if (!in_array($function, $registry[$base_hook][$phase_key])) {
+                $registry[$base_hook][$phase_key][] = $function;
+              }
             }
           }
         }
@@ -448,13 +456,46 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
 }
 
 /**
- * Static function clone of Registry::processExtension (which is protected).
+ * Completes the definition of the requested suggestion hook.
  *
- * @todo remove this once this entire registry processing has been refactored.
- *
+ * @param string $hook
+ *   The name of the suggestion hook to complete.
+ * @param array $cache
+ *   The theme registry, as documented in
+ *   \Drupal\Core\Theme\Registry::processExtension().
+ */
+function _bootstrap_complete_suggestion($hook, &$cache) {
+  $previous_hook = $hook;
+  $incomplete_previous_hook = array();
+  while ((!isset($cache[$previous_hook]) || isset($cache[$previous_hook]['incomplete preprocess functions']))
+    && $pos = strrpos($previous_hook, '__')) {
+    if (isset($cache[$previous_hook]) && !$incomplete_previous_hook && isset($cache[$previous_hook]['incomplete preprocess functions'])) {
+      $incomplete_previous_hook = $cache[$previous_hook];
+      unset($incomplete_previous_hook['incomplete preprocess functions']);
+    }
+    $previous_hook = substr($previous_hook, 0, $pos);
+
+    // If base hook exists clone of it for the preprocess function
+    // without a template.
+    // @see https://www.drupal.org/node/2457295
+    if (isset($cache[$previous_hook]) && !isset($cache[$previous_hook]['incomplete preprocess functions'])) {
+      $cache[$hook] = $incomplete_previous_hook + $cache[$previous_hook];
+      if (isset($incomplete_previous_hook['preprocess functions'])) {
+        $diff = array_diff($incomplete_previous_hook['preprocess functions'], $cache[$previous_hook]['preprocess functions']);
+        $cache[$hook]['preprocess functions'] = array_merge($cache[$previous_hook]['preprocess functions'], $diff);
+      }
+      // If a base hook isn't set, this is the actual base hook.
+      if (!isset($cache[$previous_hook]['base hook'])) {
+        $cache[$hook]['base hook'] = $previous_hook;
+      }
+    }
+  }
+}
+
+/**
  * Process a single implementation of hook_theme().
  *
- * @param $cache
+ * @param array $cache
  *   The theme registry that will eventually be cached; It is an associative
  *   array keyed by theme hooks, whose values are associative arrays
  *   describing the hook:
@@ -487,18 +528,20 @@ function _bootstrap_process_theme_registry_suggestions(&$registry, $themes) {
  *   called in aforementioned order and new entries override older ones. For
  *   example, if a theme hook is both defined by a module and a theme, then
  *   the definition in the theme will be used.
- * @param \stdClass $theme
- *   The loaded $theme object as returned from list_themes().
+ * @param string $theme
+ *   The actual name of theme, module, etc. that is being processed.
  * @param string $path
  *   The directory where $name is. For example, modules/system or
  *   themes/bartik.
  *
- * @see _theme()
+ * @see \Drupal\Core\Theme\ThemeManagerInterface::render()
  * @see hook_theme()
- * @see list_themes()
- * @see Registry::processExtension
+ * @see \Drupal\Core\Extension\ThemeHandler::listInfo()
+ * @see twig_render_template()
+ *
+ * @throws \BadFunctionCallException
  */
-function _bootstrap_registry_process_extension(&$cache, $name, $type, $theme, $path) {
+function _bootstrap_registry_process_extension(array &$cache, $name, $type, $theme, $path) {
   $result = array();
 
   $hook_defaults = array(
@@ -508,7 +551,7 @@ function _bootstrap_registry_process_extension(&$cache, $name, $type, $theme, $p
     'base hook' => TRUE,
   );
 
-  $module_list = array_keys(\Drupal::service('module_handler')->getModuleList());
+  $module_list = array_keys((array) \Drupal::moduleHandler()->getModuleList());
 
   // Invoke the hook_theme() implementation, preprocess what is returned, and
   // merge it into $cache.
@@ -526,14 +569,15 @@ function _bootstrap_registry_process_extension(&$cache, $name, $type, $theme, $p
       $result[$hook]['type'] = $type;
       $result[$hook]['theme path'] = $path;
 
-      // If function and file are omitted, default to standard naming
-      // conventions.
-      if (!isset($info['template']) && !isset($info['function'])) {
-        $result[$hook]['function'] = ($type == 'module' ? 'theme_' : $name . '_') . $hook;
-      }
-
       if (isset($cache[$hook]['includes'])) {
         $result[$hook]['includes'] = $cache[$hook]['includes'];
+      }
+
+      // Load the includes, as they may contain preprocess functions.
+      if (isset($info['includes'])) {
+        foreach ($info['includes'] as $include_file) {
+          include_once $this->root . '/' . $include_file;
+        }
       }
 
       // If the theme implementation defines a file, then also use the path
@@ -543,22 +587,39 @@ function _bootstrap_registry_process_extension(&$cache, $name, $type, $theme, $p
       if (isset($info['file'])) {
         $include_file = isset($info['path']) ? $info['path'] : $path;
         $include_file .= '/' . $info['file'];
-        include_once DRUPAL_ROOT . '/' . $include_file;
+        include_once $this->root . '/' . $include_file;
         $result[$hook]['includes'][] = $include_file;
+      }
+
+      // A template file is the default implementation for a theme hook, but
+      // if the theme hook specifies a function callback instead, check to
+      // ensure the function actually exists.
+      if (isset($info['function']) && !function_exists($info['function'])) {
+        throw new \BadFunctionCallException(sprintf(
+          'Theme hook "%s" refers to a theme function callback that does not exist: "%s"',
+          $hook,
+          $info['function']
+        ));
+      }
+      // Provide a default naming convention for 'template' based on the
+      // hook used. If the template does not exist, the theme engine used
+      // should throw an exception at runtime when attempting to include
+      // the template file.
+      elseif (!isset($info['template'])) {
+        $info['template'] = strtr($hook, '_', '-');
+        $result[$hook]['template'] = $info['template'];
+      }
+
+      // Prepend the current theming path when none is set. This is required
+      // for the default theme engine to know where the template lives.
+      if (isset($result[$hook]['template']) && !isset($info['path'])) {
+        $result[$hook]['path'] = $path . '/templates';
       }
 
       // If the default keys are not set, use the default values registered
       // by the module.
       if (isset($cache[$hook])) {
         $result[$hook] += array_intersect_key($cache[$hook], $hook_defaults);
-      }
-
-      // The following apply only to theming hooks implemented as templates.
-      if (isset($info['template'])) {
-        // Prepend the current theming path when none is set.
-        if (!isset($info['path'])) {
-          $result[$hook]['template'] = $path . '/templates/' . $info['template'];
-        }
       }
 
       // Preprocess variables for all theming hooks, whether the hook is
@@ -635,6 +696,9 @@ function _bootstrap_registry_process_extension(&$cache, $name, $type, $theme, $p
         }
         // Ensure uniqueness.
         $cache[$hook]['preprocess functions'] = array_unique($cache[$hook]['preprocess functions']);
+        if (!empty($cache[$hook]['base hook'])) {
+          $cache[$hook]['incomplete preprocess functions'] = TRUE;
+        }
       }
     }
   }

@@ -1,21 +1,13 @@
 <?php
 /**
  * @file
- * menu-local-action.vars.php
+ * menu-local-action.func.php
  */
+
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Overrides theme_menu_local_action().
- *
- * Prepares variables for single local action link templates.
- *
- * Default template: menu-local-action.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - element: A render element containing:
- *     - #link: A menu link array with 'title', 'url', and (optionally)
- *       'localized_options' keys.
  */
 function bootstrap_preprocess_menu_local_action(&$variables) {
   $link = $variables['element']['#link'];
@@ -44,19 +36,20 @@ function bootstrap_preprocess_menu_local_action(&$variables) {
         $options['attributes']['class'] = implode(' ', $options['attributes']['class']);
       }
     }
-    // Force HTML so we can render any icon that may have been added.
-    $options['html'] = !empty($options['html']) || !empty($icon) ? TRUE : FALSE;
+
     $variables['link'] = array(
       '#type' => 'link',
-      '#title' => $icon . $link['title'],
+      '#title' => SafeMarkup::format($icon . '@text', array('@text' => $link['title'])),
       '#options' => $options,
       '#url' => $link['url'],
     );
   }
   else {
     $variables['link'] = array(
-      '#type' => 'markup',
-      '#value' => $icon . $link['title'],
+      '#type' => 'link',
+      '#title' => $link['title'],
+      '#options' => $options,
+      '#url' => $link['url'],
     );
   }
 }

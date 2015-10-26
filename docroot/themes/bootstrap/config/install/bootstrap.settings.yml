@@ -1,3 +1,7 @@
+# Container
+# --------------
+bootstrap_fluid_container: 0
+
 # Buttons
 # --------------
 bootstrap_button_size: ''
@@ -48,6 +52,10 @@ bootstrap_anchors_smooth_scrolling: 1
 # --------------
 bootstrap_forms_required_has_error: 0
 bootstrap_forms_has_error_value_toggle: 1
+bootstrap_forms_smart_descriptions: 1
+bootstrap_forms_smart_descriptions_limit: 250
+bootstrap_forms_smart_descriptions_allowed_tags: 'b, code, em, i, kbd, span, strong'
+
 
 # Popovers
 # --------------
@@ -88,16 +96,15 @@ bootstrap_tooltip_container: 'body'
 
 # Advanced
 # --------------
-bootstrap_cdn: 3.3.0
-bootstrap_bootswatch: ''
+bootstrap_cdn_provider: 'jsdelivr'
+bootstrap_cdn_custom_css: '//cdn.jsdelivr.net/bootstrap/3.3.2/css/bootstrap.css'
+bootstrap_cdn_custom_css_min: '//cdn.jsdelivr.net/bootstrap/3.3.2/css/bootstrap.min.css'
+bootstrap_cdn_custom_js: '//cdn.jsdelivr.net/bootstrap/3.3.2/js/bootstrap.js'
+bootstrap_cdn_custom_js_min: '//cdn.jsdelivr.net/bootstrap/3.3.2/js/bootstrap.min.js'
+bootstrap_cdn_jsdelivr_version: '3.3.2'
+bootstrap_cdn_jsdelivr_theme: 'bootstrap'
 
 # Global
 # --------------
 bootstrap_toggle_name: 1
 bootstrap_toggle_search: 1
-
-bootstrap_css_excludes:
-  - vertical-tabs.css
-  - system.theme.css
-  - dropbutton.css
-  - dropbutton.theme.css
