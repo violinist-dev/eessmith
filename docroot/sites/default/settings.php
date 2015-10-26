@@ -637,6 +637,18 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  */
 
 /**
+*Possible D8 Fix for Acquia Hosting
+**/
+$config_directories['active'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/active';
+$config_directories['staging'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/staging';
+$config_directories['sync'] = $app_root . '/' . $site_path . '/files/config_{$config_dir}/sync';
+# $settings['install_profile'] = 'standard';
+# $config_directories['sync'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/sync';
+# $config_directories['active'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/active';
+# $config_directories['staging'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/staging';
+
+
+/**
  * Load local development override configuration, if available.
  *
  * Use settings.local.php to override variables on secondary (staging,
@@ -652,8 +664,3 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
 if (file_exists('/var/www/site-php')) {
   require '/var/www/site-php/eessmith/eessmith-settings.inc';
 }
-$settings['install_profile'] = 'standard';
-#$config_directories['sync'] = 'sites/default/files/config_l-eEfrCiQdFN6RXWj_GAxafpV_XhpbpuC7vfo34MA9jbQd8TRbz08ceetBN4YTdiZOtCidBgiw/sync';
-$config_directories['active'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/active';
-$config_directories['staging'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/staging';
-
