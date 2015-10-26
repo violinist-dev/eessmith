@@ -654,3 +654,6 @@ if (file_exists('/var/www/site-php')) {
 }
 $settings['install_profile'] = 'standard';
 #$config_directories['sync'] = 'sites/default/files/config_l-eEfrCiQdFN6RXWj_GAxafpV_XhpbpuC7vfo34MA9jbQd8TRbz08ceetBN4YTdiZOtCidBgiw/sync';
+$config_directories['active'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/active';
+$config_directories['staging'] = 'sites/default/files/config_7799c196827de953ab8e75e3f42c92d862a9330e/staging';
+
