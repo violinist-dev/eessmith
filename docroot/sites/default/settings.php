@@ -653,4 +653,4 @@ if (file_exists('/var/www/site-php')) {
   require '/var/www/site-php/eessmith/eessmith-settings.inc';
 }
 $settings['install_profile'] = 'standard';
-$config_directories['sync'] = 'sites/default/files/config_l-eEfrCiQdFN6RXWj_GAxafpV_XhpbpuC7vfo34MA9jbQd8TRbz08ceetBN4YTdiZOtCidBgiw/sync';
+#$config_directories['sync'] = 'sites/default/files/config_l-eEfrCiQdFN6RXWj_GAxafpV_XhpbpuC7vfo34MA9jbQd8TRbz08ceetBN4YTdiZOtCidBgiw/sync';
