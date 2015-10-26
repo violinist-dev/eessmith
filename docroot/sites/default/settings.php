@@ -649,6 +649,9 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
 # if (file_exists(__DIR__ . '/settings.local.php')) {
 #   include __DIR__ . '/settings.local.php';
 # }
+if (file_exists('/var/www/site-php')) {
+  require '/var/www/site-php/eessmith/eessmith-settings.inc';
+}
 
 );
 $settings['install_profile'] = 'standard';
