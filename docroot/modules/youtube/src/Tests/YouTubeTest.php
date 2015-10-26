@@ -12,6 +12,8 @@ use Drupal\Component\Utility\Unicode;
 
 /**
  * Tests youtube field widgets and formatters.
+ *
+ * @group youtube
  */
 class YouTubeTest extends WebTestBase {
 

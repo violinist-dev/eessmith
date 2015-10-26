@@ -10,8 +10,8 @@ dependencies:
   - file
 configure: youtube.settings
 
-# Information added by Drupal.org packaging script on 2015-07-30
-version: '8.x-1.x-dev'
+# Information added by Drupal.org packaging script on 2015-10-02
+version: '8.x-1.0-beta1'
 core: '8.x'
 project: 'youtube'
-datestamp: 1438273440
+datestamp: 1443803940

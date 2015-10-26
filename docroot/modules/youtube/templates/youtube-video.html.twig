@@ -19,6 +19,9 @@
  *   - title: A title value, assigned for accessibility.
  * - attributes: array of HTML attributes populated by modules, intended to be
  *   added to the element wrapping the embedded YouTube video player.
+ * - alternative_content: Alternative content for browsers and tools that don't
+ *   understand iframes, such as some screen readers. Defaults to a link to the
+ *   embedded video, whose title is the same as the iframe's title attribute.
  *
  * @see template_preprocess_youtube_video()
  *

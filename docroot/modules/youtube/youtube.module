@@ -218,18 +218,20 @@ function template_preprocess_youtube_thumbnail(&$variables) {
     // Retrieve the image from YouTube.
     if (!youtube_get_remote_image($video_id)) {
       // Use the remote source if local copy fails.
-      $src = youtube_build_remote_image_path($video_id);
-      $variables['image'] = array(
-        '#theme' => 'image',
-        '#uri' => $src,
-        '#alt' => $alt,
-      );
+      $remote_uri = youtube_build_remote_image_path($video_id);
     }
   }
 
+  // Build the thumbnail's URI. Use the remote URI if there isn't a local image.
+  if (empty($remote_uri)) {
+    $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
+    $uri = 'public://' . $youtube_dir . '/' . $video_id . '.png';
+  }
+  else {
+    $uri = $remote_uri;
+  }
+
   // Build the initial image render array.
-  $youtube_dir = \Drupal::config('youtube.settings')->get('youtube_thumb_dir');
-  $uri = 'public://' . $youtube_dir . '/' . $video_id . '.png';
   $variables['image'] = array(
     '#theme' => 'image',
     '#uri' => $uri,
@@ -237,8 +239,9 @@ function template_preprocess_youtube_thumbnail(&$variables) {
   );
 
   // If an image style has been chosen in the field's display settings, alter
-  // the render array to use that image style.
-  if ($image_style) {
+  // the render array to use that image style. Remote images cannot be rendered
+  // through an image style.
+  if ($image_style && empty($remote_uri)) {
     $variables['image']['#theme'] = 'image_style';
     $variables['image']['#style_name'] = $image_style;
   }
@@ -299,9 +302,8 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
  */
 function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
   // This value is TRUE when higher resolution thumnbails should be saved.
-  // The only thumbnail resolution higher than the standard 480 is
-  // 'maxresdefault'. This resolution image is not guaranteed to exist so after
-  // saving the file, we check to ensure that it does.
+  // This resolution is not guaranteed to exist and if it doesn't, the smaller
+  // resolution image will be saved in its place.
   $youtube_thumb_hires = \Drupal::config('youtube.settings')->get('youtube_thumb_hires');
 
   // Build the image url.
@@ -317,6 +319,12 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
     $image_request = Drupal::httpClient()->get($src);
   }
   catch (RequestException $e) {
+    // The high resolution image didn't exist and the request was a 404. Force
+    // it to try again, but look for the smaller resolution image.
+    if ($youtube_thumb_hires && !$force_small) {
+      return youtube_get_remote_image($video_id, TRUE);
+    }
+
     watchdog_exception('youtube', $e);
     return FALSE;
   }
@@ -329,22 +337,7 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
     \Drupal::service('logger.factory')->get('youtube')->log(WATCHDOG_ERROR, 'Failed to create YouTube thumbnail directory: %dir', array('%dir' => $yt_dir_path));
   }
 
-  // If the high resolution image didn't exist, a very small placeholder image
-  // from YouTube will have been saved. Check the dimensions of this image to
-  // determine if the placeholder was saved.
-  if ($youtube_thumb_hires && !$force_small) {
-    if (file_exists($dest)) {
-      $image_size = getimagesize($dest);
-      if (empty($image_size[0]) || $image_size[0] < 480) {
-        // The placeholder was saved. Re-running this function with $force_small
-        // will save the standard, guaranteed, thumbnail.
-        youtube_get_remote_image($video_id, TRUE);
-      }
-    }
-  }
-
-  file_put_contents($dest, $data);
-  return TRUE;
+  return file_put_contents($dest, $data);
 }
 
 /**

@@ -152,7 +152,7 @@ class YouTubeFormatter extends FormatterBase {
       $element[$delta] = array(
         '#theme' => 'youtube_video',
         '#video_id' => $item->video_id,
-        '#entity_title' => $items->getEntity()->getTitle(),
+        '#entity_title' => $items->getEntity()->label(),
         '#settings' => $settings,
       );
     }

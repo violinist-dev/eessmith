@@ -115,7 +115,7 @@ class YouTubeThumbFormatter extends FormatterBase {
       $element[$delta] = array(
         '#theme' => 'youtube_thumbnail',
         '#video_id' => $item->video_id,
-        '#entity_title' => $items->getEntity()->getTitle(),
+        '#entity_title' => $items->getEntity()->label(),
         '#image_style' => $this->getSetting('image_style'),
         '#image_link' => isset($url) ? $url : '',
       );
