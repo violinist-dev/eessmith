@@ -19,7 +19,7 @@
     <div class="post-meta submitted">
       {{ author_picture }}
       <div{{ author_attributes }}>
-        {% trans %}Posted by {{ author_name|passthrough }} on {{ date|passthrough }}{% endtrans %}
+        {% trans %}Posted by {{ author_name|placeholder }} on {{ date|placeholder }}{% endtrans %}
         {{ metadata }}
       </div>
     </div>
