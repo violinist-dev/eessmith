@@ -1,0 +1,39 @@
+name: Adminimal
+type: theme
+description: Drupal Administration Simplified.
+# version: VERSION
+# core: 8.x
+base theme: seven
+
+# Include CSS.
+stylesheets:
+  screen:
+    - css/base/elements-adminimal.css
+    - css/components/branding-adminimal.css
+    - css/components/buttons.theme-adminimal.css
+    - css/components/dropbutton.component-adminimal.css
+    - css/components/page-title-adminimal.css
+    - css/components/form-adminimal.css
+    - css/components/tabs-adminimal.css
+    - css/modules/toolbar/toolbar.theme-adminimal.css
+    - css/modules/toolbar/toolbar.menu-adminimal.css
+    - css/modules/toolbar/toolbar-overrides-adminimal.css
+    - css/adminimal-overrides.css
+
+# Remove CSS.
+stylesheets-remove:
+  - elements.css
+  - branding.css
+  - buttons.theme.css
+  - dropbutton.component.css
+  - form.css
+  - page-title.css
+  - tabs.css
+  - toolbar.theme.css
+  - toolbar.menu.css
+
+# Information added by Drupal.org packaging script on 2014-10-23
+version: '8.x-1.x-dev'
+core: '8.x'
+project: 'adminimal_theme'
+datestamp: 1414059738
