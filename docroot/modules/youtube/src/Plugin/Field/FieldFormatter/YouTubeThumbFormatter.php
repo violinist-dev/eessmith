@@ -89,7 +89,7 @@ class YouTubeThumbFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items) {
+  public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = array();
     $entity = $items->getEntity();
     $image_link = $this->getSetting('image_link');

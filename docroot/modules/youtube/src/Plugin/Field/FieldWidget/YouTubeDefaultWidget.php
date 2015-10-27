@@ -107,8 +107,7 @@ class YouTubeDefaultWidget extends WidgetBase {
       $form_state->setValueForElement($video_id_element, $video_id);
     }
     elseif (!empty($input)) {
-      $message = t('Please provide a valid YouTube URL.');
-      $form_state->setErrorByName($element['#parents'][$element['#delta']], $message);
+      $form_state->setError($element, t('Please provide a valid YouTube URL.'));
     }
   }
 
