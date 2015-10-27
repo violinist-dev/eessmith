@@ -636,6 +636,10 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  * example.org, with all subdomains included.
  */
 
+function conf_path() {
+  return __DIR__;
+}
+
 /**
  * Load local development override configuration, if available.
  *
