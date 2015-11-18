@@ -1,16 +1,20 @@
 <?php
 /**
  * @file
- * page.vars.php
+ * Stub file for "page" theme hook [pre]process functions.
  */
 
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Menu\MenuTreeParameters;
 
 /**
- * Implements hook_preprocess_page().
+ * Pre-processes variables for the "page" theme hook.
+ *
+ * See template for list of available variables.
  *
  * @see page.tpl.php
+ *
+ * @ingroup theme_preprocess
  */
 function bootstrap_preprocess_page(&$variables) {
   // Add information about the number of sidebars.
@@ -59,6 +63,11 @@ function bootstrap_preprocess_page(&$variables) {
   // Render the top-level administration menu links.
   $parameters = new MenuTreeParameters();
   $tree = $menu_tree->load('account', $parameters);
+  $manipulators = array(
+    array('callable' => 'menu.default_tree_manipulators:checkAccess'),
+    array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
+  );
+  $tree = $menu_tree->transform($tree, $manipulators);
   $variables['secondary_nav'] = $menu_tree->build($tree);
   $variables['secondary_nav']['#attributes']['class'][] = 'navbar-nav';
   $variables['secondary_nav']['#attributes']['class'][] = 'secondary';

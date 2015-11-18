@@ -120,18 +120,24 @@ body {
 }
 
 // Default navbar.
-.navbar.container {
-  @media @tablet {
-    max-width: ((@container-sm - @grid-gutter-width));
+.navbar {
+  &.container {
+    @media @tablet {
+      max-width: ((@container-sm - @grid-gutter-width));
+    }
+    @media @normal {
+      max-width: ((@container-md - @grid-gutter-width));
+    }
+    @media @wide {
+      max-width: ((@container-lg - @grid-gutter-width));
+    }
   }
-  @media @normal {
-    max-width: ((@container-md - @grid-gutter-width));
+  &.container,
+  &.container-fluid {
+    margin-top: 20px;
   }
-  @media @wide {
-    max-width: ((@container-lg - @grid-gutter-width));
-  }
-  margin-top: 20px;
-  > .container {
+  &.container > .container,
+  &.container-fluid > .container-fluid {
     margin: 0;
     padding: 0;
     width: auto;
@@ -427,6 +433,18 @@ ul li.leaf {
     display: inline-block;
     margin-left: 2em;
     padding-left: 2em;
+  }
+  .password-help {
+    padding-left: 2em;
+    @media (min-width: @screen-sm-min) {
+      border-left: 1px solid @table-border-color;
+      left: percentage((6/12));
+      margin-left: (@grid-gutter-width / 2);
+      position: absolute;
+    }
+    @media (min-width: @screen-md-min) {
+      left: percentage((4/12));
+    }
   }
   .progress {
     background: transparent;
