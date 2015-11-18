@@ -636,10 +636,6 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  * example.org, with all subdomains included.
  */
 
-function conf_path() {
-  return __DIR__;
-}
-
 /**
  * Load local development override configuration, if available.
  *
@@ -659,6 +655,20 @@ function conf_path() {
 if (file_exists('/var/www/site-php')) {
   require '/var/www/site-php/eessmith/eessmith-settings.inc';
 }
+
+switch ($_ENV['AH_SITE_ENVIRONMENT']) {
+  case 'dev':
+    $c_dir = 'config_f3de2f61f12838d422c02899a9d26a3d975672ed';
+    break;
+  case 'test';
+    $c_dir = 'config_e9d71f5ee7c92d6dc9e92ffdad17b8bd49418f98';
+    break;
+  case 'prod';
+    $c_dir = 'config_84a516841ba77a5b4648de2cd0dfcb30ea46dbb4';
+    break;
+}
+$config_directories['active'] = $site_path . '/files/' . $c_dir . '/active';
+$config_directories['staging'] = $site_path . '/files/' . $c_dir . '/staging';
 
 // <DDSETTINGS>
 // Please don't edit anything between <DDSETTINGS> tags.
