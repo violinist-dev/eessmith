@@ -7,7 +7,7 @@
 
 use GuzzleHttp\Exception\RequestException;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
@@ -427,7 +427,7 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
       if ($field_info['type'] == 'youtube') {
         $info = FieldConfig::loadByName($entity_type, $bundle_name, $field_name);
         $targets[$field_name] = array(
-          'name' => String::checkPlain($info->getLabel()),
+          'name' => SafeMarkup::checkPlain($info->getLabel()),
           'callback' => 'youtube_set_target',
           'description' => t('The @label field of the node.', array('@label' => $info->getLabel())),
         );
