@@ -658,13 +658,13 @@ if (file_exists('/var/www/site-php')) {
 
 switch ($_ENV['AH_SITE_ENVIRONMENT']) {
   case 'dev':
-    $c_dir = 'config_f3de2f61f12838d422c02899a9d26a3d975672ed';
+    $c_dir = 'config_7799c196827de953ab8e75e3f42c92d862a9330e';
     break;
   case 'test';
-    $c_dir = 'config_e9d71f5ee7c92d6dc9e92ffdad17b8bd49418f98';
+    $c_dir = 'config_2dd059e9915c2570fe72c91777b57ec4d94fbb85';
     break;
   case 'prod';
-    $c_dir = 'config_84a516841ba77a5b4648de2cd0dfcb30ea46dbb4';
+    $c_dir = 'config_7799c196827de953ab8e75e3f42c92d862a9330e';
     break;
 }
 $config_directories['active'] = $site_path . '/files/' . $c_dir . '/active';
