@@ -7,6 +7,7 @@
 
 namespace Drupal\file\Plugin\migrate\destination;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
@@ -144,11 +145,11 @@ class EntityFile extends EntityContentBase {
    * Tries to move or copy a file.
    *
    * @param string $source
-   *  The source path or URI.
+   *   The source path or URI.
    * @param string $destination
-   *  The destination path or URI.
-   * @param integer $replace
-   *  FILE_EXISTS_REPLACE (default) or FILE_EXISTS_RENAME.
+   *   The destination path or URI.
+   * @param int $replace
+   *   (optional) FILE_EXISTS_REPLACE (default) or FILE_EXISTS_RENAME.
    *
    * @return bool
    *  TRUE on success, FALSE on failure.
@@ -169,9 +170,9 @@ class EntityFile extends EntityContentBase {
    *
    * @param \Drupal\migrate\Row $row
    *
-   * @return integer
-   *  Either FILE_EXISTS_REPLACE (default) or FILE_EXISTS_RENAME, depending
-   *  on the current configuration.
+   * @return int
+   *   Either FILE_EXISTS_REPLACE (default) or FILE_EXISTS_RENAME, depending
+   *   on the current configuration.
    */
   protected function getOverwriteMode(Row $row) {
     if (!empty($this->configuration['rename'])) {
@@ -289,6 +290,7 @@ class EntityFile extends EntityContentBase {
       // Make it into a proper public file uri, stripping off the existing
       // scheme if present.
       $value = 'public://' . preg_replace('|^[a-z]+://|i', '', $value);
+      $value = Unicode::substr($value, 0, $field_definitions['uri']->getSetting('max_length'));
       // Create a real file, so File::preSave() can do filesize() on it.
       touch($value);
       $row->setDestinationProperty('uri', $value);
