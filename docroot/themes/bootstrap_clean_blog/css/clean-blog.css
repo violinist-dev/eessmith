@@ -46,6 +46,12 @@ hr.small {
   border-width: 4px;
   border-color: white;
 }
+
+
+ul.links.inline {
+  list-style-type: none;
+}
+
 .navbar-custom {
   position: absolute;
   top: 0;
@@ -63,6 +69,47 @@ hr.small {
   font-weight: 800;
   letter-spacing: 1px;
 }
+
+.navbar-default {
+  opacity: 0.5;
+}
+
+.input-group .form-search {
+  float: right;
+  margin-right: 10px;
+}
+
+img.align-left {
+  margin-right: 10px;
+  margin-bottom: 1px;
+}
+
+.field-label {
+  border-style: solid;
+  background-color: #404040;
+  color: white;
+}
+
+.field.field-node--field-tags.field-name-field-tags.field-type-taxonomy-term-reference.field-label-above {
+  font-size: 12px;
+  padding-left: 6px;
+  white-space: nowrap;
+}
+
+.row-hr {
+  border: 0;
+  height: 1px;
+  background-image: -webkit-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+  background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+  background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+  background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+}
+
+.field.field-node--field-youtube.field-name-field-youtube.field-type-youtube.field-label-hidden {
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 1px;
+
 @media only screen and (min-width: 768px) {
   .navbar-custom {
     background: transparent;
