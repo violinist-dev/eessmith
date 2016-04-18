@@ -16,7 +16,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Defines a controller class that handles the node grants system.
+ * Defines a storage handler class that handles the node grants system.
  *
  * This is used to build node query access.
  *
@@ -65,6 +65,11 @@ class NodeGrantDatabaseStorage implements NodeGrantDatabaseStorageInterface {
    * {@inheritdoc}
    */
   public function access(NodeInterface $node, $operation, AccountInterface $account) {
+    // Grants only support these operations.
+    if (!in_array($operation, ['view', 'update', 'delete'])) {
+      return AccessResult::neutral();
+    }
+
     // If no module implements the hook or the node does not have an id there is
     // no point in querying the database for access grants.
     if (!$this->moduleHandler->getImplementations('node_grants') || !$node->id()) {
