@@ -1,12 +1,14 @@
-name: Bootstrap
-description: 'Built to use Bootstrap, a sleek, intuitive, and powerful front-end framework for faster and easier web development.'
+# core: 8.x
 type: theme
 base theme: false
-package: Bootstrap
-# core: 8.x
-# version: VERSION
+
+name: 'Bootstrap'
+description: 'Built to use Bootstrap, a sleek, intuitive, and powerful front-end framework for faster and easier web development.'
+package: 'Bootstrap'
+
 regions:
   navigation: 'Navigation'
+  navigation_collapsible: 'Navigation (Collapsible)'
   header: 'Top Bar'
   highlighted: 'Highlighted'
   help: 'Help'
@@ -16,27 +18,63 @@ regions:
   footer: 'Footer'
   page_top: 'Page top'
   page_bottom: 'Page bottom'
-stylesheets-remove:
-  - core/misc/dropbutton/dropbutton.css
-  - core/misc/dropbutton/dropbutton.theme.css
-  - core/misc/vertical-tabs.css
-  - @system/css/system.admin.css
-  - @system/css/components/action-links.theme.css
-  - @system/css/components/button.theme.css
-  - @system/css/components/details.theme.css
-  - @system/css/components/exposed-filters.theme.css
-  - @system/css/components/form.theme.css
-  - @system/css/components/inline-form.theme.css
-  - @system/css/components/menu.theme.css
-  - @system/css/components/messages.theme.css
-  - @system/css/components/pager.theme.css
-  - @system/css/components/tabs.theme.css
 
 libraries:
-  - bootstrap/globalscripts
+  - 'bootstrap/theme'
 
-# Information added by Drupal.org packaging script on 2015-11-15
-version: '8.x-3.0-alpha1'
+libraries-extend:
+  core/drupal.ajax:
+    - bootstrap/drupal.ajax
+  core/drupal.autocomplete:
+    - bootstrap/drupal.autocomplete
+  core/drupal.form:
+    - bootstrap/drupal.form
+  core/drupal.progress:
+    - bootstrap/drupal.progress
+  core/drupal.states:
+    - bootstrap/drupal.states
+  core/drupal.tabledrag:
+    - bootstrap/drupal.tabledrag
+  views/views.ajax:
+    - bootstrap/views.ajax
+
+libraries-override:
+  core/drupal.batch: bootstrap/drupal.batch
+  core/drupal.collapse: false
+  core/drupal.dropbutton: bootstrap/dropdown
+  core/drupal.vertical-tabs: bootstrap/drupal.vertical-tabs
+  filter/drupal.filter: bootstrap/drupal.filter
+  system/admin: false
+  text/drupal.text: bootstrap/drupal.text
+
+# Remove individual stylesheets.
+  system/base:
+    css:
+      component:
+        css/components/ajax-progress.module.css: false
+        css/components/autocomplete-loading.module.css: false
+        css/components/tabledrag.module.css: false
+
+  file/drupal.file:
+    css:
+      theme:
+        css/file.admin.css: false
+
+  filter/drupal.filter.admin:
+    css:
+      theme:
+        css/filter.admin.css: false
+
+# The following are dynamic library overrides based on certain critera,
+# usually a theme setting.
+#
+# @see \Drupal\bootstrap\Plugin\Alter\LibraryInfo::alter()
+#
+#  core/drupal.dialog: bootstrap/drupal.dialog
+#  core/drupal.dialog.ajax: bootstrap/drupal.dialog.ajax
+
+# Information added by Drupal.org packaging script on 2016-03-01
+version: '8.x-3.0-beta3'
 core: '8.x'
 project: 'bootstrap'
-datestamp: 1447580942
+datestamp: 1456870749

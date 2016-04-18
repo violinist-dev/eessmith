@@ -18,46 +18,97 @@
  * Visit this project's official documentation site, http://drupal-bootstrap.org
  * or the markdown files inside the `./docs` folder.
  *
- * @see _bootstrap_theme()
+ * @see bootstrap_theme()
+ * @see \Drupal\bootstrap\Registry
  */
 
-/**
- * Include common functions used through out theme.
- */
-include_once dirname(__FILE__) . '/includes/common.inc';
+use Drupal\bootstrap\Bootstrap;
 
 /**
- * Implements hook_theme().
- *
- * Register theme hook implementations.
- *
- * The implementations declared by this hook have two purposes: either they
- * specify how a particular render array is to be rendered as HTML (this is
- * usually the case if the theme function is assigned to the render array's
- * #theme property), or they return the HTML that should be returned by an
- * invocation of theme().
- *
- * @see _bootstrap_theme()
+ * Initialize the active theme.
  */
-function bootstrap_theme(&$existing, $type, $theme, $path) {
-  bootstrap_include($theme, 'includes/registry.inc');
-  return _bootstrap_theme($existing, $type, $theme, $path);
+Bootstrap::initialize();
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Plugin\Alter\ElementInfo::alter()
+ */
+function bootstrap_element_info_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
 }
 
 /**
- * Clear any previously set element_info() static cache.
+ * {@inheritdoc}
  *
- * If element_info() was invoked before the theme was fully initialized, this
- * can cause the theme's alter hook to not be invoked.
- *
- * @see https://www.drupal.org/node/2351731
+ * @see \Drupal\bootstrap\Theme::alter()
  */
-drupal_static_reset('element_info');
+function bootstrap_form_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
 
 /**
- * Declare various hook_*_alter() hooks.
+ * {@inheritdoc}
  *
- * hook_*_alter() implementations must live (via include) inside this file so
- * they are properly detected when drupal_alter() is invoked.
+ * @see \Drupal\bootstrap\Plugin\Form\SystemThemeSettings::alterForm()
  */
-bootstrap_include('bootstrap', 'includes/alter.inc');
+function bootstrap_form_system_theme_settings_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Plugin\Alter\LibraryInfo::alter()
+ */
+function bootstrap_library_info_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Plugin\Alter\PageAttachments::alter()
+ */
+function bootstrap_page_attachments_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Bootstrap::preprocess()
+ */
+function bootstrap_preprocess(&$variables, $hook, $info) {
+  Bootstrap::preprocess($variables, $hook, $info);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Bootstrap::getInfo()
+ */
+function bootstrap_theme() {
+  return Bootstrap::getThemeHooks();
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Plugin\Alter\ThemeRegistry::alter()
+ *
+ * @todo Remove once a proper replacement for the theme.registry service can be
+ * created in a bootstrap_core sub-module.
+ */
+function bootstrap_theme_registry_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\bootstrap\Plugin\Alter\ThemeSuggestions::alter()
+ */
+function bootstrap_theme_suggestions_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Bootstrap::alter(__FUNCTION__, $data, $context1, $context2);
+}
