@@ -57,21 +57,24 @@ function bootstrap_clean_blog_form_system_theme_settings_alter(&$form, FormState
     '#group' => 'instant_vertical_tabs',
   );
 
-  $form['social_buttons']['bootstrap_clean_blog_social_facebook'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Facebook'),
-    '#default_value' => theme_get_setting('bootstrap_clean_blog_social_facebook'),
-  );
+  $social_networks = [
+    'facebook' => t('Facebook'),
+    'twitter' => t('Twitter'),
+    'github' => t('Github'),
+    'drupal' => t('Drupal'),
+    'instagram' => t('Instagram'),
+    'flickr' => t('Flickr'),
+    'reddit' => t('Reddit'),
+    'linkedin' => t('LinkedIn'),
+  ];
 
-  $form['social_buttons']['bootstrap_clean_blog_social_twitter'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Twitter'),
-    '#default_value' => theme_get_setting('bootstrap_clean_blog_social_twitter'),
-  );
+  foreach ($social_networks as $key => $name) {
+    $key_name = 'bootstrap_clean_blog_social_' . $key;
 
-  $form['social_buttons']['bootstrap_clean_blog_social_github'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Github'),
-    '#default_value' => theme_get_setting('bootstrap_clean_blog_social_github'),
-  );
+    $form['social_buttons'][$key_name] = array(
+      '#type' => 'textfield',
+      '#title' => $name,
+      '#default_value' => theme_get_setting($key_name),
+    );
+  }
 }

@@ -1,9 +1,11 @@
 body {
   margin-top: 0;
 }
+
 .site-heading h1 {
   word-wrap: break-word;
 }
+
 .navbar-default .navbar-nav > .active > a {
   color: #fff;
   background-color: transparent;
@@ -18,4 +20,9 @@ body {
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
   background-color: transparent;
+}
+
+.view .feed-icons {
+  clear: both;
+  margin-top: 50px;
 }

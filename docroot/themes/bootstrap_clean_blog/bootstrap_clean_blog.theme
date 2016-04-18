@@ -34,6 +34,7 @@ function bootstrap_clean_blog_css_alter(&$css, AttachedAssetsInterface $assets) 
  */
 function bootstrap_clean_blog_preprocess_page(&$variables) {
   $site_name = isset($variables['site_name']) ? $variables['site_name'] : \Drupal::config('system.site')->get('name');
+  $site_slogan = isset($variables['site_slogan']) ? $variables['site_slogan'] : \Drupal::config('system.site')->get('slogan');
   $header_image = Url::fromUri('base:' . drupal_get_path('theme', 'bootstrap_clean_blog') . '/images/home-bg.jpg')->setAbsolute();
 
   $variables['display_submitted'] = FALSE;
@@ -58,10 +59,19 @@ function bootstrap_clean_blog_preprocess_page(&$variables) {
   }
 
   $variables['site_name'] = $site_name;
+  $variables['site_slogan'] = $site_slogan;
   $variables['header_image'] = $header_image;
-  $variables['facebook'] = theme_get_setting('bootstrap_clean_blog_social_facebook');
-  $variables['twitter'] = theme_get_setting('bootstrap_clean_blog_social_twitter');
-  $variables['github'] = theme_get_setting('bootstrap_clean_blog_social_github');
+  $variables['social_links'] = array_filter([
+    'facebook' => theme_get_setting('bootstrap_clean_blog_social_facebook'),
+    'twitter' => theme_get_setting('bootstrap_clean_blog_social_twitter'),
+    'github' => theme_get_setting('bootstrap_clean_blog_social_github'),
+    'drupal' => theme_get_setting('bootstrap_clean_blog_social_drupal'),
+    'instagram' => theme_get_setting('bootstrap_clean_blog_social_instagram'),
+    'reddit' => theme_get_setting('bootstrap_clean_blog_social_reddit'),
+    'flickr' => theme_get_setting('bootstrap_clean_blog_social_flickr'),
+    'linkedin' => theme_get_setting('bootstrap_clean_blog_social_linkedin'),
+  ]);
+
 }
 
 /**

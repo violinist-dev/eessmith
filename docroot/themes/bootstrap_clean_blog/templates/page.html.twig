@@ -105,13 +105,11 @@
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
           <div class="site-heading">
             <h1>{% if node.label %} {{ node.label }} {% else %} {{ site_name }} {% endif %}</h1>
-            {% if title %}
+            {% if site_slogan %}
               <hr class="small">
               <span class="subheading">
-              {% if site_slogan %}
                 {{ site_slogan }}
-                {% endif %}
-            </span>
+              </span>
             {% endif %}
           </div>
         </div>
@@ -146,38 +144,18 @@
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         {# Social buttons block #}
         {% block social_buttons %}
-        {% if (twitter or facebook or github) %}
+        {% if social_links %}
         <ul class="list-inline text-center">
-          {% if twitter %}
+          {% for network, url in social_links %}
           <li>
-            <a target="_blank" href="{{ twitter }}">
+            <a target="_blank" href="{{ url }}">
               <span class="fa-stack fa-lg">
                 <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                <i class="fa fa-{{ network }} fa-stack-1x fa-inverse"></i>
               </span>
             </a>
           </li>
-          {% endif %}
-          {% if facebook %}
-          <li>
-            <a target="_blank" href="{{ facebook }}">
-              <span class="fa-stack fa-lg">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-              </span>
-            </a>
-          </li>
-          {% endif %}
-          {% if github %}
-          <li>
-            <a target="_blank" href="{{ github }}">
-              <span class="fa-stack fa-lg">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-              </span>
-            </a>
-          </li>
-          {% endif %}
+          {% endfor %}
         </ul>
         {% endif %}
         {% endblock %}
