@@ -243,7 +243,8 @@ $databases = array();
  *   );
  * @endcode
  */
-$config_directories = array();
+#$config_directories = array();
+$config_directories['vcs'] = $app_root . '/../config/' . basename($site_path);
 
 /**
  * Settings:
