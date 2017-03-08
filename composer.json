@@ -57,7 +57,7 @@
       "drupal/bootstrap": {
         "Patch for ActionsDropbutton.php in bootstrap theme.": "https://www.drupal.org/files/issues/2657124-18.patch"
       }
-    }
+    },
     "drupal-scaffold": {
       "excludes": [
         ".htaccess",
