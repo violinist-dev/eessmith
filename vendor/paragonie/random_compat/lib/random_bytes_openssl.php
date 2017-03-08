@@ -27,9 +27,11 @@
  */
 
 /**
- * Windows with PHP < 5.3.0 will not have the function
- * openssl_random_pseudo_bytes() available, so let's use
- * CAPICOM to work around this deficiency.
+ * Since openssl_random_pseudo_bytes() uses openssl's 
+ * RAND_pseudo_bytes() API, which has been marked as deprecated by the
+ * OpenSSL team, this is our last resort before failure.
+ * 
+ * @ref https://www.openssl.org/docs/crypto/RAND_bytes.html
  * 
  * @param int $bytes
  * 
@@ -53,24 +55,24 @@ function random_bytes($bytes)
         );
     }
 
-    $buf = '';
-    $util = new COM('CAPICOM.Utilities.1');
-    $execCount = 0;
-
     /**
-     * Let's not let it loop forever. If we run N times and fail to
-     * get N bytes of random data, then CAPICOM has failed us.
+     * $secure is passed by reference. If it's set to false, fail. Note
+     * that this will only return false if this function fails to return
+     * any data.
+     * 
+     * @ref https://github.com/paragonie/random_compat/issues/6#issuecomment-119564973
      */
-    do {
-        $buf .= base64_decode($util->GetRandom($bytes, 0));
-        if (RandomCompat_strlen($buf) >= $bytes) {
-            /**
-             * Return our random entropy buffer here:
-             */
-            return RandomCompat_substr($buf, 0, $bytes);
-        }
-        ++$execCount; 
-    } while ($execCount < $bytes);
+    $secure = true;
+    $buf = openssl_random_pseudo_bytes($bytes, $secure);
+    if (
+        $buf !== false
+        &&
+        $secure
+        &&
+        RandomCompat_strlen($buf) === $bytes
+    ) {
+        return $buf;
+    }
 
     /**
      * If we reach here, PHP has failed us.
