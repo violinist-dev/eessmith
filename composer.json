@@ -45,24 +45,19 @@
             "recurse": false,
             "replace": false,
             "merge-extra": false
-        }
+        },
+        "drupal-scaffold": {
+      		"excludes": [
+        		".htaccess",
+        		"themes/bootstrap_clean_blog"
+      		]
+    	}
     },
     "repositories": {
         "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         }
-    },
-    "patches": {
-      "drupal/bootstrap": {
-        "Patch for ActionsDropbutton.php in bootstrap theme.": "https://www.drupal.org/files/issues/2657124-18.patch"
-      }
-    },
-    "drupal-scaffold": {
-      "excludes": [
-        ".htaccess",
-        "themes/bootstrap_clean_blog"
-      ]
     }
 }
 
