@@ -30,9 +30,7 @@
 			"docroot/themes/{$name}/": ["type:drupal-theme"],
 			"docroot/libraries/{$name}/": ["type:drupal-library"],
 			"docroot/profiles/contrib/{$name}/": ["type:drupal-profile"],
-			"docroot/modules/custom/{$name}/": ["type:drupal-module-custom"],
-			"drush/contrib/{$name}": ["type:drupal-drush"],
-			"vendor/bin/drush/{$name}":    ["type:drupal-drush"]
+			"docroot/modules/custom/{$name}/": ["type:drupal-module-custom"]
 		},
         
         "merge-plugin": {
