@@ -22,7 +22,7 @@
  * 'sites/default' will be used.
  *
  * For example, for a fictitious site installed at
- * http://www.drupal.org:8080/mysite/test/, the 'settings.php' file is searched
+ * https://www.drupal.org:8080/mysite/test/, the 'settings.php' file is searched
  * for in the following directories:
  *
  * - sites/8080.www.drupal.org.mysite.test
@@ -44,11 +44,11 @@
  *
  * Note that if you are installing on a non-standard port number, prefix the
  * hostname with that number. For example,
- * http://www.drupal.org:8080/mysite/test/ could be loaded from
+ * https://www.drupal.org:8080/mysite/test/ could be loaded from
  * sites/8080.www.drupal.org.mysite.test/.
  *
  * @see example.sites.php
- * @see conf_path()
+ * @see \Drupal\Core\DrupalKernel::getSitePath()
  *
  * In addition to customizing application settings through variables in
  * settings.php, you can create a services.yml file in the same directory to
@@ -64,7 +64,7 @@
  * to multiple databases, including multiple types of databases,
  * during the same request.
  *
-  * One example of the simplest connection array is shown below. To use the
+ * One example of the simplest connection array is shown below. To use the
  * sample settings, copy and uncomment the code below between the @code and
  * @endcode lines and paste it after the $databases declaration. You will need
  * to replace the database username and password and possibly the host and port
@@ -82,7 +82,7 @@
  *   'port' => '3306',
  *   'driver' => 'mysql',
  *   'prefix' => '',
- *   'collation' => 'utf8_general_ci',
+ *   'collation' => 'utf8mb4_general_ci',
  * );
  * @endcode
  */
@@ -257,6 +257,18 @@ $config_directories = array();
  */
 
 /**
+ * The active installation profile.
+ *
+ * Changing this after installation is not recommended as it changes which
+ * directories are scanned during extension discovery. If this is set prior to
+ * installation this value will be rewritten according to the profile selected
+ * by the user.
+ *
+ * @see install_select_profile()
+ */
+# $settings['install_profile'] = '';
+
+/**
  * Salt for one-time login links, cancel links, form tokens, etc.
  *
  * This variable will be set to a random value by the installer. All one-time
@@ -274,6 +286,16 @@ $config_directories = array();
  * @endcode
  */
 $settings['hash_salt'] = '';
+
+/**
+ * Deployment identifier.
+ *
+ * Drupal's dependency injection container will be automatically invalidated and
+ * rebuilt when the Drupal core version changes. When updating contributed or
+ * custom code that changes the container, changing this identifier will also
+ * allow the container to be invalidated as soon as code is deployed.
+ */
+# $settings['deployment_identifier'] = \Drupal::VERSION;
 
 /**
  * Access control for update.php script.
@@ -303,9 +325,6 @@ $settings['update_free_access'] = FALSE;
  *
  * You can also define an array of host names that can be accessed directly,
  * bypassing the proxy, in $settings['http_client_config']['proxy']['no'].
- *
- * If these settings are not configured, the system environment variables
- * HTTP_PROXY, HTTPS_PROXY, and NO_PROXY on the web server will be used instead.
  */
 # $settings['http_client_config']['proxy']['http'] = 'http://proxy_user:proxy_pass@example.com:8080';
 # $settings['http_client_config']['proxy']['https'] = 'http://proxy_user:proxy_pass@example.com:8080';
@@ -354,7 +373,31 @@ $settings['update_free_access'] = FALSE;
  * Set this value if your proxy server sends the client IP in a header
  * other than X-Forwarded-For.
  */
-# $settings['reverse_proxy_header'] = 'HTTP_X_CLUSTER_CLIENT_IP';
+# $settings['reverse_proxy_header'] = 'X_CLUSTER_CLIENT_IP';
+
+/**
+ * Set this value if your proxy server sends the client protocol in a header
+ * other than X-Forwarded-Proto.
+ */
+# $settings['reverse_proxy_proto_header'] = 'X_FORWARDED_PROTO';
+
+/**
+ * Set this value if your proxy server sends the client protocol in a header
+ * other than X-Forwarded-Host.
+ */
+# $settings['reverse_proxy_host_header'] = 'X_FORWARDED_HOST';
+
+/**
+ * Set this value if your proxy server sends the client protocol in a header
+ * other than X-Forwarded-Port.
+ */
+# $settings['reverse_proxy_port_header'] = 'X_FORWARDED_PORT';
+
+/**
+ * Set this value if your proxy server sends the client protocol in a header
+ * other than Forwarded.
+ */
+# $settings['reverse_proxy_forwarded_header'] = 'FORWARDED';
 
 /**
  * Page caching:
@@ -374,21 +417,46 @@ $settings['update_free_access'] = FALSE;
  */
 # $settings['omit_vary_cookie'] = TRUE;
 
+
+/**
+ * Cache TTL for client error (4xx) responses.
+ *
+ * Items cached per-URL tend to result in a large number of cache items, and
+ * this can be problematic on 404 pages which by their nature are unbounded. A
+ * fixed TTL can be set for these items, defaulting to one hour, so that cache
+ * backends which do not support LRU can purge older entries. To disable caching
+ * of client error responses set the value to 0. Currently applies only to
+ * page_cache module.
+ */
+# $settings['cache_ttl_4xx'] = 3600;
+
+
 /**
  * Class Loader.
  *
- * By default, Composer's ClassLoader is used, which is best for development, as
- * it does not break when code is moved in the file system. You can decorate the
- * class loader with a cached solution for better performance, which is
- * recommended for production sites.
+ * If the APC extension is detected, the Symfony APC class loader is used for
+ * performance reasons. Detection can be prevented by setting
+ * class_loader_auto_detect to false, as in the example below.
+ */
+# $settings['class_loader_auto_detect'] = FALSE;
+
+/*
+ * If the APC extension is not detected, either because APC is missing or
+ * because auto-detection has been disabled, auto-loading falls back to
+ * Composer's ClassLoader, which is good for development as it does not break
+ * when code is moved in the file system. You can also decorate the base class
+ * loader with another cached solution than the Symfony APC class loader, as
+ * all production sites should have a cached class loader of some sort enabled.
  *
- * To do so, you may decorate and replace the local $class_loader variable.
- *
- * For example, to use Symfony's APC class loader, uncomment the code below.
+ * To do so, you may decorate and replace the local $class_loader variable. For
+ * example, to use Symfony's APC class loader without automatic detection,
+ * uncomment the code below.
  */
 /*
 if ($settings['hash_salt']) {
-  $apc_loader = new \Symfony\Component\ClassLoader\ApcClassLoader('drupal.' . $settings['hash_salt'], $class_loader);
+  $prefix = 'drupal.' . hash('sha256', 'drupal.' . $settings['hash_salt']);
+  $apc_loader = new \Symfony\Component\ClassLoader\ApcClassLoader($prefix, $class_loader);
+  unset($prefix);
   $class_loader->unregister();
   $apc_loader->register();
   $class_loader = $apc_loader;
@@ -413,19 +481,32 @@ if ($settings['hash_salt']) {
  * the code directly via SSH or FTP themselves. This setting completely
  * disables all functionality related to these authorized file operations.
  *
- * @see http://drupal.org/node/244924
+ * @see https://www.drupal.org/node/244924
  *
  * Remove the leading hash signs to disable.
  */
 # $settings['allow_authorize_operations'] = FALSE;
 
 /**
- * Default mode for for directories and files written by Drupal.
+ * Default mode for directories and files written by Drupal.
  *
  * Value should be in PHP Octal Notation, with leading zero.
  */
 # $settings['file_chmod_directory'] = 0775;
 # $settings['file_chmod_file'] = 0664;
+
+/**
+ * Public file base URL:
+ *
+ * An alternative base URL to be used for serving public files. This must
+ * include any leading directory path.
+ *
+ * A different value from the domain used by Drupal to be used for accessing
+ * public files. This can be used for a simple CDN integration, or to improve
+ * security by serving user-uploaded files from a different domain or subdomain
+ * pointing to the same server. Do not include a trailing slash.
+ */
+# $settings['file_public_base_url'] = 'http://downloads.example.com/files';
 
 /**
  * Public file path:
@@ -440,14 +521,14 @@ if ($settings['hash_salt']) {
  * Private file path:
  *
  * A local file system path where private files will be stored. This directory
- * must be absolute, outside of the the Drupal installation directory and not
+ * must be absolute, outside of the Drupal installation directory and not
  * accessible over the web.
  *
  * Note: Caches need to be cleared when this value is changed to make the
  * private:// stream wrapper available to the system.
  *
- * See http://drupal.org/documentation/modules/file for more information about
- * securing private files.
+ * See https://www.drupal.org/documentation/modules/file for more information
+ * about securing private files.
  */
 # $settings['file_private_path'] = '';
 
@@ -487,28 +568,6 @@ if ($settings['hash_salt']) {
  * Note: This setting does not apply to installation and update pages.
  */
 # $settings['maintenance_theme'] = 'bartik';
-
-/**
- * Base URL (optional).
- *
- * If Drupal is generating incorrect URLs on your site, which could
- * be in HTML headers (links to CSS and JS files) or visible links on pages
- * (such as in menus), uncomment the Base URL statement below (remove the
- * leading hash sign) and fill in the absolute URL to your Drupal installation.
- *
- * You might also want to force users to use a given domain.
- * See the .htaccess file for more information.
- *
- * Examples:
- *   $base_url = 'http://www.example.com';
- *   $base_url = 'http://www.example.com:8888';
- *   $base_url = 'http://www.example.com/drupal';
- *   $base_url = 'https://www.example.com:8888/drupal';
- *
- * It is not allowed to have a trailing slash; Drupal will add it
- * for you.
- */
-# $base_url = 'http://www.example.com';  // NO trailing slash!
 
 /**
  * PHP settings:
@@ -587,27 +646,46 @@ if ($settings['hash_salt']) {
  *
  * The options below return a simple, fast 404 page for URLs matching a
  * specific pattern:
- * - $conf['system.performance]['fast_404']['exclude_paths']: A regular
+ * - $config['system.performance']['fast_404']['exclude_paths']: A regular
  *   expression to match paths to exclude, such as images generated by image
- *   styles, or dynamically-resized images. If you need to add more paths, you
+ *   styles, or dynamically-resized images. The default pattern provided below
+ *   also excludes the private file system. If you need to add more paths, you
  *   can add '|path' to the expression.
- * - $conf['system.performance]['fast_404']['paths']: A regular expression to
+ * - $config['system.performance']['fast_404']['paths']: A regular expression to
  *   match paths that should return a simple 404 page, rather than the fully
  *   themed 404 page. If you don't have any aliases ending in htm or html you
  *   can add '|s?html?' to the expression.
- * - $conf['system.performance]['fast_404']['html']: The html to return for
+ * - $config['system.performance']['fast_404']['html']: The html to return for
  *   simple 404 pages.
  *
  * Remove the leading hash signs if you would like to alter this functionality.
  */
-# $config['system.performance']['fast_404']['exclude_paths'] = '/\/(?:styles)\//';
+# $config['system.performance']['fast_404']['exclude_paths'] = '/\/(?:styles)|(?:system\/files)\//';
 # $config['system.performance']['fast_404']['paths'] = '/\.(?:txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
 # $config['system.performance']['fast_404']['html'] = '<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
 
 /**
  * Load services definition file.
  */
-$settings['container_yamls'][] = __DIR__ . '/services.yml';
+$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
+
+/**
+ * Override the default service container class.
+ *
+ * This is useful for example to trace the service container for performance
+ * tracking purposes, for testing a service container with an error condition or
+ * to test a service container that throws an exception.
+ */
+# $settings['container_base_class'] = '\Drupal\Core\DependencyInjection\Container';
+
+/**
+ * Override the default yaml parser class.
+ *
+ * Provide a fully qualified class name here if you would like to provide an
+ * alternate implementation YAML parser. The class must implement the
+ * \Drupal\Component\Serialization\SerializationInterface interface.
+ */
+# $settings['yaml_parser_class'] = NULL;
 
 /**
  * Trusted host configuration.
@@ -647,6 +725,21 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  */
 
 /**
+ * The default list of directories that will be ignored by Drupal's file API.
+ *
+ * By default ignore node_modules and bower_components folders to avoid issues
+ * with common frontend tools and recursive scanning of directories looking for
+ * extensions.
+ *
+ * @see file_scan_directory()
+ * @see \Drupal\Core\Extension\ExtensionDiscovery::scanDirectory()
+ */
+$settings['file_scan_ignore_directories'] = [
+  'node_modules',
+  'bower_components',
+];
+
+/**
  * Load local development override configuration, if available.
  *
  * Use settings.local.php to override variables on secondary (staging,
@@ -656,6 +749,7 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
  *
  * Keep this code block at the end of this file to take full effect.
  */
-# if (file_exists(__DIR__ . '/settings.local.php')) {
-#   include __DIR__ . '/settings.local.php';
+#
+# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+#   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
