@@ -5075,7 +5075,7 @@
         "dist": {
             "type": "zip",
             "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.8.zip",
-            "reference": null,
+            "reference": "8.x-1.8",
             "shasum": "457e44a9a9411c4d54dfd7284a1b55e6ed5a4ed3"
         },
         "require": {
