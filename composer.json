@@ -15,9 +15,11 @@
     "drupal/acquia_connector": "^1.7",
     "drupal/youtube": "^1.0",
     "drupal/bootstrap": "^3.0",
-    "symfony/psr-http-message-bridge": "1.0.x-dev",
+    "symfony/psr-http-message-bridge": "~0.2",
     "symfony/dom-crawler": "3.2.5"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
     	"vendor-dir": "vendor"
   	},
