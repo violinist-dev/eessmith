@@ -3125,94 +3125,6 @@
         }
     },
     {
-        "name": "drupal/acquia_connector",
-        "version": "1.9.0",
-        "version_normalized": "1.9.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/acquia_connector",
-            "reference": "8.x-1.9"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.9.zip",
-            "reference": "8.x-1.9",
-            "shasum": "a52f410b077f955ecadbb249218b4abd9cad17d1"
-        },
-        "require": {
-            "drupal/core": "~8.0"
-        },
-        "require-dev": {
-            "drupal/search_api_solr": "*"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-1.x": "1.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-1.9",
-                "datestamp": "1491851344"
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Dries",
-                "homepage": "https://www.drupal.org/user/1"
-            },
-            {
-                "name": "Gábor Hojtsy",
-                "homepage": "https://www.drupal.org/user/4166"
-            },
-            {
-                "name": "Nick_vh",
-                "homepage": "https://www.drupal.org/user/122682"
-            },
-            {
-                "name": "Stanislav Mixnovich",
-                "homepage": "https://www.drupal.org/user/2859977"
-            },
-            {
-                "name": "bjaspan",
-                "homepage": "https://www.drupal.org/user/46413"
-            },
-            {
-                "name": "dmitrii",
-                "homepage": "https://www.drupal.org/user/411965"
-            },
-            {
-                "name": "irek02",
-                "homepage": "https://www.drupal.org/user/736644"
-            },
-            {
-                "name": "janusman",
-                "homepage": "https://www.drupal.org/user/153120"
-            },
-            {
-                "name": "kolafson",
-                "homepage": "https://www.drupal.org/user/822402"
-            },
-            {
-                "name": "mundanity",
-                "homepage": "https://www.drupal.org/user/373605"
-            },
-            {
-                "name": "paul.lovvik",
-                "homepage": "https://www.drupal.org/user/289213"
-            }
-        ],
-        "description": "Allows Drupal to securely communicate with the Acquia Subscription, and checks for updates to Acquia Drupal.",
-        "homepage": "https://www.drupal.org/project/acquia_connector",
-        "support": {
-            "source": "http://cgit.drupalcode.org/acquia_connector"
-        }
-    },
-    {
         "name": "drupal/youtube",
         "version": "1.0.0-beta3",
         "version_normalized": "1.0.0.0-beta3",
@@ -5112,12 +5024,12 @@
         "version_normalized": "8.3.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/drupal-composer/drupal-core.git",
+            "url": "https://github.com/drupal/core.git",
             "reference": "53326f9503e5e9e406fab22e4fbae6ddb706f7be"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/drupal-composer/drupal-core/zipball/53326f9503e5e9e406fab22e4fbae6ddb706f7be",
+            "url": "https://api.github.com/repos/drupal/core/zipball/53326f9503e5e9e406fab22e4fbae6ddb706f7be",
             "reference": "53326f9503e5e9e406fab22e4fbae6ddb706f7be",
             "shasum": ""
         },
@@ -5289,5 +5201,93 @@
             "GPL-2.0+"
         ],
         "description": "Drupal is an open source content management platform powering millions of websites and applications."
+    },
+    {
+        "name": "drupal/acquia_connector",
+        "version": "1.10.0",
+        "version_normalized": "1.10.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/acquia_connector",
+            "reference": "8.x-1.10"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.10.zip",
+            "reference": null,
+            "shasum": "aa56f04d572e7963e14abc9bcfb3d8cc9c00eb7d"
+        },
+        "require": {
+            "drupal/core": "~8.0"
+        },
+        "require-dev": {
+            "drupal/search_api_solr": "*"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-1.x": "1.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-1.10",
+                "datestamp": "1493037542"
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Dries",
+                "homepage": "https://www.drupal.org/user/1"
+            },
+            {
+                "name": "Gábor Hojtsy",
+                "homepage": "https://www.drupal.org/user/4166"
+            },
+            {
+                "name": "Nick_vh",
+                "homepage": "https://www.drupal.org/user/122682"
+            },
+            {
+                "name": "Stanislav Mixnovich",
+                "homepage": "https://www.drupal.org/user/2859977"
+            },
+            {
+                "name": "bjaspan",
+                "homepage": "https://www.drupal.org/user/46413"
+            },
+            {
+                "name": "dmitrii",
+                "homepage": "https://www.drupal.org/user/411965"
+            },
+            {
+                "name": "irek02",
+                "homepage": "https://www.drupal.org/user/736644"
+            },
+            {
+                "name": "janusman",
+                "homepage": "https://www.drupal.org/user/153120"
+            },
+            {
+                "name": "kolafson",
+                "homepage": "https://www.drupal.org/user/822402"
+            },
+            {
+                "name": "mundanity",
+                "homepage": "https://www.drupal.org/user/373605"
+            },
+            {
+                "name": "paul.lovvik",
+                "homepage": "https://www.drupal.org/user/289213"
+            }
+        ],
+        "description": "Allows Drupal to securely communicate with the Acquia Subscription, and checks for updates to Acquia Drupal.",
+        "homepage": "https://www.drupal.org/project/acquia_connector",
+        "support": {
+            "source": "http://cgit.drupalcode.org/acquia_connector"
+        }
     }
 ]
