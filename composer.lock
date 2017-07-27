@@ -800,7 +800,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://ftp.drupal.org/files/projects/bootstrap-8.x-3.5.zip",
-                "reference": null,
+                "reference": "8.x-3.5",
                 "shasum": "569f8a243ad6a2e04a86123a0b2a594783a09860"
             },
             "require": {
@@ -845,16 +845,16 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.2.7",
+            "version": "8.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "5d3fb8a93514f23198ac6848b2679ef1026d2326"
+                "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/5d3fb8a93514f23198ac6848b2679ef1026d2326",
-                "reference": "5d3fb8a93514f23198ac6848b2679ef1026d2326",
+                "url": "https://api.github.com/repos/drupal/core/zipball/7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
+                "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
                 "shasum": ""
             },
             "require": {
@@ -1018,7 +1018,7 @@
                 "GPL-2.0+"
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
-            "time": "2017-03-15 20:19:51"
+            "time": "2017-04-19 16:45:52"
         },
         {
             "name": "drupal/google_analytics",
