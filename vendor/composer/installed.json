@@ -4890,12 +4890,12 @@
         "version_normalized": "8.2.7.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/drupal-composer/drupal-core.git",
+            "url": "https://github.com/drupal/core.git",
             "reference": "5d3fb8a93514f23198ac6848b2679ef1026d2326"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/drupal-composer/drupal-core/zipball/5d3fb8a93514f23198ac6848b2679ef1026d2326",
+            "url": "https://api.github.com/repos/drupal/core/zipball/5d3fb8a93514f23198ac6848b2679ef1026d2326",
             "reference": "5d3fb8a93514f23198ac6848b2679ef1026d2326",
             "shasum": ""
         },
@@ -5065,18 +5065,18 @@
     },
     {
         "name": "drupal/acquia_connector",
-        "version": "1.8.0",
-        "version_normalized": "1.8.0.0",
+        "version": "1.12.0",
+        "version_normalized": "1.12.0.0",
         "source": {
             "type": "git",
             "url": "https://git.drupal.org/project/acquia_connector",
-            "reference": "8.x-1.8"
+            "reference": "8.x-1.12"
         },
         "dist": {
             "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.8.zip",
+            "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.12.zip",
             "reference": null,
-            "shasum": "457e44a9a9411c4d54dfd7284a1b55e6ed5a4ed3"
+            "shasum": "ac8e7a955dd92dc8dc0d3476f2e3c2b0dcb3855a"
         },
         "require": {
             "drupal/core": "~8.0"
@@ -5090,8 +5090,8 @@
                 "dev-1.x": "1.x-dev"
             },
             "drupal": {
-                "version": "8.x-1.8",
-                "datestamp": "1490205485"
+                "version": "8.x-1.12",
+                "datestamp": "1496931843"
             }
         },
         "installation-source": "dist",
