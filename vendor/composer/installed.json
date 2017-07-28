@@ -2798,73 +2798,9 @@
         ]
     },
     {
-        "name": "composer/semver",
-        "version": "1.4.2",
-        "version_normalized": "1.4.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/composer/semver.git",
-            "reference": "c7cb9a2095a074d131b65a8a0cd294479d785573"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/composer/semver/zipball/c7cb9a2095a074d131b65a8a0cd294479d785573",
-            "reference": "c7cb9a2095a074d131b65a8a0cd294479d785573",
-            "shasum": ""
-        },
-        "require": {
-            "php": "^5.3.2 || ^7.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^4.5 || ^5.0.5",
-            "phpunit/phpunit-mock-objects": "2.3.0 || ^3.0"
-        },
-        "time": "2016-08-30 16:08:34",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Composer\\Semver\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Nils Adermann",
-                "email": "naderman@naderman.de",
-                "homepage": "http://www.naderman.de"
-            },
-            {
-                "name": "Jordi Boggiano",
-                "email": "j.boggiano@seld.be",
-                "homepage": "http://seld.be"
-            },
-            {
-                "name": "Rob Bast",
-                "email": "rob.bast@gmail.com",
-                "homepage": "http://robbast.nl"
-            }
-        ],
-        "description": "Semver library that offers utilities, version constraint parsing and validation.",
-        "keywords": [
-            "semantic",
-            "semver",
-            "validation",
-            "versioning"
-        ]
-    },
-    {
-        "name": "asm89/stack-cors",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
+        "name": "drupal/google_analytics",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/asm89/stack-cors.git",
@@ -2995,133 +2931,6 @@
         "homepage": "https://www.drupal.org/project/head2head",
         "support": {
             "source": "http://cgit.drupalcode.org/head2head"
-        }
-    },
-    {
-        "name": "drupal/stage_file_proxy",
-        "version": "1.0.0-alpha2",
-        "version_normalized": "1.0.0.0-alpha2",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/stage_file_proxy",
-            "reference": "8.x-1.0-alpha2"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/stage_file_proxy-8.x-1.0-alpha2.zip",
-            "reference": "8.x-1.0-alpha2",
-            "shasum": "e80ff02d173c8571d7b7005258bed110a62b7884"
-        },
-        "require": {
-            "drupal/core": "~8.0"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-1.x": "1.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-1.0-alpha2",
-                "datestamp": "1491359584"
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "BarisW",
-                "homepage": "https://www.drupal.org/user/107229"
-            },
-            {
-                "name": "axel.rutz",
-                "homepage": "https://www.drupal.org/user/229048"
-            },
-            {
-                "name": "greggles",
-                "homepage": "https://www.drupal.org/user/36762"
-            },
-            {
-                "name": "markdorison",
-                "homepage": "https://www.drupal.org/user/346106"
-            },
-            {
-                "name": "moshe weitzman",
-                "homepage": "https://www.drupal.org/user/23"
-            },
-            {
-                "name": "msonnabaum",
-                "homepage": "https://www.drupal.org/user/75278"
-            },
-            {
-                "name": "netaustin",
-                "homepage": "https://www.drupal.org/user/199298"
-            },
-            {
-                "name": "robwilmshurst",
-                "homepage": "https://www.drupal.org/user/144488"
-            }
-        ],
-        "description": "Provides stage_file_proxy module.",
-        "homepage": "https://www.drupal.org/project/stage_file_proxy",
-        "support": {
-            "source": "http://cgit.drupalcode.org/stage_file_proxy"
-        }
-    },
-    {
-        "name": "drupal/google_analytics",
-        "version": "2.1.0",
-        "version_normalized": "2.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/google_analytics",
-            "reference": "8.x-2.1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/google_analytics-8.x-2.1.zip",
-            "reference": "8.x-2.1",
-            "shasum": "9b5c76802ca28d5072bb9bb552bbfeb660b0734a"
-        },
-        "require": {
-            "drupal/core": "~8.0"
-        },
-        "require-dev": {
-            "drupal/php": "*",
-            "drupal/token": "*"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-2.x": "2.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-2.1",
-                "datestamp": "1470845408"
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "hass",
-                "homepage": "https://www.drupal.org/u/hass"
-            },
-            {
-                "name": "See other contributors",
-                "homepage": "https://www.drupal.org/node/49388/committers"
-            }
-        ],
-        "description": "Allows your site to be tracked by Google Analytics by adding a Javascript tracking code to every page.",
-        "homepage": "https://www.drupal.org/project/google_analytics",
-        "support": {
-            "source": "http://git.drupal.org/project/google_analytics.git",
-            "issues": "https://www.drupal.org/project/issues/google_analytics"
         }
     },
     {
@@ -5107,18 +4916,162 @@
         }
     },
     {
-        "name": "drupal/core",
-        "version": "8.3.4",
-        "version_normalized": "8.3.4.0",
+        "name": "drupal/acquia_connector",
+        "version": "1.12.0",
+        "version_normalized": "1.12.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/drupal/core.git",
-            "reference": "f34eee7255142ab5416107972ef13d011f11e163"
+            "url": "https://git.drupal.org/project/acquia_connector",
+            "reference": "8.x-1.12"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/drupal/core/zipball/f34eee7255142ab5416107972ef13d011f11e163",
-            "reference": "f34eee7255142ab5416107972ef13d011f11e163",
+            "url": "https://ftp.drupal.org/files/projects/acquia_connector-8.x-1.12.zip",
+            "reference": "8.x-1.12",
+            "shasum": "ac8e7a955dd92dc8dc0d3476f2e3c2b0dcb3855a"
+        },
+        "require": {
+            "drupal/core": "~8.0"
+        },
+        "require-dev": {
+            "drupal/search_api_solr": "*"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-1.x": "1.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-1.12",
+                "datestamp": "1496931843"
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Dries",
+                "homepage": "https://www.drupal.org/user/1"
+            },
+            {
+                "name": "Gábor Hojtsy",
+                "homepage": "https://www.drupal.org/user/4166"
+            },
+            {
+                "name": "Nick_vh",
+                "homepage": "https://www.drupal.org/user/122682"
+            },
+            {
+                "name": "Stanislav Mixnovich",
+                "homepage": "https://www.drupal.org/user/2859977"
+            },
+            {
+                "name": "bjaspan",
+                "homepage": "https://www.drupal.org/user/46413"
+            },
+            {
+                "name": "dmitrii",
+                "homepage": "https://www.drupal.org/user/411965"
+            },
+            {
+                "name": "irek02",
+                "homepage": "https://www.drupal.org/user/736644"
+            },
+            {
+                "name": "janusman",
+                "homepage": "https://www.drupal.org/user/153120"
+            },
+            {
+                "name": "kolafson",
+                "homepage": "https://www.drupal.org/user/822402"
+            },
+            {
+                "name": "mundanity",
+                "homepage": "https://www.drupal.org/user/373605"
+            },
+            {
+                "name": "paul.lovvik",
+                "homepage": "https://www.drupal.org/user/289213"
+            }
+        ],
+        "description": "Allows Drupal to securely communicate with the Acquia Subscription, and checks for updates to Acquia Drupal.",
+        "homepage": "https://www.drupal.org/project/acquia_connector",
+        "support": {
+            "source": "http://cgit.drupalcode.org/acquia_connector"
+        }
+    },
+    {
+        "name": "drupal/bootstrap",
+        "version": "3.5.0",
+        "version_normalized": "3.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/bootstrap",
+            "reference": "8.x-3.5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/bootstrap-8.x-3.5.zip",
+            "reference": "8.x-3.5",
+            "shasum": "569f8a243ad6a2e04a86123a0b2a594783a09860"
+        },
+        "require": {
+            "drupal/core": "~8.0"
+        },
+        "type": "drupal-theme",
+        "extra": {
+            "branch-alias": {
+                "dev-3.x": "3.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-3.5",
+                "datestamp": "1495040301"
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "markcarver",
+                "homepage": "https://www.drupal.org/user/501638"
+            },
+            {
+                "name": "neardark",
+                "homepage": "https://www.drupal.org/user/661076"
+            },
+            {
+                "name": "sylus",
+                "homepage": "https://www.drupal.org/user/339714"
+            },
+            {
+                "name": "wundo",
+                "homepage": "https://www.drupal.org/user/25523"
+            }
+        ],
+        "homepage": "https://www.drupal.org/project/bootstrap",
+        "support": {
+            "source": "http://cgit.drupalcode.org/bootstrap"
+        }
+    },
+    {
+        "name": "drupal/core",
+        "version": "8.2.8",
+        "version_normalized": "8.2.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/drupal/core.git",
+            "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/drupal/core/zipball/7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
+            "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
             "shasum": ""
         },
         "require": {
@@ -5268,7 +5221,7 @@
             "symfony/browser-kit": ">=2.8.13 <3.0",
             "symfony/css-selector": "~2.8"
         },
-        "time": "2017-06-21 18:13:27",
+        "time": "2017-04-19 16:45:52",
         "type": "drupal-core",
         "installation-source": "dist",
         "autoload": {
@@ -5292,5 +5245,78 @@
             "GPL-2.0+"
         ],
         "description": "Drupal is an open source content management platform powering millions of websites and applications."
+    },
+    {
+        "name": "drupal/stage_file_proxy",
+        "version": "1.0.0-alpha3",
+        "version_normalized": "1.0.0.0-alpha3",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/stage_file_proxy",
+            "reference": "8.x-1.0-alpha3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/stage_file_proxy-8.x-1.0-alpha3.zip",
+            "reference": null,
+            "shasum": "0eb1fc47fa1437c2db623a57c2b2cdbecab5b350"
+        },
+        "require": {
+            "drupal/core": "~8.0"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-1.x": "1.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-1.0-alpha3",
+                "datestamp": "1499900942"
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "BarisW",
+                "homepage": "https://www.drupal.org/user/107229"
+            },
+            {
+                "name": "axel.rutz",
+                "homepage": "https://www.drupal.org/user/229048"
+            },
+            {
+                "name": "greggles",
+                "homepage": "https://www.drupal.org/user/36762"
+            },
+            {
+                "name": "markdorison",
+                "homepage": "https://www.drupal.org/user/346106"
+            },
+            {
+                "name": "moshe weitzman",
+                "homepage": "https://www.drupal.org/user/23"
+            },
+            {
+                "name": "msonnabaum",
+                "homepage": "https://www.drupal.org/user/75278"
+            },
+            {
+                "name": "netaustin",
+                "homepage": "https://www.drupal.org/user/199298"
+            },
+            {
+                "name": "robwilmshurst",
+                "homepage": "https://www.drupal.org/user/144488"
+            }
+        ],
+        "description": "Provides stage_file_proxy module.",
+        "homepage": "https://www.drupal.org/project/stage_file_proxy",
+        "support": {
+            "source": "http://cgit.drupalcode.org/stage_file_proxy"
+        }
     }
 ]

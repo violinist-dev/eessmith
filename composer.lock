@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3a19ee6536aab16ebc85fe555a41bbd5",
-    "content-hash": "722d6479353b09c5d05a0feb24657ceb",
+    "hash": "93597580d0d47535d92a69ac9804ee2d",
+    "content-hash": "35fb90bf2155d94fef54bca7b6e4c7c0",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -845,16 +845,16 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.3.4",
+            "version": "8.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "f34eee7255142ab5416107972ef13d011f11e163"
+                "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/f34eee7255142ab5416107972ef13d011f11e163",
-                "reference": "f34eee7255142ab5416107972ef13d011f11e163",
+                "url": "https://api.github.com/repos/drupal/core/zipball/7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
+                "reference": "7ccc248f4058dd5985ad0c61c129243d0d2b58b8",
                 "shasum": ""
             },
             "require": {
@@ -1026,7 +1026,7 @@
                 "GPL-2.0+"
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
-            "time": "2017-06-21 18:13:27"
+            "time": "2017-04-19 16:45:52"
         },
         {
             "name": "drupal/google_analytics",
@@ -1171,17 +1171,17 @@
         },
         {
             "name": "drupal/stage_file_proxy",
-            "version": "1.0.0-alpha2",
+            "version": "1.0.0-alpha3",
             "source": {
                 "type": "git",
                 "url": "https://git.drupal.org/project/stage_file_proxy",
-                "reference": "8.x-1.0-alpha2"
+                "reference": "8.x-1.0-alpha3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/stage_file_proxy-8.x-1.0-alpha2.zip",
-                "reference": "8.x-1.0-alpha2",
-                "shasum": "e80ff02d173c8571d7b7005258bed110a62b7884"
+                "url": "https://ftp.drupal.org/files/projects/stage_file_proxy-8.x-1.0-alpha3.zip",
+                "reference": null,
+                "shasum": "0eb1fc47fa1437c2db623a57c2b2cdbecab5b350"
             },
             "require": {
                 "drupal/core": "~8.0"
@@ -1192,8 +1192,8 @@
                     "dev-1.x": "1.x-dev"
                 },
                 "drupal": {
-                    "version": "8.x-1.0-alpha2",
-                    "datestamp": "1491359584"
+                    "version": "8.x-1.0-alpha3",
+                    "datestamp": "1499900942"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
