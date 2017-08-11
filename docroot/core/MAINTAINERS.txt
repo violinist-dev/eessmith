@@ -36,6 +36,8 @@ Provisional membership:
   (Framework Manager - Frontend)
 - Gábor Hojtsy 'Gábor Hojtsy' https://www.drupal.org/u/gábor-hojtsy
   (Product Manager)
+- Chris McCafferty 'cilefen' https://www.drupal.org/u/cilefen
+  (Release Manager)
 - Roy Scholten 'yoroy' https://www.drupal.org/u/yoroy
   (Product Manager)
 
@@ -475,27 +477,17 @@ re-architect or otherwise improve large areas of Drupal core. See
 https://www.drupal.org/community-initiatives/drupal-core for more information on
 their responsibilities. The initiative coordinators for Drupal 8 are:
 
-API-first Initiative
-- Wim Leers 'Wim Leers' https://www.drupal.org/u/wim-leers
-- Mateu Aguiló Bosch 'e0ipso' https://www.drupal.org/u/e0ipso
-
-Layout Initiative
-- Tim Plunkett 'tim.plunkett' https://www.drupal.org/u/tim.plunkett
-- Emilie Nouveau 'DyanneNova' https://www.drupal.org/u/dyannenova
-
-Media Initiative
-- Janez Urevc 'slashrsm' https://www.drupal.org/u/slashrsm
+Workflow Initiative
+- Dick Olsson 'dixon_' https://www.drupal.org/u/dixon_
 
 PHPUnit Initiative
 - Daniel Wehner 'dawehner' https://www.drupal.org/u/dawehner
 
-  Provisional membership:
-  - Len Swaneveld 'Lendude' https://www.drupal.org/u/lendude
-  - Michiel Nugter 'michielnugter' https://www.drupal.org/u/michielnugter
+Layout Initiative
+- Tim Plunkett 'tim.plunkett' https://www.drupal.org/u/tim.plunkett
 
-Workflow Initiative
-- Dick Olsson 'dixon_' https://www.drupal.org/u/dixon_
-
+Media Initiative
+- Janez Urevc 'slashrsm' https://www.drupal.org/u/slashrsm
 
 Provisional membership: None at this time.
 

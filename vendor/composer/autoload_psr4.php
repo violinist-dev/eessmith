@@ -16,6 +16,7 @@ return array(
     'Zend\\Diactoros\\' => array($vendorDir . '/zendframework/zend-diactoros/src'),
     'Wikimedia\\Composer\\' => array($vendorDir . '/wikimedia/composer-merge-plugin/src'),
     'Webmozart\\Assert\\' => array($vendorDir . '/webmozart/assert/src'),
+    'Twig\\' => array($vendorDir . '/twig/twig/src'),
     'Symfony\\Polyfill\\Php55\\' => array($vendorDir . '/symfony/polyfill-php55'),
     'Symfony\\Polyfill\\Php54\\' => array($vendorDir . '/symfony/polyfill-php54'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
@@ -56,4 +57,5 @@ return array(
     'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src/Composer/Installers'),
     'Behat\\Mink\\Driver\\' => array($vendorDir . '/behat/mink-browserkit-driver/src', $vendorDir . '/behat/mink-goutte-driver/src'),
     'Behat\\Mink\\' => array($vendorDir . '/behat/mink/src'),
+    'Asm89\\Stack\\' => array($vendorDir . '/asm89/stack-cors/src/Asm89/Stack'),
 );

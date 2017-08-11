@@ -42,7 +42,7 @@ abstract class OutsideInJavascriptTestBase extends JavascriptTestBase {
   protected function waitForOffCanvasToOpen() {
     $web_assert = $this->assertSession();
     $web_assert->assertWaitOnAjaxRequest();
-    $web_assert->waitForElementVisible('css', '#drupal-off-canvas');
+    $web_assert->waitForElementVisible('css', '#drupal-offcanvas');
   }
 
   /**
@@ -53,7 +53,7 @@ abstract class OutsideInJavascriptTestBase extends JavascriptTestBase {
   }
 
   /**
-   * Gets the off-canvas dialog element.
+   * Gets the Off-Canvas tray element.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    */

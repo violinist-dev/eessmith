@@ -40,7 +40,6 @@ class ExtractTest extends MigrateProcessTestCase {
    * Tests unsuccessful extraction.
    */
   public function testExtractFail() {
-    $this->setExpectedException(MigrateException::class, 'Array index missing, extraction failed.');
     $this->plugin->transform(['bar' => 'foo'], $this->migrateExecutable, $this->row, 'destinationproperty');
   }
 

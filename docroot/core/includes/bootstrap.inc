@@ -92,8 +92,6 @@ const DRUPAL_EXTENSION_NAME_MAX_LENGTH = 50;
  *
  * @deprecated in Drupal 8.3.0, will be removed before Drupal 9.0.0.
  *   Use \Drupal::time()->getRequestTime();
- *
- * @see https://www.drupal.org/node/2785211
  */
 define('REQUEST_TIME', (int) $_SERVER['REQUEST_TIME']);
 
@@ -756,8 +754,6 @@ function drupal_installation_attempted() {
  *   need to access the value before container is available you can use
  *   BootstrapConfigStorageFactory to load the value directly from
  *   configuration.
- *
- * @see https://www.drupal.org/node/2538996
  */
 function drupal_get_profile() {
   global $install_state;

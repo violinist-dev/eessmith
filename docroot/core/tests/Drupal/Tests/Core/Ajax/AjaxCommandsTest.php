@@ -430,20 +430,4 @@ class AjaxCommandsTest extends UnitTestCase {
     $this->assertEquals($expected, $command->render());
   }
 
-  /**
-   * @covers \Drupal\Core\Ajax\UpdateBuildIdCommand
-   */
-  public function testUpdateBuildIdCommand() {
-    $old = 'ThisStringisOld';
-    $new = 'ThisStringIsNew';
-    $command = new UpdateBuildIdCommand($old, $new);
-    $expected = [
-      'command' => 'update_build_id',
-      'old' => $old,
-      'new' => $new,
-    ];
-
-    $this->assertEquals($expected, $command->render());
-  }
-
 }

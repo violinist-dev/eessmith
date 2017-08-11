@@ -282,33 +282,11 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
    *   depth.
    */
   protected function doSave(array $link) {
+    $original = $this->loadFull($link['id']);
+    // @todo Should we just return here if the link values match the original
+    //   values completely?
+    //   https://www.drupal.org/node/2302137
     $affected_menus = [];
-
-    // Get the existing definition if it exists. This does not use
-    // self::loadFull() to avoid the unserialization of fields with 'serialize'
-    // equal to TRUE as defined in self::schemaDefinition(). The makes $original
-    // easier to compare with the return value of self::preSave().
-    $query = $this->connection->select($this->table, $this->options);
-    $query->fields($this->table);
-    $query->condition('id', $link['id']);
-    $original = $this->safeExecuteSelect($query)->fetchAssoc();
-
-    if ($original) {
-      $link['mlid'] = $original['mlid'];
-      $link['has_children'] = $original['has_children'];
-      $affected_menus[$original['menu_name']] = $original['menu_name'];
-      $fields = $this->preSave($link, $original);
-      // If $link matches the $original data then exit early as there are no
-      // changes to make. Use array_diff_assoc() to check if they match because:
-      // - Some of the data types of the values are not the same. The values
-      //   in $original are all strings because they have come from database but
-      //   $fields contains typed values.
-      // - MenuTreeStorage::preSave() removes the 'mlid' from $fields.
-      // - The order of the keys in $original and $fields is different.
-      if (array_diff_assoc($fields, $original) == [] && array_diff_assoc($original, $fields) == ['mlid' => $link['mlid']]) {
-        return $affected_menus;
-      }
-    }
 
     $transaction = $this->connection->startTransaction();
     try {

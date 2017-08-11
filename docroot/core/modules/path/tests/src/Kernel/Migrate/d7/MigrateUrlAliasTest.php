@@ -17,7 +17,6 @@ class MigrateUrlAliasTest extends MigrateDrupal7TestBase {
   public static $modules = [
     'content_translation',
     'language',
-    'menu_ui',
     'node',
     'path',
     'text',

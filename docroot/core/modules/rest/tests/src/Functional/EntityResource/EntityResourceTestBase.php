@@ -363,13 +363,6 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
     $this->assertResourceErrorResponse(403, 'The used authentication method is not allowed on this route.', $response);
 
     unset($request_options[RequestOptions::HEADERS]['REST-test-auth']);
-    $request_options[RequestOptions::HEADERS]['REST-test-auth-global'] = '1';
-
-    // DX: 403 when attempting to use unallowed global authentication provider.
-    $response = $this->request('GET', $url, $request_options);
-    $this->assertResourceErrorResponse(403, 'The used authentication method is not allowed on this route.', $response);
-
-    unset($request_options[RequestOptions::HEADERS]['REST-test-auth-global']);
     $request_options = NestedArray::mergeDeep($request_options, $this->getAuthenticationRequestOptions('GET'));
 
 
@@ -695,11 +688,8 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
 
 
     // DX: 422 when invalid entity: UUID field too long.
-    // @todo Fix this in https://www.drupal.org/node/2149851.
-    if ($this->entity->getEntityType()->hasKey('uuid')) {
-      $response = $this->request('POST', $url, $request_options);
-      $this->assertResourceErrorResponse(422, "Unprocessable Entity: validation failed.\nuuid.0.value: UUID: may not be longer than 128 characters.\n", $response);
-    }
+    $response = $this->request('POST', $url, $request_options);
+    $this->assertResourceErrorResponse(422, "Unprocessable Entity: validation failed.\nuuid.0.value: UUID: may not be longer than 128 characters.\n", $response);
 
 
     $request_options[RequestOptions::BODY] = $parseable_invalid_request_body_3;
@@ -733,13 +723,8 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
     // 201 for well-formed request.
     $response = $this->request('POST', $url, $request_options);
     $this->assertResourceResponse(201, FALSE, $response);
-    if ($has_canonical_url) {
-      $location = $this->entityStorage->load(static::$firstCreatedEntityId)->toUrl('canonical')->setAbsolute(TRUE)->toString();
-      $this->assertSame([$location], $response->getHeader('Location'));
-    }
-    else {
-      $this->assertSame([], $response->getHeader('Location'));
-    }
+    $location = $this->entityStorage->load(static::$firstCreatedEntityId)->toUrl('canonical')->setAbsolute(TRUE)->toString();
+    $this->assertSame([$location], $response->getHeader('Location'));
     $this->assertFalse($response->hasHeader('X-Drupal-Cache'));
 
 
@@ -761,13 +746,8 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
     $this->entityStorage->load(static::$firstCreatedEntityId)->delete();
     $response = $this->request('POST', $url, $request_options);
     $this->assertResourceResponse(201, FALSE, $response);
-    if ($has_canonical_url) {
-      $location = $this->entityStorage->load(static::$secondCreatedEntityId)->toUrl('canonical')->setAbsolute(TRUE)->toString();
-      $this->assertSame([$location], $response->getHeader('Location'));
-    }
-    else {
-      $this->assertSame([], $response->getHeader('Location'));
-    }
+    $location = $this->entityStorage->load(static::$secondCreatedEntityId)->toUrl('canonical')->setAbsolute(TRUE)->toString();
+    $this->assertSame([$location], $response->getHeader('Location'));
     $this->assertFalse($response->hasHeader('X-Drupal-Cache'));
   }
 
@@ -819,12 +799,8 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
 
     // DX: 404 when resource not provisioned, 405 if canonical route.
     $response = $this->request('PATCH', $url, $request_options);
-    if ($has_canonical_url) {
-      $this->assertResourceErrorResponse(405, 'No route found for "PATCH ' . str_replace($this->baseUrl, '', $this->getEntityResourceUrl()->setAbsolute()->toString()) . '": Method Not Allowed (Allow: GET, POST, HEAD)', $response);
-    }
-    else {
-      $this->assertResourceErrorResponse(404, 'No route found for "PATCH ' . str_replace($this->baseUrl, '', $this->getEntityResourceUrl()->setAbsolute()->toString()) . '"', $response);
-    }
+    $this->assertSame(['GET, POST, HEAD'], $response->getHeader('Allow'));
+    $this->assertResourceErrorResponse(405, 'No route found for "PATCH ' . str_replace($this->baseUrl, '', $this->getUrl()->setAbsolute()->toString()) . '": Method Not Allowed (Allow: GET, POST, HEAD)', $response);
 
 
     $this->provisionEntityResource();
@@ -1011,13 +987,9 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
 
     // DX: 404 when resource not provisioned, 405 if canonical route.
     $response = $this->request('DELETE', $url, $request_options);
-    if ($has_canonical_url) {
-      $this->assertSame(['GET, POST, HEAD'], $response->getHeader('Allow'));
-      $this->assertResourceErrorResponse(405, 'No route found for "DELETE ' . str_replace($this->baseUrl, '', $this->getEntityResourceUrl()->setAbsolute()->toString()) . '": Method Not Allowed (Allow: GET, POST, HEAD)', $response);
-    }
-    else {
-      $this->assertResourceErrorResponse(404, 'No route found for "DELETE ' . str_replace($this->baseUrl, '', $this->getEntityResourceUrl()->setAbsolute()->toString()) . '"', $response);
-    }
+    $this->assertSame(['GET, POST, HEAD'], $response->getHeader('Allow'));
+    $this->assertResourceErrorResponse(405, 'No route found for "DELETE ' . str_replace($this->baseUrl, '', $this->getUrl()->setAbsolute()->toString()) . '": Method Not Allowed (Allow: GET, POST, HEAD)', $response);
+
 
     $this->provisionEntityResource();
 

@@ -2,8 +2,6 @@
 
 namespace Drupal\FunctionalTests;
 
-use Behat\Mink\Exception\ElementNotFoundException;
-use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Xss;
@@ -430,12 +428,8 @@ trait AssertLegacyTrait {
    *   $this->assertSession()->fieldValueNotEquals() instead.
    */
   protected function assertNoFieldById($id, $value = '') {
-    $xpath = $this->assertSession()->buildXPathQuery('//textarea[@id=:value]|//input[@id=:value]|//select[@id=:value]', [':value' => $id]);
-    $field = $this->getSession()->getPage()->find('xpath', $xpath);
-
-    // Return early if the field could not be found as expected.
-    if ($field === NULL) {
-      return;
+    if ($this->getSession()->getPage()->findField($id) && isset($value)) {
+      $this->assertSession()->fieldValueNotEquals($id, (string) $value);
     }
 
     if (!isset($value)) {

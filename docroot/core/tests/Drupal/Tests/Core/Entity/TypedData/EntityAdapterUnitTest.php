@@ -310,7 +310,6 @@ class EntityAdapterUnitTest extends UnitTestCase {
   public function testSetWithoutData() {
     $this->entityAdapter->setValue(NULL);
     $id_items = [ ['value' => $this->id + 1] ];
-    $this->setExpectedException(MissingDataException::class);
     $this->entityAdapter->set('id', $id_items);
   }
 

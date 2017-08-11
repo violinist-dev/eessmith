@@ -28,7 +28,7 @@ class FilterDateTest extends HandlerTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'views_ui', 'datetime'];
+  public static $modules = ['node', 'views_ui'];
 
   protected function setUp() {
     parent::setUp();
@@ -57,10 +57,10 @@ class FilterDateTest extends HandlerTestBase {
 
     // Add some basic test nodes.
     $this->nodes = [];
-    $this->nodes[] = $this->drupalCreateNode(['created' => 100000, 'field_date' => 10000]);
-    $this->nodes[] = $this->drupalCreateNode(['created' => 200000, 'field_date' => 20000]);
-    $this->nodes[] = $this->drupalCreateNode(['created' => 300000, 'field_date' => 30000]);
-    $this->nodes[] = $this->drupalCreateNode(['created' => time() + 86400, 'field_date' => time() + 86400]);
+    $this->nodes[] = $this->drupalCreateNode(['created' => 100000]);
+    $this->nodes[] = $this->drupalCreateNode(['created' => 200000]);
+    $this->nodes[] = $this->drupalCreateNode(['created' => 300000]);
+    $this->nodes[] = $this->drupalCreateNode(['created' => time() + 86400]);
 
     $this->map = [
       'nid' => 'nid',

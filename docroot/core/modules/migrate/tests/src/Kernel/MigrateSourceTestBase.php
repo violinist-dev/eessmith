@@ -160,8 +160,8 @@ abstract class MigrateSourceTestBase extends KernelTestBase {
     // If an expected count was given, assert it only if the plugin is
     // countable.
     if (is_numeric($expected_count)) {
-      $this->assertInstanceOf('\Countable', $plugin);
-      $this->assertCount($expected_count, $plugin);
+      $this->assertInstanceOf('\Iterator', $plugin);
+      $this->assertSame($expected_count, iterator_count($plugin));
     }
 
     $i = 0;

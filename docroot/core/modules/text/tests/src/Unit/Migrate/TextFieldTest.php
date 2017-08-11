@@ -147,12 +147,7 @@ class TextFieldTest extends UnitTestCase {
       ['list_string', 'optionwidgets_buttons'],
       ['list_string', 'optionwidgets_select'],
       ['boolean', 'optionwidgets_onoff'],
-      ['text_long', 'text_textarea', [
-        'text_processing' => TRUE,
-      ]],
-      ['string_long', 'text_textarea', [
-        'text_processing' => FALSE,
-      ]],
+      ['text_long', 'text_textarea'],
       [NULL, 'undefined'],
     ];
   }
@@ -162,8 +157,7 @@ class TextFieldTest extends UnitTestCase {
    * @dataProvider getFieldTypeProvider
    */
   public function testGetFieldType($expected_type, $widget_type, array $settings = []) {
-    $row = new Row();
-    $row->setSourceProperty('widget_type', $widget_type);
+    $row = new Row(['widget_type' => $widget_type], ['widget_type' => []]);
     $row->setSourceProperty('global_settings', $settings);
     $this->assertSame($expected_type, $this->plugin->getFieldType($row));
   }

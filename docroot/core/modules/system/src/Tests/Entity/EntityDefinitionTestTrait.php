@@ -223,7 +223,7 @@ trait EntityDefinitionTestTrait {
    */
   protected function addEntityIndex() {
     $indexes = [
-      'entity_test_update__new_index' => ['name', 'test_single_property'],
+      'entity_test_update__new_index' => ['name', 'user_id'],
     ];
     $this->state->set('entity_test_update.additional_entity_indexes', $indexes);
   }

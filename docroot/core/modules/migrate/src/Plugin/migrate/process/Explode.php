@@ -22,11 +22,6 @@ use Drupal\migrate\Row;
  *     returned.
  *   - If the limit parameter is zero, then this is treated as 1.
  * - delimiter: The boundary string.
- * - strict: (optional) When this boolean is TRUE, the source should be strictly
- *   a string. If FALSE is passed, the source value is casted to a string before
- *   being split. Also, in this case, the values casting to empty strings are
- *   converted to empty arrays, instead of an array with a single empty string
- *   item ['']. Defaults to TRUE.
  *
  * Example:
  *
@@ -34,8 +29,8 @@ use Drupal\migrate\Row;
  * process:
  *   bar:
  *     plugin: explode
- *     source: foo
- *     delimiter: /
+ *       source: foo
+ *       delimiter: /
  * @endcode
  *
  * If foo is "node/1", then bar will be ['node', '1']. The PHP equivalent of
@@ -49,9 +44,9 @@ use Drupal\migrate\Row;
  * process:
  *   bar:
  *     plugin: explode
- *     source: foo
- *     limit: 1
- *     delimiter: /
+ *       source: foo
+ *       limit: 1
+ *       delimiter: /
  * @endcode
  *
  * If foo is "node/1/edit", then bar will be ['node', '1/edit']. The PHP
@@ -60,30 +55,6 @@ use Drupal\migrate\Row;
  * @code
  *   $bar = explode('/', $foo, 1);
  * @endcode
- *
- * If the 'strict' configuration is set to FALSE, the input value is casted to a
- * string before being spilt:
- *
- * @code
- * process:
- *   bar:
- *     plugin: explode
- *     source: foo
- *     delimiter: /
- *     strict: false
- * @endcode
- *
- * If foo is 123 (as integer), then bar will be ['123']. If foo is TRUE, then
- * bar will be ['1']. The PHP equivalent of this would be:
- *
- * @code
- *   $bar = explode('/', (string) 123);
- *   $bar = explode('/', (string) TRUE);
- * @endcode
- *
- * If the 'strict' configuration is set to FALSE, the source value casting to
- * an empty string are converted to an empty array. For example, with the last
- * configuration, if foo is '', NULL or FALSE, then bar will be [].
  *
  * @see \Drupal\migrate\Plugin\MigrateProcessInterface
  *

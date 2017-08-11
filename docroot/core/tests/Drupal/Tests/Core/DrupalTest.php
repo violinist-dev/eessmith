@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\Core;
 
-use Drupal\Core\DependencyInjection\ContainerNotInitializedException;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryAggregateInterface;

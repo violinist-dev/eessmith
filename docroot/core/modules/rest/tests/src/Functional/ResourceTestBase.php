@@ -94,6 +94,11 @@ abstract class ResourceTestBase extends BrowserTestBase {
   public static $modules = ['rest'];
 
   /**
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
    * {@inheritdoc}
    */
   public function setUp() {
@@ -130,6 +135,10 @@ abstract class ResourceTestBase extends BrowserTestBase {
     // Ensure there's a clean slate: delete all REST resource config entities.
     $this->resourceConfigStorage->delete($this->resourceConfigStorage->loadMultiple());
     $this->refreshTestStateAfterRestConfigChange();
+
+    // Set up a HTTP client that accepts relative URLs.
+    $this->httpClient = $this->container->get('http_client_factory')
+      ->fromOptions(['base_uri' => $this->baseUrl]);
   }
 
   /**
@@ -335,8 +344,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
   protected function request($method, Url $url, array $request_options) {
     $request_options[RequestOptions::HTTP_ERRORS] = FALSE;
     $request_options = $this->decorateWithXdebugCookie($request_options);
-    $client = $this->getSession()->getDriver()->getClient()->getClient();
-    return $client->request($method, $url->setAbsolute(TRUE)->toString(), $request_options);
+    return $this->httpClient->request($method, $url->toString(), $request_options);
   }
 
   /**

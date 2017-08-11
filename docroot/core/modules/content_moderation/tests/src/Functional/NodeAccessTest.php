@@ -110,6 +110,12 @@ class NodeAccessTest extends ModerationStateTestBase {
       'title[0][value]' => 'moderated content revised',
     ], t('Save and Create New Draft'));
 
+    // Now make a new user and verify that the new user's access is correct.
+    $user = $this->createUser([
+      'use editorial transition create_new_draft',
+      'view latest version',
+      'view any unpublished content',
+    ]);
     $this->drupalLogin($user);
 
     $this->drupalGet($edit_path);

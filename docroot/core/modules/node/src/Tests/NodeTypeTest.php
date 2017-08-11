@@ -87,7 +87,6 @@ class NodeTypeTest extends NodeTestBase {
    * Tests editing a node type using the UI.
    */
   public function testNodeTypeEditing() {
-    $this->drupalPlaceBlock('system_breadcrumb_block');
     $web_user = $this->drupalCreateUser(['bypass node access', 'administer content types', 'administer node fields']);
     $this->drupalLogin($web_user);
 
@@ -138,12 +137,6 @@ class NodeTypeTest extends NodeTestBase {
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.body/delete', [], t('Delete'));
     // Resave the settings for this type.
     $this->drupalPostForm('admin/structure/types/manage/page', [], t('Save content type'));
-    $front_page_path = Url::fromRoute('<front>')->toString();
-    $this->assertBreadcrumb('admin/structure/types/manage/page/fields', [
-      $front_page_path => 'Home',
-      'admin/structure/types' => 'Content types',
-      'admin/structure/types/manage/page' => 'NewBar',
-    ]);
     // Check that the body field doesn't exist.
     $this->drupalGet('node/add/page');
     $this->assertNoRaw('Body', 'Body field was not found.');
@@ -153,7 +146,6 @@ class NodeTypeTest extends NodeTestBase {
    * Tests deleting a content type that still has content.
    */
   public function testNodeTypeDeletion() {
-    $this->drupalPlaceBlock('page_title_block');
     // Create a content type programmatically.
     $type = $this->drupalCreateContentType();
 

@@ -36,7 +36,7 @@ class MigrateBlockTest extends MigrateDrupal6TestBase {
     parent::setUp();
 
     // Install the themes used for this test.
-    $this->container->get('theme_installer')->install(['bartik', 'test_theme']);
+    $this->container->get('theme_installer')->install(['bartik', 'seven', 'test_theme']);
 
     $this->installConfig(['block_content']);
     $this->installEntitySchema('block_content');
@@ -182,14 +182,22 @@ class MigrateBlockTest extends MigrateDrupal6TestBase {
     ];
     $this->assertEntity('system', $visibility, 'footer_fifth', 'bartik', -5, $settings);
 
-    // Check menu blocks.
-    $settings = [
-      'id' => 'broken',
-      'label' => '',
-      'provider' => 'core',
-      'label_display' => '0',
-    ];
-    $this->assertEntity('menu', [], 'header', 'bartik', -5, $settings);
+    // Check menu blocks
+    $visibility = [];
+    $this->assertEntity('menu', $visibility, 'header', 'bartik', -5, '', '0');
+
+    // Check custom blocks
+    $visibility['request_path']['id'] = 'request_path';
+    $visibility['request_path']['negate'] = FALSE;
+    $visibility['request_path']['pages'] = '<front>';
+    $this->assertEntity('block', $visibility, 'content', 'bartik', 0, 'Static Block', 'visible');
+
+    $visibility['request_path']['id'] = 'request_path';
+    $visibility['request_path']['negate'] = FALSE;
+    $visibility['request_path']['pages'] = '/node';
+    // We expect this block to be disabled because '' is not a valid region,
+    // and block_rebuild() will disable any block in an invalid region.
+    $this->assertEntity('block_1', $visibility, '', 'bluemarine', -4, 'Another Static Block', 'visible', FALSE);
 
     // Check aggregator block.
     $settings = [

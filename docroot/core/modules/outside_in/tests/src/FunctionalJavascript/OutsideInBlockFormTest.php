@@ -85,17 +85,13 @@ class OutsideInBlockFormTest extends OutsideInJavascriptTestBase {
         $page->find('css', $toolbar_item)->click();
         $web_assert->waitForElementVisible('css', "{$toolbar_item}.is-active");
       }
-      $this->enableEditMode();
-      if (isset($toolbar_item)) {
-        $this->waitForNoElement("{$toolbar_item}.is-active");
-      }
-      $this->openBlockForm($block_selector);
-      switch ($block_plugin) {
-        case 'system_powered_by_block':
-          // Fill out form, save the form.
-          $page->fillField('settings[label]', $new_page_text);
-          $page->checkField('settings[label_display]');
-          break;
+      $page->find('css', $toolbar_item)->click();
+      $web_assert->waitForElementVisible('css', "{$toolbar_item}.is-active");
+    }
+    $this->toggleEditingMode();
+    if (isset($toolbar_item)) {
+      $this->waitForNoElement("{$toolbar_item}.is-active");
+    }
 
         case 'system_branding_block':
           // Fill out form, save the form.
@@ -175,11 +171,12 @@ class OutsideInBlockFormTest extends OutsideInJavascriptTestBase {
   /**
    * Enables edit mode by pressing edit button in the toolbar.
    */
-  protected function enableEditMode() {
-    $this->pressToolbarEditButton();
-    $this->waitForToolbarToLoad();
-    $this->assertEditModeEnabled();
-  }
+  protected function toggleEditingMode() {
+    $this->assertSession()->waitForElementVisible('css', 'div[data-contextual-id="block:block=powered:langcode=en|outside_in::langcode=en"] .contextual-links a', 10000);
+    // Waiting for QuickEdit icon animation.
+    $this->assertSession()->assertWaitOnAjaxRequest();
+
+    $edit_button = $this->getSession()->getPage()->find('css', '#toolbar-bar div.contextual-toolbar-tab button');
 
   /**
    * Disables edit mode by pressing edit button in the toolbar.
@@ -287,18 +284,32 @@ class OutsideInBlockFormTest extends OutsideInJavascriptTestBase {
       }
       // Check using contextual links to invoke QuickEdit and open the tray.
       $this->drupalGet('node/' . $node->id());
+      // Waiting for Toolbar module.
+      // @todo Remove the hack after https://www.drupal.org/node/2542050.
+      $web_assert->waitForElementVisible('css', '.toolbar-fixed');
+      // Waiting for Toolbar animation.
       $web_assert->assertWaitOnAjaxRequest();
-      $this->disableEditMode();
-      // Open QuickEdit toolbar before going into Edit mode.
-      $this->clickContextualLink($node_selector, "Quick edit");
+      // The 2nd page load we should already be in edit mode.
+      if ($page_load_times == 1) {
+        $this->toggleEditingMode();
+      }
+      // In Edit mode clicking field should open QuickEdit toolbar.
+      $page->find('css', $body_selector)->click();
       $web_assert->waitForElementVisible('css', $quick_edit_selector);
-      // Open off-canvas and enter Edit mode via contextual link.
-      $this->clickContextualLink($block_selector, "Quick edit");
-      $this->waitForOffCanvasToOpen();
-      // QuickEdit toolbar should be closed when opening off-canvas dialog.
+      // Exit Edit mode.
+      $this->toggleEditingMode();
+      // Exiting Edit mode should close QuickEdit toolbar.
       $web_assert->elementNotExists('css', $quick_edit_selector);
-      // Open QuickEdit toolbar via contextual link while in Edit mode.
-      $this->clickContextualLink($node_selector, "Quick edit", FALSE);
+      // When not in Edit mode QuickEdit toolbar should not open.
+      $page->find('css', $body_selector)->click();
+      $web_assert->elementNotExists('css', $quick_edit_selector);
+
+      // Enter Edit mode.
+      $this->toggleEditingMode();
+      $this->openBlockForm($block_selector);
+      $page->find('css', $body_selector)->click();
+      $web_assert->waitForElementVisible('css', $quick_edit_selector);
+      // Offcanvas should be closed when opening QuickEdit toolbar.
       $this->waitForOffCanvasToClose();
       $web_assert->waitForElementVisible('css', $quick_edit_selector);
       $this->disableEditMode();
@@ -340,133 +351,22 @@ class OutsideInBlockFormTest extends OutsideInJavascriptTestBase {
     }
   }
 
-  /**
-   * Assert that edit mode has been properly enabled.
-   */
-  protected function assertEditModeEnabled() {
-    $web_assert = $this->assertSession();
-    // No contextual triggers should be hidden.
-    $web_assert->elementNotExists('css', '.contextual .trigger.visually-hidden');
-    // The toolbar edit button should read "Editing".
-    $web_assert->elementContains('css', static::TOOLBAR_EDIT_LINK_SELECTOR, 'Editing');
-    // The main canvas element should have the "js-outside-in-edit-mode" class.
-    $web_assert->elementExists('css', '.dialog-off-canvas__main-canvas.js-outside-in-edit-mode');
-  }
-
-  /**
-   * Assert that edit mode has been properly disabled.
-   */
-  protected function assertEditModeDisabled() {
-    $web_assert = $this->assertSession();
-    // Contextual triggers should be hidden.
-    $web_assert->elementExists('css', '.contextual .trigger.visually-hidden');
-    // No contextual triggers should be not hidden.
-    $web_assert->elementNotExists('css', '.contextual .trigger:not(.visually-hidden)');
-    // The toolbar edit button should read "Edit".
-    $web_assert->elementContains('css', static::TOOLBAR_EDIT_LINK_SELECTOR, 'Edit');
-    // The main canvas element should NOT have the "js-outside-in-edit-mode"
-    // class.
-    $web_assert->elementNotExists('css', '.dialog-off-canvas__main-canvas.js-outside-in-edit-mode');
-  }
-
-  /**
-   * Press the toolbar Edit button provided by the contextual module.
-   */
-  protected function pressToolbarEditButton() {
-    $this->assertSession()->waitForElement('css', '[data-contextual-id] .contextual-links a');
-    $edit_button = $this->getSession()
-      ->getPage()
-      ->find('css', static::TOOLBAR_EDIT_LINK_SELECTOR);
-    $edit_button->press();
-  }
-
-  /**
-   * Creates a custom block.
-   *
-   * @param bool|string $title
-   *   (optional) Title of block. When no value is given uses a random name.
-   *   Defaults to FALSE.
-   * @param string $bundle
-   *   (optional) Bundle name. Defaults to 'basic'.
-   * @param bool $save
-   *   (optional) Whether to save the block. Defaults to TRUE.
-   *
-   * @return \Drupal\block_content\Entity\BlockContent
-   *   Created custom block.
-   */
-  protected function createBlockContent($title = FALSE, $bundle = 'basic', $save = TRUE) {
-    $title = $title ?: $this->randomName();
-    $block_content = BlockContent::create([
-      'info' => $title,
-      'type' => $bundle,
-      'langcode' => 'en',
-      'body' => [
-        'value' => 'The name "llama" was adopted by European settlers from native Peruvians.',
-        'format' => 'plain_text',
-      ],
-    ]);
-    if ($block_content && $save === TRUE) {
-      $block_content->save();
-    }
-    return $block_content;
-  }
-
-  /**
-   * Creates a custom block type (bundle).
-   *
-   * @param string $label
-   *   The block type label.
-   * @param bool $create_body
-   *   Whether or not to create the body field.
-   *
-   * @return \Drupal\block_content\Entity\BlockContentType
-   *   Created custom block type.
-   */
-  protected function createBlockContentType($label, $create_body = FALSE) {
-    $bundle = BlockContentType::create([
-      'id' => $label,
-      'label' => $label,
-      'revision' => FALSE,
-    ]);
-    $bundle->save();
-    if ($create_body) {
-      block_content_add_body_field($bundle->id());
-    }
-    return $bundle;
-  }
-
-  /**
-   * Tests that contextual links in custom blocks are changed.
-   *
-   * "Quick edit" is quickedit.module link.
-   * "Quick edit settings" is outside_in.module link.
-   */
-  public function testCustomBlockLinks() {
-    $this->drupalGet('user');
-    $page = $this->getSession()->getPage();
-    $links = $page->findAll('css', "#block-custom .contextual-links li a");
-    $link_labels = [];
-    /** @var \Behat\Mink\Element\NodeElement $link */
-    foreach ($links as $link) {
-      $link_labels[$link->getAttribute('href')] = $link->getText();
-    }
-    $href = array_search('Quick edit', $link_labels);
-    $this->assertEquals('', $href);
-    $href = array_search('Quick edit settings', $link_labels);
-    $this->assertTrue(strstr($href, '/admin/structure/block/manage/custom/off-canvas?destination=user/2') !== FALSE);
-  }
-
-  /**
-   * Gets the block CSS selector.
-   *
-   * @param \Drupal\block\Entity\Block $block
-   *   The block.
-   *
-   * @return string
-   *   The CSS selector.
-   */
-  public function getBlockSelector(Block $block) {
-    return '#block-' . $block->id();
+    // Check using contextual links to invoke QuickEdit and open the tray.
+    $this->drupalGet('node/' . $node->id());
+    $web_assert->assertWaitOnAjaxRequest();
+    $this->toggleEditingMode();
+    // Open QuickEdit toolbar before going into Edit mode.
+    $this->clickContextualLink('.node', "Quick edit");
+    $web_assert->waitForElementVisible('css', $quick_edit_selector);
+    // Open off-canvas and enter Edit mode via contextual link.
+    $this->clickContextualLink($block_selector, "Quick edit");
+    $this->waitForOffCanvasToOpen();
+    // QuickEdit toolbar should be closed when opening Offcanvas.
+    $web_assert->elementNotExists('css', $quick_edit_selector);
+    // Open QuickEdit toolbar via contextual link while in Edit mode.
+    $this->clickContextualLink('.node', "Quick edit", FALSE);
+    $this->waitForOffCanvasToClose();
+    $web_assert->waitForElementVisible('css', $quick_edit_selector);
   }
 
 }

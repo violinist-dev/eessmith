@@ -318,9 +318,6 @@ class EntityAutocomplete extends Textfield {
    *   A string of entity labels separated by commas.
    */
   public static function getEntityLabels(array $entities) {
-    /** @var \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository */
-    $entity_repository = \Drupal::service('entity.repository');
-
     $entity_labels = [];
     foreach ($entities as $entity) {
       // Set the entity in the correct language for display.

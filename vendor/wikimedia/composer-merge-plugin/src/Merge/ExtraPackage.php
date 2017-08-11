@@ -275,9 +275,17 @@ class ExtraPackage
         array $merge,
         $state
     ) {
+        if ($state->ignoreDuplicateLinks() && $state->replaceDuplicateLinks()) {
+            $this->logger->warning("Both replace and ignore-duplicates are true. These are mutually exclusive.");
+            $this->logger->warning("Duplicate packages will be ignored.");
+        }
+
         $dups = array();
         foreach ($merge as $name => $link) {
-            if (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {
+            if (isset($origin[$name]) && $state->ignoreDuplicateLinks()) {
+                $this->logger->info("Ignoring duplicate <comment>{$name}</comment>");
+                continue;
+            } elseif (!isset($origin[$name]) || $state->replaceDuplicateLinks()) {
                 $this->logger->info("Merging <comment>{$name}</comment>");
                 $origin[$name] = $link;
             } else {
@@ -441,6 +449,50 @@ class ExtraPackage
                 self::mergeExtraArray($state->shouldMergeExtraDeep(), $extra, $rootExtra)
             );
         }
+    }
+
+    /**
+     * Merge scripts config into a RootPackageInterface
+     *
+     * @param RootPackageInterface $root
+     * @param PluginState $state
+     */
+    public function mergeScripts(RootPackageInterface $root, PluginState $state)
+    {
+        $scripts = $this->package->getScripts();
+        if (!$state->shouldMergeScripts() || empty($scripts)) {
+            return;
+        }
+
+        $rootScripts = $root->getScripts();
+        $unwrapped = self::unwrapIfNeeded($root, 'setScripts');
+
+        if ($state->replaceDuplicateLinks()) {
+            $unwrapped->setScripts(
+                array_merge($rootScripts, $scripts)
+            );
+        } else {
+            $unwrapped->setScripts(
+                array_merge($scripts, $rootScripts)
+            );
+        }
+    }
+
+    /**
+     * Merges two arrays either via arrayMergeDeep or via array_merge.
+     *
+     * @param bool $mergeDeep
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     */
+    public static function mergeExtraArray($mergeDeep, $array1, $array2)
+    {
+        if ($mergeDeep) {
+            return NestedArray::mergeDeep($array1, $array2);
+        }
+
+        return array_merge($array1, $array2);
     }
 
     /**

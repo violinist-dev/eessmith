@@ -233,7 +233,6 @@ class ConfigTest extends UnitTestCase {
    * @covers ::set
    */
   public function testSetValidation() {
-    $this->setExpectedException(ConfigValueException::class);
     $this->config->set('testData', ['dot.key' => 1]);
   }
 

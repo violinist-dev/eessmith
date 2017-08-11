@@ -40,20 +40,6 @@ class D7NodeDeriver extends DeriverBase implements ContainerDeriverInterface {
   protected $cckPluginManager;
 
   /**
-   * Already-instantiated field plugins, keyed by ID.
-   *
-   * @var \Drupal\migrate_drupal\Plugin\MigrateFieldInterface[]
-   */
-  protected $fieldPluginCache;
-
-  /**
-   * The field plugin manager.
-   *
-   * @var \Drupal\migrate_drupal\Plugin\MigrateFieldPluginManagerInterface
-   */
-  protected $fieldPluginManager;
-
-  /**
    * Whether or not to include translations.
    *
    * @var bool
@@ -67,15 +53,12 @@ class D7NodeDeriver extends DeriverBase implements ContainerDeriverInterface {
    *   The base plugin ID for the plugin ID.
    * @param \Drupal\migrate_drupal\Plugin\MigrateCckFieldPluginManagerInterface $cck_manager
    *   The CCK plugin manager.
-   * @param \Drupal\migrate_drupal\Plugin\MigrateFieldPluginManagerInterface $field_manager
-   *   The field plugin manager.
    * @param bool $translations
    *   Whether or not to include translations.
    */
-  public function __construct($base_plugin_id, MigrateCckFieldPluginManagerInterface $cck_manager, MigrateFieldPluginManagerInterface $field_manager, $translations) {
+  public function __construct($base_plugin_id, MigrateCckFieldPluginManagerInterface $cck_manager, $translations) {
     $this->basePluginId = $base_plugin_id;
     $this->cckPluginManager = $cck_manager;
-    $this->fieldPluginManager = $field_manager;
     $this->includeTranslations = $translations;
   }
 
@@ -87,7 +70,6 @@ class D7NodeDeriver extends DeriverBase implements ContainerDeriverInterface {
     return new static(
       $base_plugin_id,
       $container->get('plugin.manager.migrate.cckfield'),
-      $container->get('plugin.manager.migrate.field'),
       $container->get('module_handler')->moduleExists('content_translation')
     );
   }

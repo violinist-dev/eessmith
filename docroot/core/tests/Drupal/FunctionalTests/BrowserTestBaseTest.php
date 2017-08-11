@@ -496,6 +496,82 @@ class BrowserTestBaseTest extends BrowserTestBase {
   }
 
   /**
+   * Tests legacy field asserts.
+   */
+  public function testLegacyFieldAsserts() {
+    $this->drupalGet('test-field-xpath');
+    $this->assertFieldsByValue($this->xpath("//h1[@class = 'page-title']"), NULL);
+    $this->assertFieldsByValue($this->xpath('//table/tbody/tr[2]/td[1]'), 'one');
+    $this->assertFieldByXPath('//table/tbody/tr[2]/td[1]', 'one');
+
+    $this->assertFieldsByValue($this->xpath("//input[@id = 'edit-name']"), 'Test name');
+    $this->assertFieldByXPath("//input[@id = 'edit-name']", 'Test name');
+    $this->assertFieldsByValue($this->xpath("//select[@id = 'edit-options']"), '2');
+    $this->assertFieldByXPath("//select[@id = 'edit-options']", '2');
+
+    $this->assertNoFieldByXPath('//notexisting');
+    $this->assertNoFieldByXPath("//input[@id = 'edit-name']", 'wrong value');
+
+    $this->assertNoFieldById('name');
+    $this->assertNoFieldById('name', 'not the value');
+    $this->assertNoFieldById('notexisting');
+    $this->assertNoFieldById('notexisting', NULL);
+
+    // Test that the assertion fails correctly if no value is passed in.
+    try {
+      $this->assertNoFieldById('description');
+      $this->fail('The "description" field, with no value was not found.');
+    }
+    catch (ExpectationException $e) {
+      $this->pass('The "description" field, with no value was found.');
+    }
+
+    // Test that the assertion fails correctly if a NULL value is passed in.
+    try {
+      $this->assertNoFieldById('name', NULL);
+      $this->fail('The "name" field was not found.');
+    }
+    catch (ExpectationException $e) {
+      $this->pass('The "name" field was found.');
+    }
+
+    $this->assertNoFieldByName('name');
+    $this->assertNoFieldByName('name', 'not the value');
+    $this->assertNoFieldByName('notexisting');
+    $this->assertNoFieldByName('notexisting', NULL);
+
+    // Test that the assertion fails correctly if no value is passed in.
+    try {
+      $this->assertNoFieldByName('description');
+      $this->fail('The "description" field, with no value was not found.');
+    }
+    catch (ExpectationException $e) {
+      $this->pass('The "description" field, with no value was found.');
+    }
+
+    // Test that the assertion fails correctly if a NULL value is passed in.
+    try {
+      $this->assertNoFieldByName('name', NULL);
+      $this->fail('The "name" field was not found.');
+    }
+    catch (ExpectationException $e) {
+      $this->pass('The "name" field was found.');
+    }
+  }
+
+  /**
+   * Tests the ::cronRun() method.
+   */
+  public function testCronRun() {
+    $last_cron_time = \Drupal::state()->get('system.cron_last');
+    $this->cronRun();
+    $this->assertSession()->statusCodeEquals(204);
+    $next_cron_time = \Drupal::state()->get('system.cron_last');
+
+    $this->assertGreaterThan($last_cron_time, $next_cron_time);
+  }
+
+  /**
    * Tests the Drupal install done in \Drupal\Tests\BrowserTestBase::setUp().
    */
   public function testInstall() {

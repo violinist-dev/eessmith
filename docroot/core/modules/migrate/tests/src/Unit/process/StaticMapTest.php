@@ -42,7 +42,6 @@ class StaticMapTest extends MigrateProcessTestCase {
    * Tests when the source is empty.
    */
   public function testMapwithEmptySource() {
-    $this->setExpectedException(MigrateException::class);
     $this->plugin->transform([], $this->migrateExecutable, $this->row, 'destinationproperty');
   }
 
@@ -50,7 +49,6 @@ class StaticMapTest extends MigrateProcessTestCase {
    * Tests when the source is invalid.
    */
   public function testMapwithInvalidSource() {
-    $this->setExpectedException(MigrateSkipRowException::class);
     $this->plugin->transform(['bar'], $this->migrateExecutable, $this->row, 'destinationproperty');
   }
 
@@ -84,7 +82,6 @@ class StaticMapTest extends MigrateProcessTestCase {
     $configuration['default_value'] = 'test';
     $configuration['bypass'] = TRUE;
     $this->plugin = new StaticMap($configuration, 'map', []);
-    $this->setExpectedException(MigrateException::class, 'Setting both default_value and bypass is invalid.');
     $this->plugin->transform(['bar'], $this->migrateExecutable, $this->row, 'destinationproperty');
   }
 

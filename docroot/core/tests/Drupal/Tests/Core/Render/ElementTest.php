@@ -106,7 +106,6 @@ class ElementTest extends UnitTestCase {
     $element = [
       'foo' => 'bar',
     ];
-    $this->setExpectedException(\PHPUnit_Framework_Error::class, '"foo" is an invalid render array key');
     Element::children($element);
   }
 

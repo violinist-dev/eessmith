@@ -20,7 +20,7 @@ class MigrateNodeTypeTest extends MigrateDrupal7TestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'text', 'filter', 'menu_ui'];
+  public static $modules = ['node', 'text', 'filter'];
 
   /**
    * {@inheritdoc}

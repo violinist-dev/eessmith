@@ -428,7 +428,6 @@ class ConfigEntityStorageTest extends UnitTestCase {
     $this->entityQuery->execute()->willReturn(['baz']);
 
     $entity = $this->getMockEntity(['id' => 'foo']);
-    $this->setExpectedException(ConfigDuplicateUUIDException::class, 'when this UUID is already used for');
     $this->entityStorage->save($entity);
   }
 

@@ -29,7 +29,6 @@ class MigrateFieldInstanceWidgetSettingsTest extends MigrateDrupal7TestBase {
     'taxonomy',
     'telephone',
     'text',
-    'menu_ui',
   ];
 
   /**

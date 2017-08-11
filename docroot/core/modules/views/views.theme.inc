@@ -864,7 +864,7 @@ function template_preprocess_views_view_rss(&$variables) {
   }
 
   /** @var \Drupal\Core\Url $url */
-  if (!empty($url)) {
+  if ($url) {
     $url_options = ['absolute' => TRUE];
     if (!empty($view->exposed_raw_input)) {
       $url_options['query'] = $view->exposed_raw_input;

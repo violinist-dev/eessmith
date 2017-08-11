@@ -85,12 +85,7 @@ class FieldSettings extends ProcessPluginBase {
       ],
     ];
 
-    if ($original_field_type == 'userreference') {
-      return ['target_type' => 'user'];
-    }
-    else {
-      return isset($settings[$field_type]) ? $settings[$field_type] : [];
-    }
+    return isset($settings[$field_type]) ? $settings[$field_type] : [];
   }
 
 }

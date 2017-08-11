@@ -74,9 +74,6 @@ class Roles extends ManyToOne {
    */
   public function calculateDependencies() {
     $dependencies = [];
-    if (in_array($this->operator, ['empty', 'not empty'])) {
-      return $dependencies;
-    }
     foreach ($this->value as $role_id) {
       $role = $this->roleStorage->load($role_id);
       $dependencies[$role->getConfigDependencyKey()][] = $role->getConfigDependencyName();

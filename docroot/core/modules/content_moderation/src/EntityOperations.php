@@ -105,10 +105,14 @@ class EntityOperations implements ContainerInjectionInterface {
       /** @var \Drupal\content_moderation\ContentModerationState $current_state */
       $current_state = $workflow->getState($entity->moderation_state->value);
 
+    if ($entity->moderation_state->value) {
+      $workflow = $this->moderationInfo->getWorkflowForEntity($entity);
+      /** @var \Drupal\content_moderation\ContentModerationState $current_state */
+      $current_state = $workflow->getState($entity->moderation_state->value);
+
       // This entity is default if it is new, a new translation, the default
       // revision, or the default revision is not published.
       $update_default_revision = $entity->isNew()
-        || $entity->isNewTranslation()
         || $current_state->isDefaultRevisionState()
         || !$this->isDefaultRevisionPublished($entity, $workflow);
 
@@ -158,7 +162,7 @@ class EntityOperations implements ContainerInjectionInterface {
     $workflow = $this->moderationInfo->getWorkflowForEntity($entity);
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     if (!$moderation_state) {
-      $moderation_state = $workflow->getTypePlugin()->getInitialState($workflow, $entity)->id();
+      $moderation_state = $workflow->getInitialState()->id();
     }
 
     // @todo what if $entity->moderation_state is null at this point?
@@ -263,7 +267,8 @@ class EntityOperations implements ContainerInjectionInterface {
    *   TRUE if the default revision is published. FALSE otherwise.
    */
   protected function isDefaultRevisionPublished(EntityInterface $entity, WorkflowInterface $workflow) {
-    $default_revision = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->load($entity->id());
+    $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
+    $default_revision = $storage->load($entity->id());
 
     // Ensure we are checking all translations of the default revision.
     if ($default_revision instanceof TranslatableInterface && $default_revision->isTranslatable()) {
@@ -278,7 +283,7 @@ class EntityOperations implements ContainerInjectionInterface {
       }
     }
 
-    return $workflow->getState($default_revision->moderation_state->value)->isPublishedState();
+    return $default_revision && $workflow->getState($default_revision->moderation_state->value)->isPublishedState();
   }
 
 }

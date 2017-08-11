@@ -4,7 +4,6 @@ namespace Drupal\Tests\workflows\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\workflows\Entity\Workflow;
-use Drupal\workflows\Exception\RequiredStateMissingException;
 
 /**
  * Tests Workflow type's required states and configuration initialization.
@@ -43,6 +42,8 @@ class RequiredStatesTest extends KernelTestBase {
 
   /**
    * @covers \Drupal\workflows\Entity\Workflow::preSave
+   * @expectedException \Drupal\workflows\Exception\RequiredStateMissingException
+   * @expectedExceptionMessage Required State Type Test' requires states with the ID 'fresh' in workflow 'test'
    */
   public function testDeleteRequiredStateAPI() {
     $workflow = new Workflow([
@@ -52,19 +53,19 @@ class RequiredStatesTest extends KernelTestBase {
     $workflow = $workflow->getTypePlugin()->initializeWorkflow($workflow);
     $workflow->save();
     // Ensure that required states can't be deleted.
-    $this->setExpectedException(RequiredStateMissingException::class, "Required State Type Test' requires states with the ID 'fresh' in workflow 'test'");
     $workflow->deleteState('fresh')->save();
   }
 
   /**
    * @covers \Drupal\workflows\Entity\Workflow::preSave
+   * @expectedException \Drupal\workflows\Exception\RequiredStateMissingException
+   * @expectedExceptionMessage Required State Type Test' requires states with the ID 'fresh', 'rotten' in workflow 'test'
    */
   public function testNoStatesRequiredStateAPI() {
     $workflow = new Workflow([
       'id' => 'test',
       'type' => 'workflow_type_required_state_test',
     ], 'workflow');
-    $this->setExpectedException(RequiredStateMissingException::class, "Required State Type Test' requires states with the ID 'fresh', 'rotten' in workflow 'test'");
     $workflow->save();
   }
 

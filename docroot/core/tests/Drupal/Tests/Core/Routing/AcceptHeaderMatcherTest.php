@@ -86,6 +86,9 @@ class AcceptHeaderMatcherTest extends UnitTestCase {
 
   /**
    * Confirms that the AcceptHeaderMatcher throws an exception for no-route.
+   *
+   * @expectedException \Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException
+   * @expectedExceptionMessage No route found for the specified formats application/json text/xml
    */
   public function testNoRouteFound() {
     // Remove the sample routes that would match any method.

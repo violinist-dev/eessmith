@@ -48,23 +48,4 @@ class MigrateVocabularyEntityDisplayTest extends MigrateDrupal6TestBase {
     $this->assertIdentical(['node', 'article', 'default', 'tags'], $this->getMigration('d6_vocabulary_entity_display')->getIdMap()->lookupDestinationID([4, 'article']));
   }
 
-  /**
-   * Tests that vocabulary displays are ignored appropriately.
-   *
-   * Vocabulary displays should be ignored when they belong to node types which
-   * were not migrated.
-   */
-  public function testSkipNonExistentNodeType() {
-    // The "story" node type is migrated by d6_node_type but we need to pretend
-    // that it didn't occur, so record that in the map table.
-    $this->mockFailure('d6_node_type', ['type' => 'story']);
-
-    // d6_vocabulary_entity_display should skip over the "story" node type
-    // config because, according to the map table, it didn't occur.
-    $migration = $this->getMigration('d6_vocabulary_entity_display');
-
-    $this->executeMigration($migration);
-    $this->assertNull($migration->getIdMap()->lookupDestinationIds(['type' => 'story'])[0][0]);
-  }
-
 }

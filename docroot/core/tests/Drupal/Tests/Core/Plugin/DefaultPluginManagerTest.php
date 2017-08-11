@@ -3,7 +3,6 @@
 namespace Drupal\Tests\Core\Plugin;
 
 use Drupal\Component\Plugin\Definition\PluginDefinition;
-use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
