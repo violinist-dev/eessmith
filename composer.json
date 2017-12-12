@@ -53,6 +53,16 @@
       		]
     	}
     },
+    
+    "scripts": {
+        "post-install-cmd": [
+            "find docroot vendor -name '.git' | xargs rm -rf"
+        ],
+        "post-update-cmd": [
+            "find docroot vendor -name '.git' | xargs rm -rf"
+        ]
+    },
+    
     "repositories": {
         "drupal": {
             "type": "composer",
