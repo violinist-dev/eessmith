@@ -6,7 +6,6 @@ use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\Config;
-use Drupal\Core\Config\ConfigDuplicateUUIDException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
@@ -16,9 +15,7 @@ use Drupal\Core\Config\Entity\ConfigEntityType;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\Query\QueryFactoryInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -379,19 +376,23 @@ class ConfigEntityStorageTest extends UnitTestCase {
 
   /**
    * @covers ::save
+   *
+   * @expectedException \Drupal\Core\Entity\EntityMalformedException
+   * @expectedExceptionMessage The entity does not have an ID.
    */
   public function testSaveInvalid() {
     $this->cacheTagsInvalidator->invalidateTags(Argument::cetera())
       ->shouldNotBeCalled();
 
     $entity = $this->getMockEntity();
-    $this->setExpectedException(EntityMalformedException::class, 'The entity does not have an ID.');
     $this->entityStorage->save($entity);
   }
 
   /**
    * @covers ::save
    * @covers ::doSave
+   *
+   * @expectedException \Drupal\Core\Entity\EntityStorageException
    */
   public function testSaveDuplicate() {
     $config_object = $this->prophesize(ImmutableConfig::class);
@@ -406,13 +407,15 @@ class ConfigEntityStorageTest extends UnitTestCase {
     $entity = $this->getMockEntity(['id' => 'foo']);
     $entity->enforceIsNew();
 
-    $this->setExpectedException(EntityStorageException::class);
     $this->entityStorage->save($entity);
   }
 
   /**
    * @covers ::save
    * @covers ::doSave
+   *
+   * @expectedException \Drupal\Core\Config\ConfigDuplicateUUIDException
+   * @expectedExceptionMessage when this UUID is already used for
    */
   public function testSaveMismatch() {
     $config_object = $this->prophesize(ImmutableConfig::class);
@@ -469,6 +472,9 @@ class ConfigEntityStorageTest extends UnitTestCase {
   /**
    * @covers ::save
    * @covers ::doSave
+   *
+   * @expectedException \Drupal\Core\Config\ConfigDuplicateUUIDException
+   * @expectedExceptionMessage when this entity already exists with UUID
    */
   public function testSaveChangedUuid() {
     $config_object = $this->prophesize(ImmutableConfig::class);
@@ -498,7 +504,6 @@ class ConfigEntityStorageTest extends UnitTestCase {
     $entity = $this->getMockEntity(['id' => 'foo']);
 
     $entity->set('uuid', 'baz');
-    $this->setExpectedException(ConfigDuplicateUUIDException::class, 'when this entity already exists with UUID');
     $this->entityStorage->save($entity);
   }
 

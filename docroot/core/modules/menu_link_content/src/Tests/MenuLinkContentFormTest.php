@@ -2,7 +2,6 @@
 
 namespace Drupal\menu_link_content\Tests;
 
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\simpletest\WebTestBase;
 
 /**

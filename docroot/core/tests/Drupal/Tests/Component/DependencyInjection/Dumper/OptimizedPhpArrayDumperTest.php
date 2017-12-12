@@ -14,8 +14,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
   use Symfony\Component\ExpressionLanguage\Expression;
   use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
   use Symfony\Component\DependencyInjection\ContainerInterface;
-  use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
-  use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
   /**
    * @coversDefaultClass \Drupal\Component\DependencyInjection\Dumper\OptimizedPhpArrayDumper
@@ -484,6 +482,8 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
      * Tests that the correct InvalidArgumentException is thrown for getScope().
      *
      * @covers ::getServiceDefinition
+     *
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
      */
     public function testGetServiceDefinitionWithInvalidScope() {
       $bar_definition = new Definition('\stdClass');
@@ -491,7 +491,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
       $services['bar'] = $bar_definition;
 
       $this->containerBuilder->getDefinitions()->willReturn($services);
-      $this->setExpectedException(InvalidArgumentException::class);
       $this->dumper->getArray();
     }
 
@@ -556,6 +555,8 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
      * getDecoratedService().
      *
      * @covers ::getServiceDefinition
+     *
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
      */
     public function testGetServiceDefinitionForDecoratedService() {
       $bar_definition = new Definition('\stdClass');
@@ -563,7 +564,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
       $services['bar'] = $bar_definition;
 
       $this->containerBuilder->getDefinitions()->willReturn($services);
-      $this->setExpectedException(InvalidArgumentException::class);
       $this->dumper->getArray();
     }
 
@@ -571,6 +571,8 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
      * Tests that the correct RuntimeException is thrown for expressions.
      *
      * @covers ::dumpValue
+     *
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\RuntimeException
      */
     public function testGetServiceDefinitionForExpression() {
       $expression = new Expression();
@@ -580,7 +582,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
       $services['bar'] = $bar_definition;
 
       $this->containerBuilder->getDefinitions()->willReturn($services);
-      $this->setExpectedException(RuntimeException::class);
       $this->dumper->getArray();
     }
 
@@ -588,6 +589,8 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
      * Tests that the correct RuntimeException is thrown for dumping an object.
      *
      * @covers ::dumpValue
+     *
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\RuntimeException
      */
     public function testGetServiceDefinitionForObject() {
       $service = new \stdClass();
@@ -597,7 +600,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
       $services['bar'] = $bar_definition;
 
       $this->containerBuilder->getDefinitions()->willReturn($services);
-      $this->setExpectedException(RuntimeException::class);
       $this->dumper->getArray();
     }
 
@@ -605,6 +607,8 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
      * Tests that the correct RuntimeException is thrown for dumping a resource.
      *
      * @covers ::dumpValue
+     *
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\RuntimeException
      */
     public function testGetServiceDefinitionForResource() {
       $resource = fopen('php://memory', 'r');
@@ -614,7 +618,6 @@ namespace Drupal\Tests\Component\DependencyInjection\Dumper {
       $services['bar'] = $bar_definition;
 
       $this->containerBuilder->getDefinitions()->willReturn($services);
-      $this->setExpectedException(RuntimeException::class);
       $this->dumper->getArray();
     }
 

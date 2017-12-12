@@ -3,7 +3,6 @@
 namespace Drupal\Tests\Core\ParamConverter;
 
 use Drupal\Core\ParamConverter\ParamConverterManager;
-use Drupal\Core\ParamConverter\ParamNotConvertedException;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\Routing\Route;
@@ -52,9 +51,10 @@ class ParamConverterManagerTest extends UnitTestCase {
    * Tests \Drupal\Core\ParamConverter\ParamConverterManager::getConverter().
    *
    * @covers ::getConverter
+   *
+   * @expectedException \InvalidArgumentException
    */
   public function testGetConverterException() {
-    $this->setExpectedException(\InvalidArgumentException::class);
     $this->manager->getConverter('undefined.converter');
   }
 
@@ -220,6 +220,9 @@ class ParamConverterManagerTest extends UnitTestCase {
 
   /**
    * @covers ::convert
+   *
+   * @expectedException \Drupal\Core\ParamConverter\ParamNotConvertedException
+   * @expectedExceptionMessage The "id" parameter was not converted for the path "/test/{id}" (route name: "test_route")
    */
   public function testConvertMissingParam() {
     $route = new Route('/test/{id}');
@@ -243,7 +246,6 @@ class ParamConverterManagerTest extends UnitTestCase {
       ->will($this->returnValue(NULL));
     $this->manager->addConverter($converter, 'test_convert');
 
-    $this->setExpectedException(ParamNotConvertedException::class, 'The "id" parameter was not converted for the path "/test/{id}" (route name: "test_route")');
     $this->manager->convert($defaults);
   }
 

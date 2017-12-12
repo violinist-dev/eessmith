@@ -101,9 +101,6 @@ class EntityApiTest extends EntityKernelTestBase {
     if ($revision_table = $definition->getRevisionTable()) {
       $this->assertEqual(0, db_query('SELECT COUNT(*) FROM {' . $revision_table . '}')->fetchField(), 'Data table was emptied');
     }
-    if ($revision_data_table = $definition->getRevisionDataTable()) {
-      $this->assertEqual(0, db_query('SELECT COUNT(*) FROM {' . $revision_data_table . '}')->fetchField(), 'Data table was emptied');
-    }
 
     // Test deleting a list of entities not indexed by entity id.
     $entities = [];
@@ -128,9 +125,6 @@ class EntityApiTest extends EntityKernelTestBase {
     }
     if ($revision_table = $definition->getRevisionTable()) {
       $this->assertEqual(0, db_query('SELECT COUNT(*) FROM {' . $revision_table . '}')->fetchField(), 'Data table was emptied');
-    }
-    if ($revision_data_table = $definition->getRevisionDataTable()) {
-      $this->assertEqual(0, db_query('SELECT COUNT(*) FROM {' . $revision_data_table . '}')->fetchField(), 'Data table was emptied');
     }
   }
 

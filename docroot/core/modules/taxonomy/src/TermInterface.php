@@ -85,7 +85,7 @@ interface TermInterface extends ContentEntityInterface, EntityChangedInterface {
   /**
    * Get the taxonomy vocabulary id this term belongs to.
    *
-   * @return string
+   * @return int
    *   The id of the vocabulary.
    */
   public function getVocabularyId();

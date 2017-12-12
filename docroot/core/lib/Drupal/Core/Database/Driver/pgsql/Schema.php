@@ -543,11 +543,8 @@ EOD;
       throw new SchemaObjectExistsException(t("Cannot add field @table.@field: field already exists.", ['@field' => $field, '@table' => $table]));
     }
 
-    // Fields that are part of a PRIMARY KEY must be added as NOT NULL.
-    $is_primary_key = isset($keys_new['primary key']) && in_array($field, $keys_new['primary key'], TRUE);
-
     $fixnull = FALSE;
-    if (!empty($spec['not null']) && !isset($spec['default']) && !$is_primary_key) {
+    if (!empty($spec['not null']) && !isset($spec['default'])) {
       $fixnull = TRUE;
       $spec['not null'] = FALSE;
     }
@@ -568,12 +565,6 @@ EOD;
       $this->connection->query("ALTER TABLE {" . $table . "} ALTER $field SET NOT NULL");
     }
     if (isset($new_keys)) {
-      // Make sure to drop the existing primary key before adding a new one.
-      // This is only needed when adding a field because this method, unlike
-      // changeField(), is supposed to handle primary keys automatically.
-      if (isset($new_keys['primary key']) && $this->constraintExists($table, 'pkey')) {
-        $this->dropPrimaryKey($table);
-      }
       $this->_createKeys($table, $new_keys);
     }
     // Add column comment.

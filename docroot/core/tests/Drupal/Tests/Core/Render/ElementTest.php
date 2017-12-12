@@ -101,6 +101,9 @@ class ElementTest extends UnitTestCase {
 
   /**
    * Tests the children() method with an invalid key.
+   *
+   * @expectedException \PHPUnit_Framework_Error
+   * @expectedExceptionMessage "foo" is an invalid render array key
    */
   public function testInvalidChildren() {
     $element = [

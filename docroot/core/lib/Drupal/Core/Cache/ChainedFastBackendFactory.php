@@ -6,8 +6,6 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Defines the chained fast cache backend factory.
- *
- * @see \Drupal\Core\Cache\ChainedFastBackend
  */
 class ChainedFastBackendFactory implements CacheFactoryInterface {
 

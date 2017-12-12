@@ -320,9 +320,6 @@ class EntityAutocomplete extends Textfield {
   public static function getEntityLabels(array $entities) {
     $entity_labels = [];
     foreach ($entities as $entity) {
-      // Set the entity in the correct language for display.
-      $entity = $entity_repository->getTranslationFromContext($entity);
-
       // Use the special view label, since some entities allow the label to be
       // viewed, even if the entity is not allowed to be viewed.
       $label = ($entity->access('view label')) ? $entity->label() : t('- Restricted access -');

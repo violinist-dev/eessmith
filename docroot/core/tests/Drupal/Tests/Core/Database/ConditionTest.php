@@ -140,6 +140,7 @@ class ConditionTest extends UnitTestCase {
   /**
    * @covers ::compile
    *
+   * @expectedException \PHPUnit_Framework_Error
    * @dataProvider providerTestCompileWithSqlInjectionForOperator
    */
   public function testCompileWithSqlInjectionForOperator($operator) {
@@ -161,7 +162,6 @@ class ConditionTest extends UnitTestCase {
 
     $condition = new Condition('AND');
     $condition->condition('name', 'value', $operator);
-    $this->setExpectedException(\PHPUnit_Framework_Error::class);
     $condition->compile($connection, $query_placeholder);
   }
 

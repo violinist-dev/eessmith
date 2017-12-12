@@ -45,8 +45,7 @@ class SkipRowIfNotSet extends ProcessPluginBase {
    */
   public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
     if (!isset($value[$this->configuration['index']])) {
-      $message = !empty($this->configuration['message']) ? $this->configuration['message'] : '';
-      throw new MigrateSkipRowException($message);
+      throw new MigrateSkipRowException();
     }
     return $value[$this->configuration['index']];
   }

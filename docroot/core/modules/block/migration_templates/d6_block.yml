@@ -13,8 +13,7 @@ process:
     source: status
   id:
     # We need something unique, so aggregator, aggregator_1 etc will do.
-    plugin: make_unique_entity_field
-
+    plugin: dedupe_entity
     entity_type: block
     field: id
     postfix: _

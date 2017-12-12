@@ -185,11 +185,6 @@ abstract class MigrateSourceTestBase extends KernelTestBase {
         }
       }
     }
-    // False positives occur if the foreach is not entered. So, confirm the
-    // foreach loop was entered if the expected count is greater than 0.
-    if ($expected_count > 0) {
-      $this->assertGreaterThan(0, $i);
-    }
   }
 
 }

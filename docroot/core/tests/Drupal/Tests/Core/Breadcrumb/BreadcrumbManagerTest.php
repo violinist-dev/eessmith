@@ -183,6 +183,8 @@ class BreadcrumbManagerTest extends UnitTestCase {
 
   /**
    * Tests a breadcrumb builder with a bad return value.
+   *
+   * @expectedException \UnexpectedValueException
    */
   public function testBuildWithInvalidBreadcrumbResult() {
     $builder = $this->getMock('Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface');
@@ -194,7 +196,6 @@ class BreadcrumbManagerTest extends UnitTestCase {
       ->will($this->returnValue('invalid_result'));
 
     $this->breadcrumbManager->addBuilder($builder, 0);
-    $this->setExpectedException(\UnexpectedValueException::class);
     $this->breadcrumbManager->build($this->getMock('Drupal\Core\Routing\RouteMatchInterface'));
   }
 

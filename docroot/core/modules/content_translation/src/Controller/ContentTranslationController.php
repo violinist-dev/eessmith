@@ -337,6 +337,7 @@ class ContentTranslationController extends ControllerBase {
     // @todo Provide a way to figure out the default form operation. Maybe like
     //   $operation = isset($info['default_operation']) ? $info['default_operation'] : 'default';
     //   See https://www.drupal.org/node/2006348.
+    $operation = 'default';
 
     $form_state_additions = [];
     $form_state_additions['langcode'] = $target->getId();
@@ -367,6 +368,7 @@ class ContentTranslationController extends ControllerBase {
     // @todo Provide a way to figure out the default form operation. Maybe like
     //   $operation = isset($info['default_operation']) ? $info['default_operation'] : 'default';
     //   See https://www.drupal.org/node/2006348.
+    $operation = 'default';
 
     $form_state_additions = [];
     $form_state_additions['langcode'] = $language->getId();

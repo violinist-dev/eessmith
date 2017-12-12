@@ -76,6 +76,8 @@ class SearchBlockForm extends FormBase {
     // Set up the form to submit using GET to the correct search page.
     $entity_id = $this->searchPageRepository->getDefaultSearchPage();
 
+    $form = [];
+
     // SearchPageRepository::getDefaultSearchPage() depends on search.settings.
     // The dependency needs to be added before the conditional return, otherwise
     // the block would get cached without the necessary cacheablity metadata in

@@ -30,7 +30,7 @@ process:
       index:
         - 1
     -
-      plugin: migration_lookup
+      plugin: migration
       migration: d6_node_translation
 destination:
   plugin: url_alias

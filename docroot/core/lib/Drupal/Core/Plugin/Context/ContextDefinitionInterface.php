@@ -5,10 +5,7 @@ namespace Drupal\Core\Plugin\Context;
 use Drupal\Component\Plugin\Context\ContextDefinitionInterface as ComponentContextDefinitionInterface;
 
 /**
- * Interface to define definition objects in ContextInterface via TypedData.
- *
- * @see \Drupal\Component\Plugin\Context\ContextDefinitionInterface
- * @see \Drupal\Core\Plugin\Context\ContextInterface
+ * Interface for context definitions.
  */
 interface ContextDefinitionInterface extends ComponentContextDefinitionInterface {
 

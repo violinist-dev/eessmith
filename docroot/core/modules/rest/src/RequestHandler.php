@@ -110,8 +110,8 @@ class RequestHandler implements ContainerAwareInterface, ContainerInjectionInter
           throw new BadRequestHttpException($e->getMessage());
         }
       }
-      catch (UnexpectedValueException $e) {
-        throw new BadRequestHttpException($e->getMessage());
+      else {
+        throw new UnsupportedMediaTypeHttpException();
       }
     }
 

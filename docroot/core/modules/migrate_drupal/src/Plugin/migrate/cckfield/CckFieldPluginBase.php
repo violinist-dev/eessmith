@@ -2,49 +2,82 @@
 
 namespace Drupal\migrate_drupal\Plugin\migrate\cckfield;
 
-@trigger_error('CckFieldPluginBase is deprecated in Drupal 8.3.x and will be
-be removed before Drupal 9.0.x. Use \Drupal\migrate_drupal\Plugin\migrate\field\FieldPluginBase
-instead.', E_USER_DEPRECATED);
-
+use Drupal\Core\Plugin\PluginBase;
 use Drupal\migrate\Plugin\MigrationInterface;
-use Drupal\migrate_drupal\Plugin\migrate\field\FieldPluginBase;
+use Drupal\migrate\Row;
+use Drupal\migrate_drupal\Plugin\MigrateCckFieldInterface;
 
 /**
- * The base class for all field plugins.
+ * The base class for all cck field plugins.
  *
- * @deprecated in Drupal 8.3.x, to be removed before Drupal 9.0.x. Use
- * \Drupal\migrate_drupal\Plugin\migrate\field\FieldPluginBase instead.
+ * @see \Drupal\migrate\Plugin\MigratePluginManager
+ * @see \Drupal\migrate_drupal\Annotation\MigrateCckField
+ * @see \Drupal\migrate_drupal\Plugin\MigrateCckFieldInterface
+ * @see plugin_api
  *
  * @ingroup migration
  */
-abstract class CckFieldPluginBase extends FieldPluginBase {
+abstract class CckFieldPluginBase extends PluginBase implements MigrateCckFieldInterface {
 
   /**
-   * Apply any custom processing to the field bundle migrations.
-   *
-   * @param \Drupal\migrate\Plugin\MigrationInterface $migration
-   *   The migration entity.
-   * @param string $field_name
-   *   The field name we're processing the value for.
-   * @param array $data
-   *   The array of field data from FieldValues::fieldData().
+   * {@inheritdoc}
    */
-  public function processFieldValues(MigrationInterface $migration, $field_name, $data) {
-    // Provide a bridge to the old method declared on the interface and now an
-    // abstract method in this class.
-    return $this->processCckFieldValues($migration, $field_name, $data);
+  public function processField(MigrationInterface $migration) {
+    $process[0]['map'][$this->pluginId][$this->pluginId] = $this->pluginId;
+    $migration->mergeProcessOfProperty('type', $process);
   }
 
   /**
-   * Apply any custom processing to the field bundle migrations.
-   *
-   * @param \Drupal\migrate\Plugin\MigrationInterface $migration
-   *   The migration entity.
-   * @param string $field_name
-   *   The field name we're processing the value for.
-   * @param array $data
-   *   The array of field data from FieldValues::fieldData().
+   * {@inheritdoc}
    */
-  abstract public function processCckFieldValues(MigrationInterface $migration, $field_name, $data);
+  public function processFieldInstance(MigrationInterface $migration) {
+    // Nothing to do by default with field instances.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processFieldWidget(MigrationInterface $migration) {
+    $process = [];
+    foreach ($this->getFieldWidgetMap() as $source_widget => $destination_widget) {
+      $process['type']['map'][$source_widget] = $destination_widget;
+    }
+    $migration->mergeProcessOfProperty('options/type', $process);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldWidgetMap() {
+    // By default, use the plugin ID for the widget types.
+    return [
+      $this->pluginId => $this->pluginId . '_default',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processFieldFormatter(MigrationInterface $migration) {
+    $process = [];
+    foreach ($this->getFieldFormatterMap() as $source_format => $destination_format) {
+      $process[0]['map'][$this->pluginId][$source_format] = $destination_format;
+    }
+    $migration->mergeProcessOfProperty('options/type', $process);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldType(Row $row) {
+    $field_type = $row->getSourceProperty('type');
+
+    if (isset($this->pluginDefinition['type_map'][$field_type])) {
+      return $this->pluginDefinition['type_map'][$field_type];
+    }
+    else {
+      return $field_type;
+    }
+  }
 
 }

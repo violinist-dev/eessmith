@@ -6,7 +6,7 @@ use Drupal\comment\CommentLinkBuilder;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
-use Drupal\Tests\Traits\Core\GeneratePermutationsTrait;
+use Drupal\simpletest\TestBase;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -14,8 +14,6 @@ use Drupal\Tests\UnitTestCase;
  * @group comment
  */
 class CommentLinkBuilderTest extends UnitTestCase {
-
-  use GeneratePermutationsTrait;
 
   /**
    * Comment manager mock.

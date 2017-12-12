@@ -13,7 +13,7 @@ class MigrateNodeRevisionTest extends MigrateNodeTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['language', 'content_translation', 'menu_ui'];
+  public static $modules = ['language', 'content_translation'];
 
   /**
    * {@inheritdoc}

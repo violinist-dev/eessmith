@@ -2,8 +2,16 @@
 
 namespace Drupal\migrate\Plugin\migrate\process;
 
-@trigger_error('The ' . __NAMESPACE__ . '\Migration is deprecated in
-Drupal 8.4.0 and will be removed before Drupal 9.0.0. Instead, use ' . __NAMESPACE__ . '\MigrationLookup', E_USER_DEPRECATED);
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\migrate\MigrateSkipProcessException;
+use Drupal\migrate\Plugin\MigratePluginManagerInterface;
+use Drupal\migrate\Plugin\MigrationPluginManagerInterface;
+use Drupal\migrate\Plugin\MigrateIdMapInterface;
+use Drupal\migrate\ProcessPluginBase;
+use Drupal\migrate\Plugin\MigrationInterface;
+use Drupal\migrate\MigrateExecutableInterface;
+use Drupal\migrate\Row;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Calculates the value of a property based on a previous migration.
@@ -13,9 +21,6 @@ Drupal 8.4.0 and will be removed before Drupal 9.0.0. Instead, use ' . __NAMESPA
  * @MigrateProcessPlugin(
  *   id = "migration"
  * )
- *
- * @deprecated in Drupal 8.3.x and will be removed in Drupal 9.0.x.
- *  Use \Drupal\migrate\Plugin\migrate\process\MigrationLookup instead.
  */
 class Migration extends ProcessPluginBase implements ContainerFactoryPluginInterface {
 

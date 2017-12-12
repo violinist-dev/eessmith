@@ -1028,19 +1028,16 @@ abstract class FilterPluginBase extends HandlerBase implements CacheableDependen
       $children = Element::children($row['value']);
       if (!empty($children)) {
         foreach ($children as $child) {
-          if (!empty($row['value'][$child]['#states']['visible'])) {
-            foreach ($row['value'][$child]['#states']['visible'] as $state) {
-              if (isset($state[':input[name="options[group_info][group_items][' . $item_id . '][operator]"]'])) {
-                $row['value'][$child]['#title'] = '';
+          foreach ($row['value'][$child]['#states']['visible'] as $state) {
+            if (isset($state[':input[name="options[group_info][group_items][' . $item_id . '][operator]"]'])) {
+              $row['value'][$child]['#title'] = '';
 
-                // Exit this loop and process the next child element.
-                break;
+              if (!empty($this->options['group_info']['group_items'][$item_id]['value'][$child])) {
+                $row['value'][$child]['#default_value'] = $this->options['group_info']['group_items'][$item_id]['value'][$child];
               }
+              // Exit this loop and process the next child element.
+              break;
             }
-          }
-
-          if (!empty($this->options['group_info']['group_items'][$item_id]['value'][$child])) {
-            $row['value'][$child]['#default_value'] = $this->options['group_info']['group_items'][$item_id]['value'][$child];
           }
         }
       }
@@ -1082,7 +1079,7 @@ abstract class FilterPluginBase extends HandlerBase implements CacheableDependen
           '#title' => $this->t('Weight'),
           '#title_display' => 'invisible',
           '#type' => 'weight',
-          '#delta' => count($this->options['group_info']['group_items']),
+          '#delta' => 10,
           '#default_value' => $default_weight++,
           '#attributes' => ['class' => ['weight']],
         ],
@@ -1289,7 +1286,7 @@ abstract class FilterPluginBase extends HandlerBase implements CacheableDependen
         $input[$this->options['expose']['operator']] = $this->options['group_info']['group_items'][$selected_group]['operator'];
 
         // Value can be optional, For example for 'empty' and 'not empty' filters.
-        if (isset($this->options['group_info']['group_items'][$selected_group]['value']) && $this->options['group_info']['group_items'][$selected_group]['value'] !== '') {
+        if (isset($this->options['group_info']['group_items'][$selected_group]['value']) && $this->options['group_info']['group_items'][$selected_group]['value'] != '') {
           $input[$this->options['expose']['identifier']] = $this->options['group_info']['group_items'][$selected_group]['value'];
         }
         $this->options['expose']['use_operator'] = TRUE;

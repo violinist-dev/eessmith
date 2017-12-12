@@ -75,6 +75,8 @@ class RequestFormatRouteFilterTest extends UnitTestCase {
 
   /**
    * @covers ::filter
+   * @expectedException \Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException
+   * @expectedExceptionMessage No route found for the specified format xml.
    */
   public function testNoRouteFound() {
     $collection = new RouteCollection();
@@ -85,23 +87,6 @@ class RequestFormatRouteFilterTest extends UnitTestCase {
 
     $request = Request::create('test?_format=xml', 'GET');
     $request->setRequestFormat('xml');
-    $route_filter = new RequestFormatRouteFilter();
-    $this->setExpectedException(NotAcceptableHttpException::class, 'No route found for the specified format xml.');
-    $route_filter->filter($collection, $request);
-  }
-
-  /**
-   * @covers ::filter
-   */
-  public function testNoRouteFoundWhenNoRequestFormatAndSingleRouteWithMultipleFormats() {
-    $this->setExpectedException(NotAcceptableHttpException::class, 'No route found for the specified format html.');
-
-    $collection = new RouteCollection();
-    $route_with_format = $route = new Route('/test');
-    $route_with_format->setRequirement('_format', 'json|xml');
-    $collection->add('sole_route_multiple_formats', $route_with_format);
-
-    $request = Request::create('test', 'GET');
     $route_filter = new RequestFormatRouteFilter();
     $route_filter->filter($collection, $request);
   }

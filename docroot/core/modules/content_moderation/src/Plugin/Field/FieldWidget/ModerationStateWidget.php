@@ -109,6 +109,8 @@ class ModerationStateWidget extends OptionsSelectWidget implements ContainerFact
     /** @var ContentEntityInterface $entity */
     $entity = $items->getEntity();
 
+    /* @var \Drupal\Core\Config\Entity\ConfigEntityInterface $bundle_entity */
+    $bundle_entity = $this->entityTypeManager->getStorage($entity->getEntityType()->getBundleEntityType())->load($entity->bundle());
     if (!$this->moderationInformation->isModeratedEntity($entity)) {
       // @todo https://www.drupal.org/node/2779933 write a test for this.
       return $element + ['#access' => FALSE];

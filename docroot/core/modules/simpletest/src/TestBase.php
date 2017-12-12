@@ -15,7 +15,6 @@ use Drupal\Core\Utility\Error;
 use Drupal\Tests\ConfigTestTrait;
 use Drupal\Tests\RandomGeneratorTrait;
 use Drupal\Tests\SessionTestTrait;
-use Drupal\Tests\Traits\Core\GeneratePermutationsTrait;
 
 /**
  * Base class for Drupal tests.
@@ -28,7 +27,6 @@ abstract class TestBase {
   use SessionTestTrait;
   use RandomGeneratorTrait;
   use AssertHelperTrait;
-  use GeneratePermutationsTrait;
   // For backwards compatibility switch the visbility of the methods to public.
   use ConfigTestTrait {
     configImporter as public;

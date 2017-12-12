@@ -290,14 +290,19 @@ class MenuTreeStorage implements MenuTreeStorageInterface {
 
     $transaction = $this->connection->startTransaction();
     try {
-      if (!$original) {
+      if ($original) {
+        $link['mlid'] = $original['mlid'];
+        $link['has_children'] = $original['has_children'];
+        $affected_menus[$original['menu_name']] = $original['menu_name'];
+      }
+      else {
         // Generate a new mlid.
         $options = ['return' => Database::RETURN_INSERT_ID] + $this->options;
         $link['mlid'] = $this->connection->insert($this->table, $options)
           ->fields(['id' => $link['id'], 'menu_name' => $link['menu_name']])
           ->execute();
-        $fields = $this->preSave($link, []);
       }
+      $fields = $this->preSave($link, $original);
       // We may be moving the link to a new menu.
       $affected_menus[$fields['menu_name']] = $fields['menu_name'];
       $query = $this->connection->update($this->table, $this->options);

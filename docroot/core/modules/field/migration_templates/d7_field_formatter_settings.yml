@@ -13,7 +13,7 @@ process:
   # field migration.
   field_type_exists:
     -
-      plugin: migration_lookup
+      plugin: migration
       migration: d7_field
       source:
         - field_name
@@ -29,7 +29,7 @@ process:
   bundle: bundle
   view_mode:
     -
-      plugin: migration_lookup
+      plugin: migration
       migration: d7_view_modes
       source:
         - entity_type

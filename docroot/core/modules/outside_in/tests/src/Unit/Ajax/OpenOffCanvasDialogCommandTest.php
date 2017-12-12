@@ -19,7 +19,7 @@ class OpenOffCanvasDialogCommandTest extends UnitTestCase {
 
     $expected = [
       'command' => 'openDialog',
-      'selector' => '#drupal-off-canvas',
+      'selector' => '#drupal-offcanvas',
       'settings' => NULL,
       'data' => '<p>Text!</p>',
       'dialogOptions' => [

@@ -15,22 +15,16 @@ class MigrateUploadEntityFormDisplayTest extends MigrateDrupal6TestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['menu_ui'];
-
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp() {
     parent::setUp();
     $this->migrateFields();
+    $this->executeMigration('d6_upload_entity_form_display');
   }
 
   /**
-   * Tests Drupal 6 upload settings to Drupal 8 entity form display migration.
+   * Tests the Drupal 6 upload settings to Drupal 8 entity form display migration.
    */
   public function testUploadEntityFormDisplay() {
-    $this->executeMigration('d6_upload_entity_form_display');
-
     $display = EntityFormDisplay::load('node.page.default');
     $component = $display->getComponent('upload');
     $this->assertIdentical('file_generic', $component['type']);

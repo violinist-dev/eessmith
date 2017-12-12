@@ -129,10 +129,6 @@ class EntityModerationForm extends FormBase {
     $entity->set('moderation_state', $new_state);
     $entity->revision_log = $form_state->getValue('revision_log');
 
-    if ($entity instanceof RevisionLogInterface) {
-      $entity->setRevisionLogMessage($form_state->getValue('revision_log'));
-      $entity->setRevisionUserId($this->currentUser()->id());
-    }
     $entity->save();
 
     drupal_set_message($this->t('The moderation state has been updated.'));

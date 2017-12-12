@@ -7,7 +7,7 @@ use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Render\Element\FormElement;
 
 /**
- * Defines an element for language configuration for a single field.
+ * Provides language element configuration.
  *
  * @FormElement("language_configuration")
  */

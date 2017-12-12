@@ -15,31 +15,20 @@ class MigrateVocabularyEntityDisplayTest extends MigrateDrupal6TestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['field', 'taxonomy', 'menu_ui'];
+  public static $modules = ['field', 'taxonomy'];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-
-    // Execute Dependency Migrations.
-    $this->migrateContentTypes();
-    $this->installEntitySchema('taxonomy_term');
-    $this->executeMigrations([
-      'd6_node_type',
-      'd6_taxonomy_vocabulary',
-      'd6_vocabulary_field',
-      'd6_vocabulary_field_instance',
-    ]);
+    $this->migrateTaxonomy();
   }
 
   /**
    * Tests the Drupal 6 vocabulary-node type association to Drupal 8 migration.
    */
   public function testVocabularyEntityDisplay() {
-    $this->executeMigration('d6_vocabulary_entity_display');
-
     // Test that the field exists.
     $component = EntityViewDisplay::load('node.page.default')->getComponent('tags');
     $this->assertIdentical('entity_reference_label', $component['type']);

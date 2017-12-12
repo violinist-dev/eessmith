@@ -6,7 +6,6 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\serialization\Normalizer\EntityNormalizer;
 use Drupal\Tests\UnitTestCase;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 /**
  * @coversDefaultClass \Drupal\serialization\Normalizer\EntityNormalizer
@@ -85,6 +84,8 @@ class EntityNormalizerTest extends UnitTestCase {
    * Tests the denormalize() method with no entity type provided in context.
    *
    * @covers ::denormalize
+   *
+   * @expectedException \Symfony\Component\Serializer\Exception\UnexpectedValueException
    */
   public function testDenormalizeWithNoEntityType() {
     $this->entityNormalizer->denormalize([], 'Drupal\Core\Entity\ContentEntityBase');
@@ -213,6 +214,8 @@ class EntityNormalizerTest extends UnitTestCase {
 
   /**
    * Tests the denormalize method with a bundle property.
+   *
+   * @expectedException \Symfony\Component\Serializer\Exception\UnexpectedValueException
    *
    * @covers ::denormalize
    */

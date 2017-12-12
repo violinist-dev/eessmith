@@ -10,7 +10,6 @@ namespace Drupal\Tests\Core\DependencyInjection\Compiler;
 use Drupal\Core\DependencyInjection\Compiler\TaggedHandlersPass;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -45,6 +44,8 @@ class TaggedHandlersPassTest extends UnitTestCase {
   /**
    * Tests a required consumer with no handlers.
    *
+   * @expectedException \Symfony\Component\DependencyInjection\Exception\LogicException
+   * @expectedExceptionMessage At least one service tagged with 'consumer_id' is required.
    * @covers ::process
    */
   public function testProcessRequiredHandlers() {
@@ -56,7 +57,6 @@ class TaggedHandlersPassTest extends UnitTestCase {
       ]);
 
     $handler_pass = new TaggedHandlersPass();
-    $this->setExpectedException(LogicException::class, "At least one service tagged with 'consumer_id' is required.");
     $handler_pass->process($container);
   }
 
@@ -77,7 +77,6 @@ class TaggedHandlersPassTest extends UnitTestCase {
       ->addTag('service_collector');
 
     $handler_pass = new TaggedHandlersPass();
-    $this->setExpectedException(LogicException::class, "Service consumer 'consumer_id1' class method Drupal\Tests\Core\DependencyInjection\Compiler\InvalidConsumer::addHandler() has to type-hint an interface.");
     $handler_pass->process($container);
   }
 
@@ -208,6 +207,7 @@ class TaggedHandlersPassTest extends UnitTestCase {
   /**
    * Tests interface validation in non-production environment.
    *
+   * @expectedException \Symfony\Component\DependencyInjection\Exception\LogicException
    * @covers ::process
    */
   public function testProcessInterfaceMismatch() {
@@ -226,7 +226,6 @@ class TaggedHandlersPassTest extends UnitTestCase {
       ]);
 
     $handler_pass = new TaggedHandlersPass();
-    $this->setExpectedException(LogicException::class);
     $handler_pass->process($container);
   }
 

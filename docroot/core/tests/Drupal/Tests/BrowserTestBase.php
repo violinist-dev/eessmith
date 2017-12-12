@@ -247,20 +247,6 @@ abstract class BrowserTestBase extends \PHPUnit_Framework_TestCase {
   protected $originalShutdownCallbacks = [];
 
   /**
-   * The number of meta refresh redirects to follow, or NULL if unlimited.
-   *
-   * @var null|int
-   */
-  protected $maximumMetaRefreshCount = NULL;
-
-  /**
-   * The number of meta refresh redirects followed during ::drupalGet().
-   *
-   * @var int
-   */
-  protected $metaRefreshCount = 0;
-
-  /**
    * Initializes Mink sessions.
    */
   protected function initMink() {

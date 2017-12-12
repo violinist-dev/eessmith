@@ -73,6 +73,8 @@ class RowTest extends UnitTestCase {
 
   /**
    * Tests object creation: invalid values.
+   *
+   * @expectedException \Exception
    */
   public function testRowWithInvalidData() {
     $invalid_values = [
@@ -83,6 +85,8 @@ class RowTest extends UnitTestCase {
 
   /**
    * Tests source immutability after freeze.
+   *
+   * @expectedException \Exception
    */
   public function testSourceFreeze() {
     $row = new Row($this->testValues, $this->testSourceIds);
@@ -92,17 +96,18 @@ class RowTest extends UnitTestCase {
     $row->rehash();
     $this->assertSame($this->testHashMod, $row->getHash(), 'Hash changed correctly.');
     $row->freezeSource();
-    $this->setExpectedException(\Exception::class);
     $row->setSourceProperty('title', 'new title');
   }
 
   /**
    * Tests setting on a frozen row.
+   *
+   * @expectedException \Exception
+   * @expectedExceptionMessage The source is frozen and can't be changed any more
    */
   public function testSetFrozenRow() {
     $row = new Row($this->testValues, $this->testSourceIds);
     $row->freezeSource();
-    $this->setExpectedException(\Exception::class, "The source is frozen and can't be changed any more");
     $row->setSourceProperty('title', 'new title');
   }
 

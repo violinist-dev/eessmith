@@ -14,11 +14,6 @@ class MigrateCommentVariableEntityFormDisplayTest extends MigrateCommentVariable
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['menu_ui'];
-
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp() {
     parent::setUp();
     $this->executeMigration('d6_comment_entity_form_display');

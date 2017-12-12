@@ -18,7 +18,6 @@ class MigrateTaxonomyTermTest extends MigrateDrupal7TestBase {
     'datetime',
     'image',
     'link',
-    'menu_ui',
     'node',
     'taxonomy',
     'telephone',

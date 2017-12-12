@@ -18,9 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @MigrateProcessPlugin(
  *   id = "dedupe_entity"
  * )
- *
- * @deprecated in Drupal 8.4.x and will be removed in Drupal 9.0.x. Use
- *   \Drupal\migrate\Plugin\migrate\process\MakeUniqueEntityField instead.
  */
 class DedupeEntity extends DedupeBase implements ContainerFactoryPluginInterface {
 

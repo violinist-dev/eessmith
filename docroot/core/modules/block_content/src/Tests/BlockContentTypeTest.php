@@ -4,8 +4,6 @@ namespace Drupal\block_content\Tests;
 
 use Drupal\block_content\Entity\BlockContentType;
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Url;
-use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
 
 /**
  * Ensures that custom block type functions work correctly.
@@ -14,7 +12,6 @@ use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
  */
 class BlockContentTypeTest extends BlockContentTestBase {
 
-  use AssertBreadcrumbTrait;
   /**
    * Modules to enable.
    *
@@ -94,7 +91,6 @@ class BlockContentTypeTest extends BlockContentTestBase {
    * Tests editing a block type using the UI.
    */
   public function testBlockContentTypeEditing() {
-    $this->drupalPlaceBlock('system_breadcrumb_block');
     // Now create an initial block-type.
     $this->createBlockContentType('basic', TRUE);
 
@@ -117,13 +113,6 @@ class BlockContentTypeTest extends BlockContentTestBase {
     $this->drupalGet('admin/structure/block/block-content/manage/basic');
     $this->assertTitle(format_string('Edit @type custom block type | Drupal', ['@type' => 'basic']));
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    $front_page_path = Url::fromRoute('<front>')->toString();
-    $this->assertBreadcrumb('admin/structure/block/block-content/manage/basic/fields', [
-      $front_page_path => 'Home',
-      'admin/structure/block' => 'Block layout',
-      'admin/structure/block/block-content' => 'Custom block library',
-      'admin/structure/block/block-content/manage/basic' => 'Bar',
-    ]);
     \Drupal::entityManager()->clearCachedFieldDefinitions();
 
     $this->drupalGet('block/add');

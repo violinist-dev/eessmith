@@ -20,7 +20,6 @@ class MigrateNodeTaxonomyTest extends MigrateDrupal7TestBase {
     'filter',
     'image',
     'link',
-    'menu_ui',
     'node',
     'taxonomy',
     'telephone',

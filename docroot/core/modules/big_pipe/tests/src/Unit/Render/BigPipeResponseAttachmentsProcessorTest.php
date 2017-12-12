@@ -28,12 +28,13 @@ class BigPipeResponseAttachmentsProcessorTest extends UnitTestCase {
    * @covers ::processAttachments
    *
    * @dataProvider nonHtmlResponseProvider
+   *
+   * @expectedException \AssertionError
    */
   public function testNonHtmlResponse($response_class) {
     $big_pipe_response_attachments_processor = $this->createBigPipeResponseAttachmentsProcessor($this->prophesize(AttachmentsResponseProcessorInterface::class));
 
     $non_html_response = new $response_class();
-    $this->setExpectedException(\AssertionError::class);
     $big_pipe_response_attachments_processor->processAttachments($non_html_response);
   }
 

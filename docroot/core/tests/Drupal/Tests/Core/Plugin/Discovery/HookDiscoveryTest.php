@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\Core\Plugin\Discovery;
 
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Plugin\Discovery\HookDiscovery;
 use Drupal\Tests\UnitTestCase;
 
@@ -119,13 +118,14 @@ class HookDiscoveryTest extends UnitTestCase {
    * Tests the getDefinition method with an unknown plugin ID.
    *
    * @see \Drupal\Core\Plugin\Discovery::getDefinition()
+   *
+   * @expectedException \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function testGetDefinitionWithUnknownID() {
     $this->moduleHandler->expects($this->once())
       ->method('getImplementations')
       ->will($this->returnValue([]));
 
-    $this->setExpectedException(PluginNotFoundException::class);
     $this->hookDiscovery->getDefinition('test_non_existant', TRUE);
   }
 

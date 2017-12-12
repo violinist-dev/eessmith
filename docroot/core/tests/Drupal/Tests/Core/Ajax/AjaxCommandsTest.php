@@ -24,7 +24,6 @@ use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\SetDialogOptionCommand;
 use Drupal\Core\Ajax\SetDialogTitleCommand;
 use Drupal\Core\Ajax\RedirectCommand;
-use Drupal\Core\Ajax\UpdateBuildIdCommand;
 
 /**
  * Test coverage for various classes in the \Drupal\Core\Ajax namespace.

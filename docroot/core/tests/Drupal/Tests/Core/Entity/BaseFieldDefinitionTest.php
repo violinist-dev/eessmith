@@ -313,12 +313,14 @@ class BaseFieldDefinitionTest extends UnitTestCase {
    * Tests invalid default value callbacks.
    *
    * @covers ::setDefaultValueCallback
+   * @expectedException \InvalidArgumentException
    */
   public function testInvalidDefaultValueCallback() {
     $definition = BaseFieldDefinition::create($this->fieldType);
     // setDefaultValueCallback returns $this.
-    $this->setExpectedException(\InvalidArgumentException::class);
-    $definition->setDefaultValueCallback([get_class($this), 'mockDefaultValueCallback']);
+    $this->assertSame($definition,
+      $definition->setDefaultValueCallback([get_class($this), 'mockDefaultValueCallback'])
+    );
   }
 
   /**

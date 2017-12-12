@@ -15,22 +15,16 @@ class MigrateUploadEntityDisplayTest extends MigrateDrupal6TestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['menu_ui'];
-
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp() {
     parent::setUp();
     $this->migrateFields();
+    $this->executeMigration('d6_upload_entity_display');
   }
 
   /**
-   * Tests Drupal 6 upload settings to Drupal 8 entity display migration.
+   * Tests the Drupal 6 upload settings to Drupal 8 entity display migration.
    */
   public function testUploadEntityDisplay() {
-    $this->executeMigration('d6_upload_entity_display');
-
     $display = EntityViewDisplay::load('node.page.default');
     $component = $display->getComponent('upload');
     $this->assertIdentical('file_default', $component['type']);

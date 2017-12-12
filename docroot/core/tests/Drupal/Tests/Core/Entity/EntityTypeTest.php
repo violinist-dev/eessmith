@@ -400,10 +400,11 @@ class EntityTypeTest extends UnitTestCase {
 
   /**
    * @covers ::setLinkTemplate
+   *
+   * @expectedException \InvalidArgumentException
    */
   public function testSetLinkTemplateWithInvalidPath() {
     $entity_type = $this->setUpEntityType(['id' => $this->randomMachineName()]);
-    $this->setExpectedException(\InvalidArgumentException::class);
     $entity_type->setLinkTemplate('test', 'invalid-path');
   }
 

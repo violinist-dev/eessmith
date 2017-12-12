@@ -21,7 +21,7 @@ class StatisticsSettingsForm extends ConfigFormBase {
   protected $moduleHandler;
 
   /**
-   * Constructs a \Drupal\statistics\StatisticsSettingsForm object.
+   * Constructs a \Drupal\user\StatisticsSettingsForm object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.

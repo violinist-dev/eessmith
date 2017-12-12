@@ -6,7 +6,6 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\Plugin\DataType\EntityAdapter;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\TypedData\Exception\MissingDataException;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Core\Language\Language;
@@ -276,18 +275,18 @@ class EntityAdapterUnitTest extends UnitTestCase {
 
   /**
    * @covers ::get
+   * @expectedException \InvalidArgumentException
    */
   public function testGetInvalidField() {
-    $this->setExpectedException(\InvalidArgumentException::class);
     $this->entityAdapter->get('invalid');
   }
 
   /**
    * @covers ::get
+   * @expectedException \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function testGetWithoutData() {
     $this->entityAdapter->setValue(NULL);
-    $this->setExpectedException(MissingDataException::class);
     $this->entityAdapter->get('id');
   }
 
@@ -306,6 +305,7 @@ class EntityAdapterUnitTest extends UnitTestCase {
 
   /**
    * @covers ::set
+   * @expectedException \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function testSetWithoutData() {
     $this->entityAdapter->setValue(NULL);
@@ -335,10 +335,10 @@ class EntityAdapterUnitTest extends UnitTestCase {
 
   /**
    * @covers ::toArray
+   * @expectedException \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function testToArrayWithoutData() {
     $this->entityAdapter->setValue(NULL);
-    $this->setExpectedException(MissingDataException::class);
     $this->entityAdapter->toArray();
   }
 

@@ -9,7 +9,6 @@ use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
 use Drupal\migrate\Exception\RequirementsException;
 use Drupal\migrate\Plugin\MigrationDeriverTrait;
 use Drupal\migrate_drupal\Plugin\MigrateCckFieldPluginManagerInterface;
-use Drupal\migrate_drupal\Plugin\MigrateFieldPluginManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -135,25 +134,15 @@ class D7NodeDeriver extends DeriverBase implements ContainerDeriverInterface {
           foreach ($fields[$node_type] as $field_name => $info) {
             $field_type = $info['type'];
             try {
-              $plugin_id = $this->fieldPluginManager->getPluginIdFromFieldType($field_type, ['core' => 7], $migration);
-              if (!isset($this->fieldPluginCache[$field_type])) {
-                $this->fieldPluginCache[$field_type] = $this->fieldPluginManager->createInstance($plugin_id, ['core' => 7], $migration);
+              $plugin_id = $this->cckPluginManager->getPluginIdFromFieldType($field_type, ['core' => 7], $migration);
+              if (!isset($this->cckPluginCache[$field_type])) {
+                $this->cckPluginCache[$field_type] = $this->cckPluginManager->createInstance($plugin_id, ['core' => 7], $migration);
               }
-              $this->fieldPluginCache[$field_type]
-                ->processFieldValues($migration, $field_name, $info);
+              $this->cckPluginCache[$field_type]
+                ->processCckFieldValues($migration, $field_name, $info);
             }
             catch (PluginNotFoundException $ex) {
-              try {
-                $plugin_id = $this->cckPluginManager->getPluginIdFromFieldType($field_type, ['core' => 7], $migration);
-                if (!isset($this->cckPluginCache[$field_type])) {
-                  $this->cckPluginCache[$field_type] = $this->cckPluginManager->createInstance($plugin_id, ['core' => 7], $migration);
-                }
-                $this->cckPluginCache[$field_type]
-                  ->processCckFieldValues($migration, $field_name, $info);
-              }
-              catch (PluginNotFoundException $ex) {
-                $migration->setProcessOfProperty($field_name, $field_name);
-              }
+              $migration->setProcessOfProperty($field_name, $field_name);
             }
           }
         }

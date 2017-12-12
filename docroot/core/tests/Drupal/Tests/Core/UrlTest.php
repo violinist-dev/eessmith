@@ -215,10 +215,10 @@ class UrlTest extends UnitTestCase {
    * Tests the fromUserInput method with invalid paths.
    *
    * @covers ::fromUserInput
+   * @expectedException \InvalidArgumentException
    * @dataProvider providerFromInvalidInternalUri
    */
   public function testFromInvalidUserInput($path) {
-    $this->setExpectedException(\InvalidArgumentException::class);
     $url = Url::fromUserInput($path);
   }
 
@@ -280,6 +280,8 @@ class UrlTest extends UnitTestCase {
    * Tests that an invalid request will thrown an exception.
    *
    * @covers ::createFromRequest
+   *
+   * @expectedException \Symfony\Component\Routing\Exception\ResourceNotFoundException
    */
   public function testUrlFromRequestInvalid() {
     $request = Request::create('/test-path');
@@ -289,8 +291,7 @@ class UrlTest extends UnitTestCase {
       ->with($request)
       ->will($this->throwException(new ResourceNotFoundException()));
 
-    $this->setExpectedException(ResourceNotFoundException::class);
-    Url::createFromRequest($request);
+    $this->assertNull(Url::createFromRequest($request));
   }
 
   /**
@@ -314,10 +315,11 @@ class UrlTest extends UnitTestCase {
    *
    * @depends testUrlFromRequest
    *
+   * @expectedException \UnexpectedValueException
+   *
    * @covers ::getUri
    */
   public function testGetUriForInternalUrl($urls) {
-    $this->setExpectedException(\UnexpectedValueException::class);
     foreach ($urls as $url) {
       $url->getUri();
     }
@@ -416,10 +418,10 @@ class UrlTest extends UnitTestCase {
    * Tests the getRouteName() with an external URL.
    *
    * @covers ::getRouteName
+   * @expectedException \UnexpectedValueException
    */
   public function testGetRouteNameWithExternalUrl() {
     $url = Url::fromUri('http://example.com');
-    $this->setExpectedException(\UnexpectedValueException::class);
     $url->getRouteName();
   }
 
@@ -443,10 +445,10 @@ class UrlTest extends UnitTestCase {
    * Tests the getRouteParameters() with an external URL.
    *
    * @covers ::getRouteParameters
+   * @expectedException \UnexpectedValueException
    */
   public function testGetRouteParametersWithExternalUrl() {
     $url = Url::fromUri('http://example.com');
-    $this->setExpectedException(\UnexpectedValueException::class);
     $url->getRouteParameters();
   }
 
@@ -628,6 +630,7 @@ class UrlTest extends UnitTestCase {
    * Tests the fromUri() method with an invalid entity: URI.
    *
    * @covers ::fromUri
+   * @expectedException \Symfony\Component\Routing\Exception\InvalidParameterException
    */
   public function testInvalidEntityUriParameter() {
     // Make the mocked URL generator behave like the actual one.
@@ -636,7 +639,6 @@ class UrlTest extends UnitTestCase {
       ->with('entity.test_entity.canonical', ['test_entity' => '1/blah'])
       ->willThrowException(new InvalidParameterException('Parameter "test_entity" for route "/test_entity/{test_entity}" must match "[^/]++" ("1/blah" given) to generate a corresponding URL..'));
 
-    $this->setExpectedException(InvalidParameterException::class);
     Url::fromUri('entity:test_entity/1/blah')->toString();
   }
 
@@ -736,7 +738,6 @@ class UrlTest extends UnitTestCase {
       ['/?page=1000'],
       ['?page=1000'],
       ['?breed=bengal&page=1000'],
-      ['?referrer=https://kittenfacts'],
       // Paths with various token formats but no leading slash.
       ['/[duckies]'],
       ['/%bunnies'],
@@ -752,10 +753,10 @@ class UrlTest extends UnitTestCase {
    * Tests the fromUri() method with an invalid internal: URI.
    *
    * @covers ::fromUri
+   * @expectedException \InvalidArgumentException
    * @dataProvider providerFromInvalidInternalUri
    */
   public function testFromInvalidInternalUri($path) {
-    $this->setExpectedException(\InvalidArgumentException::class);
     Url::fromUri('internal:' . $path);
   }
 
@@ -824,10 +825,10 @@ class UrlTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::fromUri
+   * @expectedException \InvalidArgumentException
+   * @expectedExceptionMessage The route URI 'route:' is invalid.
    */
   public function testFromRouteUriWithMissingRouteName() {
-    $this->setExpectedException(\InvalidArgumentException::class, "The route URI 'route:' is invalid.");
     Url::fromUri('route:');
   }
 

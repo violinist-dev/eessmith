@@ -3,7 +3,6 @@
 namespace Drupal\Tests\contact\Unit;
 
 use Drupal\contact\MailHandler;
-use Drupal\contact\MailHandlerException;
 use Drupal\contact\MessageInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Session\AccountInterface;
@@ -95,6 +94,9 @@ class MailHandlerTest extends UnitTestCase {
   /**
    * Tests the children() method with an invalid key.
    *
+   * @expectedException \Drupal\contact\MailHandlerException
+   * @expectedExceptionMessage Unable to determine message recipient
+   *
    * @covers ::sendMailMessages
    */
   public function testInvalidRecipient() {
@@ -119,7 +121,6 @@ class MailHandlerTest extends UnitTestCase {
     $sender->expects($this->once())
       ->method('isAnonymous')
       ->willReturn(FALSE);
-    $this->setExpectedException(MailHandlerException::class, 'Unable to determine message recipient');
     $this->contactMailHandler->sendMailMessages($message, $sender);
   }
 

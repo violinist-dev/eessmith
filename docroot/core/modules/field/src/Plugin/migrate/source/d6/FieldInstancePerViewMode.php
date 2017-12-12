@@ -28,10 +28,7 @@ class FieldInstancePerViewMode extends ViewModeBase {
       $field_name = $field_row['field_name'];
 
       foreach ($this->getViewModes() as $view_mode) {
-        // Append to the return value if the row has display settings for this
-        // view mode and the view mode is neither hidden nor excluded.
-        // @see \Drupal\node\Plugin\migrate\source\d6\ViewMode::initializeIterator()
-        if (isset($field_row['display_settings'][$view_mode]) && $field_row['display_settings'][$view_mode]['format'] != 'hidden' && empty($field_row['display_settings'][$view_mode]['exclude'])) {
+        if (isset($field_row['display_settings'][$view_mode]) && empty($field_row['display_settings'][$view_mode]['exclude'])) {
           $index = $view_mode . "." . $bundle . "." . $field_name;
           $rows[$index]['entity_type'] = 'node';
           $rows[$index]['view_mode'] = $view_mode;

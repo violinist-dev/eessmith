@@ -52,7 +52,7 @@ class PathBasedBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   protected $router;
 
   /**
-   * The inbound path processor.
+   * The dynamic router service.
    *
    * @var \Drupal\Core\PathProcessor\InboundPathProcessorInterface
    */

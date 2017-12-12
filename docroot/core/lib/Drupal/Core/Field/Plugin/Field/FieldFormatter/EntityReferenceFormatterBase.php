@@ -104,8 +104,7 @@ abstract class EntityReferenceFormatterBase extends FormatterBase {
     // tags on which the access results depend, to ensure users that cannot view
     // this field at the moment will gain access once any of those cache tags
     // are invalidated.
-    $field_level_access_cacheability->merge(CacheableMetadata::createFromRenderArray($elements))
-      ->applyTo($elements);
+    $field_level_access_cacheability->applyTo($elements);
 
     return $elements;
   }

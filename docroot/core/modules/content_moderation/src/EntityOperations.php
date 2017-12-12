@@ -105,13 +105,8 @@ class EntityOperations implements ContainerInjectionInterface {
       /** @var \Drupal\content_moderation\ContentModerationState $current_state */
       $current_state = $workflow->getState($entity->moderation_state->value);
 
-    if ($entity->moderation_state->value) {
-      $workflow = $this->moderationInfo->getWorkflowForEntity($entity);
-      /** @var \Drupal\content_moderation\ContentModerationState $current_state */
-      $current_state = $workflow->getState($entity->moderation_state->value);
-
-      // This entity is default if it is new, a new translation, the default
-      // revision, or the default revision is not published.
+      // This entity is default if it is new, the default revision, or the
+      // default revision is not published.
       $update_default_revision = $entity->isNew()
         || $current_state->isDefaultRevisionState()
         || !$this->isDefaultRevisionPublished($entity, $workflow);
@@ -186,9 +181,8 @@ class EntityOperations implements ContainerInjectionInterface {
       ]);
       $content_moderation_state->workflow->target_id = $workflow->id();
     }
-    elseif ($content_moderation_state->content_entity_revision_id->value != $entity_revision_id) {
-      // If a new revision of the content has been created, add a new content
-      // moderation state revision.
+    else {
+      // Create a new revision.
       $content_moderation_state->setNewRevision(TRUE);
     }
 
@@ -240,7 +234,8 @@ class EntityOperations implements ContainerInjectionInterface {
     if (!$this->moderationInfo->isLatestRevision($entity)) {
       return;
     }
-    if ($this->moderationInfo->isLiveRevision($entity)) {
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    if ($entity->isDefaultRevision()) {
       return;
     }
 
@@ -255,8 +250,8 @@ class EntityOperations implements ContainerInjectionInterface {
    * Check if the default revision for the given entity is published.
    *
    * The default revision is the same as the entity retrieved by "default" from
-   * the storage handler. If the entity is translated, check if any of the
-   * translations are published.
+   * the storage handler. If the entity is translated, use the default revision
+   * of the same language as the given entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity being saved.
@@ -270,17 +265,15 @@ class EntityOperations implements ContainerInjectionInterface {
     $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
     $default_revision = $storage->load($entity->id());
 
-    // Ensure we are checking all translations of the default revision.
+    // Ensure we are comparing the same translation as the current entity.
     if ($default_revision instanceof TranslatableInterface && $default_revision->isTranslatable()) {
-      // Loop through each language that has a translation.
-      foreach ($default_revision->getTranslationLanguages() as $language) {
-        // Load the translated revision.
-        $language_revision = $default_revision->getTranslation($language->getId());
-        // Return TRUE if a translation with a published state is found.
-        if ($workflow->getState($language_revision->moderation_state->value)->isPublishedState()) {
-          return TRUE;
-        }
+      // If there is no translation, then there is no default revision and is
+      // therefore not published.
+      if (!$default_revision->hasTranslation($entity->language()->getId())) {
+        return FALSE;
       }
+
+      $default_revision = $default_revision->getTranslation($entity->language()->getId());
     }
 
     return $default_revision && $workflow->getState($default_revision->moderation_state->value)->isPublishedState();

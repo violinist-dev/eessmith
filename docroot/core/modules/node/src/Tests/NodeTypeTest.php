@@ -5,7 +5,6 @@ namespace Drupal\node\Tests;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\node\Entity\NodeType;
 use Drupal\Core\Url;
-use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
 
 /**
  * Ensures that node type functions work correctly.
@@ -14,14 +13,12 @@ use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
  */
 class NodeTypeTest extends NodeTestBase {
 
-  use AssertBreadcrumbTrait;
-
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['field_ui', 'block'];
+  public static $modules = ['field_ui'];
 
   /**
    * Ensures that node type functions (node_type_get_*) work correctly.

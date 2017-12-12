@@ -2,8 +2,6 @@
 
 namespace Drupal\datetime\Tests;
 
-@trigger_error('\Drupal\datetime\Tests\DateTestBase is deprecated in Drupal 8.4.0 and will be removed before Drupal 9.0.0. Use \Drupal\Tests\BrowserTestBase instead. See https://www.drupal.org/node/2780063.', E_USER_DEPRECATED);
-
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
@@ -15,9 +13,6 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Provides a base class for testing Datetime field functionality.
- *
- * @deprecated in Drupal 8.4.0 and will be removed before Drupal 9.0.0.
- *   Use \Drupal\Tests\BrowserTestBase instead.
  */
 abstract class DateTestBase extends WebTestBase {
 

@@ -115,6 +115,8 @@ class RedirectResponseSubscriberTest extends UnitTestCase {
 
   /**
    * @dataProvider providerTestDestinationRedirectToExternalUrl
+   *
+   * @expectedException \PHPUnit_Framework_Error
    */
   public function testDestinationRedirectToExternalUrl($request, $expected) {
     $dispatcher = new EventDispatcher();
@@ -124,8 +126,9 @@ class RedirectResponseSubscriberTest extends UnitTestCase {
     $listener = new RedirectResponseSubscriber($this->urlAssembler, $this->requestContext);
     $dispatcher->addListener(KernelEvents::RESPONSE, [$listener, 'checkRedirectUrl']);
     $event = new FilterResponseEvent($kernel, $request, HttpKernelInterface::SUB_REQUEST, $response);
-    $this->setExpectedException(\PHPUnit_Framework_Error::class);
     $dispatcher->dispatch(KernelEvents::RESPONSE, $event);
+
+    $this->assertEquals(400, $event->getResponse()->getStatusCode());
   }
 
   /**
@@ -162,6 +165,8 @@ class RedirectResponseSubscriberTest extends UnitTestCase {
   }
 
   /**
+   * @expectedException \PHPUnit_Framework_Error
+   *
    * @dataProvider providerTestDestinationRedirectWithInvalidUrl
    */
   public function testDestinationRedirectWithInvalidUrl(Request $request) {
@@ -172,8 +177,9 @@ class RedirectResponseSubscriberTest extends UnitTestCase {
     $listener = new RedirectResponseSubscriber($this->urlAssembler, $this->requestContext);
     $dispatcher->addListener(KernelEvents::RESPONSE, [$listener, 'checkRedirectUrl']);
     $event = new FilterResponseEvent($kernel, $request, HttpKernelInterface::SUB_REQUEST, $response);
-    $this->setExpectedException(\PHPUnit_Framework_Error::class);
     $dispatcher->dispatch(KernelEvents::RESPONSE, $event);
+
+    $this->assertEquals(400, $event->getResponse()->getStatusCode());
   }
 
   /**

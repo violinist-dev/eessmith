@@ -75,7 +75,7 @@ class ModerationStateFieldItemListTest extends KernelTestBase {
     foreach ($this->testNode->moderation_state as $item) {
       $states[] = $item->value;
     }
-    $this->assertEquals(['published'], $states);
+    $this->assertEquals(['draft'], $states);
   }
 
 }

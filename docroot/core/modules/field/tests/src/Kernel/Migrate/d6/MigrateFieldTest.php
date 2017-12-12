@@ -27,9 +27,9 @@ class MigrateFieldTest extends MigrateDrupal6TestBase {
     // Text field.
     /** @var \Drupal\field\Entity\FieldStorageConfig $field_storage */
     $field_storage = FieldStorageConfig::load('node.field_test');
-    $this->assertSame('text_long', $field_storage->getType());
+    $this->assertIdentical('text_long', $field_storage->getType());
     // text_long fields do not have settings.
-    $this->assertSame([], $field_storage->getSettings());
+    $this->assertIdentical([], $field_storage->getSettings());
 
     // Integer field.
     $field_storage = FieldStorageConfig::load('node.field_test_two');
@@ -67,12 +67,8 @@ class MigrateFieldTest extends MigrateDrupal6TestBase {
     $this->assertIdentical("list_float", $field_storage->getType(), t('Field type is @fieldtype. It should be list_float.', ['@fieldtype' => $field_storage->getType()]));
     $this->assertNotNull($field_storage->getSetting('allowed_values')['1.2'], t('First allowed value key is set to 1.2'));
     $this->assertNotNull($field_storage->getSetting('allowed_values')['2.1'], t('Second allowed value key is set to 2.1'));
-    $this->assertSame('1.2', $field_storage->getSetting('allowed_values')['1.2'], t('First allowed value is set to 1.2'));
-    $this->assertSame('2.1', $field_storage->getSetting('allowed_values')['2.1'], t('Second allowed value is set to 1.2'));
-
-    // Email field.
-    $field_storage = FieldStorageConfig::load('node.field_test_email');
-    $this->assertSame("email", $field_storage->getType(), t('Field type is @fieldtype. It should be email.', ['@fieldtype' => $field_storage->getType()]));
+    $this->assertIdentical('1.2', $field_storage->getSetting('allowed_values')['1.2'], t('First allowed value is set to 1.2'));
+    $this->assertIdentical('2.1', $field_storage->getSetting('allowed_values')['2.1'], t('Second allowed value is set to 1.2'));
 
     // Float field with a single checkbox.
     $field_storage = FieldStorageConfig::load('node.field_test_float_single_checkbox');
@@ -85,10 +81,10 @@ class MigrateFieldTest extends MigrateDrupal6TestBase {
     $this->assertNotNull($field_storage->getSetting('allowed_values')['2341'], t('Second allowed value key is set to 2341'));
     $this->assertNotNull($field_storage->getSetting('allowed_values')['3412'], t('Third allowed value key is set to 3412'));
     $this->assertNotNull($field_storage->getSetting('allowed_values')['4123'], t('Fourth allowed value key is set to 4123'));
-    $this->assertSame('1234', $field_storage->getSetting('allowed_values')['1234'], t('First allowed value is set to 1234'));
-    $this->assertSame('2341', $field_storage->getSetting('allowed_values')['2341'], t('Second allowed value is set to 2341'));
-    $this->assertSame('3412', $field_storage->getSetting('allowed_values')['3412'], t('Third allowed value is set to 3412'));
-    $this->assertSame('4123', $field_storage->getSetting('allowed_values')['4123'], t('Fourth allowed value is set to 4123'));
+    $this->assertIdentical('1234', $field_storage->getSetting('allowed_values')['1234'], t('First allowed value is set to 1234'));
+    $this->assertIdentical('2341', $field_storage->getSetting('allowed_values')['2341'], t('Second allowed value is set to 2341'));
+    $this->assertIdentical('3412', $field_storage->getSetting('allowed_values')['3412'], t('Third allowed value is set to 3412'));
+    $this->assertIdentical('4123', $field_storage->getSetting('allowed_values')['4123'], t('Fourth allowed value is set to 4123'));
 
     // Text field with a single checkbox.
     $field_storage = FieldStorageConfig::load('node.field_test_text_single_checkbox');
@@ -97,15 +93,15 @@ class MigrateFieldTest extends MigrateDrupal6TestBase {
     // Validate that the source count and processed count match up.
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->getMigration('d6_field');
-    $this->assertSame($migration->getSourcePlugin()->count(), $migration->getIdMap()->processedCount());
+    $this->assertIdentical($migration->getSourcePlugin()->count(), $migration->getIdMap()->processedCount());
 
     // Check that we've reported on a conflict in widget_types.
     $messages = [];
     foreach ($migration->getIdMap()->getMessageIterator() as $message_row) {
       $messages[] = $message_row->message;
     }
-    $this->assertCount(1, $messages);
-    $this->assertSame($messages[0], 'Widget types optionwidgets_onoff, text_textfield are used in Drupal 6 field instances: widget type optionwidgets_onoff applied to the Drupal 8 base field');
+    $this->assertIdentical(count($messages), 1);
+    $this->assertIdentical($messages[0], 'Widget types optionwidgets_onoff, text_textfield are used in Drupal 6 field instances: widget type optionwidgets_onoff applied to the Drupal 8 base field');
   }
 
 }

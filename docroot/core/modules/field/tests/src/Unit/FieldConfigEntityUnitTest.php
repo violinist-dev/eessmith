@@ -160,6 +160,9 @@ class FieldConfigEntityUnitTest extends UnitTestCase {
 
   /**
    * Test that invalid bundles are handled.
+   *
+   * @expectedException \LogicException
+   * @expectedExceptionMessage Missing bundle entity, entity type bundle_entity_type, entity id test_bundle_not_exists.
    */
   public function testCalculateDependenciesIncorrectBundle() {
     $storage = $this->getMock('\Drupal\Core\Config\Entity\ConfigEntityStorageInterface');
