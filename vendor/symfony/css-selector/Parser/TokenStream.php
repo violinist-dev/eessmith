@@ -59,6 +59,8 @@ class TokenStream
     /**
      * Pushes a token.
      *
+     * @param Token $token
+     *
      * @return $this
      */
     public function push(Token $token)
