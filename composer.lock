@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fe625002b2bd5989a57f52ca9764d9a7",
+    "content-hash": "0192e34b240cb6619f14f001207520a5",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1333,8 +1333,7 @@
             "homepage": "https://www.drupal.org/project/head2head",
             "support": {
                 "source": "http://cgit.drupalcode.org/head2head"
-            },
-            "time": "2015-11-06T17:46:35+00:00"
+            }
         },
         {
             "name": "drupal/stage_file_proxy",
