@@ -66,7 +66,19 @@ class EntityAccessControlHandler extends EntityHandlerBase implements EntityAcce
       $operation = 'view';
     }
 
-    if (($return = $this->getCache($entity->uuid(), $operation, $langcode, $account)) !== NULL) {
+    // If an entity does not have a UUID, either from not being set or from not
+    // having them, use the 'entity type:ID' pattern as the cache $cid.
+    $cid = $entity->uuid() ?: $entity->getEntityTypeId() . ':' . $entity->id();
+
+    // If the entity is revisionable, then append the revision ID to allow
+    // individual revisions to have specific access control and be cached
+    // separately.
+    if ($entity instanceof RevisionableInterface) {
+      /** @var $entity \Drupal\Core\Entity\RevisionableInterface */
+      $cid .= ':' . $entity->getRevisionId();
+    }
+
+    if (($return = $this->getCache($cid, $operation, $langcode, $account)) !== NULL) {
       // Cache hit, no work necessary.
       return $return_as_object ? $return : $return->isAllowed();
     }
@@ -92,7 +104,7 @@ class EntityAccessControlHandler extends EntityHandlerBase implements EntityAcce
     if (!$return->isForbidden()) {
       $return = $return->orIf($this->checkAccess($entity, $operation, $account));
     }
-    $result = $this->setCache($return, $entity->uuid(), $operation, $langcode, $account);
+    $result = $this->setCache($return, $cid, $operation, $langcode, $account);
     return $return_as_object ? $result : $result->isAllowed();
   }
 
@@ -302,6 +314,19 @@ class EntityAccessControlHandler extends EntityHandlerBase implements EntityAcce
 
     // Get the default access restriction that lives within this field.
     $default = $items ? $items->defaultAccess($operation, $account) : AccessResult::allowed();
+
+    // Explicitly disallow changing the entity ID and entity UUID.
+    if ($operation === 'edit') {
+      if ($field_definition->getName() === $this->entityType->getKey('id')) {
+        return $return_as_object ? AccessResult::forbidden('The entity ID cannot be changed') : FALSE;
+      }
+      elseif ($field_definition->getName() === $this->entityType->getKey('uuid')) {
+        // UUIDs can be set when creating an entity.
+        if ($items && ($entity = $items->getEntity()) && !$entity->isNew()) {
+          return $return_as_object ? AccessResult::forbidden('The entity UUID cannot be changed')->addCacheableDependency($entity) : FALSE;
+        }
+      }
+    }
 
     // Get the default access restriction as specified by the access control
     // handler.

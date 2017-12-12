@@ -15,9 +15,27 @@ class MigrateFieldFormatterSettingsTest extends MigrateDrupal6TestBase {
   /**
    * {@inheritdoc}
    */
+  public static $modules = ['menu_ui'];
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
     $this->migrateFields();
+  }
+
+  /**
+   * Asserts that a particular component is NOT included in a display.
+   *
+   * @param string $display_id
+   *   The display ID.
+   * @param string $component_id
+   *   The component ID.
+   */
+  protected function assertComponentNotExists($display_id, $component_id) {
+    $component = EntityViewDisplay::load($display_id)->getComponent($component_id);
+    $this->assertNull($component);
   }
 
   /**
@@ -177,6 +195,33 @@ class MigrateFieldFormatterSettingsTest extends MigrateDrupal6TestBase {
     $this->assertIdentical($expected, $component);
     // Test that our Id map has the correct data.
     $this->assertIdentical(['node', 'story', 'teaser', 'field_test'], $this->getMigration('d6_field_formatter_settings')->getIdMap()->lookupDestinationID(['story', 'teaser', 'node', 'field_test']));
+
+    // Test hidden field.
+    $this->assertComponentNotExists('node.test_planet.teaser', 'field_test_text_single_checkbox');
+
+    // Test a node reference field, which should be migrated to an entity
+    // reference field.
+    $display = EntityViewDisplay::load('node.employee.default');
+    $component = $display->getComponent('field_company');
+    $this->assertInternalType('array', $component);
+    $this->assertSame('entity_reference_label', $component['type']);
+    // The default node reference formatter shows the referenced node's title
+    // as a link.
+    $this->assertTrue($component['settings']['link']);
+
+    $display = EntityViewDisplay::load('node.employee.teaser');
+    $component = $display->getComponent('field_company');
+    $this->assertInternalType('array', $component);
+    $this->assertSame('entity_reference_label', $component['type']);
+    // The plain node reference formatter shows the referenced node's title,
+    // unlinked.
+    $this->assertFalse($component['settings']['link']);
+
+    $component = $display->getComponent('field_commander');
+    $this->assertInternalType('array', $component);
+    $this->assertSame('entity_reference_label', $component['type']);
+    // The default user reference formatter links to the referenced user.
+    $this->assertTrue($component['settings']['link']);
   }
 
 }

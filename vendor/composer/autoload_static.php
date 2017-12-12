@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
+class ComposerStaticInit5b5da453ce3185bac4a015d2f6640694
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -15,8 +15,8 @@ class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
-        'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
+        'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -52,6 +52,7 @@ class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
             'Symfony\\Polyfill\\Php54\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Iconv\\' => 23,
+            'Symfony\\Polyfill\\Apcu\\' => 22,
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\Validator\\' => 28,
             'Symfony\\Component\\Translation\\' => 30,
@@ -175,6 +176,10 @@ class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
         'Symfony\\Polyfill\\Iconv\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-iconv',
+        ),
+        'Symfony\\Polyfill\\Apcu\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-apcu',
         ),
         'Symfony\\Component\\Yaml\\' => 
         array (
@@ -421,6 +426,7 @@ class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
         'Generic_Sniffs_ControlStructures_InlineControlStructureSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/ControlStructures/InlineControlStructureSniff.php',
         'Generic_Sniffs_Debug_CSSLintSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Debug/CSSLintSniff.php',
         'Generic_Sniffs_Debug_ClosureLinterSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Debug/ClosureLinterSniff.php',
+        'Generic_Sniffs_Debug_ESLintSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Debug/ESLintSniff.php',
         'Generic_Sniffs_Debug_JSHintSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Debug/JSHintSniff.php',
         'Generic_Sniffs_Files_ByteOrderMarkSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Files/ByteOrderMarkSniff.php',
         'Generic_Sniffs_Files_EndFileNewlineSniff' => __DIR__ . '/..' . '/squizlabs/php_codesniffer/CodeSniffer/Standards/Generic/Sniffs/Files/EndFileNewlineSniff.php',
@@ -1103,10 +1109,10 @@ class ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit5fd86ad26761afabeedd0d390dacda9e::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5b5da453ce3185bac4a015d2f6640694::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5b5da453ce3185bac4a015d2f6640694::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5b5da453ce3185bac4a015d2f6640694::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit5b5da453ce3185bac4a015d2f6640694::$classMap;
 
         }, null, ClassLoader::class);
     }

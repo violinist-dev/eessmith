@@ -73,20 +73,17 @@ class RowTest extends UnitTestCase {
 
   /**
    * Tests object creation: invalid values.
-   *
-   * @expectedException \Exception
    */
   public function testRowWithInvalidData() {
     $invalid_values = [
       'title' => 'node X',
     ];
+    $this->setExpectedException(\Exception::class);
     $row = new Row($invalid_values, $this->testSourceIds);
   }
 
   /**
    * Tests source immutability after freeze.
-   *
-   * @expectedException \Exception
    */
   public function testSourceFreeze() {
     $row = new Row($this->testValues, $this->testSourceIds);
@@ -96,18 +93,17 @@ class RowTest extends UnitTestCase {
     $row->rehash();
     $this->assertSame($this->testHashMod, $row->getHash(), 'Hash changed correctly.');
     $row->freezeSource();
+    $this->setExpectedException(\Exception::class);
     $row->setSourceProperty('title', 'new title');
   }
 
   /**
    * Tests setting on a frozen row.
-   *
-   * @expectedException \Exception
-   * @expectedExceptionMessage The source is frozen and can't be changed any more
    */
   public function testSetFrozenRow() {
     $row = new Row($this->testValues, $this->testSourceIds);
     $row->freezeSource();
+    $this->setExpectedException(\Exception::class, "The source is frozen and can't be changed any more");
     $row->setSourceProperty('title', 'new title');
   }
 
@@ -194,6 +190,39 @@ class RowTest extends UnitTestCase {
   public function testSourceIdValues() {
     $row = new Row($this->testValues, $this->testSourceIds);
     $this->assertSame(['nid' => $this->testValues['nid']], $row->getSourceIdValues());
+  }
+
+  /**
+   * Tests the multiple source IDs.
+   */
+  public function testMultipleSourceIdValues() {
+    // Set values in same order as ids.
+    $multi_source_ids = $this->testSourceIds + [
+        'vid' => 'Node revision',
+        'type' => 'Node type',
+        'langcode' => 'Node language',
+      ];
+    $multi_source_ids_values = $this->testValues + [
+        'vid' => 1,
+        'type' => 'page',
+        'langcode' => 'en',
+      ];
+    $row = new Row($multi_source_ids_values, $multi_source_ids);
+    $this->assertSame(array_keys($multi_source_ids), array_keys($row->getSourceIdValues()));
+
+    // Set values in different order.
+    $multi_source_ids = $this->testSourceIds + [
+        'vid' => 'Node revision',
+        'type' => 'Node type',
+        'langcode' => 'Node language',
+      ];
+    $multi_source_ids_values = $this->testValues + [
+        'langcode' => 'en',
+        'type' => 'page',
+        'vid' => 1,
+      ];
+    $row = new Row($multi_source_ids_values, $multi_source_ids);
+    $this->assertSame(array_keys($multi_source_ids), array_keys($row->getSourceIdValues()));
   }
 
   /**
