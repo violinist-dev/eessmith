@@ -1334,8 +1334,7 @@
             "homepage": "https://www.drupal.org/project/head2head",
             "support": {
                 "source": "http://cgit.drupalcode.org/head2head"
-            },
-            "time": "2015-11-06T17:46:35+00:00"
+            }
         },
         {
             "name": "drupal/stage_file_proxy",
