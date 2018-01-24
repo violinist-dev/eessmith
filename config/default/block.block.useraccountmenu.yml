@@ -1,0 +1,24 @@
+uuid: b8978c04-b266-4b32-8b63-996cf1fc4ec6
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.account
+  module:
+    - system
+  theme:
+    - adminimal
+id: useraccountmenu
+theme: adminimal
+region: footer
+weight: null
+provider: null
+plugin: 'system_menu_block:account'
+settings:
+  id: 'system_menu_block:account'
+  label: 'User account menu'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility: {  }

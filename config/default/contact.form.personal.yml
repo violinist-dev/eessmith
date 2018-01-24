@@ -1,0 +1,11 @@
+uuid: 82f4568f-b5e7-4adf-a138-56ab57cfc7d1
+langcode: en
+status: true
+dependencies: {  }
+id: personal
+label: 'Personal contact form'
+recipients: {  }
+reply: ''
+weight: 0
+message: 'Your message has been sent.'
+redirect: ''

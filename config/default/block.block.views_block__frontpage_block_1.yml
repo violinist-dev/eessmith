@@ -1,0 +1,24 @@
+uuid: be0611e9-365c-464f-b32b-43632fa57bc3
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.frontpage
+  module:
+    - views
+  theme:
+    - bootstrap_clean_blog
+id: views_block__frontpage_block_1
+theme: bootstrap_clean_blog
+region: header
+weight: 1
+provider: null
+plugin: 'views_block:frontpage-block_1'
+settings:
+  id: 'views_block:frontpage-block_1'
+  label: ''
+  provider: views
+  label_display: '0'
+  views_label: ''
+  items_per_page: none
+visibility: {  }

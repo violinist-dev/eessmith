@@ -1,0 +1,20 @@
+uuid: e9cb258e-c074-4da5-8037-55a7ad57588d
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_clean_blog
+id: mainpagecontent_2
+theme: bootstrap_clean_blog
+region: header
+weight: -3
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  provider: system
+  label_display: '0'
+visibility: {  }

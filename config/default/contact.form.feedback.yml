@@ -1,0 +1,12 @@
+uuid: 09d99558-7a3f-4793-b303-3c2a323b74bb
+langcode: en
+status: true
+dependencies: {  }
+id: feedback
+label: 'Website feedback'
+recipients:
+  - shay.smith@acquia.com
+reply: ''
+weight: 0
+message: 'Your message has been sent.'
+redirect: ''

@@ -1,0 +1,24 @@
+uuid: 2e511b2e-841b-4b48-8f4b-752a926344b1
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.content_recent
+  module:
+    - views
+  theme:
+    - bootstrap_clean_blog
+id: views_block__content_recent_block_1
+theme: bootstrap_clean_blog
+region: header
+weight: -1
+provider: null
+plugin: 'views_block:content_recent-block_1'
+settings:
+  id: 'views_block:content_recent-block_1'
+  label: ''
+  provider: views
+  label_display: '0'
+  views_label: ''
+  items_per_page: none
+visibility: {  }

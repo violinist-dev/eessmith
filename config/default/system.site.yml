@@ -1,0 +1,12 @@
+uuid: 7fb61acc-8491-4094-8003-3d57498c50b3
+name: 'Smitty''s'
+mail: shay.smith@acquia.com
+slogan: 'Well, what did you expect?'
+page:
+  403: ''
+  404: ''
+  front: /node
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en

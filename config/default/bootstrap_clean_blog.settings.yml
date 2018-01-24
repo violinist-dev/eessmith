@@ -1,0 +1,89 @@
+features:
+  comment_user_picture: false
+  comment_user_verification: false
+  favicon: true
+  node_user_picture: false
+bootstrap_button_colorize: 0
+bootstrap_button_iconize: 0
+bootstrap_image_responsive: 0
+bootstrap_table_hover: 0
+bootstrap_table_responsive: 0
+bootstrap_breadcrumb: '0'
+bootstrap_breadcrumb_title: 0
+bootstrap_region_well-sidebar_first: ''
+bootstrap_region_well-page_top: ''
+bootstrap_region_well-page_bottom: ''
+bootstrap_tooltip_descriptions: 0
+bootstrap_popover_enabled: 0
+bootstrap_popover_animation: 0
+bootstrap_popover_placement: top
+bootstrap_popover_trigger:
+  click: 0
+  focus: 0
+  manual: 0
+bootstrap_popover_trigger_autoclose: 0
+bootstrap_popover_delay: ''
+bootstrap_popover_container: ''
+bootstrap_tooltip_enabled: 0
+bootstrap_tooltip_descriptions_length: ''
+bootstrap_tooltip_animation: 0
+bootstrap_tooltip_placement: top
+bootstrap_tooltip_trigger:
+  click: 0
+  hover: 0
+  focus: 0
+  manual: 0
+bootstrap_tooltip_delay: ''
+bootstrap_tooltip_container: ''
+bootstrap_cdn: ''
+header_image: field_image
+social_facebook: ''
+social_twitter: ''
+social_github: ''
+bootstrap_fluid_container: 0
+bootstrap_forms_smart_descriptions: 0
+bootstrap_forms_smart_descriptions_limit: ''
+bootstrap_forms_smart_descriptions_allowed_tags: ''
+region_well-navigation: ''
+region_well-header: ''
+region_well-highlighted: ''
+region_well-help: ''
+region_well-content: ''
+region_well-sidebar_first: ''
+region_well-sidebar_second: ''
+region_well-footer: ''
+region_well-page_top: ''
+region_well-page_bottom: ''
+bootstrap_toggle_jquery_error: 0
+bootstrap_cdn_provider: ''
+bootstrap_cdn_custom_css: ''
+bootstrap_cdn_custom_css_min: ''
+bootstrap_cdn_custom_js: ''
+bootstrap_cdn_custom_js_min: ''
+bootstrap_cdn_jsdelivr_version: 3.0.0
+bootstrap_cdn_jsdelivr_theme: bootstrap
+schema: '8000'
+bootstrap_clean_blog_header_image: field_image
+bootstrap_clean_blog_social_facebook: ''
+bootstrap_clean_blog_social_twitter: ''
+bootstrap_clean_blog_social_github: ''
+bootstrap_clean_blog_social_drupal: ''
+bootstrap_clean_blog_social_instagram: ''
+bootstrap_clean_blog_social_flickr: ''
+bootstrap_clean_blog_social_reddit: ''
+bootstrap_clean_blog_social_linkedin: ''
+image_shape: img-rounded
+table_bordered: 1
+fluid_container: 1
+favicon:
+  mimetype: image/vnd.microsoft.icon
+  path: ''
+  url: 'http://eessmith.prod.acquia-sites.com/themes/bootstrap/favicon.ico'
+  use_default: true
+logo:
+  path: ''
+  url: ''
+  use_default: true
+schemas:
+  bootstrap: 8000
+  bootstrap_clean_blog: 8000
