@@ -1,5 +1,20 @@
 # Changelog
 
+### 1.2.3 4/5/2018
+
+* Hide progress indicator prior to 'exec'. (#707)
+* Dependencies.io config for version 2 preview by Dave Gaeddert (#699)
+* Fix path to test script in try:para
+* Correctly parameterize the app name in the self:update command help text.
+* Refuse to start 'release' script if phar.readonly is set.
+
+### 1.2.2 2/27/2018
+
+* Experimental robo plugin mechanism (backwards compatibility not yet guarenteed)
+* Allow traits to be documented
+* Do not export scenarios directory
+* *Breaking* Typo in `\Robo\Runner:errorCondtion()` fixed as `\Robo\Runner:errorCondition()`.
+
 ### 1.2.1 12/28/2017
 
 * Fixes to tests / build only.
