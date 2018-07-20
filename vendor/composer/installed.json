@@ -3111,17 +3111,17 @@
     },
     {
         "name": "paragonie/random_compat",
-        "version": "v2.0.14",
-        "version_normalized": "2.0.14.0",
+        "version": "v2.0.17",
+        "version_normalized": "2.0.17.0",
         "source": {
             "type": "git",
             "url": "https://github.com/paragonie/random_compat.git",
-            "reference": "f6ce7dd93628088e1017fb5dd73b0b9fec7df9e5"
+            "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/f6ce7dd93628088e1017fb5dd73b0b9fec7df9e5",
-            "reference": "f6ce7dd93628088e1017fb5dd73b0b9fec7df9e5",
+            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
+            "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
             "shasum": ""
         },
         "require": {
@@ -3133,7 +3133,7 @@
         "suggest": {
             "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
         },
-        "time": "2018-06-06T17:40:22+00:00",
+        "time": "2018-07-04T16:31:37+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -4824,17 +4824,17 @@
     },
     {
         "name": "symfony/debug",
-        "version": "v3.4.11",
-        "version_normalized": "3.4.11.0",
+        "version": "v3.4.12",
+        "version_normalized": "3.4.12.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/debug.git",
-            "reference": "b28fd73fefbac341f673f5efd707d539d6a19f68"
+            "reference": "47e6788c5b151cf0cfdf3329116bf33800632d75"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/debug/zipball/b28fd73fefbac341f673f5efd707d539d6a19f68",
-            "reference": "b28fd73fefbac341f673f5efd707d539d6a19f68",
+            "url": "https://api.github.com/repos/symfony/debug/zipball/47e6788c5b151cf0cfdf3329116bf33800632d75",
+            "reference": "47e6788c5b151cf0cfdf3329116bf33800632d75",
             "shasum": ""
         },
         "require": {
@@ -4847,7 +4847,7 @@
         "require-dev": {
             "symfony/http-kernel": "~2.8|~3.0|~4.0"
         },
-        "time": "2018-05-16T14:03:39+00:00",
+        "time": "2018-06-25T11:10:40+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -6092,28 +6092,29 @@
     },
     {
         "name": "twig/twig",
-        "version": "v1.35.3",
-        "version_normalized": "1.35.3.0",
+        "version": "v1.35.4",
+        "version_normalized": "1.35.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f"
+            "reference": "7e081e98378a1e78c29cc9eba4aefa5d78a05d2a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
-            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/7e081e98378a1e78c29cc9eba4aefa5d78a05d2a",
+            "reference": "7e081e98378a1e78c29cc9eba4aefa5d78a05d2a",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.3.3"
+            "php": ">=5.3.3",
+            "symfony/polyfill-ctype": "^1.8"
         },
         "require-dev": {
             "psr/container": "^1.0",
             "symfony/debug": "^2.7",
             "symfony/phpunit-bridge": "^3.3"
         },
-        "time": "2018-03-20T04:25:58+00:00",
+        "time": "2018-07-13T07:12:17+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -6147,12 +6148,12 @@
             },
             {
                 "name": "Twig Team",
-                "homepage": "http://twig.sensiolabs.org/contributors",
+                "homepage": "https://twig.symfony.com/contributors",
                 "role": "Contributors"
             }
         ],
         "description": "Twig, the flexible, fast, and secure template language for PHP",
-        "homepage": "http://twig.sensiolabs.org",
+        "homepage": "https://twig.symfony.com",
         "keywords": [
             "templating"
         ]
@@ -6349,17 +6350,17 @@
     },
     {
         "name": "zendframework/zend-diactoros",
-        "version": "1.7.2",
-        "version_normalized": "1.7.2.0",
+        "version": "1.8.2",
+        "version_normalized": "1.8.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/zendframework/zend-diactoros.git",
-            "reference": "741e7a571836f038de731105f4742ca8a164e43a"
+            "reference": "273c18bf6aaab20be9667a3aa4e7702e1e4e7ced"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/741e7a571836f038de731105f4742ca8a164e43a",
-            "reference": "741e7a571836f038de731105f4742ca8a164e43a",
+            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/273c18bf6aaab20be9667a3aa4e7702e1e4e7ced",
+            "reference": "273c18bf6aaab20be9667a3aa4e7702e1e4e7ced",
             "shasum": ""
         },
         "require": {
@@ -6375,17 +6376,27 @@
             "phpunit/phpunit": "^5.7.16 || ^6.0.8",
             "zendframework/zend-coding-standard": "~1.0"
         },
-        "time": "2018-05-29T16:53:08+00:00",
+        "time": "2018-07-19T18:38:31+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.7.x-dev",
-                "dev-develop": "1.8.x-dev",
+                "dev-master": "1.8.x-dev",
+                "dev-develop": "1.9.x-dev",
                 "dev-release-2.0": "2.0.x-dev"
             }
         },
         "installation-source": "dist",
         "autoload": {
+            "files": [
+                "src/functions/create_uploaded_file.php",
+                "src/functions/marshal_headers_from_sapi.php",
+                "src/functions/marshal_method_from_sapi.php",
+                "src/functions/marshal_protocol_version_from_sapi.php",
+                "src/functions/marshal_uri_from_sapi.php",
+                "src/functions/normalize_server.php",
+                "src/functions/normalize_uploaded_files.php",
+                "src/functions/parse_cookie_header.php"
+            ],
             "psr-4": {
                 "Zend\\Diactoros\\": "src/"
             }
@@ -6451,17 +6462,17 @@
     },
     {
         "name": "zendframework/zend-feed",
-        "version": "2.10.1",
-        "version_normalized": "2.10.1.0",
+        "version": "2.10.2",
+        "version_normalized": "2.10.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/zendframework/zend-feed.git",
-            "reference": "2815c29a4c4e52bf4033128592ea310b0f4e9379"
+            "reference": "5253f949f4ad999086ab9b408908b6c6776f24db"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/zendframework/zend-feed/zipball/2815c29a4c4e52bf4033128592ea310b0f4e9379",
-            "reference": "2815c29a4c4e52bf4033128592ea310b0f4e9379",
+            "url": "https://api.github.com/repos/zendframework/zend-feed/zipball/5253f949f4ad999086ab9b408908b6c6776f24db",
+            "reference": "5253f949f4ad999086ab9b408908b6c6776f24db",
             "shasum": ""
         },
         "require": {
@@ -6487,7 +6498,7 @@
             "zendframework/zend-servicemanager": "Zend\\ServiceManager component, for easily extending ExtensionManager implementations",
             "zendframework/zend-validator": "Zend\\Validator component, for validating email addresses used in Atom feeds and entries when using the Writer subcomponent"
         },
-        "time": "2018-06-05T13:16:04+00:00",
+        "time": "2018-06-18T20:14:01+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
