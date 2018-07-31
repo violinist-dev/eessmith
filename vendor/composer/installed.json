@@ -4824,17 +4824,17 @@
     },
     {
         "name": "symfony/debug",
-        "version": "v3.4.12",
-        "version_normalized": "3.4.12.0",
+        "version": "v3.4.13",
+        "version_normalized": "3.4.13.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/debug.git",
-            "reference": "47e6788c5b151cf0cfdf3329116bf33800632d75"
+            "reference": "0e3ca9cbde90fffec8038f4d4e16fd4046bbd018"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/debug/zipball/47e6788c5b151cf0cfdf3329116bf33800632d75",
-            "reference": "47e6788c5b151cf0cfdf3329116bf33800632d75",
+            "url": "https://api.github.com/repos/symfony/debug/zipball/0e3ca9cbde90fffec8038f4d4e16fd4046bbd018",
+            "reference": "0e3ca9cbde90fffec8038f4d4e16fd4046bbd018",
             "shasum": ""
         },
         "require": {
@@ -4847,7 +4847,7 @@
         "require-dev": {
             "symfony/http-kernel": "~2.8|~3.0|~4.0"
         },
-        "time": "2018-06-25T11:10:40+00:00",
+        "time": "2018-06-26T08:45:54+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -6350,17 +6350,17 @@
     },
     {
         "name": "zendframework/zend-diactoros",
-        "version": "1.8.2",
-        "version_normalized": "1.8.2.0",
+        "version": "1.8.3",
+        "version_normalized": "1.8.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/zendframework/zend-diactoros.git",
-            "reference": "273c18bf6aaab20be9667a3aa4e7702e1e4e7ced"
+            "reference": "72c13834fb3db2a962e913758b384ff2e6425d6e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/273c18bf6aaab20be9667a3aa4e7702e1e4e7ced",
-            "reference": "273c18bf6aaab20be9667a3aa4e7702e1e4e7ced",
+            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/72c13834fb3db2a962e913758b384ff2e6425d6e",
+            "reference": "72c13834fb3db2a962e913758b384ff2e6425d6e",
             "shasum": ""
         },
         "require": {
@@ -6373,10 +6373,10 @@
         "require-dev": {
             "ext-dom": "*",
             "ext-libxml": "*",
-            "phpunit/phpunit": "^5.7.16 || ^6.0.8",
+            "phpunit/phpunit": "^5.7.16 || ^6.0.8 || ^7.2.7",
             "zendframework/zend-coding-standard": "~1.0"
         },
-        "time": "2018-07-19T18:38:31+00:00",
+        "time": "2018-07-24T21:54:38+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
