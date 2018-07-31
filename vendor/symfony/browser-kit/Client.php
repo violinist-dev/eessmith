@@ -78,7 +78,7 @@ abstract class Client
     }
 
     /**
-     * Sets the maximum number of requests that crawler can follow.
+     * Sets the maximum number of redirects that crawler can follow.
      *
      * @param int $maxRedirects
      */
@@ -89,7 +89,7 @@ abstract class Client
     }
 
     /**
-     * Returns the maximum number of requests that crawler can follow.
+     * Returns the maximum number of redirects that crawler can follow.
      *
      * @return int
      */
@@ -346,6 +346,7 @@ abstract class Client
     {
         $deprecationsFile = tempnam(sys_get_temp_dir(), 'deprec');
         putenv('SYMFONY_DEPRECATIONS_SERIALIZE='.$deprecationsFile);
+        $_ENV['SYMFONY_DEPRECATIONS_SERIALIZE'] = $deprecationsFile;
         $process = new PhpProcess($this->getScript($request), null, null);
         $process->run();
 
