@@ -1953,17 +1953,17 @@
     },
     {
         "name": "drupal/core",
-        "version": "8.6.1",
-        "version_normalized": "8.6.1.0",
+        "version": "8.6.2",
+        "version_normalized": "8.6.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/drupal/core.git",
-            "reference": "1c8b96c89288daf4d145c6dbcf1e8f0d0c9d7970"
+            "reference": "356292934802bb1aecc478e88a3cba77442d7c62"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/drupal/core/zipball/1c8b96c89288daf4d145c6dbcf1e8f0d0c9d7970",
-            "reference": "1c8b96c89288daf4d145c6dbcf1e8f0d0c9d7970",
+            "url": "https://api.github.com/repos/drupal/core/zipball/356292934802bb1aecc478e88a3cba77442d7c62",
+            "reference": "356292934802bb1aecc478e88a3cba77442d7c62",
             "shasum": ""
         },
         "require": {
@@ -2135,7 +2135,7 @@
             "symfony/debug": "^3.4.0",
             "symfony/phpunit-bridge": "^3.4.3"
         },
-        "time": "2018-09-10T11:50:07+00:00",
+        "time": "2018-10-17T22:19:50+00:00",
         "type": "drupal-core",
         "extra": {
             "merge-plugin": {
@@ -3386,17 +3386,17 @@
     },
     {
         "name": "masterminds/html5",
-        "version": "2.3.0",
-        "version_normalized": "2.3.0.0",
+        "version": "2.3.1",
+        "version_normalized": "2.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Masterminds/html5-php.git",
-            "reference": "2c37c6c520b995b761674de3be8455a381679067"
+            "reference": "33f8d475d28741398be26cdff7a10a63003324a3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/2c37c6c520b995b761674de3be8455a381679067",
-            "reference": "2c37c6c520b995b761674de3be8455a381679067",
+            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/33f8d475d28741398be26cdff7a10a63003324a3",
+            "reference": "33f8d475d28741398be26cdff7a10a63003324a3",
             "shasum": ""
         },
         "require": {
@@ -3408,7 +3408,7 @@
             "sami/sami": "~2.0",
             "satooshi/php-coveralls": "1.0.*"
         },
-        "time": "2017-09-04T12:26:28+00:00",
+        "time": "2018-10-22T16:58:34+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
