@@ -4,6 +4,7 @@ namespace Drush\Drupal\Commands\config;
 use Consolidation\AnnotatedCommand\CommandError;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
+use Consolidation\SiteProcess\Util\Escape;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Config\StorageComparer;
@@ -80,7 +81,7 @@ class ConfigCommands extends DrushCommands
      * @param $config_name The config object name, for example "system.site".
      * @param $key The config key, for example "page.front".
      * @param $value The value to assign to the config key. Use '-' to read from STDIN.
-     * @option format Format to parse the object. Use "string" for string (default), and "yaml" for YAML.
+     * @option input-format Format to parse the object. Use "string" for string (default), and "yaml" for YAML.
      * // A convenient way to pass a multiline value within a backend request.
      * @option value The value to assign to the config key (if any).
      * @hidden-options value
@@ -88,7 +89,7 @@ class ConfigCommands extends DrushCommands
      *   Sets system.site:page.front to "node".
      * @aliases cset,config-set
      */
-    public function set($config_name, $key, $value = null, $options = ['format' => 'string', 'value' => self::REQ])
+    public function set($config_name, $key, $value = null, $options = ['input-format' => 'string', 'value' => self::REQ])
     {
         // This hidden option is a convenient way to pass a value without passing a key.
         $data = $options['value'] ?: $value;
@@ -107,15 +108,15 @@ class ConfigCommands extends DrushCommands
         }
 
         // Now, we parse the value.
-        switch ($options['format']) {
+        switch ($options['input-format']) {
             case 'yaml':
                 $parser = new Parser();
                 $data = $parser->parse($data, true);
         }
 
         if (is_array($data) && $this->io()->confirm(dt('Do you want to update or set multiple keys on !name config.', ['!name' => $config_name]))) {
-            foreach ($data as $key => $value) {
-                $config->set($key, $value);
+            foreach ($data as $data_key => $value) {
+                $config->set("$key.$data_key", $value);
             }
             return $config->save();
         } else {
@@ -152,7 +153,7 @@ class ConfigCommands extends DrushCommands
      * @aliases cedit,config-edit
      * @validate-module-enabled config
      */
-    public function edit($config_name)
+    public function edit($config_name, $options = [])
     {
         $config = $this->getConfigFactory()->get($config_name);
         $active_storage = $config->getStorage();
@@ -163,14 +164,18 @@ class ConfigCommands extends DrushCommands
         $temp_storage = new FileStorage($temp_dir);
         $temp_storage->write($config_name, $contents);
 
+        //
         $exec = drush_get_editor();
-        drush_shell_exec_interactive($exec, $temp_storage->getFilePath($config_name));
+        $cmd = sprintf($exec, Escape::shellArg($temp_storage->getFilePath($config_name)));
+        $process = Drush::process($cmd);
+        $process->setTty(true);
+        $process->mustRun();
 
         // Perform import operation if user did not immediately exit editor.
         if (!$options['bg']) {
-            $options = Drush::redispatchOptions()   + ['partial' => true, 'source' => $temp_dir];
-            $backend_options = ['interactive' => true];
-            return (bool) drush_invoke_process('@self', 'config-import', [], $options, $backend_options);
+            $redispatch_options = Drush::redispatchOptions()   + ['partial' => true, 'source' => $temp_dir];
+            $process = Drush::drush(Drush::aliasManager()->getSelf(), 'config-import', [], $redispatch_options);
+            $process->mustRun($process->showRealtime());
         }
     }
 
@@ -221,6 +226,7 @@ class ConfigCommands extends DrushCommands
      *   state: State
      * @default-fields name,state
      * @aliases cst,config-status
+     * @filter-default-field name
      * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
      */
     public function status($options = ['state' => 'Only in DB,Only in sync dir,Different', 'prefix' => self::REQ, 'label' => self::REQ])
@@ -340,7 +346,7 @@ class ConfigCommands extends DrushCommands
      */
     public function getStorage($directory)
     {
-        if ($directory == \config_get_config_directory(CONFIG_SYNC_DIRECTORY)) {
+        if ($directory == Path::canonicalize(\config_get_config_directory(CONFIG_SYNC_DIRECTORY))) {
             return \Drupal::service('config.storage.sync');
         } else {
             return new FileStorage($directory);
@@ -505,7 +511,8 @@ class ConfigCommands extends DrushCommands
         if (drush_program_exists('git') && $output->isDecorated()) {
             $prefix = 'git diff --color=always';
         }
-        drush_shell_exec($prefix . ' -u %s %s', $temp_destination_dir, $temp_source_dir);
+        $args = [$prefix, '-u', $temp_destination_dir, $temp_source_dir];
+        $process = Drush::process($args);
         return drush_shell_exec_output();
     }
 }

@@ -1,8 +1,6 @@
 <?php
 namespace Drush\Commands;
 
-use Drush\Drush;
-
 class LegacyCommands extends DrushCommands
 {
 
@@ -124,6 +122,18 @@ class LegacyCommands extends DrushCommands
      * @obsolete
      */
     public function download()
+    {
+    }
+
+    /**
+     * field-create has been deprecated. Please try `generate field` command.
+     *
+     * @command field:create
+     * @aliases field-create
+     * @hidden
+     * @obsolete
+     */
+    public function field()
     {
     }
 }

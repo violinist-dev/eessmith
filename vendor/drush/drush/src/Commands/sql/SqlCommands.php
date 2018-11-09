@@ -6,6 +6,7 @@ use Drush\Commands\DrushCommands;
 use Drush\Drush;
 use Drush\Exceptions\UserAbortException;
 use Drush\Sql\SqlBase;
+use Consolidation\OutputFormatters\StructuredData\PropertyList;
 
 class SqlCommands extends DrushCommands
 {
@@ -123,22 +124,22 @@ class SqlCommands extends DrushCommands
      * Open a SQL command-line interface using Drupal's credentials.
      *
      * @command sql:cli
-     * @option extra Add custom options to the connect string (e.g. --extra=--skip-column-names)
+     * @option extra Add custom options to the connect string
      * @optionset_sql
      * @aliases sqlc,sql-cli
      * @usage drush sql:cli
      *   Open a SQL command-line interface using Drupal's credentials.
-     * @usage drush sql:cli --extra=-A
+     * @usage drush sql:cli --extra=--progress-reports
      *   Open a SQL CLI and skip reading table information.
      * @remote-tty
      * @bootstrap max configuration
      */
-    public function cli($options = [])
+    public function cli($options = ['extra' => self::REQ])
     {
         $sql = SqlBase::create($options);
-        if (drush_shell_proc_open($sql->connect())) {
-            throw new \Exception('Unable to open database shell. Rerun with --debug to see any error message.');
-        }
+        $process = Drush::process($sql->connect());
+        $process->setTty(true);
+        $process->mustRun();
     }
 
     /**
@@ -183,7 +184,7 @@ class SqlCommands extends DrushCommands
             if (!$result) {
                 throw new \Exception(dt('Query failed.'));
             }
-            $this->output()->writeln(implode("\n", drush_shell_exec_output()));
+            $this->output()->writeln($sql->getProcess()->getOutput());
         }
         return true;
     }
@@ -210,15 +211,21 @@ class SqlCommands extends DrushCommands
      *   Pass extra option to mysqldump command.
      * @hidden-options create-db
      * @bootstrap max configuration
+     * @field-labels
+     *   path: Path
+     *
+     * @return \Consolidation\OutputFormatters\StructuredData\PropertyList
      *
      * @notes
      *   createdb is used by sql-sync, since including the DROP TABLE statements interfere with the import when the database is created.
      */
-    public function dump($options = ['result-file' => self::REQ, 'create-db' => false, 'data-only' => false, 'ordered-dump' => false, 'gzip' => false, 'extra' => self::REQ, 'extra-dump' => self::REQ])
+    public function dump($options = ['result-file' => self::REQ, 'create-db' => false, 'data-only' => false, 'ordered-dump' => false, 'gzip' => false, 'extra' => self::REQ, 'extra-dump' => self::REQ, 'format' => 'null'])
     {
         $sql = SqlBase::create($options);
-        if ($sql->dump() === false) {
+        $return = $sql->dump();
+        if ($return === false) {
             throw new \Exception('Unable to dump database. Rerun with --debug to see any error message.');
         }
+        return new PropertyList(['path' => $return]);
     }
 }

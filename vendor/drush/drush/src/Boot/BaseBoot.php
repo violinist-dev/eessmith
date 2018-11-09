@@ -2,15 +2,10 @@
 
 namespace Drush\Boot;
 
-use Drush\Drush;
-use Drush\Log\LogLevel;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
-
-use Symfony\Component\Console\Input\ArgvInput;
 
 abstract class BaseBoot implements Boot, LoggerAwareInterface, ContainerAwareInterface
 {
@@ -21,6 +16,7 @@ abstract class BaseBoot implements Boot, LoggerAwareInterface, ContainerAwareInt
 
     public function __construct()
     {
+        register_shutdown_function([$this, 'terminate']);
     }
 
     public function findUri($root, $uri)
@@ -141,8 +137,8 @@ abstract class BaseBoot implements Boot, LoggerAwareInterface, ContainerAwareInt
         if ($object instanceof \Robo\Contract\VerbosityThresholdInterface) {
             $object->setOutputAdapter($container->get('outputAdapter'));
         }
-        if ($object instanceof \Drush\SiteAlias\SiteAliasManagerAwareInterface) {
-            $object->setOutputAdapter($container->get('site.alias.manager'));
+        if ($object instanceof \Consolidation\SiteAlias\SiteAliasManagerAwareInterface) {
+            $object->setSiteAliasManager($container->get('site.alias.manager'));
         }
     }
 
