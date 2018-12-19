@@ -40,9 +40,12 @@ class LoginCommands extends DrushCommands implements SiteAliasManagerAwareInterf
         // the *local* machine.
         $aliasRecord = $this->siteAliasManager()->getSelf();
         if ($aliasRecord->isRemote()) {
-            $process = Drush::drush($aliasRecord, 'user-login', [$path], Drush::redispatchOptions());
-            $process->mustRun();
-            $link = $process->getOutput();
+            $return = drush_invoke_process($aliasRecord, 'user-login', [$path], Drush::redispatchOptions(), ['integrate' => false]);
+            if ($return['error_status']) {
+                throw new \Exception('Unable to execute user login.');
+            } else {
+                $link = is_string($return['object']) ?: current($return['object']);
+            }
         } else {
             if (!Drush::bootstrapManager()->doBootstrap(DRUSH_BOOTSTRAP_DRUPAL_FULL)) {
                 throw new \Exception(dt('Unable to bootstrap Drupal.'));
@@ -60,7 +63,7 @@ class LoginCommands extends DrushCommands implements SiteAliasManagerAwareInterf
         }
         $port = $options['redirect-port'];
         $this->startBrowser($link, false, $port, $options['browser']);
-        // Use an array for backwards compat. Going forward, please expect a string.
+        // Use an array for backwards compat.
         drush_backend_set_result([$link]);
         return $link;
     }

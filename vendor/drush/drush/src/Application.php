@@ -316,7 +316,6 @@ class Application extends SymfonyApplication implements LoggerAwareInterface, Co
 
         $discovery = $this->commandDiscovery();
         $commandClasses = $discovery->discover($commandfileSearchpath, '\Drush');
-        $commandClasses[] = \Consolidation\Filter\Hooks\FilterHooks::class;
 
         $this->loadCommandClasses($commandClasses);
 

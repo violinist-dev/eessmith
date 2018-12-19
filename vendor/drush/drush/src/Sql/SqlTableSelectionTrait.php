@@ -1,6 +1,7 @@
 <?php
 namespace Drush\Sql;
 
+use Consolidation\Config\ConfigInterface;
 use Drush\Utils\StringUtils;
 
 /**

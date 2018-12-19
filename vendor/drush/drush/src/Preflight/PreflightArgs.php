@@ -29,8 +29,6 @@ class PreflightArgs extends Config implements PreflightArgsInterface
      */
     protected $homeDir;
 
-    protected $commandName;
-
     /**
      * @return string
      */
@@ -93,7 +91,7 @@ class PreflightArgs extends Config implements PreflightArgsInterface
             '--local' => 'setLocal',
             '--simulate' => 'setSimulate',
             '-s' => 'setSimulate',
-            '--backend=' => 'setBackend',
+            '--backend' => 'setBackend',
             '--drush-coverage=' => 'setCoverageFile',
             '--strict=' => 'setStrict',
             '--help' => 'adjustHelpOption',
@@ -163,8 +161,6 @@ class PreflightArgs extends Config implements PreflightArgsInterface
 
         // Store the runtime arguments and options (sans the runtime context items)
         // in runtime.argv et. al.
-        $config->set('runtime.drush-script', $this->applicationPath());
-        $config->set('runtime.command', $this->commandName() ?: 'help');
         $config->set('runtime.argv', $this->args());
         $config->set('runtime.options', $this->getOptionNameList($this->args()));
     }
@@ -182,24 +178,9 @@ class PreflightArgs extends Config implements PreflightArgsInterface
      */
     public function applicationPath()
     {
-        return realpath(reset($this->args));
+        return reset($this->args);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function commandName()
-    {
-        return $this->commandName;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setCommandName($commandName)
-    {
-        $this->commandName = $commandName;
-    }
     /**
      * @inheritdoc
      */
@@ -437,12 +418,7 @@ class PreflightArgs extends Config implements PreflightArgsInterface
      */
     public function setBackend($backend)
     {
-        if ($backend == 'json') {
-            // Remap to --format. See \Drush\Commands\sql\SqlSyncCommands::dump.
-            $this->addArg('--format=json');
-        } else {
-            return $this->set(self::BACKEND, true);
-        }
+        return $this->set(self::BACKEND, $backend);
     }
 
     /**

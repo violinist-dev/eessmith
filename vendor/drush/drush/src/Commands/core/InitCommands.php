@@ -1,7 +1,6 @@
 <?php
 namespace Drush\Commands\core;
 
-use Consolidation\SiteProcess\Util\Escape;
 use Drush\Drush;
 use Drush\Commands\DrushCommands;
 use Drush\Exceptions\UserAbortException;
@@ -112,12 +111,8 @@ class InitCommands extends DrushCommands implements BuilderAwareInterface, IOAwa
         $result = $collection->run();
 
         if ($result->wasSuccessful() && $openEditor) {
-            $editor = drush_get_editor();
-            // A bit awkward due to backward compat.
-            $cmd = sprintf($editor, Escape::shellArg($drush_config_file));
-            $process = Drush::process($cmd);
-            $process->setTty(true);
-            $process->mustRun();
+            $exec = drush_get_editor();
+            drush_shell_exec_interactive($exec, $drush_config_file, $drush_config_file);
         }
 
         return $result;

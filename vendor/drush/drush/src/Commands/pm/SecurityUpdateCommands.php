@@ -38,7 +38,6 @@ class SecurityUpdateCommands extends DrushCommands
      *   min-version: Suggested version
      * @default-fields name,version,min-version
      *
-     * @filter-default-field name
      * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
      *
      * @throws \Exception
@@ -136,7 +135,7 @@ class SecurityUpdateCommands extends DrushCommands
      */
     protected function registerAllSecurityUpdates($composer_lock_data, $security_advisories_composer_json)
     {
-        $both = array_merge($composer_lock_data['packages-dev'], $composer_lock_data['packages']);
+        $both = $composer_lock_data['packages-dev'] + $composer_lock_data['packages'];
         foreach ($both as $package) {
             $name = $package['name'];
             $this->registerPackageSecurityUpdates($security_advisories_composer_json, $name, $package);

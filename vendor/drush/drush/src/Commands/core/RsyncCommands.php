@@ -2,7 +2,6 @@
 namespace Drush\Commands\core;
 
 use Consolidation\AnnotatedCommand\CommandData;
-use Consolidation\SiteProcess\ProcessBase;
 use Drush\Commands\DrushCommands;
 use Drush\Drush;
 use Drush\Exceptions\UserAbortException;
@@ -61,8 +60,8 @@ class RsyncCommands extends DrushCommands implements SiteAliasManagerAwareInterf
     {
         // Prompt for confirmation. This is destructive.
         if (!\Drush\Drush::simulate()) {
-            $replacements = ['!source' => $this->sourceEvaluatedPath->fullyQualifiedPathPreservingTrailingSlash(), '!target' => $this->targetEvaluatedPath->fullyQualifiedPath()];
-            if (!$this->io()->confirm(dt("Replace files in !target with !source?", $replacements))) {
+            $this->output()->writeln(dt("You will delete files in !target and replace with data from !source", ['!source' => $this->sourceEvaluatedPath->fullyQualifiedPathPreservingTrailingSlash(), '!target' => $this->targetEvaluatedPath->fullyQualifiedPath()]));
+            if (!$this->io()->confirm(dt('Do you want to continue?'))) {
                 throw new UserAbortException();
             }
         }
@@ -74,10 +73,9 @@ class RsyncCommands extends DrushCommands implements SiteAliasManagerAwareInterf
 
         $ssh_options = Drush::config()->get('ssh.options', '');
         $exec = "rsync -e 'ssh $ssh_options'". ' '. implode(' ', array_filter($parameters));
-        $process = Drush::process($exec);
-        $process->run($process->showRealtime());
+        $exec_result = drush_op_system($exec);
 
-        if ($process->isSuccessful()) {
+        if ($exec_result == 0) {
             drush_backend_set_result($this->targetEvaluatedPath->fullyQualifiedPath());
         } else {
             throw new \Exception(dt("Could not rsync from !source to !dest", ['!source' => $this->sourceEvaluatedPath->fullyQualifiedPathPreservingTrailingSlash(), '!dest' => $this->targetEvaluatedPath->fullyQualifiedPath()]));

@@ -1,7 +1,10 @@
 <?php
 namespace Drush\Commands\core;
 
+use Consolidation\OutputFormatters\StructuredData\PropertyList;
 use Drush\Commands\DrushCommands;
+use Drush\Drush;
+use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Consolidation\SiteAlias\HostPath;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Consolidation\SiteAlias\SiteAliasManagerAwareTrait;

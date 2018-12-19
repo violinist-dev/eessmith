@@ -4,6 +4,7 @@ namespace Drush\Drupal\Commands\core;
 
 use Drush\Commands\DrushCommands;
 use Drush\Drush;
+use Drush\Log\LogLevel;
 use Drush\Psysh\DrushCommand;
 use Drush\Psysh\DrushHelpCommand;
 use Drupal\Component\Assertion\Handle;

@@ -6,7 +6,6 @@ use Drush\Commands\DrushCommands;
 use Drush\Drush;
 use Drush\Exceptions\UserAbortException;
 use Drush\Sql\SqlBase;
-use Consolidation\OutputFormatters\StructuredData\PropertyList;
 
 class SqlCommands extends DrushCommands
 {
@@ -137,9 +136,9 @@ class SqlCommands extends DrushCommands
     public function cli($options = ['extra' => self::REQ])
     {
         $sql = SqlBase::create($options);
-        $process = Drush::process($sql->connect());
-        $process->setTty(true);
-        $process->mustRun();
+        if (drush_shell_proc_open($sql->connect())) {
+            throw new \Exception('Unable to open database shell. Rerun with --debug to see any error message.');
+        }
     }
 
     /**
@@ -184,7 +183,7 @@ class SqlCommands extends DrushCommands
             if (!$result) {
                 throw new \Exception(dt('Query failed.'));
             }
-            $this->output()->writeln($sql->getProcess()->getOutput());
+            $this->output()->writeln(implode("\n", drush_shell_exec_output()));
         }
         return true;
     }
@@ -211,21 +210,15 @@ class SqlCommands extends DrushCommands
      *   Pass extra option to mysqldump command.
      * @hidden-options create-db
      * @bootstrap max configuration
-     * @field-labels
-     *   path: Path
-     *
-     * @return \Consolidation\OutputFormatters\StructuredData\PropertyList
      *
      * @notes
      *   createdb is used by sql-sync, since including the DROP TABLE statements interfere with the import when the database is created.
      */
-    public function dump($options = ['result-file' => self::REQ, 'create-db' => false, 'data-only' => false, 'ordered-dump' => false, 'gzip' => false, 'extra' => self::REQ, 'extra-dump' => self::REQ, 'format' => 'null'])
+    public function dump($options = ['result-file' => self::REQ, 'create-db' => false, 'data-only' => false, 'ordered-dump' => false, 'gzip' => false, 'extra' => self::REQ, 'extra-dump' => self::REQ])
     {
         $sql = SqlBase::create($options);
-        $return = $sql->dump();
-        if ($return === false) {
+        if ($sql->dump() === false) {
             throw new \Exception('Unable to dump database. Rerun with --debug to see any error message.');
         }
-        return new PropertyList(['path' => $return]);
     }
 }

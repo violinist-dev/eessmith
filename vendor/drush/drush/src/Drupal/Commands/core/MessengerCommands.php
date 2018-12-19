@@ -2,9 +2,12 @@
 
 namespace Drush\Drupal\Commands\core;
 
+use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drush\Commands\DrushCommands;
 use Drush\Drupal\DrupalUtil;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 class MessengerCommands extends DrushCommands
 {

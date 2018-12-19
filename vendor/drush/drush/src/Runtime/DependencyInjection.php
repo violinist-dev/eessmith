@@ -12,7 +12,6 @@ use Consolidation\Config\ConfigInterface;
 use Composer\Autoload\ClassLoader;
 use League\Container\ContainerInterface;
 use Consolidation\SiteAlias\SiteAliasManager;
-use Drush\Command\DrushCommandInfoAlterer;
 
 /**
  * Prepare our Dependency Injection Container
@@ -127,7 +126,6 @@ class DependencyInjection
         $factory = $container->get('commandFactory');
         $factory->setIncludeAllPublicMethods(false);
         $factory->setDataStore($commandCacheDataStore);
-        $factory->addCommandInfoAlterer(new DrushCommandInfoAlterer());
 
         $commandProcessor = $container->get('commandProcessor');
         $commandProcessor->setPassExceptions(true);

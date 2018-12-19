@@ -3,8 +3,8 @@ namespace Drush\Commands\core;
 
 use Composer\Semver\Comparator;
 use Consolidation\AnnotatedCommand\CommandData;
-use Consolidation\SiteProcess\ProcessBase;
 use Drupal\Component\FileCache\FileCacheFactory;
+use Drupal\Core\Database\ConnectionNotDefinedException;
 use Drush\Commands\DrushCommands;
 use Drush\Drush;
 use Drush\Exceptions\UserAbortException;
@@ -210,13 +210,9 @@ class SiteInstallCommands extends DrushCommands implements SiteAliasManagerAware
             // Set the destination site UUID to match the source UUID, to bypass a core fail-safe.
             $source_storage = new FileStorage($config);
             $options = ['yes' => true];
-            $selfRecord = $this->siteAliasManager()->getSelf();
-
-            $process = Drush::drush($selfRecord, 'config-set', ['system.site', 'uuid', $source_storage->read('system.site')['uuid']], $options);
-            $process->mustRun();
-
-            $process = Drush::drush($selfRecord, 'config-import', [], ['source' => $config] + $options);
-            $process->mustRun($process->showRealtime());
+            drush_invoke_process('@self', 'config-set', ['system.site', 'uuid', $source_storage->read('system.site')['uuid']], $options);
+            // Run a full configuration import.
+            drush_invoke_process('@self', 'config-import', [], ['source' => $config] + $options);
         }
     }
 
@@ -281,14 +277,13 @@ class SiteInstallCommands extends DrushCommands implements SiteAliasManagerAware
      * Perform setup tasks before installation.
      *
      * @hook pre-command site-install
+     *
      */
     public function pre(CommandData $commandData)
     {
         $sql = SqlBase::create($commandData->input()->getOptions());
         $db_spec = $sql->getDbSpec();
 
-        // This command is 'bootstrap root', so we should always have a
-        // Drupal root. If we do not, $aliasRecord->root will throw.
         $aliasRecord = $this->siteAliasManager()->getSelf();
         $root = $aliasRecord->root();
 
@@ -356,7 +351,7 @@ class SiteInstallCommands extends DrushCommands implements SiteAliasManagerAware
         $bootstrapManager->doBootstrap(DRUSH_BOOTSTRAP_DRUPAL_SITE);
 
         if (!$sql->dropOrCreate()) {
-            throw new \Exception(dt('Failed to drop or create the database: @error', ['@error' => $sql->getProcess()->getOutput()]));
+            throw new \Exception(dt('Failed to create database: @error', ['@error' => implode(drush_shell_exec_output())]));
         }
     }
 

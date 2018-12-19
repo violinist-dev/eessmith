@@ -5,6 +5,7 @@ use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\CommandError;
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Queue\QueueInterface;
 use Drupal\Core\Queue\QueueWorkerManagerInterface;
 use Drupal\Core\Queue\RequeueException;
 use Drupal\Core\Queue\SuspendQueueException;
@@ -97,7 +98,6 @@ class QueueCommands extends DrushCommands
      *   items: Items
      *   class: Class
      *
-     * @filter-default-field queue
      * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
      */
     public function qList($options = ['format' => 'table'])

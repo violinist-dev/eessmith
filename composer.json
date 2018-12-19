@@ -15,7 +15,7 @@
     "drupal/acquia_connector": "^1.7",
     "drupal/youtube": "^1.0",
     "drupal/bootstrap": "^3.0",
-        "drush/drush": "^9.6"
+        "drush/drush": "@stable"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

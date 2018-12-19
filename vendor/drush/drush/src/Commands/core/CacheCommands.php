@@ -13,6 +13,7 @@ use Drupal\Core\Site\Settings;
 use Drupal\Core\Cache\Cache;
 use Drush\Drush;
 use Drush\Utils\StringUtils;
+use Symfony\Component\HttpFoundation\Request;
 
 /*
  * Interact with Drupal's Cache API.
