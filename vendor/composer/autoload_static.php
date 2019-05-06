@@ -4,18 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
+class ComposerStaticInit45069a946373b8a00907bb547666b3a7
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '023d27dca8066ef29e6739335ea73bad' => __DIR__ . '/..' . '/symfony/polyfill-php70/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
-        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
-        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
-        'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
         'cf97c57bfe0f23854afd2f3818abb7a0' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/create_uploaded_file.php',
         '9bf37a3d0dad93e29cb4e1b1bfab04e9' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/marshal_headers_from_sapi.php',
         'ce70dccb4bcc2efc6e94d2ee526e6972' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/marshal_method_from_sapi.php',
@@ -24,6 +19,11 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
         '0b0974a5566a1077e4f2e111341112c1' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/normalize_server.php',
         '1ca3bc274755662169f9629d5412a1da' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/normalize_uploaded_files.php',
         '40360c0b9b437e69bcbb7f1349ce029e' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/parse_cookie_header.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -85,6 +85,10 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
         ),
+        'E' => 
+        array (
+            'Egulias\\EmailValidator\\' => 23,
+        ),
         'D' => 
         array (
             'Drupal\\Driver\\' => 14,
@@ -92,6 +96,7 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
             'Drupal\\Component\\' => 17,
             'DrupalComposer\\DrupalScaffold\\' => 30,
             'Doctrine\\Common\\Inflector\\' => 26,
+            'Doctrine\\Common\\Collections\\' => 28,
             'Doctrine\\Common\\Cache\\' => 22,
             'Doctrine\\Common\\Annotations\\' => 28,
             'Doctrine\\Common\\' => 16,
@@ -100,6 +105,10 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
         array (
             'Composer\\Semver\\' => 16,
             'Composer\\Installers\\' => 20,
+        ),
+        'B' => 
+        array (
+            'Brumann\\Polyfill\\' => 17,
         ),
         'A' => 
         array (
@@ -244,6 +253,10 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
+        'Egulias\\EmailValidator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator',
+        ),
         'Drupal\\Driver\\' => 
         array (
             0 => __DIR__ . '/../..' . '/docroot/drivers/lib/Drupal/Driver',
@@ -267,6 +280,10 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
         ),
+        'Doctrine\\Common\\Collections\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/collections/lib/Doctrine/Common/Collections',
+        ),
         'Doctrine\\Common\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
@@ -289,6 +306,10 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
         'Composer\\Installers\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers',
+        ),
+        'Brumann\\Polyfill\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/brumann/polyfill-unserialize/src',
         ),
         'Asm89\\Stack\\' => 
         array (
@@ -315,12 +336,15 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
                 0 => __DIR__ . '/..' . '/solarium/solarium/library',
             ),
         ),
+        'P' => 
+        array (
+            'PEAR' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/pear_exception',
+            ),
+        ),
         'E' => 
         array (
-            'Egulias\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/egulias/email-validator/src',
-            ),
             'EasyRdf_' => 
             array (
                 0 => __DIR__ . '/..' . '/easyrdf/easyrdf/lib',
@@ -332,11 +356,25 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
             array (
                 0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
             ),
-            'Doctrine\\Common\\Collections\\' => 
+        ),
+        'C' => 
+        array (
+            'Console' => 
             array (
-                0 => __DIR__ . '/..' . '/doctrine/collections/lib',
+                0 => __DIR__ . '/..' . '/pear/console_getopt',
             ),
         ),
+        'A' => 
+        array (
+            'Archive_Tar' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/archive_tar',
+            ),
+        ),
+    );
+
+    public static $fallbackDirsPsr0 = array (
+        0 => __DIR__ . '/..' . '/pear/pear-core-minimal/src',
     );
 
     public static $classMap = array (
@@ -359,10 +397,11 @@ class ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitb27c326f3e791823c1e8ab718e15ec2f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$classMap;
 
         }, null, ClassLoader::class);
     }
