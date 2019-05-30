@@ -21,7 +21,6 @@ spi:
   admin_priv: 1
   send_node_user: 1
   send_watchdog: 1
-  module_diff_data: 1
   use_cron: 1
   dynamic_banner: 1
   set_variables_override: 1
@@ -48,7 +47,7 @@ spi:
   site_name: 'Shay Smith (Employee Free): prod'
   site_machine_name: 49ca011f_b162_7394_3d3b_91a2c8326eb4__eessmith
   site_uuid: 9c58fa5c-29d6-4843-bd11-91b942853604
-  site_environment: dev
+  site_environment: prod
   env_detection_enabled: true
 mapping:
   acquia_spi_send_node_user:
