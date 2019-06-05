@@ -56,12 +56,12 @@
     "scripts": {
         "post-install-cmd": [
             "@composer drupal-scaffold",
-            "if [ -d '/var/www/site-php' ]; then drush9 --root=$PWD/docroot config-export vcs",
+            "if [ -d '/var/www/site-php' ]; then drush9 --root=$PWD/docroot config-export vcs; fi",
             "find docroot vendor -name '.git' | xargs rm -rf" 
         ],
         "post-update-cmd": [
             "@composer drupal-scaffold",
-            "if [ -d '/var/www/site-php' ]; then drush9 --root=$PWD/docroot config-export vcs",
+            "if [ -d '/var/www/site-php' ]; then drush9 --root=$PWD/docroot config-export vcs; fi",
             "find docroot vendor -name '.git' | xargs rm -rf"
         ],
         "drupal-scaffold": [
