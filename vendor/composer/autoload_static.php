@@ -4,11 +4,10 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit45069a946373b8a00907bb547666b3a7
+class ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '023d27dca8066ef29e6739335ea73bad' => __DIR__ . '/..' . '/symfony/polyfill-php70/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'cf97c57bfe0f23854afd2f3818abb7a0' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/create_uploaded_file.php',
@@ -95,6 +94,7 @@ class ComposerStaticInit45069a946373b8a00907bb547666b3a7
             'Drupal\\Core\\' => 12,
             'Drupal\\Component\\' => 17,
             'DrupalComposer\\DrupalScaffold\\' => 30,
+            'Doctrine\\Common\\Lexer\\' => 22,
             'Doctrine\\Common\\Inflector\\' => 26,
             'Doctrine\\Common\\Collections\\' => 28,
             'Doctrine\\Common\\Cache\\' => 22,
@@ -276,6 +276,10 @@ class ComposerStaticInit45069a946373b8a00907bb547666b3a7
         array (
             0 => __DIR__ . '/..' . '/drupal-composer/drupal-scaffold/src',
         ),
+        'Doctrine\\Common\\Lexer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/lexer/lib/Doctrine/Common/Lexer',
+        ),
         'Doctrine\\Common\\Inflector\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
@@ -350,13 +354,6 @@ class ComposerStaticInit45069a946373b8a00907bb547666b3a7
                 0 => __DIR__ . '/..' . '/easyrdf/easyrdf/lib',
             ),
         ),
-        'D' => 
-        array (
-            'Doctrine\\Common\\Lexer\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
-            ),
-        ),
         'C' => 
         array (
             'Console' => 
@@ -397,11 +394,11 @@ class ComposerStaticInit45069a946373b8a00907bb547666b3a7
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInit45069a946373b8a00907bb547666b3a7::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit2a3f5fa190e9bd506de504a9244601c0::$classMap;
 
         }, null, ClassLoader::class);
     }
