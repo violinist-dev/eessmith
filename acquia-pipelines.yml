@@ -1,0 +1,8 @@
+version: 1.2.0
+events:
+  build:
+    steps:
+      - hello:
+          type: script
+          script:
+            - echo 'Hello, Pipelines!'
