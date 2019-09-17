@@ -1,0 +1,14 @@
+{
+  "name": "drupal/cohesion_style_helpers",
+  "type": "drupal-module",
+  "description": "Cohesion style helpers",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/cohesion_style_helpers",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/cohesion_style_helpers",
+    "source": "http://cgit.drupalcode.org/cohesion_style_helpers"
+  },
+  "require": { }
+}

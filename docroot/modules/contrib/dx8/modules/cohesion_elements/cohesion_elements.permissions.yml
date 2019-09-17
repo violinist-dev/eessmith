@@ -1,0 +1,19 @@
+administer components:
+  title: DX8 components
+  description: 'Grant access to create, edit and manage DX8 components.'
+administer component content:
+  title: DX8 component content
+  description: 'Grant access to create, edit and manage DX8 component content.'
+administer component categories:
+  title: DX8 component categories
+  description: 'Grant access to create, edit and manage DX8 component categories.'
+
+administer helpers:
+  title: DX8 helpers
+  description: 'Grant access to create, edit and manage DX8 helpers.'
+administer helper categories:
+  title: DX8 helpers categories
+  description: 'Grant access to create, edit and manage DX8 helper categories.'
+
+permission_callbacks:
+  - \Drupal\cohesion_elements\CategoryPermissions::getPermissions

@@ -1,0 +1,41 @@
+/**
+ * Created by nathansimmonds on 14/03/2017.
+ */
+
+.cohesion-accordion .panel {
+    background-color: #FFF;
+    border: 0;
+    padding: 0;
+}
+
+.cohesion-accordion .panel-heading {
+    border: 0;
+}
+
+.cohesion-accordion .panel-collapse {
+    border: 1px solid #CCC;
+    border-top: 0;
+    padding: 15px;
+    display: none;
+}
+
+.cohesion-accordion .panel-open .panel-collapse {
+    display: block;
+}
+
+.cohesion-accordion .panel-collapse > .form-item {
+    margin: 0;
+}
+
+.cohesion-accordion .panel-collapse > .form-item + .form-item {
+    margin-top: 10px;
+}
+
+.cohesion-accordion .panel-collapse thead th {
+    background-color: #FFF;
+    border-top: 0;
+}
+
+.cohesion-accordion .panel-collapse table tbody tr:last-child {
+    border-bottom: 0;
+}

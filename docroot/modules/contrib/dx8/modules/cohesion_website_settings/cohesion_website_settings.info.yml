@@ -1,0 +1,10 @@
+name: DX8 website settings
+type: module
+description: 'Defines the website settings configuration entities.'
+core: 8.x
+package: cohesion
+libraries:
+  - core/jquery.ui
+  - core/jquery.ui.animate
+dependencies:
+  - cohesion

@@ -1,0 +1,14 @@
+{
+  "name": "drupal/cohesion_elements",
+  "type": "drupal-module",
+  "description": "Renderable elements for DX8.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/cohesion_elements",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/cohesion_elements",
+    "source": "http://cgit.drupalcode.org/cohesion_elements"
+  },
+  "require": { }
+}

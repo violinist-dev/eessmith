@@ -1,0 +1,6 @@
+services:
+  cohesion_custom_styles.utils:
+    class: Drupal\cohesion_custom_styles\CustomStyleUtils
+    arguments: []
+    tags:
+      - { name: cohesion_custom_styles.utils, scheme: cohesion }

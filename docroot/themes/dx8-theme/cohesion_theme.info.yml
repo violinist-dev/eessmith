@@ -1,0 +1,21 @@
+name: DX8 minimal theme
+type: theme
+description: DX8 provides a minimal theme as a basis for DX8 websites. It includes some basic styling for Drupal admin functions.
+core: 8.x
+
+# Defines the base theme.
+base theme: stable
+
+libraries:
+  - cohesion_theme/global-styling
+
+
+# Defines theme regions available.
+regions:
+  header: Header
+  featured: Featured
+  content: Content
+  sidebar_first: First sidebar
+  sidebar_second: Second sidebar
+  footer: Footer
+  dx8_hidden: DX8 hidden region

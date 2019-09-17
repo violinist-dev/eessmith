@@ -1,0 +1,7 @@
+name: DX8 example custom element
+type: module
+description: 'A working example of a custom DX8 element to show a developer how they can create one.'
+core: 8.x
+package: cohesion
+dependencies:
+  - cohesion

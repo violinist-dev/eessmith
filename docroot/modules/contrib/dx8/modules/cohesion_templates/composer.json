@@ -1,0 +1,14 @@
+{
+  "name": "drupal/cohesion_templates",
+  "type": "drupal-module",
+  "description": "Cohesion templates",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/cohesion_templates",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/cohesion_templates",
+    "source": "http://cgit.drupalcode.org/cohesion_templates"
+  },
+  "require": { }
+}

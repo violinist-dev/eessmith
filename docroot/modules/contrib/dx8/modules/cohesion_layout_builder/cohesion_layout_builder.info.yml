@@ -1,0 +1,9 @@
+name: DX8 layout builder
+type: module
+description: 'Support for using the core layout builder with DX8.'
+core: 8.x
+package: cohesion
+dependencies:
+  - cohesion
+  - layout_builder
+  

@@ -1,0 +1,12 @@
+administer master templates:
+  title: DX8 Master templates
+  description: 'Grant access to create, edit and manage DX8 master templates.'
+administer content templates:
+  title: DX8 Content templates
+  description: 'Grant access to create, edit and manage DX8 content templates.'
+administer view templates:
+  title: DX8 View templates
+  description: 'Grant access to create, edit and manage DX8 view templates.'
+administer menu templates:
+  title: DX8 Menu templates
+  description: 'Grant access to create, edit and manage DX8 menu templates.'

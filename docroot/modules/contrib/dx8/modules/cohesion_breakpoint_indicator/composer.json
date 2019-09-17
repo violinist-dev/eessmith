@@ -1,0 +1,6 @@
+{
+    "name": "cohesion/dx8_breakpoint_indicator",
+    "description": "DX8 breakpoint indicator",
+    "type": "drupal-module",
+    "minimum-stability": "dev"
+}

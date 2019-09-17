@@ -1,0 +1,96 @@
+# DX8 Permissions
+administer cohesion settings:
+  title: Administer DX8 configuration
+  description: 'Grant access to administer DX8 account settings and global settings.'
+  restrict access: TRUE
+administer cohesion:
+  title: Administer DX8
+  description: 'Grant access to the DX8 menu.'
+
+
+access components:
+  title: DX8 Access components group
+  description: 'Grant access to the DX8 components within the sidebar browser.'
+
+access elements:
+  title: DX8 Access elements group
+  description: 'Grant access to the DX8 elements within the sidebar browser.'
+
+access helpers:
+  title: DX8 Access helpers group
+  description: 'Grant access to the DX8 helpers within the sidebar browser.'
+
+access fields:
+  title: DX8 Access fields group
+  description: 'Grant access to the DX8 fields within the sidebar browser.'
+
+access component content:
+  title: DX8 Access component content group
+  description: 'Grant access to the DX8 component content within the sidebar browser.'
+
+
+access content elements group:
+  title: DX8 Elements - Content elements group
+  description: 'Grant access to the DX8 content elements group within the sidebar browser.'
+access layout elements group:
+  title: DX8 Elements - Layout elements group
+  description: 'Grant access to the DX8 layout elements group within the sidebar browser.'
+access media elements group:
+  title: DX8 Elements - Media elements group
+  description: 'Grant access to the DX8 media elements group within the sidebar browser.'
+access interactive elements group:
+  title: DX8 Elements - Interactive elements group
+  description: 'Grant access to the DX8 interactive elements group within the sidebar browser.'
+access view elements group:
+  title: DX8 Elements - View elements group
+  description: 'Grant access to the DX8 view elements group within the sidebar browser.'
+access menu elements group:
+  title: DX8 Elements - Menu elements group
+  description: 'Grant access to the DX8 menu elements group within the sidebar browser.'
+access drupal core elements group:
+  title: DX8 Elements - Core elements group
+  description: 'Grant access to the DX8 core elements group within the sidebar browser.'
+access custom elements group:
+  title: DX8 Elements - Custom elements group
+  description: 'Grant access to the DX8 custom elements group within the sidebar browser.'
+access component builder elements group:
+  title: DX8 Elements - Component builder elements group
+  description: 'Grant access to the DX8 component builder elements group within the sidebar browser.'
+
+access styles:
+  title: DX8 Elements tab - Styles
+  description: 'Grant access to the element styles tab.'
+access markup:
+  title: DX8 Elements tab - Markup
+  description: 'Grant access to the element markup tab.'
+access seo:
+  title: DX8 Elements tab - SEO
+  description: 'Grant access to the element SEO tab.'
+access analytics:
+  title: DX8 Elements tab - Analytics
+  description: 'Grant access to the element analytics tab.'
+access context visibility:
+  title: DX8 Elements tab - Context visibility
+  description: 'Grant access to the element context visibility tab.'
+access tokens:
+  title: DX8 Elements tab - Token browser and toggle variable mode
+  description: 'Grant access to open the token browser and to toggle variable mode.'
+access animate on view:
+  title: DX8 Elements tab - Animate on view
+  description: 'Grant access to the element animate on view tab.'
+access hide no data:
+  title: DX8 Elements tab - Hide if no data
+  description: 'Grant access to the element hide if no data tab.'
+
+# Access permissions for element groups under fields tab
+access form layout fields group:
+  title: DX8 Component builder - Form layout group
+  description: 'Grant access to the DX8 form layout group within the sidebar browser.'
+access form help fields group:
+  title: DX8 Component builder - Form help group
+  description: 'Grant access to the DX8 form help group within the sidebar browser.'
+access form fields fields group:
+  title: DX8 Component builder - Form fields group
+  description: 'Grant access to the DX8 form fields group within the sidebar browser.'
+
+

@@ -1,0 +1,12 @@
+name: DX8 core
+type: module
+description: 'Defines the base DX8 entities, import and administration controllers and drush commands.'
+core: 8.x
+version: 8.x-5.5.6
+package: cohesion
+dependencies:
+  - contextual
+  - imce
+  - token
+  - entity_reference_revisions
+  - settings_tray

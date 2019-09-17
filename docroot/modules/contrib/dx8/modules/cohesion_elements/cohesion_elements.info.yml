@@ -1,0 +1,7 @@
+name: DX8 elements
+type: module
+description: 'Defines the component and helper configuration entities for creating reusable layout configurations within DX8.'
+core: 8.x
+package: cohesion
+dependencies:
+  - cohesion

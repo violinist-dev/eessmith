@@ -1,0 +1,14 @@
+{
+  "name": "drupal/base_styles",
+  "type": "drupal-module",
+  "description": "Cohesion base styles",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/cohesion_base_styles",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/cohesion_base_styles",
+    "source": "http://cgit.drupalcode.org/cohesion_base_styles"
+  },
+  "require": { }
+}

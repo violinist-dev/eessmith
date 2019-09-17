@@ -1,0 +1,13 @@
+{# render the component preview full page wrapper #}
+<div
+    class="coh-form coh-canvas-preview-new-window"
+    ng-init="onInit(formRenderer, 'canvas', 'preview')"
+    ng-controller="CohFormRendererCtrl"
+    ng-class="formLoaded() ? 'is-loaded' : 'is-loading'">
+  <div
+      sf-schema="form.schema"
+      sf-form="form.form"
+      sf-model="form.model"
+      sf-options="form.options"></div>
+  <input class="_modelAsJson" data-drupal-selector="edit-json-values" aria-describedby="edit-json-values--description" type="hidden" name="json_values" value="{}">
+</div>

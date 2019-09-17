@@ -1,0 +1,15 @@
+sync-package-form:
+  css:
+    base:
+      css/package-form.css: {}
+  js:
+    form-js/runtime/package-form.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+
+sync-chunked-file:
+  js:
+    file-js/chunked.js: {}
+  dependencies:
+    - core/drupal

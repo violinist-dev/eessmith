@@ -1,0 +1,9 @@
+# Website settings
+administer website settings:
+  title: DX8 Website settings
+  description: 'Grant access to administer DX8 website settings.'
+
+# Website settings
+access color_picker:
+  title: DX8 Color picker
+  description: 'Grant access to the color picker. Restricted access will only allow the use of the color palette.'

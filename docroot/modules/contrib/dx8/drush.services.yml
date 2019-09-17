@@ -1,0 +1,5 @@
+services:
+  dx8.commands:
+    class: \Drupal\cohesion\Commands\Dx8Commands
+    tags:
+      - { name: drush.command }
