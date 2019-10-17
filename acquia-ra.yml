@@ -1,0 +1,5 @@
+parameters:
+  ra.ext_repo: git@github.com:shaysmith/ra-up.git
+  ra.ext_branch: master
+  ra.ext_merge_branch: master
+
