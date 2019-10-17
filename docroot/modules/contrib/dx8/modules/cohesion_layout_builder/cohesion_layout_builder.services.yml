@@ -1,6 +1,0 @@
-services:
-
-  cohesion_layout_builder.route_subscriber:
-    class: Drupal\cohesion_layout_builder\Routing\RouteSubscriber
-    tags:
-    - { name: event_subscriber }

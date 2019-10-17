@@ -43,10 +43,19 @@ class PackageForm extends EntityForm {
     $form = parent::form($form, $form_state);
 
     // Include the Angualar css (which controls the cohesion_accordion and other form styling).
-    $form['#attached']['library'][] = 'cohesion/cohesion-admin';
+    $form['#attached']['library'][] = 'cohesion/cohesion-admin-scripts';
+    $form['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
 
     // Attach the css/* and js/* library.
     $form['#attached']['library'][] = 'cohesion_sync/sync-package-form';
+
+    /**
+     * Hook for JS Sync APP
+     */
+    $form['app'] = [
+      '#markup' => '<div id="cohApp"></div>',
+      '#parents' => [], // Suppresses https://www.drupal.org/project/drupal/issues/3027240
+    ];
 
     /**
      * Title and description metadata.
@@ -177,6 +186,8 @@ class PackageForm extends EntityForm {
     // Set default values for the app to load in.
     $form['#attached']['drupalSettings']['syncPackageForm']['excludedSettings'] = $this->entity->getExcludedEntityTypes();
     $form['#attached']['drupalSettings']['syncPackageForm']['packageSettings'] = $this->entity->getSettings();
+    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'cohesion_sync';
+    $form['#attached']['drupalSettings']['cohesion']['formId'] = 'packages';
 
     return $form;
   }

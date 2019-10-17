@@ -538,40 +538,53 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       'file' => drupal_get_path('module', 'cohesion_website_settings') . '/cohesion_website_settings.batch.inc',
     ];
 
-    // First, make sure the default element styles get rebuilt.
-    $batch['operations'][] = [
-      'cohesion_website_settings_enable_website_settings',
-      [
-        'entities' => [
-          'base_unit_settings',
-          'responsive_grid_settings',
-          'color_palette',
-          'font_libraries',
-        ],
-      ],
+    $configs = \Drupal::entityTypeManager()->getDefinitions();
+
+    // Make sure website settings are processed first
+    $website_settings_configs = [
+      'cohesion_scss_variable',
+      'cohesion_color',
+      'cohesion_icon_library',
+      'cohesion_font_library',
+      'cohesion_font_stack',
+      'cohesion_website_settings',
     ];
 
-    // Proccess default element styles
+    foreach ($website_settings_configs as $website_settings_type){
+      if(isset($configs[$website_settings_type])){
+
+        $entity_list = \Drupal::entityTypeManager()->getStorage($website_settings_type)->loadMultiple();
+
+        foreach ($entity_list as $entity) {
+          $batch['operations'][] = [
+            '_resave_entity',
+            ['entity' => $entity, 'realsave' => TRUE],
+          ];
+        }
+        // Remove processed website setting from all configs
+        unset($configs[$website_settings_type]);
+      }
+    }
+
+    // Process default element styles
     $batch['operations'][] = [
       'cohesion_elements_get_elements_style_process_batch',
       [],
     ];
 
-    // Add all the configuration entities.
-    $configs = \Drupal::entityTypeManager()->getDefinitions();
+    // Process all remaining DX8 configuration entities.
     $search = 'cohesion_';
-
     foreach ($configs as $entity_type_name => $entity_type) {
       if (substr($entity_type_name, 0, strlen($search)) === $search) {
         try {
           $entity_list = \Drupal::entityTypeManager()->getStorage($entity_type_name)->loadMultiple();
 
           foreach ($entity_list as $entity) {
-            // Only rebuild entities that have been activated.
-            if (($entity->get('modified') || $entity_type_name === 'cohesion_website_settings' || $entity_type_name === 'cohesion_color' || $entity_type_name === 'cohesion_icon_library' || $entity_type_name === 'cohesion_font_stack')) {
+            // Only rebuild entities that have been activated/modified.
+            if ($entity->get('modified') || $entity_type_name === 'cohesion_website_settings' || $entity_type_name === 'cohesion_color' || $entity_type_name === 'cohesion_icon_library' || $entity_type_name === 'cohesion_font_stack') {
               $batch['operations'][] = [
                 '_resave_entity',
-                ['entity' => $entity],
+                ['entity' => $entity, 'realsave' => TRUE],
               ];
             }
           }

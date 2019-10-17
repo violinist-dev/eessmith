@@ -3,10 +3,15 @@ administer cohesion settings:
   title: Administer DX8 configuration
   description: 'Grant access to administer DX8 account settings and global settings.'
   restrict access: TRUE
+
 administer cohesion:
   title: Administer DX8
   description: 'Grant access to the DX8 menu.'
 
+bypass xss cohesion:
+  title: Bypass XSS validation in element forms
+  description: 'Allow site builders to add script tags and other potentially dangerous markup to elements within DX8.'
+  restrict access: TRUE
 
 access components:
   title: DX8 Access components group

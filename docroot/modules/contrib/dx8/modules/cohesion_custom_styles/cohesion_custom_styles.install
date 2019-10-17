@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\Core\Config\FileStorage;
+use Drupal\rest\Entity\RestResourceConfig;
+
 /**
  * Custom style selectable property
  */
@@ -19,9 +22,10 @@ function cohesion_custom_styles_update_8401(&$variables) {
  */
 function cohesion_custom_styles_update_8402(&$variables) {
   $results = [];
-  $entities = \Drupal::entityTypeManager()
-    ->getStorage('cohesion_custom_style')
-    ->loadMultiple();
+  $storage = \Drupal::entityTypeManager()
+    ->getStorage('cohesion_custom_style');
+
+  $entities = $storage->loadMultiple();
 
   // Get parents styles
   foreach ($entities as $entity) {
@@ -46,17 +50,43 @@ function cohesion_custom_styles_update_8402(&$variables) {
       _update_custom_styles_weight($parent_entity->getConfigDependencyName(), $parent_count);
       $child_count = 1;
 
-      $children_styles = \Drupal::service('cohesion_custom_styles.utils')
-        ->childrenCustomStyles($id);
 
-      foreach ($children_styles as $childId) {
-        $child_entity = $entities[$childId];
-        // Set children weight
-        _update_custom_styles_weight($child_entity->getConfigDependencyName(), $child_count);
-        $child_count++;
+      if ($parent = $storage->load($id)) {
+        $children_styles = $storage->getQuery()
+          ->condition('parent', $parent->getClass(), '=')
+          ->sort('label', 'ASC')
+          ->sort('weight', 'ASC')
+          ->execute();
+
+        if($children_styles){
+          foreach ($children_styles as $childId) {
+            $child_entity = $entities[$childId];
+            // Set children weight
+            _update_custom_styles_weight($child_entity->getConfigDependencyName(), $child_count);
+            $child_count++;
+          }
+        }
       }
+
       $parent_count++;
     }
+  }
+}
+
+/**
+ * Add rest endpoint for custom styles
+ */
+function cohesion_custom_styles_update_8500(){
+  // Overwrite the existing entity config.
+  $config_path = drupal_get_path('module', 'cohesion_custom_styles') . '/config/install';
+  $source = new FileStorage($config_path);
+
+  foreach ($source->listAll('rest.resource') as $config_item_name) {
+    // Load the config in.
+    $config = $source->read($config_item_name);
+
+    RestResourceConfig::create($config)->save();
+
   }
 }
 

@@ -62,7 +62,8 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
     }
 
     // Boot angular with the given custom style type
-    $form['#attributes']['ng-init'] = "onInit(formRenderer, 'custom_styles', '" . $custom_style_type->id() . "')";
+    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'custom_styles';
+    $form['#attached']['drupalSettings']['cohesion']['formId'] = $custom_style_type->id();
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')
       ->getCohFormOnInit('custom_styles', $custom_style_type->id());
     $form['#attached']['drupalSettings']['cohesion']['custom_style_type'] = $this->entity->get('custom_style_type');

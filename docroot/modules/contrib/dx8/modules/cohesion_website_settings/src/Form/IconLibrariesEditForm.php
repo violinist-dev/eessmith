@@ -23,7 +23,7 @@ class IconLibrariesEditForm extends WebsiteSettingsGroupFormBase {
 
   const FORM_CLASS = 'cohesion-website-settings-icon-libraries-form';
 
-  const NG_ID = 'icon_libraries';
+  const COH_FROM_ID = 'icon_libraries';
 
   const PLUGIN_ID = 'icon_libraries_entity_groups';
 

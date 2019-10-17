@@ -35,7 +35,7 @@ class PreviewStyleEndpoint extends ControllerBase {
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
 
     $send_to_api->setupPreview($entity_type_id, $style_model);
-    $success = $send_to_api->send('style');
+    $success = $send_to_api->send();
     $response = $send_to_api->getData();
 
     $error = TRUE;

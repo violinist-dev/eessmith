@@ -54,7 +54,7 @@ class CategoriesListBuilder extends CohesionListBuilder {
     $form = parent::buildForm($form, $form_state);
 
     // Include the Angualar css (which controls the cohesion_accordion and other form styling).
-    $form['#attached']['library'][] = 'cohesion/cohesion-admin';
+    $form['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
 
     return $form;
   }

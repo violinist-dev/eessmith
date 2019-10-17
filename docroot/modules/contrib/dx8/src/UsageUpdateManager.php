@@ -107,7 +107,7 @@ class UsageUpdateManager {
     // Find the plugin that controls this plugin type.
     try {
       if ($instance = $this->getPluginInstanceForEntity($entity)) {
-        // Get the scannable data (usually JSON for DX8 entities).
+        // Get the scannable data (usually JSON for entities).
         $scannable_data = $instance->getScannableData($entity);
       }
     }

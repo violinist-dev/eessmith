@@ -26,11 +26,10 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
   /** @var \Drupal\cohesion\Plugin\LayoutCanvas\ElementModel|NULL $model */
   protected $model;
 
-  /**
-   * @var $element \stdClass The element properties without children
-   */
+  /** @var $element \stdClass The element properties without children */
   protected $element;
 
+  /** @var bool */
   protected $is_api_ready = FALSE;
 
   /**
@@ -79,11 +78,11 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
   }
 
   /**
-   *
    * Find a property in the element
    *
    * @param string|array $path_to_property
-   *  The path in the element to get this property. Specify a string if top level, or an array to search in leaves
+   *  The path in the element to get this property. Specify a string if top
+   *   level, or an array to search in leaves
    *
    * @return mixed|null
    */
@@ -110,17 +109,26 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
     return $current_pointer;
   }
 
+  /**
+   * @return \Drupal\cohesion\Plugin\LayoutCanvas\Element|\Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas
+   */
   public function getParent() {
     return $this->parent;
   }
 
-
+  /**
+   * @param $property_name
+   */
   public function unsetProperty($property_name) {
     if (property_exists($this->element, $property_name)) {
       unset($this->element->{$property_name});
     }
   }
 
+  /**
+   * @param $property_name
+   * @param $value
+   */
   public function setProperty($property_name, $value) {
     $this->element->{$property_name} = $value;
   }
@@ -165,7 +173,7 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
   }
 
   /**
-   * Return TRUE if the element is a component
+   * Return TRUE if the element is a component.
    *
    * @return bool
    */
@@ -173,6 +181,18 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
     return property_exists($this->element, 'type') && $this->element->type == 'component' && property_exists($this->element, 'componentId');
   }
 
+  /**
+   * Return TRUE if element is an element.
+   *
+   * @return bool
+   */
+  public function isElement() {
+    return property_exists($this->element, 'type') && in_array($this->element->type, ['container', 'item']);
+  }
+
+  /**
+   * @return |null
+   */
   public function getComponentID() {
     if ($this->isComponent()) {
       return $this->element->componentId;
@@ -181,12 +201,14 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
     return NULL;
   }
 
+  /**
+   * @return bool
+   */
   public function isApiReady() {
     return $this->is_api_ready;
   }
 
   /**
-   *
    * Recursively loop through the element children
    *
    * Returns a flat array of Element[] of the element children
@@ -211,7 +233,6 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
    *
    */
   public function iterateChildren() {
-
     $elements = [];
 
     if (count($this->getChildren()) > 0) {
@@ -235,7 +256,7 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function jsonSerialize() {
     $json_obj = new \stdClass();
@@ -251,4 +272,5 @@ class Element implements LayoutCanvasElementInterface, \JsonSerializable {
 
     return $json_obj;
   }
+
 }

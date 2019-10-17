@@ -62,5 +62,6 @@ function cohesion_custom_styles_menu_local_actions_alter(&$local_actions) {
   if (isset($local_actions['cohesion_custom_style.toggle_style_groups'])) {
     $local_actions['cohesion_custom_style.toggle_style_groups']['options']['attributes']['class'][] = 'coh-toggle-accordion';
     $local_actions['cohesion_custom_style.toggle_style_groups']['options']['attributes']['class'][] = 'open';
+    $local_actions['cohesion_custom_style.toggle_style_groups']['options']['attributes']['role'][] = 'button';
   }
 }

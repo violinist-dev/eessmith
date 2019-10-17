@@ -66,7 +66,8 @@ use Drupal\cohesion\Plugin\Api\PreviewApi;
  *   }
  * )
  */
-class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsInterface {
+class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsInterface
+{
 
   use EntityHasResourceObjectTrait {
     getResourceObject as protected getResourceObjectDefault;
@@ -114,7 +115,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return string
    */
-  public function getClass() {
+  public function getClass()
+  {
     return $this->class_name;
   }
 
@@ -123,7 +125,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return string
    */
-  public function getCustomStyleType() {
+  public function getCustomStyleType()
+  {
     return $this->custom_style_type;
   }
 
@@ -132,7 +135,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return string
    */
-  public function getParent() {
+  public function getParent()
+  {
     return $this->parent;
   }
 
@@ -143,7 +147,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getParentId() {
+  public function getParentId()
+  {
     try {
       $storage = \Drupal::entityTypeManager()->getStorage('cohesion_custom_style');
     } catch (\Throwable $e) {
@@ -154,8 +159,7 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
 
       return reset($ids);
 
-    }
-    else {
+    } else {
       return FALSE;
     }
   }
@@ -165,7 +169,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return string
    */
-  public function setParent($parent) {
+  public function setParent($parent)
+  {
     $this->parent = $parent;
     return $this;
   }
@@ -173,7 +178,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * @return array of child entities
    */
-  public function getChildEntities() {
+  public function getChildEntities()
+  {
 
     $entities = [];
 
@@ -197,14 +203,16 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return int
    */
-  public function getWeight() {
+  public function getWeight()
+  {
     return $this->weight ?: 0;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function preSave(EntityStorageInterface $storage) {
+  public function preSave(EntityStorageInterface $storage)
+  {
     parent::preSave($storage);
 
     if (!$this->getStatus()) {
@@ -217,14 +225,15 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function process() {
+  public function process()
+  {
     parent::process();
 
     /** @var CustomStylesApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('custom_styles_api');
 
     $send_to_api->setEntity($this);
-    $send_to_api->send('style');
+    $send_to_api->send();
   }
 
   /**
@@ -232,19 +241,19 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function jsonValuesErrors() {
+  public function jsonValuesErrors()
+  {
     /** @var PreviewApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
 
     $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues());
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('style');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {
       return FALSE;
-    }
-    else {
+    } else {
       return $responseData;
     }
   }
@@ -255,7 +264,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+  public function postSave(EntityStorageInterface $storage, $update = TRUE)
+  {
     parent::postSave($storage, $update);
 
     // Send entity to the API to compilation.
@@ -282,7 +292,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * {@inheritdoc}
    */
-  public function getResourceObject() {
+  public function getResourceObject()
+  {
     $entity_values = $this->getResourceObjectDefault();
 
     $entity_values->custom_style_type = $this->get('custom_style_type');
@@ -299,7 +310,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * {@inheritdoc}
    */
-  public function setDefaultValues() {
+  public function setDefaultValues()
+  {
     parent::setDefaultValues();
 
     $this->set('custom_style_type', '');
@@ -310,7 +322,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * {@inheritdoc}
    */
-  public static function preDelete(EntityStorageInterface $storage, array $entities) {
+  public static function preDelete(EntityStorageInterface $storage, array $entities)
+  {
     parent::preDelete($storage, $entities);
 
     $cohesion_sync_lock = &drupal_static('cohesion_sync_lock');
@@ -332,7 +345,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * {@inheritdoc}
    */
-  public function getInUseMessage() {
+  public function getInUseMessage()
+  {
     return [
       'message' => [
         '#markup' => t('This <em>Custom style</em> has been tracked as in use in the places listed below.<br/><br/>
@@ -346,7 +360,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * {@inheritdoc}
    */
-  public function clearData() {
+  public function clearData()
+  {
     if ($this->getParentId()) {
       // Get the parent entity.
       try {
@@ -358,8 +373,7 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
       } catch (\Exception $e) {
         watchdog_exception($e, new \Exception(t('Could not load parent custom style')));
       }
-    }
-    // Add top level deleted entities to a queue to send to the Api on prepareStyleSheet().
+    } // Add top level deleted entities to a queue to send to the Api on prepareStyleSheet().
     else {
       /** @var CustomStylesApi $send_to_api */
       $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('custom_styles_api');
@@ -374,7 +388,8 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
    *
    * @return \Drupal\Core\Entity\Entity|static
    */
-  public function createDuplicate() {
+  public function createDuplicate()
+  {
     $duplicate = parent::createDuplicate();
     $duplicate->set('class_name', '');
     return $duplicate;
@@ -383,8 +398,52 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   /**
    * @inheritdoc
    */
-  public function isLayoutCanvas() {
+  public function isLayoutCanvas()
+  {
     return FALSE;
+  }
+
+  /**
+   *
+   * Load all custom styles ordered by parent/children and weight
+   *
+   * @return array|CustomStyle[]
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public static function loadParentChildrenOrdered()
+  {
+    $ids = [];
+
+    $entity_type_repository = \Drupal::service('entity_type.repository');
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $storage = $entity_type_manager->getStorage($entity_type_repository->getEntityTypeFromClass(get_called_class()));
+
+    $parent_ids = $storage->getQuery()->notExists('parent')
+      ->sort('label', 'ASC')
+      ->sort('weight', 'ASC')
+      ->execute();
+
+    if ($parent_ids) {
+      foreach ($parent_ids as $entityId) {
+        $ids[$entityId] = $entityId;
+
+        /** @var CustomStyle $parent */
+        if ($parent = self::load($entityId)) {
+          $children = $storage->getQuery()
+            ->condition('parent', $parent->getClass(), '=')
+            ->sort('label', 'ASC')
+            ->sort('weight', 'ASC')
+            ->execute();
+
+          if ($children) {
+            $ids += $children;
+          }
+        }
+      }
+    }
+
+    return $storage->loadMultiple($ids);
   }
 
 }

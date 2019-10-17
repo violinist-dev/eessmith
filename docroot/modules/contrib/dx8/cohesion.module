@@ -49,24 +49,8 @@ function cohesion_help($route_name, RouteMatchInterface $route_match) {
  */
 function cohesion_token_info() {
   $info = [];
-  $info['types']['media-reference'] = [
-    'name' => t('Media reference'),
-    'description' => t('DX8 Group'),
-  ];
-  $info['tokens']['media-reference'] = [
-    'file' => [
-      'name' => t('File entity reference'),
-      'title' => t('File entity reference'),
-      'description' => t('A token to reference a file entity within DX8.'),
-      'dynamic' => TRUE,
-    ],
-    'media' => [
-      'title' => t('Media entity reference'),
-      'name' => t('Media entity reference'),
-      'description' => t('A token to reference a media entity, field and index within DX8.'),
-      'dynamic' => TRUE,
-    ],
-  ];
+  $info['types']['media-reference'] = ['name' => t('Media reference'), 'description' => t('DX8 Group'),];
+  $info['tokens']['media-reference'] = ['file' => ['name' => t('File entity reference'), 'title' => t('File entity reference'), 'description' => t('A token to reference a file entity within DX8.'), 'dynamic' => TRUE,], 'media' => ['title' => t('Media entity reference'), 'name' => t('Media entity reference'), 'description' => t('A token to reference a media entity, field and index within DX8.'), 'dynamic' => TRUE,],];
   return $info;
 }
 
@@ -106,27 +90,22 @@ function cohesion_preprocess_html(&$variables) {
   }
 
   if ($is_admin) {
-    // Add Angular app to the admin pages.
-    $variables['attributes']['ng-app'] = 'cohesionApp';
-
     // Display warning message when 'Use DX8' is disabled
-    if (!(\Drupal::service('cohesion.utils')->usedx8Status()) && (strpos(\Drupal::service('path.current')->getPath(), 'cohesion') !== FALSE) && \Drupal::routeMatch()
-        ->getRouteName() !== 'cohesion.configuration.account_settings') {
+    if (!(\Drupal::service('cohesion.utils')->usedx8Status()) && (strpos(\Drupal::service('path.current')->getPath(), 'cohesion') !== FALSE) && \Drupal::routeMatch()->getRouteName() !== 'cohesion.configuration.account_settings') {
       drupal_set_message(t('You cannot  access this page because DX8 is disabled.'), 'warning');
     }
 
-  }
-  else {
+  } else {
     // Add browser-specific classes to non-admin pages.
     $ua = $_SERVER['HTTP_USER_AGENT'];
 
-    if ((bool) preg_match('/msie 9./i', $ua)) {
+    if ((bool)preg_match('/msie 9./i', $ua)) {
       $variables['attributes']['class'][] = 'coh-ie9';
     }
-    if ((bool) preg_match('/msie 10./i', $ua)) {
+    if ((bool)preg_match('/msie 10./i', $ua)) {
       $variables['attributes']['class'][] = 'coh-ie10';
     }
-    if ((bool) preg_match('/Trident\/7.0/', $ua)) {
+    if ((bool)preg_match('/Trident\/7.0/', $ua)) {
       $variables['attributes']['class'][] = 'coh-ie11';
     }
   }
@@ -167,7 +146,7 @@ function _cohesion_shared_page_attachments(&$attachments) {
  */
 function cohesion_page_attachments(array &$attachments) {
   $is_admin = \Drupal::service('cohesion.utils')->isAdminTheme();
-  $is_dx8_enabled_theme = \Drupal::service('cohesion.utils')->isDX8EnabledTheme();
+  $is_dx8_enabled_theme = \Drupal::service('cohesion.utils')->currentThemeUseCohesion();
 
   // Attach the reset.css and other css.
   if ($is_dx8_enabled_theme && !$is_admin) {
@@ -191,16 +170,12 @@ function cohesion_page_attachments(array &$attachments) {
     $attachments['#attached']['library'][] = 'cohesion/cohesion-ui';
   }
 
-  // Add Cohesion libraries to Template, Custom styles list pages.
+  // Add Cohesion libraries to Template, Custom styles list pages
+  // @todo - this should be done on each list builder (or a parent list builder). You know, OOP.
   $route_name = \Drupal::routeMatch()->getRouteName();
-  $allowed_pages = [
-    'entity.cohesion_master_templates.collection',
-    'entity.cohesion_content_templates.collection',
-    'entity.cohesion_custom_style.collection',
-    'entity.cohesion_component.collection',
-  ];
+  $allowed_pages = ['entity.cohesion_master_templates.collection', 'entity.cohesion_content_templates.collection', 'entity.cohesion_custom_style.collection', 'entity.cohesion_component.collection',];
   if (in_array($route_name, $allowed_pages)) {
-    $attachments['#attached']['library'][] = 'cohesion/cohesion-admin';
+    $attachments['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
   }
 
   // Add config to Drupal.settings for use in JS.
@@ -223,13 +198,10 @@ function cohesion_page_attachments(array &$attachments) {
   }
 
   // Attach the font and icon libraries to all pages.
-  $libraries_callback = function ($value, $key) use (&$attachments) {
+  $libraries_callback = function ($value, $key) use (&$attachments)
+  {
     if ($value) {
-      $lib = [
-        'rel' => 'stylesheet',
-        'href' => $value,
-        'type' => 'text/css',
-      ];
+      $lib = ['rel' => 'stylesheet', 'href' => $value, 'type' => 'text/css',];
       $attachments['#attached']['html_head_link'][] = [$lib];
     }
   };
@@ -245,12 +217,13 @@ function cohesion_page_attachments(array &$attachments) {
 
   // Use DX8
   $attachments['#attached']['drupalSettings']['cohesion']['use_dx8'] = \Drupal::service('cohesion.utils')->usedx8Status();
+  // View style.
+  $attachments['#attached']['drupalSettings']['cohesion']['sidebar_view_style'] = \Drupal::config('cohesion.settings')->get('sidebar_view_style') ?: 'titles';
   // Log DX8 error
-  $attachments['#attached']['drupalSettings']['cohesion']['log_dx8_error'] = \Drupal::service('cohesion.utils')->logdx8ErrorStatus();
+  $attachments['#attached']['drupalSettings']['cohesion']['log_dx8_error'] = !\Drupal::config('cohesion.settings')->get('log_dx8_error') === 'disable';
   // Cohesion JS error log endpoint
   $language_none = \Drupal::languageManager()->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
-  $attachments['#attached']['drupalSettings']['cohesion']['error_url'] = Url::fromRoute('cohesion.error_logger') ? Url::fromRoute('cohesion.error_logger', [], ['language' => $language_none])
-    ->toString() : NULL;
+  $attachments['#attached']['drupalSettings']['cohesion']['error_url'] = Url::fromRoute('cohesion.error_logger') ? Url::fromRoute('cohesion.error_logger', [], ['language' => $language_none])->toString() : NULL;
   // DX8 content path lookup table
   $attachments['#attached']['drupalSettings']['cohesion']['dx8_content_paths'] = \Drupal::keyValue('cohesion.assets.static_assets')->get('dx8_content_paths');
 
@@ -344,18 +317,30 @@ function cohesion_library_info_alter(&$libraries, $extension) {
       foreach ($css_files as $css_file) {
         $css_options = ['media' => 'all'];
         if (isset($css_file['conditions']) && !empty($css_file['conditions'])) {
-          $css_options['browsers'] = [
-            'IE' => $css_file['conditions'],
-            '!IE' => FALSE,
-          ];
+          $css_options['browsers'] = ['IE' => $css_file['conditions'], '!IE' => FALSE,];
           $css_options['weight'] = 20;
-        }
-        else {
+        } else {
           $css_options['weight'] = -19;
         }
-        // Ignore Durpal aggregation (Cohesion API handles aggregation of CSS)
-        $css_options['preprocess'] = FALSE;
+
         $libraries['coh-module']['css'][$section_name][$css_file['file']] = $css_options;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ *
+ * Alter css per theme for DX8 base and theme css
+ */
+function cohesion_css_alter(&$css, $assets) {
+  if (\Drupal::service('cohesion.utils')->currentThemeUseCohesion()) {
+    foreach ($css as &$css_definition) {
+      if (isset($css_definition['data']) && strpos($css_definition['data'], 'cohesion://') !== FALSE) {
+        $css_data = file_get_contents($css_definition['data']);
+        // Replace tokens in css
+        $css_definition['data'] = \Drupal::service('asset.css.dumper')->dump($css_data, 'css');
       }
     }
   }
@@ -374,8 +359,7 @@ function cohesion_theme_registry_alter(&$theme_registry) {
   // Note: The theme registry expects template paths relative to DRUPAL_ROOT.
   if ($wrapper = \Drupal::service('stream_wrapper_manager')->getViaUri($template_location)) {
     $template_path = $wrapper->basePath() . '/templates';
-  }
-  else {
+  } else {
     // Do nothing if template path is not valid.
     \Drupal::logger('cohesion')->error(t('Unable to get stream wrapper for Cohesion templates path: @uri', ['@uri' => $template_location]));
     return FALSE;
@@ -394,8 +378,7 @@ function cohesion_theme_registry_alter(&$theme_registry) {
     if (isset($theme_registry[$base_theme_hook]) || $base_theme_hook === 'component') {
       if (isset($theme_registry[$theme_hook]) && $theme_registry[$theme_hook]) {
         $theme_registry[$theme_hook]['path'] = $template_path;
-      }
-      else {
+      } else {
         // And entry to the theme registry.
         $theme_info = isset($theme_registry[$base_theme_hook]) ? $theme_registry[$base_theme_hook] : [];
         $theme_info['template'] = str_replace('_', '-', $theme_hook);
@@ -452,15 +435,7 @@ function cohesion_theme_suggestions_menu_alter(array &$suggestions, array $varia
  * Implements hook_theme().
  */
 function cohesion_theme($existing, $type, $theme, $path) {
-  return [
-    'cohesion_accordion' => [
-      'render element' => 'element',
-    ],
-    'cohesion_view' => [
-      'render element' => 'elements',
-      'base hook' => 'views_view',
-    ],
-  ];
+  return ['cohesion_accordion' => ['render element' => 'element',], 'cohesion_view' => ['render element' => 'elements', 'base hook' => 'views_view',],];
 }
 
 /**
@@ -477,9 +452,7 @@ function cohesion_file_download($uri) {
       $hostname = str_replace('.', '-', $request->getHttpHost());
       $filename = 'cohesion-content' . '-' . $hostname . '-' . $date_string . '.tar.gz';
       $disposition = 'attachment; filename="' . $filename . '"';
-      return [
-        'Content-disposition' => $disposition,
-      ];
+      return ['Content-disposition' => $disposition,];
     }
     return -1;
   }
@@ -491,14 +464,7 @@ function cohesion_file_download($uri) {
  * Make the token modal appear in the center of the body.
  */
 function cohesion_preprocess_token_tree_link(&$variables) {
-  $variables['options']['attributes']['data-dialog-options'] = Json::encode([
-    'dialogClass' => 'token-tree-dialog',
-    'width' => 600,
-    'height' => 400,
-    'position' => ['my' => 'center left'],
-    'draggable' => TRUE,
-    'autoResize' => FALSE,
-  ]);
+  $variables['options']['attributes']['data-dialog-options'] = Json::encode(['dialogClass' => 'token-tree-dialog', 'width' => 600, 'height' => 400, 'position' => ['my' => 'center left'], 'draggable' => TRUE, 'autoResize' => FALSE,]);
 
   $variables['link'] = Link::createFromRoute($variables['text'], 'token.tree', [], $variables['options'])->toRenderable();
   $variables['url'] = new Url('token.tree', [], $variables['options']);
@@ -529,11 +495,7 @@ function cohesion_expose_drupal_token_links(&$variables) {
  */
 function cohesion_preprocess_views_view(&$variables) {
   $view = $variables['view'];
-  $cohesion_views = [
-    'custom_styles',
-    'cohesion_components_admin',
-    'cohesion_master_templates_list',
-  ];
+  $cohesion_views = ['custom_styles', 'cohesion_components_admin', 'cohesion_master_templates_list',];
   $id = $view->storage->id();
   if (in_array($id, $cohesion_views)) {
     $variables['attributes']['ng-controller'] = 'CohFormRendererCtrl';
@@ -562,8 +524,7 @@ function cohesion_link_alter(&$variables) {
   $cohesion_routes = \Drupal::service('cohesion.utils')->getCohesionRoutes();
   if (($url->isRouted() && !in_array($url->getRouteName(), array_keys($cohesion_routes))) || $config->get('asset_is_imported')) {
     return;
-  }
-  else {
+  } else {
     $variables['options']['attributes']['class'][] = 'visually-hidden';
     $current_path = \Drupal::service('path.current')->getPath();
     if (strpos($current_path, 'cohesion') !== FALSE) {
@@ -643,7 +604,8 @@ function _get_cohesion_submodules() {
   $system_modules = system_rebuild_module_data();
   if (\Drupal::service('module_handler')->moduleExists('cohesion') && in_array('cohesion', array_keys($system_modules)) && ($required_by = $system_modules['cohesion']->required_by)) {
 
-    $dx8_submodule_callback = function ($module) {
+    $dx8_submodule_callback = function ($module)
+    {
       return (\Drupal::service('module_handler')->moduleExists($module) && \Drupal::service('user.permissions')->moduleProvidesPermissions($module));
     };
     $modules = array_filter(array_keys($required_by), $dx8_submodule_callback);
@@ -657,11 +619,7 @@ function _get_cohesion_submodules() {
  * Implements hook_hook_info().
  */
 function cohesion_hook_info() {
-  return [
-    'dx8_api_outbound_data_alter' => [
-      'group' => 'dx8',
-    ],
-  ];
+  return ['dx8_api_outbound_data_alter' => ['group' => 'dx8',],];
 }
 
 /**

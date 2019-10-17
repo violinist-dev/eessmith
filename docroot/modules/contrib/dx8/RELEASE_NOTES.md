@@ -1,12 +1,133 @@
 
 # Release notes
 
+## 5.6.1
+
+Removed Entity reference revisions patch from Cohesion composer.json as version 1.7 of Entity reference revisions now includes the patch. 
+
+## 5.6.0
+
+### Webform usage plugin
+
+If a Cohesion Custom style is used on a Webform entity, the style will now show as in-use by the Webform.
+
+### Block element available within Menu templates
+
+The Block element can now be placed within a Cohesion Menu template. 
+
+### Set the default cohesion sidebar list view
+
+There is a new settings in the global cohesion settings page: /admin/cohesion/configuration/system-settings called "Default sidebar view style."
+
+This allows the site administrator to set the default list view style of cohesion elements, components and helpers in the sidebar. Thumbnails are show by default. 
+
+As before, this setting can be changed by the user by clicking the toggle icon at the top of the sidebar and those changes persist across the browser session.
+
+(Existing sites being upgraded will see the original list by default unless the user has already changed this for their session). 
+
+### XSS validation in element forms 
+
+Cohesion now validates all element settings inputs for script tags and other potentially dangerous markup using the Drupal core `Xss::filterAdmin` utility. 
+
+Examples of potentially dangerous markup that are filtered:
+
+- `<script>` tags within markup prefix and suffix fields. 
+- `<object>` tags within markup prefix and suffix fields. 
+- `onClick` and other Javascript event attributes. 
+- Custom `href` attributes that contain values prefixed with: `javascript:`
+
+There is a new permission that can be applied to certain roles to allow users to bypass this check: *"Bypass XSS validation in element forms"*
+
+This permission has the "restrict access" flag so will appear in the permissions table with the label *"Warning: Give to trusted roles only; this permission has security implications."*
+
+Notes: 
+
+- If you're upgrading an existing site, it's important that you review your role permissions after the upgrade and only give this permission to users that absolutely need it (the `user=1` administrator will have this permission by default)..
+- Bypassing this check to add javascript libraries or snippets in elements is not recommended. Javascript libraries should be added to source control within your theme or a custom module and attached programmatically via the Drupal core library system: https://www.drupal.org/docs/8/api/javascript-api/add-javascript-to-your-theme-or-module   
+
+### ‘Elements’ will be disabled by default and not show in the ‘Sidebar’ when using the ‘Layout canvas’ field on a content entity.
+
+Using primitive elements to create content means there is no separation between content and design. This approach is discouraged in favor of using ‘Components’ which have a clear separation between content and design.
+
+To discourage page creators from using primitive elements for content, they will now be disabled by default and not show in the ‘Sidebar’.
+
+When using the ‘Layout canvas’ on content entities, ‘Components’ will be shown first for all users.
+
+Site builders can choose to enable primitive elements on the ‘Layout canvas’ field within the field settings (although this is not recommended).
+
+Cohesion ‘Helpers’ will still be available in the ‘Sidebar’ unless they include primitive elements. In which case, they will be hidden.
+
+Existing instances of the ‘Layout canvas’ field on sites upgraded to this version will remain unaffected and can continue to use primitive elements on the ‘Layout canvas’ (although this is not recommended).
+
+### Bugfix: Using global tokens in templates
+
+Fixed an issue where global tokens like [current-page:title] was breaking the generated twig
+
+### Bugfix - Tokenizing values in styles on elements when building a component
+
+Fixes a bug when tokenizing values on element styles when switching between levels in the style tree. 
+
+### Bugfix - Using images containing ampersands in the filename resulted in a server error
+
+Fixed a bug where selecting an uploaded image where the filename contained an ampersand resulted in a server error.
+
+### New dependency on the core RESTful Web Services module. 
+
+Cohesion is now using the `RESTful Web Services` core module for its endpoints. Before upgrading you MUST enable this module.
+‌
+### Modal trigger elements - `Trigger ID` field 
+
+Focus will return to the body when a modal is closed. If you would like focus to return to your trigger element, give it a unique ID.
+
+To make this easier, we've added a `Trigger ID` field to elements that support the `Open modal` interaction type. These are currently:
+
+- Link
+- Button
+- Container
+- Column
+- Slide
+
+You can still add an ID through `Markup > Properties > Classes and ID` as with other elements, but this value will override the `Trigger ID` value.
+
+### New component form field - Range slider
+
+The range slider field can be used as an alternate input method for number-based fields in your components.
+
+You can specify `min`, `max` and `step` values, as well as a default value within the specified range.
+
+### Enable Cohesion on a theme
+
+When creating a new theme that is Cohesion enabled, you will need to add `cohesion: true` to the .info.yml of your theme.
+Note, if you extend from the base `cohesion_theme` you do not need to add this flag because the system will detect 
+the flag has been set in the parent theme. 
+
+If you have an existing theme extended from `cohesion_theme`, you do not need to add this flag. Your existing theme will
+just work without modification. 
+
+Because of this change, the selector for the global theme on the System settings configuration page
+`/admin/cohesion/configuration/system-settings` has been removed. 
+
+### "Existing selects" used in components are now dynamic, not hard coded on save.
+
+Selects chosen from the "Existing select" picker on a component will now dynamically load options when used in components. Previously the options were fetched when the component was created and not updated afterwards.
+
+### Removed experimental layout builder module.  
+
+The removes the ability for site builders to see the content templates injected around the layout builder canvas at `node/x/layout`
+
+Other layout builder support is unaffected, including:
+- Custom block templates can still be themed with Cohesion (`/admin/cohesion/templates/content_templates/block_content`)
+- Tokens can still be used in custom blocks.
+- New "Drupal -> Content" element still available in the Cohesion sidebar browser.  
+
+Notes:
+- If `cohesion_layout_builder` is enabled on your site, you should uninstall that module before upgrading to this version. 
+
 ## 5.5.6
 
 ### Using Drupal tokens in slide container, slides to show and scroll does not process the Drupal token
 
 Fixed an issue where using Drupal tokens within Slides to show and slides to scroll did not process the Drupal token.
-
 
 ## 5.5.5
 
@@ -32,7 +153,7 @@ Fixed a bug where an image added to a content pseudo style would not convert the
 
 ### Module compatibility with web profiler
 
-Fixed a bug when the web profiler module was installed on your DX8 website, which was causing error messages.
+Fixed a bug when the web profiler module was installed on your Cohesion website, which was causing error messages.
 
 ## 5.5.3
 
@@ -42,7 +163,7 @@ Fixed bug where external urls to background images would see the domain stripped
 
 ### Menu button elements created before 5.5 can error in certain circumstances
 
-Fixed an issue where menu button element could throw an error when clicked after being upgraded from an older version of DX8.
+Fixed an issue where menu button element could throw an error when clicked after being upgraded from an older version of Cohesion.
 
 ## 5.5.2
 
@@ -56,13 +177,13 @@ to enable the permission on each individual ones for the user to be able to sele
 Fix a bug where font libraries were not moved from the temporary directory 
 to the cohesion directory therefore not loading when included in the head
 
-### DX8 sync packages not accessible unless site admin
+### Cohesion sync packages not accessible unless site admin
 
-Fixed an issue where DX8 sync packages were only accessible to users with the role of Administrator. Roles that have the 'Access DX8 Sync' permission will be able to manage sync packages. 
+Fixed an issue where Cohesion sync packages were only accessible to users with the role of Administrator. Roles that have the 'Access Cohesion Sync' permission will be able to manage sync packages. 
 
-### Drupal config import failing on DX8 entities
+### Drupal config import failing on Cohesion entities
 
-Fix a bug where DX8 was creating content template config entities
+Fix a bug where Cohesion was creating content template config entities
 on config import of view modes and entity type which cause the import
 content templates to fail
 
@@ -136,9 +257,9 @@ In menu templates, you can now add a new element called `Menu button`. This allo
 
 It has the same click animation settings as the `Menu link` element.
 
-### Lock DX8 entities to prevent them being updated by Sync. 
+### Lock entities to prevent them being updated by Sync. 
 
-It's now possible to decouple / lock a DX8 entity on a site. This means that this entity will be ignored by Sync when running an import. 
+It's now possible to decouple / lock a Cohesion entity on a site. This means that this entity will be ignored by Sync when running an import. 
 
 For example, if you have a `package.yml` that contains a component and you import that component to your site. Now you lock the component and make some changes. If you attempt to re-import the same `package.yml` file, Sync will ignore the locked component and report that there are no changes to apply. 
 
@@ -148,7 +269,7 @@ To lock/unlock an entity, visit the entity list builder page and under the actio
 
 ### Support for Chosen model. 
 
-Previously it was not possible to use the Chosen module: https://www.drupal.org/project/chosen with the DX8 layout canvas on the same content entity form. 
+Previously it was not possible to use the Chosen module: https://www.drupal.org/project/chosen with the layout canvas on the same content entity form. 
 
 This has now been fixed. 
 
@@ -158,8 +279,8 @@ You can now add a new element called Entity browser. This element allows you to 
 an entity in a specific view mode. You also have a component field element that you can attach to this element to give this capability
 to site editors.
 
-DX8 has a new dependency on the Entity browser module https://www.drupal.org/project/entity_browser. You will need to install and enable
-this module if upgrading DX8 from a previous version.
+A new dependency on the Entity browser module https://www.drupal.org/project/entity_browser. You will need to install and enable
+this module if upgrading from a previous version.
 
 ### Slider container - slide count
 
@@ -181,7 +302,7 @@ Previously, the "Link to page" field on the link element and the link component 
 
 ### Analytics data layer
 
-The analytics tab on DX8 elements now has options for adding data layer key and value pairs. This data can be pushed to Google tag manager when triggered by a selected event.
+The analytics tab on elements now has options for adding data layer key and value pairs. This data can be pushed to Google tag manager when triggered by a selected event.
 
 ### New options for deploying Sync packages 
 
@@ -205,7 +326,7 @@ Images and Pictures can now have a "Lazy load" option which can be set to make t
 
 When uploading fonts it is now possible to enter Font License Information which will be displayed as a comment in your generated CSS file.
 
-### DX8 sync packages and updates to existing sync functionality
+### Sync packages and updates to existing sync functionality
 #### New package entity.
 
 The sync module menu items have moved from under "Config -> Development -> Sync" to "DX8 -> Sync".
@@ -467,7 +588,7 @@ When using certain contributed admin themes the admin links on the website setti
 
 ### New permission for DX8 Sync
 
-Previously DX8 sync was accessible if the user had access to core config import/export. A new permission has been created called "Access DX8 sync" which will grant access to the DX8 sync admin interface. 
+Previously DX8 sync was accessible if the user had access to core config import/export. A new permission has been created called "Access Cohesion sync" which will grant access to the DX8 sync admin interface. 
 
 ### You can no longer import packages exported from later versions of DX8
 

@@ -2,11 +2,10 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldWidget;
 
+use Drupal\cohesion\Services\JsonXss;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -18,7 +17,7 @@ use Drupal\token\TokenEntityMapperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion_templates\Plugin\Api\TemplatesApi;
-use Drupal\cohesion\Helper\CohesionUtils;
+use Drupal\cohesion\Services\CohesionUtils;
 
 /**
  * Plugin implementation of the 'cohesion_layout_builder_widget' widget.
@@ -42,30 +41,42 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
    */
   private $isTranslating;
 
-  /**
-   * @var EntityTypeManagerInterface
-   */
+  /** @var EntityTypeManagerInterface */
   protected $entityTypeManager;
 
-  /**
-   * @var TokenEntityMapperInterface
-   */
+  /** @var TokenEntityMapperInterface */
   protected $tokenEntityMapper;
+
+  /** @var \Drupal\cohesion\Services\JsonXss */
+  protected $jsonXss;
+
+  /** @var array */
+  protected $xss_paths;
 
   /**
    * @inheritdoc
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, TokenEntityMapperInterface $token_entity_mapper) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, TokenEntityMapperInterface $token_entity_mapper, JsonXss $json_xss) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->entityTypeManager = $entity_type_manager;
     $this->tokenEntityMapper = $token_entity_mapper;
+    $this->jsonXss = $json_xss;
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings'], $container->get('entity_type.manager'), $container->get('token.entity_mapper'));
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['third_party_settings'],
+      $container->get('entity_type.manager'),
+      $container->get('token.entity_mapper'),
+      $container->get('cohesion.xss')
+    );
   }
 
   /**
@@ -99,7 +110,8 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
     }
 
     // Set list of field to blank by default. Template form that inherit from this one will override the variable.
-    $language_none = \Drupal::languageManager()->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
+    $language_none = \Drupal::languageManager()
+      ->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
 
     $form['#attached']['drupalSettings']['cohesion']['contextualKey'] = Url::fromRoute('cohesion.entity_fields', [
       'entity_type' => '__none__',
@@ -108,6 +120,11 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
 
     // Add the shared attachments.
     _cohesion_shared_page_attachments($form);
+
+    // Override the 'access elements' permission depending on the field settings.
+    if ($this->getFieldSetting('access_elements') !== "1") {
+      $form['#attached']['drupalSettings']['cohesion']['permissions'] = array_values(array_diff($form['#attached']['drupalSettings']['cohesion']['permissions'], ['access elements']));
+    }
 
     // Build the form element.
     $host = $items->getEntity();
@@ -163,7 +180,8 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
           $layout_entity->addTranslation($langcode, $layout_entity->toArray());
           $translation = $layout_entity->getTranslation($langcode);
           $manager = \Drupal::service('content_translation.manager');
-          $manager->getTranslationMetadata($translation)->setSource($layout_entity->language()->getId());
+          $manager->getTranslationMetadata($translation)
+            ->setSource($layout_entity->language()->getId());
         }
       }
       // If any paragraphs type is translatable do not switch.
@@ -173,24 +191,36 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       }
     }
 
-    $ng_init = ['group' => 'node_layout', 'id' => 'node_layout'];
-    if ($host instanceof \Drupal\cohesion_elements\Entity\ComponentContent) {
-      $ng_init = ['group' => 'component_content', 'id' => 'component_content'];
+    $cohFormGroupId = 'node_layout';
+    if ($host instanceof ComponentContent) {
+      $cohFormGroupId = 'component_content';
     }
     else {
       $element['target_id']['#canvas_name'] = $items->getName() . '_' . $delta;
     }
 
     $element['target_id'] += [
-      '#json_values' => Unicode::strlen($layout_entity->json_values->value) ? $layout_entity->json_values->value : '{}',
-      '#styles' => Unicode::strlen($layout_entity->styles->value) ? $layout_entity->styles->value : '/* */',
+      '#json_values' => mb_strlen($layout_entity->json_values->value) ? $layout_entity->json_values->value : '{}',
+      '#styles' => mb_strlen($layout_entity->styles->value) ? $layout_entity->styles->value : '/* */',
       '#template' => $layout_entity->template->value,
       '#entity' => $layout_entity,
-      '#ng-init' => $ng_init,
+      '#cohFormGroup' => $cohFormGroupId,
+      '#cohFormId' => $cohFormGroupId,
       '#title' => $items->getDataDefinition()->getLabel(),
       '#required' => $items->getDataDefinition()->isRequired(),
       '#token_browser' => $this->tokenEntityMapper->getTokenTypeForEntityType($host->getEntityTypeId(), ''),
     ];
+
+
+    // Stash the Xss paths for this entity.
+    if (!$this->jsonXss->userCanBypass()) {
+      // Stash this so it can be compares inside validateForm.
+      $this->xss_paths = $this->jsonXss->buildXssPaths($element['target_id']['#json_values']);
+
+      // Let the app know which form elements to disable.
+      $form['#attached']['drupalSettings']['cohesion']['xss_paths'] = $this->xss_paths;
+    }
+
 
     return $element;
   }
@@ -221,7 +251,8 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       // Adding a language through the ContentTranslationController.
       $this->isTranslating = TRUE;
     }
-    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($default_langcode_key)->value == 0) {
+    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))
+        ->get($default_langcode_key)->value == 0) {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }
@@ -242,7 +273,6 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       'entity' => $entity,
     ];
 
-
     $parents = $element['target_id']['#parents'];
     $parents[] = 'json_values';
     $json = $form_state->getValue($parents);
@@ -251,10 +281,20 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       $form_state->setError($element, $this->t('@field_name is required', ['@field_name' => $this->fieldDefinition->getLabel()]));
     }
 
+    // Xss validation.
+    if (!$this->jsonXss->userCanBypass()) {
+      foreach ($this->jsonXss->buildXssPaths($json) as $path => $new_value) {
+        // Only test if the user changed the value or it's a new value. If it's the same, no need to test.
+        if (!isset($this->xss_paths[$path]) || $this->xss_paths[$path] !== $new_value) {
+          $form_state->setError($element, $this->t('You do not have permission to add tags and attributes that fail XSS validation.'));
+        }
+      }
+    }
+
+
     $value += [
       'json_values' => $json,
     ];
-
 
     if (!$entity->isNew()) {
       $value += [
@@ -298,16 +338,18 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
 
           if ($op == 'preview') {
             /** @var TemplatesApi $send_to_api */
-            $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
+            $send_to_api = \Drupal::service('plugin.manager.api.processor')
+              ->createInstance('templates_api');
 
             $send_to_api->isPreview(TRUE);
             $send_to_api->setEntity($entity);
             $send_to_api->setJsonValues($item['json_values']);
             $send_to_api->setSaveData(FALSE);
-            $send_to_api->send('layout_field');
+            $send_to_api->send();
 
             // If the APi call was successful, then merge the arrays.
-            if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
+            if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')
+                ->usedx8Status()) {
               $styles = isset($data['theme']) ? $data['theme'] : '';
               $template = isset($data['template']) ? $data['template'] : '';
 
@@ -343,7 +385,10 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       // Since the entity is not reusable neither cloneable, having a default
       // value is not supported.
       return [
-        '#markup' => $this->t('No widget available for: %label.', ['%label' => $items->getFieldDefinition()->getLabel()]),
+        '#markup' => $this->t('No widget available for: %label.', [
+          '%label' => $items->getFieldDefinition()
+            ->getLabel(),
+        ]),
       ];
     }
 

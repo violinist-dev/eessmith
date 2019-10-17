@@ -9,6 +9,7 @@ base theme: stable
 libraries:
   - cohesion_theme/global-styling
 
+cohesion: true
 
 # Defines theme regions available.
 regions:

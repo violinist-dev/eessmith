@@ -85,7 +85,7 @@ class AccountSettingsForm extends ConfigFormBase {
       '#attributes' => [
         'class' => [],
       ],
-      '#description' => $this->t('Disabling DX8 will prevent Drupal from making requests to the DX8 API. Your website will continue to work but you will not be able to access DX8 features, including the Layout canvas, Style builder and Component builder.'),
+      '#description' => $this->t('Disabling Cohesion will prevent Drupal from making requests to the Cohesion API. Your website will continue to work but you will not be able to access DX8 features, including the Layout canvas, Style builder and Component builder.'),
     ];
 
     // The API URL should not be editable.
@@ -168,7 +168,7 @@ class AccountSettingsForm extends ConfigFormBase {
       $config->set('api_key', $form_state->getValue('api_key'));
       $config->set('organization_key', $form_state->getValue('organization_key'));
     }
-    
+
     if (Settings::get('dx8_editable_version_number', FALSE)) {
       $config->set('override_version_number', $form_state->getValue('override_version_number'));
     }
@@ -182,7 +182,7 @@ class AccountSettingsForm extends ConfigFormBase {
       $form_state->setRedirect('cohesion.configuration.batch');
     }
     else {
-      drupal_set_message($this->t('DX8 has been disabled. Your website will continue to work but you will not be able to access DX8 features, including the Layout canvas, Style builder and Component builder.'), 'warning');
+      drupal_set_message($this->t('Cohesion has been disabled. Your website will continue to work but you will not be able to access Cohesion features, including the Layout canvas, Style builder and Component builder.'), 'warning');
       // Rebuild routes to deny access to DX8 menu items.
       \Drupal::service('router.builder')->rebuild();
     }

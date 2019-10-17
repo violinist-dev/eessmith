@@ -23,7 +23,7 @@ class SCSSVariablesEditForm extends WebsiteSettingsGroupFormBase {
 
   const FORM_CLASS = 'cohesion-website-settings-scss-variables-form';
 
-  const NG_ID = 'scss_variables';
+  const COH_FROM_ID = 'scss_variables';
 
   const PLUGIN_ID = 'scss_variable_entity_groups';
 

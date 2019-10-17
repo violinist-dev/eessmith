@@ -299,7 +299,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     $send_to_api->setEntity($this);
 
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('template');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {

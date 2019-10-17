@@ -17,10 +17,12 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "cohesion_layout",
  *   label = @Translation("Deprecated - Layout canvas"),
  *   description = @Translation("A layout builder for creating content in a
- *   visual, modular way."), default_widget = "cohesion_layout_builder_widget",
+ *   visual, modular way."),
+ *   default_widget = "cohesion_layout_builder_widget",
  *   no_ui = TRUE,
- *   default_formatter = "cohesion_layout_formatter", category =
- *   @Translation("DX8"), module = "cohesion",
+ *   default_formatter = "cohesion_layout_formatter",
+ *   category = @Translation("DX8"),
+ *   module = "cohesion",
  * )
  */
 class CohesionLayout extends FieldItemBase {
@@ -62,11 +64,14 @@ class CohesionLayout extends FieldItemBase {
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
 
-    $properties['json_values'] = DataDefinition::create('string')->setLabel(t('Values'));
+    $properties['json_values'] = DataDefinition::create('string')
+      ->setLabel(t('Values'));
 
-    $properties['styles'] = DataDefinition::create('string')->setLabel(t('Styles'));
+    $properties['styles'] = DataDefinition::create('string')
+      ->setLabel(t('Styles'));
 
-    $properties['template'] = DataDefinition::create('string')->setLabel(t('Template'));
+    $properties['template'] = DataDefinition::create('string')
+      ->setLabel(t('Template'));
 
     return $properties;
   }

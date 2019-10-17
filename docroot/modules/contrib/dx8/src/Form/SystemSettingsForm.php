@@ -59,7 +59,12 @@ class SystemSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('config.factory'), $container->get('cohesion_image_browser.update_manager'), $container->get('plugin.manager.image_browser.processor'), $container->get('theme_handler'));
+    return new static(
+      $container->get('config.factory'),
+      $container->get('cohesion_image_browser.update_manager'),
+      $container->get('plugin.manager.image_browser.processor'),
+      $container->get('theme_handler')
+    );
   }
 
   /**
@@ -69,39 +74,32 @@ class SystemSettingsForm extends ConfigFormBase {
    * @return array
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // DX8 enabled theme.
-    $themes = [
-      '' => $this->t('All themes'),
-    ];
-
-    foreach ($this->themeHandler->rebuildThemeData() as $theme) {
-      if ($theme->status) {
-        $themes[$theme->getName()] = $theme->info['name'];
-      }
-    }
-
-    $form['dx8_enabled_theme_accordion'] = [
+    // Default sidebar view.
+    $form['sidebar_view_style_accordion'] = [
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => $this->t('DX8 enabled theme'),
+      '#title' => t('Default sidebar view style.'),
       '#weight' => -99,
-      'dx8_enabled_theme' => [
-        '#type' => 'select',
-        '#title' => $this->t('DX8 enabled theme'),
+      'sidebar_view_style' => [
+        '#type' => 'radios',
+        '#title' => $this->t('Default sidebar view style.'),
         '#required' => FALSE,
-        '#default_value' => $this->cohesionSettings->get('dx8_enabled_theme') ? $this->cohesionSettings->get('dx8_enabled_theme') : '',
-        '#options' => $themes,
-        '#wrapper_attributes' => ['class' => ['clearfix']],
+        '#default_value' => $this->cohesionSettings->get('sidebar_view_style') ?: 'titles',
+        '#options' => [
+          'titles' => t('Show title'),
+          'thumbnails' => $this->t('Show thumbnails'),
+        ],
+        '#wrapper_attributes' => ['class' => ['clearfix',]],
         '#attributes' => [
           'class' => [],
         ],
-        '#description' => $this->t('To restrict DX8 to a specific theme, choose the theme here (for example, if you use the AMP theme and do not want styles, default master templates and content templates to apply to all themes).'),
+        '#description' => $this->t('Set the default view style for elements, components and helpers in the sidebar.'),
       ],
       '#open' => 'panel-open',
     ];
 
-    // Log DX8 errors group.
+    // Log errors group.
     $options = ['enable' => 'Enable', 'disable' => 'Disable',];
     $index = $this->cohesionSettings->get('log_dx8_error');
 
@@ -109,11 +107,11 @@ class SystemSettingsForm extends ConfigFormBase {
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => t('Log DX8 errors'),
+      '#title' => t('Log errors.'),
       '#weight' => -99,
       'log_dx8_error' => [
         '#type' => 'radios',
-        '#title' => $this->t('Log DX8 errors'),
+        '#title' => $this->t('Log errors.'),
         '#required' => FALSE,
         '#default_value' => isset($options[$index]) ? $this->cohesionSettings->get('log_dx8_error') : 'disable',
         '#options' => $options,
@@ -121,7 +119,7 @@ class SystemSettingsForm extends ConfigFormBase {
         '#attributes' => [
           'class' => [],
         ],
-        '#description' => $this->t('Enabling this will stream javascript errors from the DX8 layout canvas, sidebar editor and other features to "Reports -> Recent log messages".'),
+        '#description' => $this->t('Enabling this will stream javascript errors from the layout canvas, sidebar editor and other features to "Reports -> Recent log messages".'),
       ],
       '#open' => 'panel-open',
     ];
@@ -252,7 +250,8 @@ class SystemSettingsForm extends ConfigFormBase {
 
       // Add the form from the plugin.
       try {
-        $plugin_form = $this->imageBrowserPluginManager->createInstance($plugin_id)->buildForm($form_state, $browser_type, $this->image_browser_object);
+        $plugin_form = $this->imageBrowserPluginManager->createInstance($plugin_id)
+          ->buildForm($form_state, $browser_type, $this->image_browser_object);
       } catch (\Exception $e) {
         $plugin_form = [];
       }
@@ -323,7 +322,8 @@ class SystemSettingsForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     try {
-      $this->imageBrowserPluginManager->createInstance($form_state->getValue('image_browser_config'))->validateForm($form_state);
+      $this->imageBrowserPluginManager->createInstance($form_state->getValue('image_browser_config'))
+        ->validateForm($form_state);
     } catch (\Exception $e) {
     }
   }
@@ -339,11 +339,8 @@ class SystemSettingsForm extends ConfigFormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-
-    // DX8 enabled theme.
-    if ($form_state->getValue('dx8_enabled_theme') !== NULL) {
-      $this->cohesionSettings->set('dx8_enabled_theme', $form_state->getValue('dx8_enabled_theme'));
-    }
+    // Sidebar view settings.
+    $this->cohesionSettings->set('sidebar_view_style', $form_state->getValue('sidebar_view_style'));
 
     // Error settings.
     $this->cohesionSettings->set('log_dx8_error', $form_state->getValue('log_dx8_error'));

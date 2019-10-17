@@ -27,7 +27,7 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
 
   const FORM_CLASS = NULL;
 
-  const NG_ID = NULL;
+  const COH_FROM_ID = NULL;
 
   /**
    * The entity type definition.
@@ -168,11 +168,8 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
           'cohesion-website-settings-edit-form',
           get_class($this)::FORM_CLASS,
         ],
-        //'#entity' => $entity,
-        '#ng-init' => [
-          'group' => 'website_settings',  // $entity->getAssetGroupId(),
-          'id' => get_class($this)::NG_ID,  // $entity->id(),
-        ],
+        '#cohFormGroup' => 'website_settings',
+        '#cohFormId' => get_class($this)::COH_FROM_ID,
       ];
 
       // Change save button text.

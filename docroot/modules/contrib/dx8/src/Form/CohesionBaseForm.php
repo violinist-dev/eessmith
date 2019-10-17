@@ -4,6 +4,10 @@ namespace Drupal\cohesion\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\cohesion\ApiUtils;
+use Drupal\cohesion\Services\JsonXss;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
 /**
  * Class CohesionBaseForm.
@@ -12,6 +16,37 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class CohesionBaseForm extends EntityForm {
 
+  /** @var \Drupal\cohesion\ApiUtils */
+  protected $apiUtils;
+
+  /** @var \Drupal\cohesion\Services\JsonXss */
+  protected $jsonXss;
+
+  /**
+   * CohesionBaseForm constructor.
+   *
+   * @param \Drupal\cohesion\ApiUtils $api_utils
+   * @param \Drupal\cohesion\Services\JsonXss $json_xss
+   */
+  public function __construct(ApiUtils $api_utils, JsonXss $json_xss) {
+    $this->apiUtils = $api_utils;
+    $this->jsonXss = $json_xss;
+  }
+
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *
+   * @return \Drupal\cohesion\Form\CohesionBaseForm|\Drupal\Core\Entity\EntityForm
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    return new static(
+    // Load the service required to construct this class.
+      $container->get('cohesion.api.utils'),
+      $container->get('cohesion.xss')
+    );
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -19,7 +54,6 @@ class CohesionBaseForm extends EntityForm {
     $form = parent::form($form, $form_state);
 
     $operation = $this->getOperation();
-
     switch ($operation) {
 
       case 'edit':
@@ -47,20 +81,39 @@ class CohesionBaseForm extends EntityForm {
     $jsonValue = $entity->getJsonValues() ? $entity->getJsonValues() : "{}";
     $jsonMapper = $entity->getJsonMapper() ? $entity->getJsonMapper() : "{}";
 
-    // Retain field values if validation error
-    $response = $this->getRequest()->request->all();
-    if ($response) {
+    if (!$this->jsonXss->userCanBypass()) {
+      // Initial entity xss paths.
+      $form_state->setTemporaryValue('xss_paths_entity', $this->jsonXss->buildXssPaths($jsonValue));
+    }
+
+    // Retain field values if validation error.
+    if ($response = $this->getRequest()->request->all()) {
+
       $jsonValue = ($response && isset($response['json_values'])) ? $response['json_values'] : $jsonValue;
       $jsonMapper = ($response && isset($response['json_mapper'])) ? $response['json_mapper'] : $jsonMapper;
+
+      if (!$this->jsonXss->userCanBypass()) {
+        // Save the response xss paths.
+        $form_state->setTemporaryValue('xss_paths_response', $this->jsonXss->buildXssPaths($jsonValue));
+      }
+    }
+    else {
+      // New form or initial load (form has never been submitted).
+      $form_state->setTemporaryValue('xss_paths_response', $form_state->getTemporaryValue('xss_paths_entity'));
     }
 
     // Regenerate UUID for duplicate component entity
     // @todo - this logic should be in the child form.
-    if ($this->getOperation() == 'duplicate' &&
-      $entity instanceof \Drupal\cohesion_elements\Entity\Component) {
-      $jsonValue = \Drupal::service('cohesion.api.utils')->uniqueJsonKeyUuids($jsonValue);
+    if ($this->getOperation() == 'duplicate' && $entity instanceof \Drupal\cohesion_elements\Entity\Component) {
+      $jsonValue = $this->apiUtils->uniqueJsonKeyUuids($jsonValue);
     }
 
+    // Stash the Xss paths for this entity.
+    if (!$this->jsonXss->userCanBypass()) {
+      $form['#attached']['drupalSettings']['cohesion']['xss_paths'] = $form_state->getTemporaryValue('xss_paths_response');
+    }
+
+    // Field instance.
     $form['cohesion'] = [
       // Drupal\cohesion\Element\CohesionField.
       '#type' => 'cohesionfield',
@@ -68,13 +121,11 @@ class CohesionBaseForm extends EntityForm {
       '#json_mapper' => $jsonMapper,
       '#classes' => [$form_class_entity, $form_class],
       '#entity' => $entity,
-      '#ng-init' => [
-        'group' => $entity->getAssetGroupId(),
-        'id' => $entity->id(), 
-      ],
+      '#cohFormGroup' => $entity->getAssetGroupId(),
+      '#cohFormId' => $entity->id(),
     ];
 
-    if($entity->isLayoutCanvas()){
+    if ($entity->isLayoutCanvas()) {
       $form['cohesion']['#canvas_name'] = 'config_layout_canvas';
     }
 
@@ -129,6 +180,39 @@ class CohesionBaseForm extends EntityForm {
   }
 
   /**
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    // Xss validation.
+    if (!$this->jsonXss->userCanBypass()) {
+      $original_entity_xss_paths = $form_state->getTemporaryValue('xss_paths_entity');
+      $highlighted_elements = [];
+
+      foreach ($this->jsonXss->buildXssPaths($form_state->getValue('json_values')) as $path => $new_value) {
+        // Only test if the user changed the value or it's a new value. If it's the same, no need to test.
+        if (!isset($original_entity_xss_paths[$path]) || $original_entity_xss_paths[$path] !== $new_value) {
+          // Drupal error.
+          $form_state->setErrorByName('cohesion', $this->t('You do not have permission to add tags and attributes that fail XSS validation.'));
+
+          // So set the xss paths to the initial so the user has a chance to change something they've edited (otherwise
+          // the illegal value they've just entered will be detected as a XSS entry and disabled).
+          $form['#attached']['drupalSettings']['cohesion']['xss_paths'] = $form_state->getTemporaryValue('xss_paths_entity');
+
+          // Highlighted element.
+          $highlighted_elements[] = explode('.', $path)[0];
+        }
+      }
+
+      // Highlight elements with errors.
+      $cohesion_layout_canvas_error = &drupal_static('cohesion_layout_canvas_error'); // See processCohesionError().
+      $cohesion_layout_canvas_error = array_unique($highlighted_elements);
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
@@ -145,15 +229,17 @@ class CohesionBaseForm extends EntityForm {
       '%label' => $this->entity->label(),
     ]);
     drupal_set_message($message);
-    
+
     \Drupal::request()->query->remove('destination');
 
     $element = $form_state->getTriggeringElement();
     if (isset($element['#continue']) && $element['#continue']) {
       $form_state->setRedirectUrl($this->entity->toUrl());
-    } elseif ($redirect) {
+    }
+    elseif ($redirect) {
       $form_state->setRedirectUrl($redirect);
-    } else {
+    }
+    else {
       $form_state->setRedirectUrl($this->entity->toUrl('collection'));
     }
   }
@@ -187,7 +273,9 @@ class CohesionBaseForm extends EntityForm {
 
   /**
    * Required by machine name field validation.
+   *
    * @param $value
+   *
    * @return bool
    */
   public function exists($value) {

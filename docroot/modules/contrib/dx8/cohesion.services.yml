@@ -20,8 +20,12 @@ services:
     arguments: ['@cohesion.element.storage', '@entity_type.manager', '@plugin.manager.entity_groups.processor']
 
   cohesion.utils:
-    class: Drupal\cohesion\Helper\CohesionUtils
+    class: Drupal\cohesion\Services\CohesionUtils
     arguments: ['@theme_handler', '@theme.manager']
+
+  cohesion.xss:
+    class: Drupal\cohesion\Services\JsonXss
+    arguments: ['@current_user']
 
   cohesion.html_response_subscriber:
       class: '\Drupal\cohesion\EventSubscriber\CohesionHtmlResponseSubscriber'
@@ -39,7 +43,7 @@ services:
     - { name: cohesion.api.utils, scheme: cohesion }
 
   cohesion.local_files_manager:
-    class: Drupal\cohesion\Helper\LocalFilesManager
+    class: Drupal\cohesion\Services\LocalFilesManager
     arguments: []
     tags:
     - { name: cohesion.local_files_manager, scheme: cohesion }

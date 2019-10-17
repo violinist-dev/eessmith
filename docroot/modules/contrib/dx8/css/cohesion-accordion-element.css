@@ -12,6 +12,42 @@
     border: 0;
 }
 
+/* CSS tooltip for non-angular accordion help */
+.cohesion-accordion .coh-accordion-help:before {
+    content: "Help and support";
+    position: absolute;
+    background: #000;
+    color: #FFF;
+    top: -33px;
+    font-size: 12px;
+    white-space: nowrap;
+    right: 0;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.cohesion-accordion .coh-accordion-help:after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #000;
+}
+
+.cohesion-accordion .coh-accordion-help:before,
+.cohesion-accordion .coh-accordion-help:after {
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+    pointer-events: none;
+}
+
+.cohesion-accordion .coh-accordion-help:hover:before,
+.cohesion-accordion .coh-accordion-help:hover:after {
+    opacity: 1;
+}
+
 .cohesion-accordion .panel-collapse {
     border: 1px solid #CCC;
     border-top: 0;

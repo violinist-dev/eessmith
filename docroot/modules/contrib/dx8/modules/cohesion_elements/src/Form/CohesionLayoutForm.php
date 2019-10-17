@@ -67,10 +67,8 @@ class CohesionLayoutForm extends ContentEntityForm {
       '#json_mapper' => '{}',
       '#classes' => ['cohesion-component-in-context'],
       '#entity' => $this->entity,
-      '#ng-init' => [
-        'group' => 'in_context',
-        'id' => 'component',
-      ],
+      '#cohFormGroup' => 'in_context',
+      '#cohFormId' => 'component',
     ];
 
     $form['cohesion']['#token_browser'] = 'all';

@@ -100,7 +100,8 @@ class CohesionField extends FormElement {
     }
 
     // Prevent progress spinning wheel from loading if form is field config form
-    $is_loading = ($form_state->getFormObject()->getFormId() == 'field_config_edit_form') ? '' : 'is-loading';
+    $is_loading = ($form_state->getFormObject()
+        ->getFormId() == 'field_config_edit_form') ? '' : 'is-loading';
 
     // Add the entity style.
     $matches = [
@@ -140,7 +141,8 @@ class CohesionField extends FormElement {
     $element['#attached']['drupalSettings']['cohesion']['upload_max_filesize'] = file_upload_max_size();
 
     // Image browser page attachments.
-    \Drupal::service('cohesion_image_browser.update_manager')->sharedPageAttachments($element['#attached'], $element['#entity'] instanceof ContentEntityInterface ? 'content' : 'config');
+    \Drupal::service('cohesion_image_browser.update_manager')
+      ->sharedPageAttachments($element['#attached'], $element['#entity'] instanceof ContentEntityInterface ? 'content' : 'config');
 
     // Attach the editor.module text format settings
     $pluginManager = \Drupal::service('plugin.manager.editor');
@@ -167,7 +169,7 @@ class CohesionField extends FormElement {
     if (isset($element['#attached']['drupalSettings']['editor']['formats']['cohesion'])) {
       $element['#attached']['drupalSettings']['editor']['default'] = 'cohesion';
     }
-    elseif(is_array($element['#attached']['drupalSettings']['editor']['formats'])){
+    elseif (isset($element['#attached']['drupalSettings']['editor']['formats']) && is_array($element['#attached']['drupalSettings']['editor']['formats'])) {
       $last_format = end($element['#attached']['drupalSettings']['editor']['formats']);
       if ($last_format && isset($last_format['format'])) {
         $element['#attached']['drupalSettings']['editor']['default'] = $last_format['format'];
@@ -175,7 +177,8 @@ class CohesionField extends FormElement {
     }
 
     // Attach the Angular app.
-    $element['#attached']['library'][] = 'cohesion/cohesion-admin';
+    $element['#attached']['library'][] = 'cohesion/cohesion-admin-scripts';
+    $element['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
 
     // Load icon library for admin pages if it has been generated.
     $icon_lib_path = COHESION_CSS_PATH . '/cohesion-icon-libraries.css';
@@ -197,38 +200,42 @@ class CohesionField extends FormElement {
       '#parents' => [],
     ];
 
-    $classes = [$is_loading, 'coh-preloader-large', 'coh-form'];
+    $classes = ['coh-form is-loading coh-preloader-large'];
     if (isset($element['#classes']) && is_array($element['#classes'])) {
       $classes = array_merge($classes, $element['#classes']);
     }
 
     $complete_form['#attributes']['class'] = array_merge($complete_form['#attributes']['class'], $classes);
-
-    $complete_form['#attributes']['ng-class'] = "formLoaded() ? 'is-loaded' : '{$is_loading}'";
-    if (!isset($complete_form['#attributes']['ng-init'])) {
-      $complete_form['#attributes']['ng-init'] = 'onInit(formRenderer, \'' . $element['#ng-init']['group'] . '\', \'' . $element['#ng-init']['id'] . '\')';
-      $complete_form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit($element['#ng-init']['group'], $element['#ng-init']['id']);
-    }
     $complete_form['#attributes']['name'] = 'forms.formRenderer';
-    $complete_form['#attributes']['ng-submit'] = 'onSubmit($event, forms.formRenderer)';
-    $complete_form['#attributes']['novalidate'] = '1';
 
-    $complete_form['#attributes']['ng-controller'] = 'CohFormRendererCtrl';
+    $complete_form['#attached']['drupalSettings']['cohesion']['isLoading'] = $is_loading;
+    $complete_form['#attached']['drupalSettings']['cohesion']['drupalFormId'] = $complete_form['#id'];
 
+    if (!isset($complete_form['#attached']['drupalSettings']['cohesion']['formGroup']) && !isset($complete_form['#attached']['drupalSettings']['cohesion']['formId'])) {
+      $complete_form['#attached']['drupalSettings']['cohesion']['formGroup'] = $element['#cohFormGroup'];
+      $complete_form['#attached']['drupalSettings']['cohesion']['formId'] = $element['#cohFormId'];
+      $complete_form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')
+        ->getCohFormOnInit($element['#cohFormGroup'], $element['#cohFormId']);
+    }
+
+    // Define field
+    $class_name_canvas = 'cohApp';
+    $model_class_name = '_modelAsJson';
+    $mapper_class_name = '_mapperAsJson';
     if (isset($element['#canvas_name'])) {
-      $ng_init = 'ng-init="registerLayoutCanvas(\'' . $element['#canvas_name'] . '\')"';
-      $sf_form = 'sf-form="form.form.' . $element['#canvas_name'] . '"';
+      $complete_form['react_router'] = [
+        '#markup' => '<div id="' . $class_name_canvas . '"></div>',
+        '#parents' => [],
+        // Suppresses https://www.drupal.org/project/drupal/issues/3027240
+      ];
       $class_name_canvas = $element['#canvas_name'];
-    }
-    else {
-      $ng_init = '';
-      $sf_form = 'sf-form="form.form"';
-      $class_name_canvas = '';
+      $complete_form['#attached']['drupalSettings']['cohesion']['apps'][] = $class_name_canvas;
+      $model_class_name = $class_name_canvas . $model_class_name;
+      $mapper_class_name = $class_name_canvas . $mapper_class_name;
     }
 
-    // Add the schemaform.
-    $element['ng_init_schemaform'] = [
-      '#markup' => '<div ' . $ng_init . ' sf-schema="form.schema" ' . $sf_form . ' sf-model="form.model" sf-options="form.options"></div>',
+    $element['react_app'] = [
+      '#markup' => '<div id="' . $class_name_canvas . '"></div>',
       '#weight' => 1,
     ];
 
@@ -252,10 +259,11 @@ class CohesionField extends FormElement {
       '#type' => 'hidden',
       '#title' => t('Values data'),
       '#default_value' => '{}',
-      '#description' => t('Values data for the DX8 website settings.'),
+      '#description' => t('Values data for the website settings.'),
       '#required' => FALSE,
       '#attributes' => [
-        'class' => [$class_name_canvas . '_modelAsJson'],
+        'class' => [$model_class_name],
+        'id' => [$model_class_name],
       ],
       '#weight' => 3,
     ];
@@ -269,7 +277,8 @@ class CohesionField extends FormElement {
         '#required' => FALSE,
         '#weight' => 5,
         '#attributes' => [
-          'class' => [$class_name_canvas . '_mapperAsJson'],
+          'class' => [$mapper_class_name],
+          'id' => [$mapper_class_name],
         ],
       ];
     }
@@ -295,8 +304,8 @@ class CohesionField extends FormElement {
         '#type' => 'html_tag',
         '#tag' => 'pre',
         '#attributes' => [
-          'class' => [$class_name_canvas . '_modelAsJsonView'],
-          'id' => $class_name_canvas . '_modelAsJsonView',
+          'class' => [$model_class_name . 'View'],
+          'id' => [$model_class_name . 'View'],
           'style' => 'max-height: 250px; border: 1px solid #ccc; padding: 1em;',
           'title' => 'Model',
         ],
@@ -308,7 +317,8 @@ class CohesionField extends FormElement {
           '#type' => 'html_tag',
           '#tag' => 'pre',
           '#attributes' => [
-            'class' => [$class_name_canvas . '_mapperAsJsonView'],
+            'class' => [$mapper_class_name . 'View'],
+            'id' => [$mapper_class_name . 'View'],
             'style' => 'max-height: 250px; border: 1px solid #ccc; padding: 1em;',
             'title' => 'Mapper',
           ],

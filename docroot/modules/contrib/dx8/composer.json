@@ -1,7 +1,7 @@
 {
     "name": "cohesion/dx8",
     "description": "DX8 module",
-    "version": "5.5.6",
+    "version": "5.6.1",
     "type": "drupal-module",
     "minimum-stability": "dev",
     "extra": {
@@ -10,16 +10,12 @@
                 "drush.services.yml": "^9"
             }
         },
-        "patches": {
-            "drupal/entity_reference_revisions": {
-                "'Create new revision' option is ignored when updating EntityReferenceRevisionsItem": "https://www.drupal.org/files/issues/2019-06-27/3025709-30.patch"
-            }
-        }
+        "enable-patching": true
     },
     "require": {
         "ext-json": "*",
         "cweagans/composer-patches": "^1.6",
-        "drupal/entity_reference_revisions": "^1.6",
+        "drupal/entity_reference_revisions": "^1.7",
         "drupal/imce": "^1.7",
         "drupal/token": "^1.5"
     },

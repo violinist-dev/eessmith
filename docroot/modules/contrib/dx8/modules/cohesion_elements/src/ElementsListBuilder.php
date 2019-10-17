@@ -149,6 +149,9 @@ class ElementsListBuilder extends CohesionListBuilder implements FormInterface {
       '#button_type' => 'primary',
     ];
 
+    // Include the Angular css (which controls the cohesion_accordion and other form styling).
+    $form['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
+
     return $form;
 
   }

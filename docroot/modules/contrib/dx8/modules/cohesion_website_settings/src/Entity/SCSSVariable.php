@@ -91,7 +91,7 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
     /** @var WebsiteSettingsApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
-    $send_to_api->send('style');
+    $send_to_api->send();
     return $send_to_api;
   }
 
@@ -103,7 +103,7 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('style');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
     if ($success === TRUE) {
       return FALSE;

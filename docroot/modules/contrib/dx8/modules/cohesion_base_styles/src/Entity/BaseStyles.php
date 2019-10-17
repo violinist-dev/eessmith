@@ -82,7 +82,7 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
       /** @var BaseStylesApi $send_to_api */
       $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('base_styles_api');
       $send_to_api->setEntity($this);
-      $send_to_api->send('style');
+      $send_to_api->send();
     }
   }
 
@@ -91,12 +91,6 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
    */
   public function getResourceObject() {
     $entity_values = $this->getResourceObjectDefault();
-
-    //      $values = $this->getDecodedJsonValues();
-    //      if(isset($values['styles']['settings']['element'])){
-    //        $entity_values->bundle = $values['styles']['settings']['element'];
-    //      }
-
 
     return $entity_values;
   }
@@ -107,7 +101,7 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
     $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues());
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('style');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {

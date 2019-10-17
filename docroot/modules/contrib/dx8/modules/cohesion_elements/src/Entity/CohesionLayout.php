@@ -230,7 +230,7 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
     $send_to_api->setEntity($this);
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('layout_field');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {     // layout-field
@@ -265,7 +265,7 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
     /** @var TemplatesApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
     $send_to_api->setEntity($this);
-    $success = $send_to_api->send('layout_field');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {     // layout-field

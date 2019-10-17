@@ -84,29 +84,6 @@ class ApiUtils {
   }
 
   /**
-   * @param array $data
-   * @param array $content_paths
-   * @param null $parentKey
-   *
-   * @return array
-   */
-  private function componentContentFields($data = [], $content_paths = [], $parentKey = NULL) {
-    static $fieldIds = [];
-
-    foreach ($data as $key => $value) {
-      if (!is_array($value) && ($fieldId = $this->mapContentField($value, [$parentKey, $key], $content_paths))) {
-        $fieldIds[] = $fieldId;
-      }
-
-      if (is_array($value) && ($contentFields = $this->componentContentFields($value, $content_paths, $key))) {
-        $fieldIds = $contentFields;
-      }
-    }
-
-    return array_unique($fieldIds);
-  }
-
-  /**
    * Recurse through a JSON object and extract all UUIDs that are keys.
    *
    * @param $object

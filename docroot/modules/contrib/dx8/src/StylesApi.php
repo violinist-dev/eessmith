@@ -9,7 +9,7 @@ use Drupal\image\Entity\ImageStyle;
 /**
  * Class CustomStylesApi
  *
- * @packageDrupal\cohesion
+ * @package Drupal\cohesion
  *
  * )
  */

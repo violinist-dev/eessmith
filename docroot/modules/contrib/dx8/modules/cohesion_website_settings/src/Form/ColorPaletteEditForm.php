@@ -23,7 +23,7 @@ class ColorPaletteEditForm extends WebsiteSettingsGroupFormBase {
 
   const FORM_CLASS = 'cohesion-website-settings-color-palette-form';
 
-  const NG_ID = 'color_palette';
+  const COH_FROM_ID = 'color_palette';
 
   const PLUGIN_ID = 'color_entity_groups';
 

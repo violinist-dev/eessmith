@@ -66,7 +66,7 @@ class FontLibrary extends WebsiteSettingsEntityBase implements CohesionSettingsI
     /** @var WebsiteSettingsApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
-    $send_to_api->send('style');
+    $send_to_api->send();
     $send_to_api->getData();
   }
 

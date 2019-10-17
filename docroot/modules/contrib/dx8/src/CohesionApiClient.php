@@ -156,7 +156,7 @@ class CohesionApiClient {
       }
 
       if ($with_message) {
-        drupal_set_message(t('The DX8 API is inaccessible. Please re-save. If the problem persists, contact support.'), 'error');
+        drupal_set_message(t('Unable to generate assets, please try again. If the problem persists, contact your administrator.'), 'error');
       }
     }
 

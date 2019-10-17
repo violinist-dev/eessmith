@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion\Controller;
 
+use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -12,11 +13,12 @@ use Drupal\cohesion_elements\Controller\ElementsController;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\cohesion_elements\Entity\Component;
-use Drupal\cohesion\Helper\CohesionEndpointHelper;
+use Drupal\cohesion\Services\CohesionEndpointHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\file\Entity\File;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Class CohesionEndpointController
@@ -153,6 +155,7 @@ class CohesionEndpointController extends ControllerBase {
     $exclude_path = ($request->query->get('componentPath')) ?: FALSE;
     $type_access = ($request->query->get('entity_type_access')) ?: 'all';
     $bundle_access = ($request->query->get('bundle_access')) ?: 'all';
+    $access_elements = ($request->query->get('access_elements')) === 'false' ? FALSE : TRUE;
 
     // Get list of categories relating to the element type.
     $type_map = [
@@ -170,15 +173,13 @@ class CohesionEndpointController extends ControllerBase {
         'label' => $category['label'],
         'value' => $category['class'],
         'children' => [],
-        'dx8_access' => TRUE, // This is redendant.
+        'dx8_access' => TRUE, // This is redundant.
       ];
     }
 
     // Get list of entities matching the specified type.
     $storage = $this->entityTypeManager()->getStorage($entity_type);
-
     $query = $storage->getQuery()->condition('status', TRUE)->condition('selectable', TRUE)->sort('category', 'asc')->sort('label', 'asc')->sort('weight', 'asc');
-
     $ids = $query->execute();
 
     // Do we need to exclude a component?
@@ -196,6 +197,10 @@ class CohesionEndpointController extends ControllerBase {
     // Load the entities.
     $entities = $storage->loadMultiple($ids);
     foreach ($entities as $entity) {
+
+      if ($this->helperAccessFilter($entity, $access_elements)) {
+        continue;
+      }
 
       if (!$this->componentListFilter($entity, $type_access, $bundle_access)) {
         continue;
@@ -249,11 +254,13 @@ class CohesionEndpointController extends ControllerBase {
       }
 
       // Set the category as the class name.
-      $element['category'] = $categories[$element['category']]['class'];
+      if (isset($categories[$element['category']])) { // Ignore if user does not have access to this category.
+        $element['category'] = $categories[$element['category']]['class'];
 
-      // Add the element as a child of the category.
-      if (isset($element_categories[$entity->get('category')]['dx8_access'])) {
-        $element_categories[$entity->get('category')]['children'][] = $element;
+        // Add the element as a child of the category.
+        if (isset($element_categories[$entity->get('category')]['dx8_access'])) {
+          $element_categories[$entity->get('category')]['children'][] = $element;
+        }
       }
     }
 
@@ -285,8 +292,8 @@ class CohesionEndpointController extends ControllerBase {
    * @param $uid
    *
    * @return \Drupal\cohesion\CohesionJsonResponse
-   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getComponent($uid) {
     // Get the uid of the component from the request.
@@ -433,9 +440,11 @@ class CohesionEndpointController extends ControllerBase {
   /**
    * Save an element given the provided details.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function elementSave(Request $request) {
     $content_raw = $request->getContent();
@@ -496,15 +505,33 @@ class CohesionEndpointController extends ControllerBase {
   }
 
   /**
+   * Return TRUE if list should filter helper if helper canvas contains any elements.
+   *
+   * @param CohesionElementEntityBase $entity
+   * @param int $access_elements
+   *
+   * @return bool
+   */
+  private function helperAccessFilter(CohesionElementEntityBase $entity, $access_elements) {
+    // Do we need to search the helper for elements?
+    if ($entity->getEntityTypeId() == 'cohesion_helper' && $access_elements == FALSE) {
+      // Helper contains elements, so should be filtered out.
+      return $entity->getLayoutCanvasInstance()->hasElements();
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Filters list based on Component availability settings
    *
-   * @param Component $entity
+   * @param CohesionElementEntityBase $entity
    * @param string $type_access
    * @param string $bundle_access
    *
    * @return boolean
    */
-  protected function componentListFilter($entity, $type_access = NULL, $bundle_access = NULL) {
+  protected function componentListFilter(CohesionElementEntityBase $entity, $type_access = NULL, $bundle_access = NULL) {
     if (method_exists($entity, 'getAvailabilityData')) {
       list($types, $bundles) = $entity->getAvailabilityData();
       if (!(in_array($type_access, $types) && in_array($bundle_access, $bundles)) && !(empty($bundles) && empty($types)) && !($type_access == 'all' || $bundle_access == 'all') && !(in_array($type_access, $types) && empty($bundles))) {
@@ -515,7 +542,7 @@ class CohesionEndpointController extends ControllerBase {
   }
 
   /**
-   * Given an entity referenece/field string, return the URI for the Angular
+   * Given an entity reference/field string, return the URI for the Angular
    * image preview.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request

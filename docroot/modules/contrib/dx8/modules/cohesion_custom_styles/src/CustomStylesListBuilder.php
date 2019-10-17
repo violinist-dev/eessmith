@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_custom_styles;
 
+use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
 use Drupal\Core\Form\FormInterface;
@@ -75,25 +76,24 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       '#type' => 'container',
     ];
 
+    // Group by custom style types
     if ($custom_style_types = $this->entityTypeManager->getStorage('custom_style_type')->loadMultiple()) {
       // Make sure the custom style types are in alphabetical order.
       ksort($custom_style_types);
+      $custom_styles = $this->load();
 
       foreach ($custom_style_types as $custom_style_type) {
         $custom_style_type_id = $custom_style_type->id();
         // Filter entities by custom style group ID
-        $grouped_entities = array_filter($this->load(), function ($value) use ($custom_style_type_id) {
+        $grouped_entities = array_filter($custom_styles, function ($value) use ($custom_style_type_id) {
           return ($custom_style_type_id === $value->get('custom_style_type')) ? TRUE : FALSE;
         });
-
-        $style_count = \Drupal::service('cohesion_custom_styles.utils')
-          ->countCustomStylesByGroupId($custom_style_type_id);
 
         // Build the accordions
         $form['styles'][$custom_style_type_id]['accordion'] = [
           '#type' => 'details',
           '#open' => FALSE,
-          '#title' => $custom_style_type->label() . ' (' . $style_count . ')',
+          '#title' => $custom_style_type->label() . ' (' . count($grouped_entities). ')',
         ];
 
         $title = $custom_style_type->label();
@@ -179,7 +179,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
    * @return \Drupal\Core\Entity\EntityInterface[]
    */
   public function load() {
-    return \Drupal::service('cohesion_custom_styles.utils')->loadCustomStyles();
+    return CustomStyle::loadParentChildrenOrdered();
   }
 
   /**
@@ -305,13 +305,21 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
     }
 
     // Update custom style config entity with current order.
-    $i = 0;
+    $weight = 0;
     if ($entities) {
       foreach ($entities as $id => $entity) {
         // Store the current order so we can use it to sort custom styles in stylesheet.json
         $config_name = $entity->getConfigDependencyName();
-        \Drupal::service('cohesion_custom_styles.utils')->updateCustomStylesWeight($config_name, $i);
-        $i++;
+        try {
+          $config = \Drupal::configFactory()->getEditable($config_name);
+          $config->set('weight', $weight);
+          $config->save(true);
+          return true;
+        } catch (\Exception $ex) {
+
+        }
+
+        $weight++;
       }
 
       // Re-save all the custom styles via a batch process to ensure they are

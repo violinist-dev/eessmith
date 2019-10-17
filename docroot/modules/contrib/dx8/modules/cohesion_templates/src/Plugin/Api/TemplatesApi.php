@@ -136,11 +136,11 @@ class TemplatesApi extends ApiPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function send($type) {
-    $sendApi = parent::send($type);
+  public function send() {
+    $sendApi = parent::send();
 
     // If this is a layout builder on an entity, return the twig string.
-    if ($type == 'layout_field') {
+    if ($this->entity instanceof ContentEntityInterface || $this->is_preview) {
       return $sendApi;
     }
 

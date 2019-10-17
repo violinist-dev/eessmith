@@ -2,7 +2,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
-use Drupal\cohesion\Helper\CohesionUtils;
+use Drupal\cohesion\Services\CohesionUtils;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
@@ -272,8 +272,7 @@ function cohesion_website_settings_enable_website_settings($entities, &$context)
         else {
           // It doesn't exist, so create defaults.
           if (($errors = \Drupal::service('website_settings.defaults')->createDefaultWebsiteSettings($id))) {
-            // Compile and add this website setting css to stylesheet.json.
-            $ws_entity->process();
+            // Immediately break if there is an error
             break;
           }
         }

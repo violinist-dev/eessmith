@@ -86,7 +86,7 @@ class Component extends CohesionElementEntityBase implements CohesionSettingsInt
     /** @var TemplatesApi $send_to_api */
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
     $send_to_api->setEntity($this);
-    $send_to_api->send('template');
+    $send_to_api->send();
   }
 
   /**

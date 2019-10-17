@@ -19,7 +19,8 @@ class TemplateForm extends CohesionBaseForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    $form['#attributes']['ng-init'] = 'onInit(formRenderer, \'template\', \'content_template\')';
+    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'template';
+    $form['#attached']['drupalSettings']['cohesion']['formId'] = 'content_template';
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('template', 'content_template');
 
     // Set list of field to blank by default. Template form that inherit from this one will override the variable.

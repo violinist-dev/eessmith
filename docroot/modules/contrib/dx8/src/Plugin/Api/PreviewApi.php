@@ -39,7 +39,7 @@ class PreviewApi extends StylesApi {
   /**
    * {@inheritdoc}
    */
-  public function send($type) {
+  public function send() {
 
     if (!(\Drupal::service('cohesion.utils')->usedx8Status()) || $this->configInstaller->isSyncing()) {
       return FALSE;

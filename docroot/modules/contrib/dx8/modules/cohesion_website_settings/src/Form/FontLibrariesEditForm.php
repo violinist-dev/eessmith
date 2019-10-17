@@ -25,7 +25,7 @@ class FontLibrariesEditForm extends WebsiteSettingsGroupFormBase {
 
   const FORM_CLASS = 'cohesion-website-settings-font-libraries-form';
 
-  const NG_ID = 'font_libraries';
+  const COH_FROM_ID = 'font_libraries';
 
   const PLUGIN_ID = 'font_libraries_entity_groups';
 

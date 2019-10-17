@@ -44,7 +44,7 @@ class RebuildInuseBatch {
       // Only rebuild entities that have been activated.
       $batch['operations'][] = [
         '_resave_entity',
-        ['entity' => $entity],
+        ['entity' => $entity, 'realsave' => TRUE],
       ];
     }
 

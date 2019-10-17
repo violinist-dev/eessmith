@@ -30,9 +30,11 @@ class BaseStylesForm extends CohesionStyleBuilderForm {
     }
 
     // If the base style as already been saved or is new
-    if ($entity->isModified() || $entity->isNew()) {
-      $form['cohesion']['#ng-init']['id'] = 'generic';
-    }
+    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'base_styles';
+    $form['#attached']['drupalSettings']['cohesion']['formId'] = $entity->id() && !strstr($entity->id(), 'base_') ? $entity->id() : 'generic';
+
+    $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')
+      ->getCohFormOnInit($form['#attached']['drupalSettings']['cohesion']['formGroup'], $form['#attached']['drupalSettings']['cohesion']['formId']);
 
     $form['details']['machine_name'] = [
       '#title' => $this->t('Machine name'),

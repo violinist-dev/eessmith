@@ -42,7 +42,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       ]);
     }
 
-    $form['#attributes']['ng-init'] = 'onInit(formRenderer, \'' . $asset_group_id . '\', \'' . $asset_name . '\')';
+    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = $asset_group_id;
+    $form['#attached']['drupalSettings']['cohesion']['formId'] = $asset_name;
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit($asset_group_id, $asset_name);
 
     $form_class = str_replace('_', '-', $this->entity->getEntityTypeId()) . '-' . str_replace('_', '-', $this->entity->id()) . '-form';
@@ -498,9 +499,6 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     if (empty($form_state->getValue('machine_name'))) {
       $form_state->setErrorByName('machine_name', $this->t('The machine name cannot be empty.'));
     }
-
-    // Note, the machine name check is performed automatically in
-    // $this->>checkUniqueMachineName()
   }
 
 }

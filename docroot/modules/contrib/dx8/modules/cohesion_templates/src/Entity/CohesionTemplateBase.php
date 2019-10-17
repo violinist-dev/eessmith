@@ -52,7 +52,7 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
     $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
 
     $send_to_api->setEntity($this);
-    $send_to_api->send('template');
+    $send_to_api->send();
 
     // Invalidate the template cache.
     self::clearCache($this);
@@ -67,7 +67,7 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
 
     $send_to_api->setEntity($this);
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('template');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {

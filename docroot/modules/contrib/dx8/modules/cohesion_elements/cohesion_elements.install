@@ -347,6 +347,9 @@ function cohesion_elements_update_8601() {
  * Install component and helper category entities.
  */
 function cohesion_elements_update_8602() {
+  $dx8_no_send_to_api = &drupal_static('dx8_no_send_to_api');
+  $dx8_no_send_to_api = TRUE;
+
   // If the entities don't exist, create them (can't rely on entup existing because of: https://www.drupal.org/node/3034742)
   $entity_definitions = [
     [
@@ -479,6 +482,9 @@ function cohesion_elements_update_8603() {
  * Add weight to components / helpers
  */
 function cohesion_elements_update_8604(){
+  $dx8_no_send_to_api = &drupal_static('dx8_no_send_to_api');
+  $dx8_no_send_to_api = TRUE;
+
   $entity_types = ['cohesion_component', 'cohesion_helper'];
 
   foreach ($entity_types as $entity_type){
@@ -504,6 +510,28 @@ function cohesion_elements_update_8701() {
   $entity_type->set('data_table', 'cohesion_layout_field_data');
   $entity_type->set('revision_data_table', 'cohesion_layout_field_revision');
   $definition_update_manager->updateEntityType($entity_type);
+}
+
+/**
+ * Update the layout_canvas field settings to allow elements on a layout canvas for sites being upgraded.
+ */
+function cohesion_elements_update_8702() {
+  $fieldsArray = \Drupal::service('entity_field.manager')->getFieldMapByFieldType('cohesion_entity_reference_revisions');
+
+  if (!empty($fieldsArray)) {
+    foreach ($fieldsArray as $group_id => $group) {
+      foreach ($group as $field_id => $field_def) {
+        if (strstr($field_id,'field_')) {
+          foreach ($field_def['bundles'] as $bundle) {
+            if ($field = Drupal::entityTypeManager()->getStorage('field_config')->load($group_id . '.' . $bundle . '.' . $field_id)) {
+              $field->setSetting('access_elements', "1");
+              $field->save();
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 

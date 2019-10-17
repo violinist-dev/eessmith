@@ -526,6 +526,15 @@ class TwigExtension extends \Twig_Extension {
     }
   }
 
+  /**
+   * @param $component_field_id
+   * @param $uuid
+   * @param $component_json
+   * @param $_context
+   * @param $isTemplate
+   *
+   * @return array|string|null
+   */
   private function buildComponentFields($component_field_id, $uuid, $component_json, $_context, $isTemplate) {
     if (is_object($component_field_id)) {
       // Dropzone contents.
@@ -542,11 +551,22 @@ class TwigExtension extends \Twig_Extension {
     }
     else {
       // Standard token field.
-      return $this->proccessComponentFieldValue($component_field_id, $uuid, $component_json, $_context, $isTemplate);
+      return $this->processComponentFieldValue($component_field_id, $uuid, $component_json, $_context, $isTemplate);
     }
   }
 
-  private function proccessComponentFieldValue($component_field_id, $uuid, $component_json, $_context, $isTemplate) {
+  /**
+   * This looks like is patches component field values at runtime.
+   *
+   * @param $component_field_id
+   * @param $uuid
+   * @param $component_json
+   * @param $_context
+   * @param $isTemplate
+   *
+   * @return string|null
+   */
+  private function processComponentFieldValue($component_field_id, $uuid, $component_json, $_context, $isTemplate) {
     if (isset($_context[$component_field_id]) && isset($component_json['model'][$uuid]['settings'])) {
       $settings = $component_json['model'][$uuid]['settings'];
       $fieldValue = $_context[$component_field_id];
@@ -582,22 +602,32 @@ class TwigExtension extends \Twig_Extension {
               break;
             case 'cohSelect':
               $fieldValue = strval($fieldValue);
-              // Is the value in the predefined select options
-              $is_in_select = FALSE;
-              foreach ($settings['options'] as $option) {
-                if (isset($option['value']) && $fieldValue == $option['value']) {
-                  $is_in_select = TRUE;
-                  break;
-                }
-              }
 
-              // In not in the select options fallback to default value
-              if (!$is_in_select) {
-                if (isset($component_json['model'][$uuid]['model']['value'])) {
-                  $fieldValue = $component_json['model'][$uuid]['model']['value'];
+              // Is the value in the endpoint based select options.
+              if ($settings['selectType'] == 'existing') {
+                // Really this should look up the value sin the endpoint, but it's not
+                // possible to call the endpoint and get the valued programmatically.
+                // This is some protection.
+                $fieldValue = Xss::filter($fieldValue);
+              }
+              // Is the value in the manually predefined select options.
+              else {
+                $is_in_select = FALSE;
+                foreach ($settings['options'] as $option) {
+                  if (isset($option['value']) && $fieldValue == $option['value']) {
+                    $is_in_select = TRUE;
+                    break;
+                  }
                 }
-                else {
-                  $fieldValue = '';
+
+                // In not in the select options fallback to default value
+                if (!$is_in_select) {
+                  if (isset($component_json['model'][$uuid]['model']['value'])) {
+                    $fieldValue = $component_json['model'][$uuid]['model']['value'];
+                  }
+                  else {
+                    $fieldValue = '';
+                  }
                 }
               }
               break;
@@ -620,7 +650,11 @@ class TwigExtension extends \Twig_Extension {
     return NULL;
   }
 
-
+  /**
+   * @param $json
+   *
+   * @return array|\stdClass|string|null
+   */
   private function escapeJson($json) {
 
     $escaped = NULL;
@@ -1349,7 +1383,12 @@ class TwigExtension extends \Twig_Extension {
   }
 
   /**
-   * @return render a WYSIWYG field
+   * @param $wysiwyg
+   * @param $text_format
+   * @param $token_text
+   *
+   * @return \Drupal\Component\Render\MarkupInterface|string
+   * @throws \Exception
    */
   public function formatWysiwyg($wysiwyg, $text_format, $token_text) {
 

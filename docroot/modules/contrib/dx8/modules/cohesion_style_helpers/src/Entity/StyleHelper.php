@@ -117,7 +117,7 @@ class StyleHelper extends CohesionConfigEntityBase implements CohesionSettingsIn
     $style_model = $this->getDecodedJsonValues();
     $send_to_api->setupPreview($this->getEntityTypeId(), $style_model);
     $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send('style');
+    $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {

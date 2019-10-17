@@ -3,22 +3,23 @@
 namespace Drupal\cohesion;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
+use Drupal\cohesion\Services\CohesionUtils;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion_website_settings\Entity\SCSSVariable;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Config\ConfigInstallerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\cohesion_website_settings\Entity\Color;
 use Drupal\cohesion_website_settings\Entity\FontStack;
 use Drupal\cohesion_website_settings\Entity\IconLibrary;
 use Drupal\Core\Utility\Token;
-use Drupal\cohesion\Helper\LocalFilesManager;
+use Drupal\cohesion\Services\LocalFilesManager;
 
 /**
  * Class ApiPluginBase
@@ -40,7 +41,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
   /** @var \Drupal\Core\Utility\Token */
   protected $tokenService;
 
-  /** @var \Drupal\cohesion\Helper\LocalFilesManager */
+  /** @var \Drupal\cohesion\Services\LocalFilesManager */
   protected $localFilesManager;
 
   /** @var \Drupal\Core\Entity\EntityInterface | NULL */
@@ -52,6 +53,20 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    * @var \Drupal\Core\Config\ConfigInstallerInterface
    */
   protected $configInstaller;
+
+  /**
+   * The cohesion utils helper.
+   *
+   * @var CohesionUtils
+   */
+  protected $cohesionUtils;
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
 
   /**
    * The data to be sent to the API
@@ -77,10 +92,12 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
    * @param \Drupal\Core\Utility\Token $token_service
-   * @param \Drupal\cohesion\Helper\LocalFilesManager $local_files_manager
+   * @param \Drupal\cohesion\Services\LocalFilesManager $local_files_manager
+   * @param CohesionUtils $cohesion_utils
+   * @param ModuleHandlerInterface $module_handler
    */
-  
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, StreamWrapperManager $stream_wrapper_manager, Token $token_service, LocalFilesManager $local_files_manager, ConfigInstallerInterface $config_installer) {
+
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, StreamWrapperManager $stream_wrapper_manager, Token $token_service, LocalFilesManager $local_files_manager, ConfigInstallerInterface $config_installer, CohesionUtils $cohesion_utils, ModuleHandlerInterface $module_handler) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     // Save the injected services.
@@ -89,6 +106,8 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
     $this->tokenService = $token_service;
     $this->localFilesManager = $local_files_manager;
     $this->configInstaller = $config_installer;
+    $this->cohesionUtils = $cohesion_utils;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -103,7 +122,9 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
       $container->get('stream_wrapper_manager'),
       $container->get('token'),
       $container->get('cohesion.local_files_manager'),
-      $container->get('config.installer')
+      $container->get('config.installer'),
+      $container->get('cohesion.utils'),
+      $container->get('module_handler')
     );
   }
 
@@ -162,7 +183,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    *   Thrown if the storage handler couldn't be loaded.
    */
   protected function prepareData($attach_css = TRUE) {
-    // Set up the data object that will be sent to the style APi endpoint.
+    // Set up the data object that will be sent to the style API endpoint.
     $this->data = new \stdClass();
     $this->data->settings = new \stdClass();
     // Entities to be processed
@@ -180,7 +201,8 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
     $website_settings_storage = $this->entityTypeManager->getStorage('cohesion_website_settings');
 
     foreach ($website_settings_types as $website_settings_type) {
-      // If the entity is already set, use its json values.
+      // If the entity being saved is a website settings use it rather then the one
+      // from the database as it has the latest data.
       /** @var WebsiteSettings $website_settings */
       if (isset($this->entity) && $this->entity->id() == $website_settings_type) {
         $website_settings = $this->entity;
@@ -408,15 +430,14 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
         \Drupal::service('file_system')->mkdir(COHESION_CSS_PATH, 0777, FALSE);
       }
 
-      // Save the main/master stylesheet.
-      $original_css_path = $this->localFilesManager->getStyleSheetFilename('json');
-      $content = $data['master'];
-      if ($content) {
-        file_unmanaged_save_data($content, $original_css_path, FILE_EXISTS_REPLACE);
+      // Save the main/master stylesheet json.
+      if ($stylesheet_json_content = $data['master']) {
+        $stylesheet_json_path = $this->localFilesManager->getStyleSheetFilename('json');
+        file_unmanaged_save_data($stylesheet_json_content, $stylesheet_json_path, FILE_EXISTS_REPLACE);
       }
 
       $cohesion_module_libraries = \Drupal::keyValue('cohesion.library.module');
-
+      // smacss categories used by DX8
       $style_types = [
         'base',
         'theme',
@@ -451,25 +472,9 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
         $cohesion_module_libraries->set($section_name, serialize($css_files));
       }
 
-      // Create admin icon library and website settings stylesheet for admin.
-      $master = Json::decode($data['master']);
-
-      if (isset($master['cohesion_website_settings']['icon_libraries'])) {
-        $destination = $this->localFilesManager->getStyleSheetFilename('icons');
-        if (file_unmanaged_save_data($master['cohesion_website_settings']['icon_libraries'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
-          \Drupal::logger('cohesion')
-            ->notice(t(':name stylesheet has been updated', [':name' => 'icon library']));
-        }
+      if(!$running_dx8_batch){
+        $this->localFilesManager->refreshCaches();
       }
-
-      if (isset($master['cohesion_website_settings']['responsive_grid_settings'])) {
-        $destination = $this->localFilesManager->getStyleSheetFilename('grid');
-        if (file_unmanaged_save_data($master['cohesion_website_settings']['responsive_grid_settings'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
-          \Drupal::logger('cohesion')->notice(t(':name stylesheet has been updated', array(':name' => 'Responsive grid')));
-        }
-      }
-
-      $this->localFilesManager->refreshCaches();
     }
     // Generate cache busting token for wysiwyg cohesion styles
     $wysiwyg_cache_token = \Drupal::keyValue('cohesion.wysiwyg_cache_token');
@@ -505,32 +510,29 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    *   Thrown if the storage handler couldn't be loaded.
    */
-  public function send($type) {
+  public function send() {
     // If in update.php mode, don't send.
     $dx8_no_send_to_api = &drupal_static('dx8_no_send_to_api');
-    if ($dx8_no_send_to_api) {
-      return TRUE;
-    }
-
     // Process entity if DX8 is enable && if is an entity, it is enable and we don't want to save the data
     $cohesion_sync_lock = &drupal_static('cohesion_sync_lock');
 
-    if (!(\Drupal::service('cohesion.utils')->usedx8Status()) ||
+    if ($dx8_no_send_to_api || !($this->cohesionUtils->usedx8Status()) ||
       ((isset($this->entity) && method_exists($this->entity, 'status') && !$this->entity->status()) && !$this->getSaveData()) ||
       ($cohesion_sync_lock) || $this->configInstaller->isSyncing()) {
       return TRUE;
     }
 
-    $this->prepareData($type != 'layout_field');  // Don't attach the css to inject for layout_builder requests.
+    $is_content = $this->entity instanceof CohesionLayout;
+
+    $this->prepareData(!$is_content);  // Don't attach the css to inject for content requests.
 
     // Whether the generated template should have its content translatable in interface translation
-    $this->data->translatable = $type == 'layout_field' ? FALSE : TRUE;
+    $this->data->translatable = !$is_content;
 
     $this->data->settings->forms = array_values($this->data->settings->forms);
 
     // Allow modules to manipulate the data before it's sent.
-    \Drupal::moduleHandler()
-      ->alter('dx8_api_outbound_data', $this->data, $this->entity, $type);
+    $this->moduleHandler->alter('dx8_api_outbound_data', $this->data, $this->entity, $is_content);
 
     // Save the last time the main stylesheet was updated.
     $requestCSSTimestamp = $this->getStylesheetTimestamp();
@@ -542,7 +544,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
     if ($this->response && floor($this->response['code'] / 200) == 1) {
 
       // If this a layout_field, just return the entire request (as it will be store inline in the field).
-      if ($type == 'layout_field' || !$this->saveData) {
+      if ($is_content || !$this->saveData) {
         return TRUE;
       }
 
@@ -559,15 +561,15 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
         if(($this->entity instanceof CohesionLayout) && $this->entity->getParentEntity()){
           /* @var CohesionLayout $entity */
           $label = $this->entity->getParentEntity()->label();
-          $type = $this->entity->getParentEntity()->getEntityType()->getLabel();
+          $entity_type = $this->entity->getParentEntity()->getEntityType()->getLabel();
         }else{
           /* @var \Drupal\Core\Entity\Entity $entity */
           $label = $this->entity->label();
-          $type = $this->entity->getEntityType()->getLabel();
+          $entity_type = $this->entity->getEntityType()->getLabel();
         }
         \Drupal::logger('api-call-error')->error(
-          t('API Error while trying to save @type - @label', [
-            '@type' => $type,
+          t('API Error while trying to save @entity_type - @label', [
+            '@entity_type' => $entity_type,
             '@label' => $label
           ])
         );
@@ -590,7 +592,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    */
   public function delete() {
     // Prevent sending data to API if Use DX8 has error
-    if (!(\Drupal::service('cohesion.utils')->usedx8Status()) || $this->configInstaller->isSyncing()) {
+    if (!($this->cohesionUtils->usedx8Status()) || $this->configInstaller->isSyncing()) {
       return FALSE;
     }
 

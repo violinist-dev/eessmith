@@ -20,13 +20,12 @@ class Dx8Commands extends DrushCommands {
    * @usage drush dx8:import
    */
   public function import() {
-    $this->say(t('Importing DX8 assets.'));
+    $this->say(t('Importing assets.'));
     $errors = DX8CommandHelpers::import();
     if ($errors) {
       $this->say('[error] ' . $errors['error']);
     }
-    $this->yell(t('Congratulations. DX8 is installed and up to date. You can now build your website.'));
-    $this->yell(t('Thank you for using DX8.'));
+    $this->yell(t('Congratulations. Cohesion is installed and up to date. You can now build your website.'));
   }
 
   /**

@@ -48,7 +48,7 @@ trait EntityJsonValuesTrait {
    */
   public function preProcessJsonValues() {
     $this->resetElementsUUIDs();
-    if($canvas_instance = $this->getLayoutCanvasInstance()){
+    if ($canvas_instance = $this->getLayoutCanvasInstance()) {
       $this->setJsonValue(json_encode($canvas_instance));
     }
     return FALSE;

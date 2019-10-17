@@ -32,6 +32,12 @@ class ElementModel implements \JsonSerializable {
    */
   protected $model = NULL;
 
+  /**
+   * ElementModel constructor.
+   *
+   * @param $model
+   * @param \Drupal\cohesion\Plugin\LayoutCanvas\Element $element
+   */
   public function __construct($model, Element $element) {
     $this->element = $element;
 
@@ -41,20 +47,28 @@ class ElementModel implements \JsonSerializable {
     }
   }
 
+  /**
+   * @return array
+   */
   public function getHashedContent() {
     return $this->hashed_content;
   }
 
+  /**
+   * @return \Drupal\cohesion\Plugin\LayoutCanvas\Element|null
+   */
   public function getElement() {
     return $this->element;
   }
 
+  /**
+   * @return NULL|string
+   */
   public function getUUID() {
     return $this->getElement()->getUUID();
   }
 
   /**
-   *
    * Find a property in a model
    *
    * @param string|array $path_to_property
@@ -98,8 +112,10 @@ class ElementModel implements \JsonSerializable {
     return [];
   }
 
+  /**
+   *
+   */
   public function prepareDataForAPI() {
-
     // Handle background images inheritance
     if ($this->getProperty(['styles', 'styles'])) {
       $previous_bp = [];
@@ -157,7 +173,10 @@ class ElementModel implements \JsonSerializable {
    * If the element is a component it will be the path in the canvas of the
    * component entity to assert if hashing is needed in the current model
    *
-   * @param $current_element \Drupal\cohesion\Plugin\LayoutCanvas\Element
+   * @param \Drupal\cohesion\Plugin\LayoutCanvas\Element $current_element
+   * @param bool $is_nested_component
+   *
+   * @return array
    */
   private function hashContentComponent(Element $current_element, $is_nested_component = FALSE) {
 
@@ -269,7 +288,6 @@ class ElementModel implements \JsonSerializable {
    * Perform the Drupal token replacement.
    *
    * @param $value
-   *
    */
   private function processToken(&$value) {
     if (is_string($value)) {
@@ -281,7 +299,7 @@ class ElementModel implements \JsonSerializable {
         foreach ($found_tokens as $context => $token_group) {
           if (in_array($context, array_keys($token_info['types']))) {
             foreach ($token_group as $token) {
-              $context_variable = $context;
+              $context_variable = str_replace('-','_', $context);
 
               \Drupal::moduleHandler()->alter('dx8_' . $context . '_drupal_token_context', $context_variable);
 

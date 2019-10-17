@@ -57,7 +57,7 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
   protected $disabledNodes = NULL;
 
   /**
-   * Content obfuscated before being sent to the API
+   * Content obfuscated before being sent to the API.
    *
    * @var array
    */
@@ -115,6 +115,19 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
    */
   public function getContentHashed() {
     return $this->hashed_content;
+  }
+
+  /**
+   * @return bool
+   */
+  public function hasElements() {
+    foreach ($this->iterateCanvas() as $item) {
+      if ($item->isElement()) {
+        // Found an element so return.
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
   /**

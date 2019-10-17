@@ -6,10 +6,9 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Class CohesionController
@@ -34,6 +33,11 @@ class CohesionController extends ControllerBase {
    */
   protected $file_name;
 
+  /**
+   * CohesionController constructor.
+   *
+   * @param \Drupal\system\SystemManager $systemManager
+   */
   public function __construct(SystemManager $systemManager) {
     $this->systemManager = $systemManager;
     $file_name = \Drupal::request()->query->get('file_name');
@@ -62,26 +66,6 @@ class CohesionController extends ControllerBase {
   }
 
   /**
-   * Downloads a tarball of the site configuration.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Symfony\Component\HttpFoundation\RedirectResponse
-   */
-  public function cohesionConfigDownload(Request $request) {
-    $uri = COHESION_FILESYSTEM_URI . 'content_export/' . $this->file_name;
-    if (!file_exists($uri)) {
-      $url = Url::fromUri('internal:/' . Url::fromRoute('dx8_deployment.export_content')->getInternalPath());
-      drupal_set_message(t('Your Cohesion content is not ready please click "Export Cohesion content" first'), 'warning');
-      return new RedirectResponse($url->toString());
-    }
-    else {
-      $url = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->getExternalUrl();
-      return new RedirectResponse($url);
-    }
-  }
-
-  /**
    * Get an array of the available cohesion entity types
    *
    * @return array
@@ -89,6 +73,7 @@ class CohesionController extends ControllerBase {
   public static function getCohesionEnityTypes() {
     $results = [];
     foreach (\Drupal::service('entity.manager')->getDefinitions() as $key => $value) {
+      /** @var $value EntityTypeInterface */
       if ($value->entityClassImplements('\Drupal\cohesion\Entity\CohesionSettingsInterface')) {
         $results[$value->get('id')] = $value->getLabel()->render();
       }

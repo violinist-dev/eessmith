@@ -2,7 +2,7 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
-use Drupal\cohesion\Helper\CohesionUtils;
+use Drupal\cohesion\Services\CohesionUtils;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Serialization\Json;
@@ -70,7 +70,7 @@ class CohesionComponentController extends ControllerBase {
       $send_to_api->setEntity($component);
       $send_to_api->setJsonValues($body);
       $send_to_api->setSaveData(FALSE);
-      $send_to_api->send('layout_field');
+      $send_to_api->send();
 
       // If the APi call was successful, then merge the arrays.
       if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
@@ -153,7 +153,8 @@ class CohesionComponentController extends ControllerBase {
       '#theme' => 'component_preview_full',
       '#attached' => [
         'library' => [
-          'cohesion/cohesion-admin',
+          'cohesion/cohesion-admin-scripts',
+          'cohesion/cohesion-admin-styles',
         ],
         'drupalSettings' => [
           'cohOnInitForm' => \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('canvas', 'preview'),
