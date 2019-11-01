@@ -217,7 +217,9 @@
  *   );
  * @endcode
  */
-$databases = array();
+
+// $databases = array();
+
 
 /**
  * Location of the site configuration files.
