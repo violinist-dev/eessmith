@@ -38,7 +38,7 @@ class CustomStylesApi extends StylesApi {
         //Only process enable children
         if ($child->getStatus()) {
           $resource = $child->getResourceObject();
-          $this->processStyleTokensRecursive($resource->values);
+          $this->processBackgroundImageInheritance($resource->values);
 
           $child_resources[] = $resource;
         }
@@ -46,9 +46,10 @@ class CustomStylesApi extends StylesApi {
     }
 
     // Send the parent and children to the API.
-    // processStyleTokensRecursive
+    // processBackgroundImageInheritance
     $resource = $this->parent->getResourceObject();
-    $this->processStyleTokensRecursive($resource->values);
+    $this->processBackgroundImageInheritance($resource->values);
+
 
     $this->data->settings->forms[] = $this->getFormElement($resource, $child_resources);
 

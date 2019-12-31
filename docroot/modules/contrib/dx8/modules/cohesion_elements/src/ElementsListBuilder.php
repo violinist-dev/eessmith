@@ -165,7 +165,7 @@ class ElementsListBuilder extends CohesionListBuilder implements FormInterface {
       '#header' => ($entities) ? $this->buildHeader() : [],
       '#title' => $category->label(),
       '#rows' => [],
-      '#empty' => $this->t('There are no @label.', ['@label' => mb_strtolower($this->entityType->getLabel())]),
+      '#empty' => $this->t('There are no @label yet.', ['@label' => mb_strtolower($this->entityType->getLabel())]),
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
         'tags' => $this->entityType->getListCacheTags(),

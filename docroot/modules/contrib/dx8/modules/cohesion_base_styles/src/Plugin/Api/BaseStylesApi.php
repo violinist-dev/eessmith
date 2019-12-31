@@ -20,7 +20,7 @@ class BaseStylesApi extends StylesApi {
     parent::prepareData();
 
     $resource = $this->entity->getResourceObject();
-    $this->processStyleTokensRecursive($resource->values);
+    $this->processBackgroundImageInheritance($resource->values);
 
     $this->data->settings->forms[] = $this->getFormElement($resource);
   }

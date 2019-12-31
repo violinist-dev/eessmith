@@ -111,13 +111,12 @@ class StyleHelper extends CohesionConfigEntityBase implements CohesionSettingsIn
    */
   public function jsonValuesErrors() {
     /** @var PreviewApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('preview_api');
 
     // Use the style preview endpoint to validate the data.
     $style_model = $this->getDecodedJsonValues();
     $send_to_api->setupPreview($this->getEntityTypeId(), $style_model);
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {

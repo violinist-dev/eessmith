@@ -7,7 +7,9 @@
 
 use GuzzleHttp\Exception\RequestException;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
@@ -17,13 +19,13 @@ use Drupal\image\Entity\ImageStyle;
  * Implements hook_menu_link_defaults().
  */
 function youtube_menu_link_defaults() {
-  $links = array();
-  $links['youtube.settings'] = array(
+  $links = [];
+  $links['youtube.settings'] = [
     'link_title' => 'YouTube Field settings',
     'description' => 'Configure global settings for YouTube fields.',
     'route_name' => 'youtube.settings',
     'parent' => 'system.admin.config.media',
-  );
+  ];
 
   return $links;
 }
@@ -53,39 +55,40 @@ function youtube_get_video_id($input) {
  * Returns a list of standard YouTube video sizes.
  */
 function youtube_size_options() {
-  return array(
+  return [
     '450x315' => '450px by 315px',
     '480x360' => '480px by 360px',
     '640x480' => '640px by 480px',
     '960x720' => '960px by 720px',
     'responsive' => 'responsive (full-width of container)',
     'custom' => 'custom',
-  );
+  ];
 }
 
 /**
  * Implements hook_theme().
  */
 function youtube_theme($existing, $type, $theme, $path) {
-  return array(
-    'youtube_thumbnail' => array(
-      'variables' => array(
+  return [
+    'youtube_thumbnail' => [
+      'variables' => [
         'video_id' => NULL,
         'entity_title' => NULL,
         'image_style' => NULL,
         'image_link' => NULL,
         'image' => NULL,
-      ),
-    ),
-    'youtube_video' => array(
-      'variables' => array(
+      ],
+    ],
+    'youtube_video' => [
+      'variables' => [
+        'input' => NULL,
         'video_id' => NULL,
         'entity_title' => NULL,
-        'settings' => array(),
+        'settings' => [],
         'alternative_content' => NULL,
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 }
 
 /**
@@ -94,20 +97,22 @@ function youtube_theme($existing, $type, $theme, $path) {
  * Default template: youtube-video.html.twig.
  */
 function template_preprocess_youtube_video(&$variables) {
+  $config = \Drupal::config('youtube.settings');
+
   // Add global YouTube module configuration to the settings array.
-  $variables['settings'] += array(
-    'youtube_suggest' => \Drupal::config('youtube.settings')->get('youtube_suggest'),
-    'youtube_privacy' => \Drupal::config('youtube.settings')->get('youtube_privacy'),
-    'youtube_player_class' => \Drupal::config('youtube.settings')->get('youtube_player_class'),
-    'youtube_modestbranding' => \Drupal::config('youtube.settings')->get('youtube_modestbranding'),
-    'youtube_theme' => \Drupal::config('youtube.settings')->get('youtube_theme'),
-    'youtube_color' => \Drupal::config('youtube.settings')->get('youtube_color'),
-    'youtube_enablejsapi' => \Drupal::config('youtube.settings')->get('youtube_enablejsapi'),
-    'youtube_wmode' => \Drupal::config('youtube.settings')->get('youtube_wmode'),
-  );
+  $variables['settings'] += [
+    'youtube_suggest' => $config->get('youtube_suggest'),
+    'youtube_privacy' => $config->get('youtube_privacy'),
+    'youtube_player_class' => $config->get('youtube_player_class'),
+    'youtube_modestbranding' => $config->get('youtube_modestbranding'),
+    'youtube_theme' => $config->get('youtube_theme'),
+    'youtube_color' => $config->get('youtube_color'),
+    'youtube_enablejsapi' => $config->get('youtube_enablejsapi'),
+    'youtube_wmode' => $config->get('youtube_wmode'),
+  ];
 
   // Build the query for the embedded video using module and field settings.
-  $query = array();
+  $query = [];
   if (!$variables['settings']['youtube_suggest']) {
     $query['rel'] = '0';
   }
@@ -131,12 +136,12 @@ function template_preprocess_youtube_video(&$variables) {
   if ($variables['settings']['youtube_autoplay']) {
     $query['autoplay'] = '1';
   }
+  if ($variables['settings']['youtube_mute']) {
+    $query['mute'] = '1';
+  }
   if ($variables['settings']['youtube_loop']) {
     $query['loop'] = '1';
     $query['playlist'] = $variables['video_id'];
-  }
-  if ($variables['settings']['youtube_showinfo']) {
-    $query['showinfo'] = '0';
   }
   if ($variables['settings']['youtube_controls']) {
     $query['controls'] = '0';
@@ -146,6 +151,20 @@ function template_preprocess_youtube_video(&$variables) {
   }
   if ($variables['settings']['youtube_iv_load_policy']) {
     $query['iv_load_policy'] = '3';
+  }
+
+  // If the override setting is enabled, add any additional parameters provided
+  // in the initial field value to the query of the embedded video.
+  if ($config->get('youtube_override')) {
+    if ($url_parts = UrlHelper::parse($variables['input'])) {
+      foreach ($url_parts['query'] as $key => $value) {
+        if ($key == 'v') {
+          continue;
+        }
+
+        $query[$key] = $value;
+      }
+    }
   }
 
   // Use the module's privacy configuration to determine the domain.
@@ -160,10 +179,12 @@ function template_preprocess_youtube_video(&$variables) {
   $size = $variables['settings']['youtube_size'];
   $width = $variables['settings']['youtube_width'];
   $height = $variables['settings']['youtube_height'];
-  $dimensions = youtube_get_dimensions($size, $width, $height);
-  // Assign the retrieved dimensions as attributes on the iframe element.
-  $variables['content_attributes']['width'] = $dimensions['width'];
-  $variables['content_attributes']['height'] = $dimensions['height'];
+  if ($size != 'responsive') {
+    $dimensions = youtube_get_dimensions($size, $width, $height);
+    // Assign the retrieved dimensions as attributes on the iframe element.
+    $variables['content_attributes']['width'] = $dimensions['width'];
+    $variables['content_attributes']['height'] = $dimensions['height'];
+  }
 
   // Build the iframe element's id and class attribute values.
   $class = $variables['settings']['youtube_player_class'];
@@ -174,13 +195,13 @@ function template_preprocess_youtube_video(&$variables) {
   // Build the iframe element's title attribute value (for accessibility).
   $variables['content_attributes']['title'] = t('Embedded video');
   if (!empty($variables['entity_title'])) {
-    $variables['content_attributes']['title'] = t('Embedded video for @entity_title', array(
+    $variables['content_attributes']['title'] = t('Embedded video for @entity_title', [
       '@entity_title' => $variables['entity_title'],
-    ));
+    ]);
   }
 
   // Alternative content for browsers that don't understand iframes (WCAG).
-  $variables['alternative_content'] = Link::fromTextAndUrl($variables['content_attributes']['title'], $url);
+  $variables['content_attributes']['aria-label'] = $variables['content_attributes']['title'] . ': ' . $url->toString();
 
   // Add classes to the wrapping element.
   $variables['attributes']['class'][] = 'youtube-container';
@@ -194,7 +215,7 @@ function template_preprocess_youtube_video(&$variables) {
 /**
  * Prepares variables for the YouTube Thumbnail template.
  *
- * Default template: youtube-thumnbail.html.twig.
+ * Default template: youtube-thumbnail.html.twig.
  */
 function template_preprocess_youtube_thumbnail(&$variables) {
   $video_id = $variables['video_id'];
@@ -203,9 +224,9 @@ function template_preprocess_youtube_thumbnail(&$variables) {
   // Build the image element's alt attribute value (for accessibility).
   $alt = t('Embedded thumbnail');
   if (!empty($variables['entity_title'])) {
-    $alt .= ' ' . t('for @entity_title', array(
+    $alt .= ' ' . t('for @entity_title', [
       '@entity_title' => $variables['entity_title'],
-    ));
+    ]);
   }
 
   // Check to see if a thumbnail exists locally.
@@ -219,11 +240,11 @@ function template_preprocess_youtube_thumbnail(&$variables) {
   }
 
   // Build the initial image render array.
-  $variables['image'] = array(
+  $variables['image'] = [
     '#theme' => 'image',
     '#uri' => $uri,
     '#alt' => $alt,
-  );
+  ];
 
   // If an image style has been chosen in the field's display settings, alter
   // the render array to use that image style. Remote images cannot be rendered
@@ -253,12 +274,8 @@ function template_preprocess_youtube_thumbnail(&$variables) {
  *   An array containing the dimensions.
  */
 function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
-  $dimensions = array();
-  if ($size == 'responsive') {
-    $dimensions['width'] = '100%';
-    $dimensions['height'] = '100%';
-  }
-  elseif ($size == 'custom') {
+  $dimensions = [];
+  if ($size == 'custom') {
     $dimensions['width'] = (int) $width;
     $dimensions['height'] = (int) $height;
   }
@@ -277,7 +294,7 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
 /**
  * Retrieves the thumbnail image for a given video from YouTube.
  *
- * @param integer $video_id
+ * @param int $video_id
  *   The video ID of the particular YouTube video.
  * @param bool $force_small
  *   (optional) When TRUE, this function should return the standard size image
@@ -285,7 +302,7 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
  *   should the high resolution image be found to not exist for a particular
  *   video.
  *
- * @return bool|stdClass
+ * @return bool|object
  *   Either the Drupal $file object of saved image, or FALSE if the save failed.
  */
 function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
@@ -320,10 +337,11 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
   }
 
   $youtube_thumb_uri = youtube_build_thumbnail_uri();
-  if (!file_prepare_directory($youtube_thumb_uri, FILE_CREATE_DIRECTORY) && !mkdir($youtube_thumb_uri, 0775, TRUE)) {
-    \Drupal::service('logger.factory')->get('youtube')->log(WATCHDOG_ERROR,
+  if (!\Drupal::service('file_system')->prepareDirectory($youtube_thumb_uri, FileSystemInterface::CREATE_DIRECTORY) && !mkdir($youtube_thumb_uri, 0775, TRUE)) {
+    \Drupal::service('logger.factory')->get('youtube')->error(
       'Failed to create YouTube thumbnail directory: %dir',
-      array('%dir' => $youtube_thumb_uri));
+      ['%dir' => $youtube_thumb_uri]
+    );
     return FALSE;
   }
 
@@ -331,14 +349,15 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
   $destination = youtube_build_thumbnail_uri($video_id);
 
   // Save the thumbnail and add to Drupal managed files.
-  $file = file_save_data($data, $destination, FILE_EXISTS_REPLACE);
+  $file = file_save_data($data, $destination, FileSystemInterface::EXISTS_REPLACE);
 
   if (!$file) {
-    \Drupal::service('logger.factory')->get('youtube')->log(WATCHDOG_ERROR,
+    \Drupal::service('logger.factory')->get('youtube')->error(
       'Unable to save youtube thumbnail to filesystem for video %id',
-      array('%id' => $video_id));
+      ['%id' => $video_id]
+    );
     return FALSE;
-   }
+  }
 
   return $file;
 }
@@ -351,26 +370,28 @@ function youtube_get_remote_image($video_id = NULL, $force_small = FALSE) {
 function youtube_thumb_delete_all($form, &$form_state) {
   $youtube_thumb_uri = youtube_build_thumbnail_uri();
 
-  if (!file_prepare_directory($youtube_thumb_uri)) {
-    return drupal_set_message(t('No files deleted.'));
+  if (!\Drupal::service('file_system')->prepareDirectory($youtube_thumb_uri)) {
+    return \Drupal::messenger()->addMessage(t('No files deleted.'));
   }
 
   $files = file_scan_directory($youtube_thumb_uri, '/^.*\.(jpg|png)$/');
 
   foreach ($files as $raw_file) {
-    $database = \Drupal::database();
-    $data = $database->select('file_managed','fm')
-      ->fields('fm')
+    $fid = \Drupal::database()->select('file_managed')
+      ->fields('file_managed', ['fid'])
       ->condition('uri', '%' . $raw_file->uri, 'LIKE')
       ->execute()
-      ->fetchAssoc();
+      // We will have only one result.
+      ->fetchField();
+    if ($fid) {
+      $managed_file = File::load($fid);
+    }
+
     if (!$managed_file) {
-      // Unmanaged files exist from when the module didn't use managed files.
-      file_unmanaged_delete($raw_file->uri);
+      \Drupal::service('file_system')->delete($raw_file->uri);
     }
     else {
-      // file_delete() invokes hooks to refresh associated image style files.
-      file_delete($managed_file['fid']);
+      $managed_file->delete();
     }
   }
 }
@@ -412,7 +433,7 @@ function youtube_build_thumbnail_uri($video_id = NULL) {
 function youtube_build_remote_image_path($video_id = NULL, $version = '0') {
   // The different versions of the image made available by YouTube.
   // http://stackoverflow.com/a/2068371
-  $versions = array(
+  $versions = [
     '0',
     'hqdefault',
     'mqdefault',
@@ -421,7 +442,7 @@ function youtube_build_remote_image_path($video_id = NULL, $version = '0') {
     '1',
     '2',
     '3',
-  );
+  ];
 
   if (!$video_id || !in_array($version, $versions)) {
     return FALSE;
@@ -443,11 +464,11 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
     foreach ($map_ary as $field_name => $field_info) {
       if ($field_info['type'] == 'youtube') {
         $info = FieldConfig::loadByName($entity_type, $bundle_name, $field_name);
-        $targets[$field_name] = array(
+        $targets[$field_name] = [
           'name' => Html::escape($info->getLabel()),
           'callback' => 'youtube_set_target',
-          'description' => t('The @label field of the node.', array('@label' => $info->getLabel())),
-        );
+          'description' => t('The @label field of the node.', ['@label' => $info->getLabel()]),
+        ];
       }
     }
   }
@@ -465,7 +486,7 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
  * @param string $value
  *   The value to populate the target with.
  */
-function youtube_set_target($source, $entity, $target, $value, $mapping) {
+function youtube_set_target(array $source, $entity, $target, $value, $mapping) {
   $video_id = youtube_get_video_id($value);
   if ($video_id) {
     $entity->{$target}->input = $value;
@@ -480,7 +501,7 @@ function youtube_set_target($source, $entity, $target, $value, $mapping) {
  */
 function youtube_token_info_alter(&$data) {
   // Get all youtube fields. Gather entity_type and bundle information.
-  $youtube_fields = array();
+  $youtube_fields = [];
   $entity_manager = \Drupal::service('entity.manager');
   $field_map = $entity_manager->getFieldMap();
 
@@ -488,11 +509,11 @@ function youtube_token_info_alter(&$data) {
     foreach ($fields as $field_name => $field) {
       foreach ($field['bundles'] as $bundle) {
         if ($field['type'] == 'youtube') {
-          $youtube_fields[] = array(
+          $youtube_fields[] = [
             'entity_type' => $entity_type_name,
             'bundle' => $bundle,
             'field_name' => $field_name,
-          );
+          ];
         }
       }
     }
@@ -500,23 +521,23 @@ function youtube_token_info_alter(&$data) {
 
   foreach ($youtube_fields as $field) {
     $field_info = FieldConfig::loadByName($field['entity_type'], $field['bundle'], $field['field_name']);
-    $field_label = $field_info->getLabel();
+    $field_label = $field_info ? $field_info->getLabel() : '';
 
     // Modify the default field token.
-    $data['tokens'][$field['entity_type']][$field['field_name']] = array(
+    $data['tokens'][$field['entity_type']][$field['field_name']] = [
       'name' => $field_label . t(": Default"),
       'description' => t("The YouTube video field value's Default (or Token if exists) view mode output."),
-    );
+    ];
 
     // Add two new tokens.
-    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_video_url'] = array(
+    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_video_url'] = [
       'name' => $field_label . t(": Video URL"),
       'description' => t("The YouTube video field value's youtube.com URL."),
-    );
-    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_image_url'] = array(
+    ];
+    $data['tokens'][$field['entity_type']][$field['field_name'] . '__youtube_image_url'] = [
       'name' => $field_label . t(": Image URL"),
       'description' => t("The YouTube video field value's local image URL."),
-    );
+    ];
   }
 }
 
@@ -525,11 +546,11 @@ function youtube_token_info_alter(&$data) {
  *
  * @see youtube_tokens_info_alter()
  */
-function youtube_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function youtube_tokens($type, $tokens, array $data = [], array $options = []) {
   global $base_url;
   global $base_path;
 
-  $url_options = array('absolute' => TRUE);
+  $url_options = ['absolute' => TRUE];
 
   if (isset($options['langcode'])) {
     $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
@@ -541,7 +562,7 @@ function youtube_tokens($type, $tokens, array $data = array(), array $options = 
 
   $sanitize = !empty($options['sanitize']);
 
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'node' && !empty($data['node'])) {
     $node = $data['node'];

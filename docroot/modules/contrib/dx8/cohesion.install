@@ -1137,6 +1137,13 @@ function cohesion_update_8700() {
 }
 
 /**
+ * Implement style guide manager
+ */
+function cohesion_update_8702() {
+  \Drupal::keyValue('cohesion.library.module')->deleteAll();
+}
+
+/**
  * Update callback.
  *
  * @param $json_values

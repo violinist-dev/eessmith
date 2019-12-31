@@ -55,6 +55,11 @@ class CohesionBaseForm extends EntityForm {
 
     $operation = $this->getOperation();
     switch ($operation) {
+      case 'add':
+        $form['#title'] = t('Create %label', [
+          '%label' => $this->entityTypeManager->getStorage($this->entity->getEntityTypeId())->getEntityType()->getLowercaseLabel(),
+        ]);
+        break;
 
       case 'edit':
         $form['#title'] = $this->t('Edit %label', [

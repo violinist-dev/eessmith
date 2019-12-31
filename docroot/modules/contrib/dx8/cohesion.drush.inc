@@ -44,7 +44,7 @@ function drush_cohesion_dx8($op = '', $oldNamingConvention = true) {
       if($errors){
         drush_set_error('DX8', $errors['error']);
       }else{
-        drush_log('DX8 is installed and up to date.');
+        drush_log('Cohesion is installed and up to date.');
       }
       break;
 

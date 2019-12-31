@@ -79,7 +79,7 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
    */
   public function getResourceObject() {
     /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
 
     return $send_to_api->getSCSSVariableGroup();
   }
@@ -89,7 +89,7 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
    */
   public function process() {
     /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
     $send_to_api->send();
     return $send_to_api;
@@ -100,10 +100,9 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
    */
   public function jsonValuesErrors() {
     /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
     if ($success === TRUE) {
       return FALSE;

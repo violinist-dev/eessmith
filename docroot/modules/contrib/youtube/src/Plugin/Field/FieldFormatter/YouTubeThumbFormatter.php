@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\youtube\Plugin\Field\FieldFormatter\YouTubeThumbFormatter.
- */
-
 namespace Drupal\youtube\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -29,10 +24,10 @@ class YouTubeThumbFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'image_style' => 'thumbnail',
       'image_link' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -41,24 +36,24 @@ class YouTubeThumbFormatter extends FormatterBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['image_style'] = array(
+    $elements['image_style'] = [
       '#type' => 'select',
-      '#title' => t('Image style'),
+      '#title' => $this->t('Image style'),
       '#options' => image_style_options(FALSE),
       '#default_value' => $this->getSetting('image_style'),
-      '#empty_option' => t('None (original image)'),
-    );
-    $link_types = array(
-      'content' => t('Content'),
-      'youtube' => t('YouTube'),
-    );
-    $elements['image_link'] = array(
-      '#title' => t('Link image to'),
+      '#empty_option' => $this->t('None (original image)'),
+    ];
+    $link_types = [
+      'content' => $this->t('Content'),
+      'youtube' => $this->t('YouTube'),
+    ];
+    $elements['image_link'] = [
+      '#title' => $this->t('Link image to'),
       '#type' => 'select',
       '#default_value' => $this->getSetting('image_link'),
-      '#empty_option' => t('Nothing'),
+      '#empty_option' => $this->t('Nothing'),
       '#options' => $link_types,
-    );
+    ];
 
     return $elements;
   }
@@ -67,15 +62,15 @@ class YouTubeThumbFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
     $image_style = $this->getSetting('image_style');
     $image_link = $this->getSetting('image_link');
 
     if ($image_style) {
-      $summary[] = t('Image style: @style_name.', array('@style_name' => $image_style));
+      $summary[] = $this->t('Image style: @style_name.', ['@style_name' => $image_style]);
     }
     if ($image_link) {
-      $summary[] = t('Linked to: @image_link.', array('@image_link' => $image_link));
+      $summary[] = $this->t('Linked to: @image_link.', ['@image_link' => $image_link]);
     }
 
     return $summary;
@@ -90,13 +85,13 @@ class YouTubeThumbFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $element = array();
+    $element = [];
     $entity = $items->getEntity();
     $image_link = $this->getSetting('image_link');
 
     // Check if the formatter involves a link.
     if (!empty($image_link)) {
-      if ($image_link == 'content') {
+      if ($image_link == 'content' && $entity->hasLinkTemplate('canonical')) {
         $url = $entity->toUrl();
         $url->setOption('html', TRUE);
       }
@@ -112,13 +107,13 @@ class YouTubeThumbFormatter extends FormatterBase {
         $url->setOption('html', TRUE);
       }
 
-      $element[$delta] = array(
+      $element[$delta] = [
         '#theme' => 'youtube_thumbnail',
         '#video_id' => $item->video_id,
         '#entity_title' => $items->getEntity()->label(),
         '#image_style' => $this->getSetting('image_style'),
         '#image_link' => isset($url) ? $url : '',
-      );
+      ];
     }
 
     return $element;

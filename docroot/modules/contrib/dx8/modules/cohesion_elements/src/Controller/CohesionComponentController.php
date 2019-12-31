@@ -28,6 +28,9 @@ class CohesionComponentController extends ControllerBase {
   /** @var \Drupal\Component\Uuid\UuidInterface */
   protected $uuid;
 
+  /** @var \Drupal\Core\Extension\ThemeHandlerInterface */
+  protected $themeHandler;
+
   /**
    * CohesionComponentController constructor.
    *
@@ -37,6 +40,19 @@ class CohesionComponentController extends ControllerBase {
   public function __construct(PrivateTempStoreFactory $temp_store_factory, UuidInterface $uuid_manager) {
     $this->tempStore = $temp_store_factory->get('cohesion');
     $this->uuid = $uuid_manager;
+  }
+
+  /**
+   * Retrieves the entity type manager.
+   *
+   * @return \Drupal\Core\Extension\ThemeHandlerInterface
+   *   The entity type manager.
+   */
+  protected function themeHandler() {
+    if (!isset($this->themeHandler)) {
+      $this->themeHandler = \Drupal::getContainer()->get('theme_handler');
+    }
+    return $this->themeHandler;
   }
 
   /**
@@ -64,13 +80,12 @@ class CohesionComponentController extends ControllerBase {
 
       $component = Component::create();
 
-      $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
+      $send_to_api = $component->apiProcessorManager()->createInstance('templates_api');
 
       $send_to_api->isPreview(TRUE);
       $send_to_api->setEntity($component);
       $send_to_api->setJsonValues($body);
-      $send_to_api->setSaveData(FALSE);
-      $send_to_api->send();
+      $send_to_api->sendWithoutSave();
 
       // If the APi call was successful, then merge the arrays.
       if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
@@ -105,7 +120,16 @@ class CohesionComponentController extends ControllerBase {
     $key = $request->get('key');
 
     if ($key) {
-      $data = $this->tempStore->get($key);
+      $requestData = $this->tempStore->get($key);
+      $data = FALSE;
+      if(is_array($requestData)) {
+        foreach($requestData as $theme_data) {
+          if($this->themeHandler()->getDefault() == $theme_data['themeName']){
+            $data = $theme_data;
+          }
+        }
+      }
+
       if ($data) {
         $template = isset($data['template']) ? Json::decode($data['template']) : [];
 
@@ -123,7 +147,7 @@ class CohesionComponentController extends ControllerBase {
             'placeholders' => [
               'cohesion_inline_css_' . $component_uuid => [
                 '#type' => 'inline_template',
-                '#template' => '<style>' . (isset($data['theme']) ? $data['theme'] : '') . '</style>',
+                '#template' => '<style>' . (isset($data['css']['theme']) ? $data['css']['theme'] : '') . '</style>',
               ],
             ],
           ],
@@ -157,6 +181,11 @@ class CohesionComponentController extends ControllerBase {
           'cohesion/cohesion-admin-styles',
         ],
         'drupalSettings' => [
+          'cohesion' => [
+            'formGroup' => 'canvas',
+            'formId' =>  'preview',
+            'drupalFormId' => 'cohPreviewForm',
+          ],
           'cohOnInitForm' => \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('canvas', 'preview'),
         ],
       ],

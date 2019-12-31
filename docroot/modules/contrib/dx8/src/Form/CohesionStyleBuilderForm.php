@@ -19,6 +19,8 @@ class CohesionStyleBuilderForm extends CohesionBaseForm {
 
     $form['#attributes']['class'][] = 'cohesion-style-builder-edit-form';
 
+    $form['cohesion']['#token_browser'] = 'style-guide';
+
 
     return $form;
   }

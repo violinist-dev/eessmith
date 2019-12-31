@@ -77,10 +77,10 @@ class ProxySubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Fetch the file according the its origin.
+   * Fetch the file from it's origin.
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
-   *   The Event to process.
+   *   The event to process.
    */
   public function checkFileOrigin(GetResponseEvent $event) {
     $config = $this->configFactory->get('stage_file_proxy.settings');
@@ -171,9 +171,6 @@ class ProxySubscriber implements EventSubscriberInterface {
       ])->toString();
       // Avoid redirection caching in upstream proxies.
       header("Cache-Control: must-revalidate, no-cache, post-check=0, pre-check=0, private");
-    }
-    else {
-      $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', ['@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)]);
     }
 
     if (isset($location)) {

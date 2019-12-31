@@ -10,7 +10,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  *
  * @ConfigEntityType(
  *   id = "cohesion_view_templates",
- *   label = @Translation("View templates"),
+ *   label = @Translation("View template"),
  *   label_singular = @Translation("View template"),
  *   label_plural = @Translation("View templates"),
  *   label_collection = @Translation("View templates"),

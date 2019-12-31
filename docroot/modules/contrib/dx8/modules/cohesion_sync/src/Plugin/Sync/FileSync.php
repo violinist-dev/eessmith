@@ -48,7 +48,7 @@ class FileSync extends SyncPluginBase {
       $struct['content'] = base64_encode(file_get_contents($entity->getFileUri()));
     }
     else {
-      throw new \Exception(t('File @uri does not exist on the local filesystem although the entity @label exists.', ['@uri' => $entity->getFileUri(), '@label' => $entity->label()]));
+      throw new \Exception($this->t('File @uri does not exist on the local filesystem although the entity @label exists.', ['@uri' => $entity->getFileUri(), '@label' => $entity->label()]));
     }
 
 
@@ -70,15 +70,15 @@ class FileSync extends SyncPluginBase {
     parent::validatePackageEntryShouldApply($entry);
 
     if (!isset($entry['uuid'])) {
-      throw new \Exception(t('Import did not specify a file UUID.'));
+      throw new \Exception($this->t('Import did not specify a file UUID.'));
     }
 
     if (!isset($entry['uri'])) {
-      throw new \Exception(t('Import did not specify a file URI.'));
+      throw new \Exception($this->t('Import did not specify a file URI.'));
     }
 
     if (!isset($entry['content'])) {
-      throw new \Exception(t('Import did not specify file contents.'));
+      throw new \Exception($this->t('Import did not specify file contents.'));
     }
 
     if (!base64_decode($entry['content'])) {
@@ -90,7 +90,7 @@ class FileSync extends SyncPluginBase {
     // File already exists (by UUID) - flag it.
     if ($entity = $this->entityRepository->loadEntityByUuid('file', $entry['uuid'])) {
       if ($entity->get('uri')->getValue()[0]['value'] !== $entry['uri']) {
-        throw new \Exception(t('An entity with this UUID already exists but the URI does not match.'));
+        throw new \Exception($this->t('An entity with this UUID already exists but the URI does not match.'));
       }
 
       // See if any of the entity data has changed.
@@ -112,7 +112,7 @@ class FileSync extends SyncPluginBase {
           return ENTRY_EXISTING_ASK;  // Ask the user what to do.
         }
       } else {
-        throw new \Exception(t('File @uri does not exist on the local filesystem although the entity exists.', ['@uri' => $entry['uri']]));
+        throw new \Exception($this->t('File @uri does not exist on the local filesystem although the entity exists.', ['@uri' => $entry['uri']]));
       }
 
       // Nothing changed, so ignore it.
@@ -144,7 +144,7 @@ class FileSync extends SyncPluginBase {
     // Only attempt to save the file if it can be decoded, otherwise just create the entity.
     if ($content = base64_decode($entry['content'])) {
       if (!file_unmanaged_save_data($content, $entry['uri'], FILE_EXISTS_REPLACE)) {
-        throw new \Exception(t('Unable to save file %fileuri', ['%fileuri' => $entry['uri']]));
+        throw new \Exception($this->t('Unable to save file %fileuri', ['%fileuri' => $entry['uri']]));
       }
 
       // Create new entity.
@@ -175,7 +175,7 @@ class FileSync extends SyncPluginBase {
    */
   public function getActionData($entry, $action_state) {
     return [
-      'entity_type_label' => t('File')->__toString(),
+      'entity_type_label' => $this->t('File')->__toString(),
       'entity_label' => $entry['uri'],
       'entry_uuid' => $entry['uuid'],
       'entry_action_state' => $action_state,

@@ -435,16 +435,38 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       else {
         $data = $this->filterByElementsPermissions($data);
       }
+
+      // Filter the elements list by drupalSettings.cohesion.entityTypeId
+      if ($entity_type_id) {
+        $data['categories'] = $this->filterByEntityTypeId($data['categories'], $entity_type_id);
+      }
     }
 
-    // Filter the elements list by drupalSettings.cohesion.entityTypeId
-    if ($entity_type_id) {
-      $data['categories'] = $this->filterByEntityTypeId($data['categories'], $entity_type_id);
+    // Filter the list of form elements (whitelist for style guide sidebar).
+    if ($group = 'form_elements' && $entity_type_id == 'cohesion_style_guide') {
+      $form_elements = \Drupal::keyValue('cohesion.assets.static_assets')->get('style-guide-form-element-whitelist');
+      foreach ($data as $form_element_id => $form_element) {
+        if (!in_array($form_element_id, $form_elements)) {
+          unset($data[$form_element_id]);
+        }
+      }
     }
 
+    // Filter the list of form elements (blacklist for component sidebar).
+    if ($group = 'form_elements' && in_array($entity_type_id, ['cohesion_component', 'cohesion_helper'])) {
+      $form_elements = \Drupal::keyValue('cohesion.assets.static_assets')->get('component-form-element-blacklist');
+      foreach ($data as $form_element_id => $form_element) {
+        if (in_array($form_element_id, $form_elements)) {
+          unset($data[$form_element_id]);
+        }
+      }
+    }
+
+    // Show available categories.
     if (isset($data['categories']) && is_array($data['categories'])) {
       $data['categories'] = array_values($data['categories']);
     }
+
 
     // Return the (optionally) patched results.
     return new CohesionJsonResponse([
@@ -550,8 +572,8 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       'cohesion_website_settings',
     ];
 
-    foreach ($website_settings_configs as $website_settings_type){
-      if(isset($configs[$website_settings_type])){
+    foreach ($website_settings_configs as $website_settings_type) {
+      if (isset($configs[$website_settings_type])) {
 
         $entity_list = \Drupal::entityTypeManager()->getStorage($website_settings_type)->loadMultiple();
 

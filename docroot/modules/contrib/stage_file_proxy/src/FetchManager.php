@@ -56,7 +56,7 @@ class FetchManager implements FetchManagerInterface {
 
       $result = $response->getStatusCode();
       if ($result != 200) {
-        $this->logger->error('HTTP error @errorcode occurred when trying to fetch @remote.', [
+        $this->logger->warning('HTTP error @errorcode occurred when trying to fetch @remote.', [
           '@errorcode' => $result,
           '@remote' => $url,
         ]);
@@ -93,6 +93,7 @@ class FetchManager implements FetchManagerInterface {
     catch (GuzzleException $e) {
       // Do nothing.
     }
+    $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', ['@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)]);
     return FALSE;
   }
 

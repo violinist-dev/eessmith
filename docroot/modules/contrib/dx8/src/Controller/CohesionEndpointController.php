@@ -163,7 +163,7 @@ class CohesionEndpointController extends ControllerBase {
       'cohesion_component' => 'cohesion_component_category',
     ];
 
-    $categories = ElementsController::getElementCategories($type_map[$entity_type]);
+    $categories = ElementsController::getElementCategories($type_map[$entity_type], \Drupal::currentUser()->hasPermission('administer components'));
     $element_categories = [];
 
     // Filter categories based on dx8 access permissions
@@ -646,6 +646,34 @@ class CohesionEndpointController extends ControllerBase {
 
     return new CohesionJsonResponse([
       'data' => $categories,
+    ]);
+  }
+
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *
+   * @return \Drupal\cohesion\CohesionJsonResponse
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getColorTags(Request $request) {
+    $storage = $this->entityTypeManager()->getStorage('cohesion_color');
+    $list = [];
+
+    if ($entities = $storage->loadMultiple()) {
+      foreach ($entities as $entity) {
+        $model = $entity->getDecodedJsonValues();
+
+        if (isset($model['tags'])) {
+          $list = array_merge($list, $model['tags']);
+        }
+      }
+    }
+
+    $list = array_values(array_unique($list, SORT_REGULAR));
+
+    return new CohesionJsonResponse([
+      'data' => $list,
     ]);
   }
 

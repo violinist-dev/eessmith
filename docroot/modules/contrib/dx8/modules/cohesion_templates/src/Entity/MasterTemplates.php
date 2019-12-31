@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *
  * @ConfigEntityType(
  *   id = "cohesion_master_templates",
- *   label = @Translation("Master templates"),
+ *   label = @Translation("Master template"),
  *   label_singular = @Translation("Master template"),
  *   label_plural = @Translation("Master templates"),
  *   label_collection = @Translation("Master templates"),

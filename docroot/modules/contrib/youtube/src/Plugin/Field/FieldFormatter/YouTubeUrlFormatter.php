@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\youtube\Plugin\Field\FieldFormatter\YouTubeThumbFormatter.
- */
-
 namespace Drupal\youtube\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;
@@ -30,9 +25,9 @@ class YouTubeUrlFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'link' => TRUE,
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -41,11 +36,11 @@ class YouTubeUrlFormatter extends FormatterBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['link'] = array(
+    $elements['link'] = [
       '#type' => 'checkbox',
-      '#title' => t('Output this field as a link'),
+      '#title' => $this->t('Output this field as a link'),
       '#default_value' => $this->getSetting('link'),
-    );
+    ];
 
     return $elements;
   }
@@ -54,14 +49,14 @@ class YouTubeUrlFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
     $link = $this->getSetting('link');
 
     if ($link) {
-      $summary[] = t('YouTube URL as a link.');
+      $summary[] = $this->t('YouTube URL as a link.');
     }
     else {
-      $summary[] = t('YouTube URL as plain text.');
+      $summary[] = $this->t('YouTube URL as plain text.');
     }
 
     return $summary;
@@ -76,30 +71,30 @@ class YouTubeUrlFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $element = array();
+    $element = [];
     $link = $this->getSetting('link');
 
     foreach ($items as $delta => $item) {
       if ($link) {
-        $element[$delta] = array(
+        $element[$delta] = [
           '#type' => 'link',
           '#title' => $item->input,
           '#url' => Url::fromUri($item->input),
-          '#options' => array(
-            'attributes' => array(
-              'class' => array(
+          '#options' => [
+            'attributes' => [
+              'class' => [
                 'youtube-url',
                 'youtube-url--' . Html::getClass($item->video_id),
-              ),
-            ),
+              ],
+            ],
             'html' => TRUE,
-          ),
-        );
+          ],
+        ];
       }
       else {
-        $element[$delta] = array(
+        $element[$delta] = [
           '#markup' => Html::escape($item->input),
-        );
+        ];
       }
     }
 

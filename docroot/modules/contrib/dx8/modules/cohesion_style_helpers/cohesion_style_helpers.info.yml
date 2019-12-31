@@ -1,4 +1,4 @@
-name: DX8 style helpers
+name: Cohesion style helpers
 type: module
 description: 'Defines the style helper configuration entities for creating reusable style configurations in DX8.'
 core: 8.x

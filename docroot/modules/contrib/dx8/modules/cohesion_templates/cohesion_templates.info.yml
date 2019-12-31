@@ -1,4 +1,4 @@
-name: DX8 templates
+name: Cohesion templates
 type: module
 description: 'Defines the template configuration entities for creating DX8 templates.'
 core: 8.x

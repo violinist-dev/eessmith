@@ -1,13 +1,8 @@
 <?php
-/**
- * @file
- * Service for handling custom elements.
- */
 
 namespace Drupal\cohesion_elements;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_elements\CustomElementPluginBase;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
@@ -19,10 +14,11 @@ class CustomElementsService {
 
   private $elements;
 
-  /**
-   * @var CustomElementPluginManager
-   */
+  /** @var CustomElementPluginManager */
   protected $customElementManager;
+
+  /** @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface */
+  protected $staticAssets;
 
   /**
    * CustomElementsService constructor.
@@ -31,12 +27,14 @@ class CustomElementsService {
    */
   public function __construct(CustomElementPluginManager $custom_element_manager) {
     $this->customElementManager = $custom_element_manager;
+    $this->staticAssets = \Drupal::keyValue('cohesion.assets.static_assets');
   }
 
   /**
    * Get all elements defined by other modules.
    *
    * @return array
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getElementsFromManager() {
     // If the cached version is not available....
@@ -68,6 +66,7 @@ class CustomElementsService {
    * Return a value/label array of all hooks created by all modules.
    *
    * @return array
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getElementsKeyLabel() {
     $elements = [];
@@ -92,10 +91,10 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementList($results) {
     foreach ($this->getElementsKeyLabel() as $element) {
-
       // Build the element.
       $results[$element['value']] = [
         'type' => 'item',
@@ -116,10 +115,10 @@ class CustomElementsService {
    *
    * @param $results
    *
-   * @return mixed
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementCategoryList($results) {
-
     $custom_element_list = $this->getElementsKeyLabel();
 
     if (count($custom_element_list)) {
@@ -160,15 +159,15 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementBuilderForms($results) {
-
     $custom_element_list = $this->getElementsKeyLabel();
 
     if (count($custom_element_list)) {
       foreach ($this->getElementsKeyLabel() as $element) {
         // Get the template.
-        $results[$element['value']] = \Drupal::keyValue('cohesion.assets.static_assets')->get('custom-element-builder-template');
+        $results[$element['value']] = $this->staticAssets->get('custom-element-builder-template');
 
         // Patch the data in.
         $results[$element['value']]['model']['styles']['settings']['element'] = $element['value'];
@@ -184,15 +183,15 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchFormDefaults($results) {
-
     $custom_element_list = $this->getElementsKeyLabel();
 
     if (count($custom_element_list)) {
       foreach ($this->getElementsKeyLabel() as $element) {
         // Get the template.
-        $results[$element['value']] = \Drupal::keyValue('cohesion.assets.static_assets')->get('custom-form-defaults-template');
+        $results[$element['value']] = $this->staticAssets->get('custom-form-defaults-template');
 
         // Patch the data.
         $results[$element['value']]['settings']['topLevel']['formDefinition'][0]['formKey'] = $element['value'] . '_settings';
@@ -208,15 +207,15 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchProperyGroupOptions($results) {
-
     $custom_element_list = $this->getElementsKeyLabel();
 
     if (count($custom_element_list)) {
       foreach ($this->getElementsKeyLabel() as $element) {
         // Get the template.
-        $results[$element['value']] = \Drupal::keyValue('cohesion.assets.static_assets')->get('custom-property-group-options-template');
+        $results[$element['value']] = $this->staticAssets->get('custom-property-group-options-template');
 
         // Patch the data.
         $results[$element['value']][0]['keyName'] = $element['value'] . '_settings';
@@ -233,19 +232,19 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementProperties($results) {
-
     if (count($this->getElementsFromManager())) {
       foreach ($this->getElementsFromManager() as $element_key => $custom_element) {
 
         // Wrapper element.
-        $results[$element_key . '_settings'] = \Drupal::keyValue('cohesion.assets.static_assets')->get('custom-element-properties-settings-template');
+        $results[$element_key . '_settings'] = $this->staticAssets->get('custom-element-properties-settings-template');
         $results[$element_key . '_settings']['form'][0]['formKey'] = $element_key . '_settings';
         $results[$element_key . '_settings']['form'][0]['options'][0] = $element_key . '_dynamic';
 
         // Dynamic element.
-        $results[$element_key . '_dynamic'] = \Drupal::keyValue('cohesion.assets.static_assets')->get('custom-element-properties-dynamic-template');
+        $results[$element_key . '_dynamic'] = $this->staticAssets->get('custom-element-properties-dynamic-template');
         $results[$element_key . '_dynamic']['form'][0]['formKey'] = $element_key . '_dynamic';
 
         // Loop through the custom form definition and add the form items.
@@ -307,9 +306,9 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchApiUrls($results) {
-
     $custom_element_list = $this->getElementsKeyLabel();
 
     if (count($custom_element_list)) {
@@ -335,7 +334,6 @@ class CustomElementsService {
    * @return array
    */
   private function fieldcohSelect($field_key, $field) {
-
     // Set up the <select> options array.
     $options = [];
     if (is_array($field['options'])) {
@@ -357,6 +355,10 @@ class CustomElementsService {
           'type' => 'cohSelect',
           'key' => $field_key,
           'title' => $field['title'],
+          'required' => $field['required'] ?? false,
+          'validationMessage' => [
+            '302' => $field['validationMessage'] ?? ''
+          ],
           'nullOption' => isset($field['nullOption']) && $field['nullOption'],
           'options' => $options,
           'schema' => [
@@ -392,6 +394,10 @@ class CustomElementsService {
           'type' => 'cohFileBrowser',
           'key' => $field_key,
           'title' => $field['title'],
+          'required' => $field['required'] ?? false,
+          'validationMessage' => [
+            '302' => $field['validationMessage'] ?? ''
+          ],
           'options' => [
             'buttonText' => $field['buttonText'] ?? 'Select file',
           ],
@@ -456,6 +462,10 @@ class CustomElementsService {
           'key' => $field_key,
           'title' => $field['title'],
           'placeholder' => $field['placeholder'] ?? '',
+          'required' => $field['required'] ?? false,
+          'validationMessage' => [
+              '302' => $field['validationMessage'] ?? ''
+          ],
           'schema' => [
             'type' => 'string',
           ],
@@ -489,6 +499,10 @@ class CustomElementsService {
           'type' => 'cohTextarea',
           'key' => $field_key,
           'title' => $field['title'],
+          'required' => $field['required'] ?? false,
+          'validationMessage' => [
+            '302' => $field['validationMessage'] ?? ''
+          ],
           'schema' => [
             'type' => 'string',
           ],
@@ -549,9 +563,9 @@ class CustomElementsService {
    * @param $elementContext
    *
    * @return array
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function render($settings, $markup, $elementClassName, $elementContext) {
-
     // Patch the settings
     $settings = Json::decode($settings);
 

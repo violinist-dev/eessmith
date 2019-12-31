@@ -29,22 +29,9 @@ abstract class ElementBaseForm extends CohesionBaseForm {
 
     // Now handle the form.
     $form = parent::form($form, $form_state);
-    $operation = $this->getOperation();
-    $asset_group_id = $this->entity->getAssetGroupId();
-    $asset_name = $this->entity->getAssetName();
     $form['cohesion']['#token_browser'] = 'all';
+    $form['cohesion']['#cohFormId'] = $this->entity->getAssetName();
     unset($form['cohesion']['#json_mapper']);
-
-    if ($operation == 'add') {
-      // Apply to the form page title.
-      $form['#title'] = t('Create %asset_group_id', [
-        '%asset_group_id' => $asset_group_id,
-      ]);
-    }
-
-    $form['#attached']['drupalSettings']['cohesion']['formGroup'] = $asset_group_id;
-    $form['#attached']['drupalSettings']['cohesion']['formId'] = $asset_name;
-    $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit($asset_group_id, $asset_name);
 
     $form_class = str_replace('_', '-', $this->entity->getEntityTypeId()) . '-' . str_replace('_', '-', $this->entity->id()) . '-form';
     $form['#attributes']['class'][] = $form_class;
@@ -70,7 +57,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     // Add new category link.
     $add_category_url = Url::fromRoute($this->entity->getEntityTypeId() == 'cohesion_component' ? 'entity.cohesion_component_category.add_form' : 'entity.cohesion_helper_category.add_form');
 
-    if ($add_category_url->access()) { // Only show if user has access to thsi route.
+    if ($add_category_url->access()) { // Only show if user has access to this route.
       $form['details']['add_category'] = [
         '#prefix' => '<p>',
         '#suffix' => '</p>',
@@ -81,7 +68,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       ];
     }
 
-    $categories = ElementsController::getElementCategories($this->entity->getCategoryEntityTypeId());
+    $categories = ElementsController::getElementCategories($this->entity->getCategoryEntityTypeId(), TRUE);
     foreach ($categories as $key => $value) {
       $form['details']['category']['#options'][$key] = $value['label'];
     }

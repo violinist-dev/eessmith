@@ -40,10 +40,9 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       $this->entity->setDefaultValues();
       $this->entity->set('parent', $parent_class);
 
-      $form['#title'] = $this->t('Extend %label', [
-        '%label' => strtolower($this->entity->label()),
-      ]);
     }
+
+    $form = parent::form($form, $form_state);
 
     if ($operation == 'add') {
       $form['#title'] = $this->t('Create %label', [
@@ -51,9 +50,12 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       ]);
     }
 
-    $form = parent::form($form, $form_state);
 
     if ($operation == 'extend') {
+
+        $form['#title'] = $this->t('Extend %label', [
+          '%label' => strtolower($this->entity->label()),
+        ]);
 
       // Set Title to Extended from: ...
       $form['details']['label']['#default_value'] = t('Extended from ') . $form['details']['label']['#default_value'];

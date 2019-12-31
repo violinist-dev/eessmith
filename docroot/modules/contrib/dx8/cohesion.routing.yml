@@ -489,3 +489,14 @@ cohesion_elements.categories:
     _user_is_logged_in: 'TRUE'
     _content_type_format: json
 
+# Get unique list of color tags.
+cohesion_website_settings.color_tags:
+  path: '/cohesionapi/colors/tags'
+  defaults:
+    _controller: '\Drupal\cohesion\Controller\CohesionEndpointController::getColorTags'
+    _title: "Get unique list of color tags."
+  methods:  [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _content_type_format: json
+

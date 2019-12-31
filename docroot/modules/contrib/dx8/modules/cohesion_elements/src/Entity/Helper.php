@@ -3,7 +3,8 @@
 namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas;
+use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Cohesion helper entity.
@@ -65,6 +66,14 @@ class Helper extends CohesionElementEntityBase implements CohesionSettingsInterf
    */
   public function clearData() {
     // Helpers have no data to be cleared
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+    $this->setModified(TRUE);
   }
 
   /**

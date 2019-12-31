@@ -88,6 +88,8 @@ public function getFields() {
       'type' => 'textfield',
       'placeholder' => 'e.g. DX8 is great',
       'defaultValue' => 'This value will be pre-filled',
+      'required' => true,
+      'validationMessage' => 'The text content field is required',
     ],
   ];
 }

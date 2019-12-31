@@ -32,10 +32,12 @@ class LocalFilesManager {
    * when re-importing.
    */
   public function liveToTemp() {
-    $from = $this->getStyleSheetFilename('json', TRUE);
-    $to = $this->getStyleSheetFilename('json');
-    if (file_exists($from)) {
-      file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+    foreach (\Drupal::service('cohesion.utils')->getCohesionEnabledThemes() as $theme_info) {
+      $from = $this->getStyleSheetFilename('json', $theme_info->getName(), TRUE);
+      $to = $this->getStyleSheetFilename('json', $theme_info->getName());
+      if (file_exists($from)) {
+        file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+      }
     }
   }
 
@@ -44,14 +46,17 @@ class LocalFilesManager {
    */
   public function tempToLive() {
 
-    $styles = ['json', 'base', 'theme', 'grid', 'icons'];
+    foreach (\Drupal::service('cohesion.utils')->getCohesionEnabledThemes() as $theme_info) {
 
-    foreach ($styles as $style) {
-      $from = $this->getStyleSheetFilename($style);
-      $to = $this->getStyleSheetFilename($style, TRUE);
-      if (file_exists($from)) {
-        // Copy the file.
-        file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+      $styles = ['json', 'base', 'theme', 'grid', 'icons'];
+
+      foreach ($styles as $style) {
+        $from = $this->getStyleSheetFilename($style, $theme_info->getName());
+        $to = $this->getStyleSheetFilename($style, $theme_info->getName(), TRUE);
+        if (file_exists($from)) {
+          // Copy the file.
+          file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+        }
       }
     }
 
@@ -101,34 +106,38 @@ class LocalFilesManager {
   /**
    * Return different filenames depending if the user is rebuilding.
    *
-   * @param $type
+   * @param string $type
+   * @param string $theme_id
    * @param bool $force_clean_filename
    *
    * @return string
    */
-  public function getStyleSheetFilename($type, $force_clean_filename = FALSE) {
+  public function getStyleSheetFilename($type, $theme_id = '', $force_clean_filename = FALSE) {
+
+    $theme_filemane = str_replace('_', '-', $theme_id);
 
     $cohesion_uris = [
-      'json' => '/stylesheet.json',
-      'base' => '/base/stylesheet.min.css',
-      'theme' => '/theme/stylesheet.min.css',
-      'grid' => '/cohesion-responsive-grid-settings.css',
-      'icons' => '/cohesion-icon-libraries.css',
+      'json' => "{$theme_filemane}-stylesheet.json",
+      'base' => "base/{$theme_filemane}-stylesheet.min.css",
+      'theme' => "theme/{$theme_filemane}-stylesheet.min.css",
+      'grid' => "cohesion-responsive-grid-settings.css",
+      'icons' => "cohesion-icon-libraries.css",
     ];
 
     $tmp_uris = [
-      'json' => 'stylesheet.json',
-      'base' => 'base-stylesheet.min.css',
-      'theme' => 'theme-stylesheet.min.css',
+      'json' => "{$theme_filemane}-stylesheet.json",
+      'base' => "{$theme_filemane}-base-stylesheet.min.css",
+      'theme' => "{$theme_filemane}-theme-stylesheet.min.css",
       'grid' => 'cohesion-responsive-grid-settings.css',
       'icons' => 'cohesion-icon-libraries.css',
     ];
+
 
     if (array_key_exists($type, $cohesion_uris) && array_key_exists($type, $tmp_uris)) {
       $filename = '';
       $running_dx8_batch = &drupal_static('running_dx8_batch');
       if (!$running_dx8_batch || $force_clean_filename) {
-        $filename .= COHESION_CSS_PATH . $cohesion_uris[$type];
+        $filename .= COHESION_CSS_PATH . '/' . $cohesion_uris[$type];
       }
       else {
         $filename .= $this->scratchDirectory() . '/' . $tmp_uris[$type];

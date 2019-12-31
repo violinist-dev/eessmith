@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\youtube\Plugin\Field\FieldFormatter\YouTubeFormatter.
- */
-
 namespace Drupal\youtube\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -28,17 +23,17 @@ class YouTubeFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'youtube_size' => '450x315',
       'youtube_width' => '',
       'youtube_height' => '',
       'youtube_autoplay' => '',
+      'youtube_mute' => '',
       'youtube_loop' => '',
-      'youtube_showinfo' => '',
       'youtube_controls' => '',
       'youtube_autohide' => '',
       'youtube_iv_load_policy' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -47,64 +42,64 @@ class YouTubeFormatter extends FormatterBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['youtube_size'] = array(
+    $elements['youtube_size'] = [
       '#type' => 'select',
-      '#title' => t('YouTube video size'),
+      '#title' => $this->t('YouTube video size'),
       '#options' => youtube_size_options(),
       '#default_value' => $this->getSetting('youtube_size'),
-    );
-    $elements['youtube_width'] = array(
+    ];
+    $elements['youtube_width'] = [
       '#type' => 'textfield',
-      '#title' => t('Width'),
+      '#title' => $this->t('Width'),
       '#size' => 10,
       '#default_value' => $this->getSetting('youtube_width'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name*="youtube_size"]' => array('value' => 'custom'),
-        ),
-      ),
-    );
-    $elements['youtube_height'] = array(
+      '#states' => [
+        'visible' => [
+          ':input[name*="youtube_size"]' => ['value' => 'custom'],
+        ],
+      ],
+    ];
+    $elements['youtube_height'] = [
       '#type' => 'textfield',
-      '#title' => t('Height'),
+      '#title' => $this->t('Height'),
       '#size' => 10,
       '#default_value' => $this->getSetting('youtube_height'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name*="youtube_size"]' => array('value' => 'custom'),
-        ),
-      ),
-    );
-    $elements['youtube_autoplay'] = array(
+      '#states' => [
+        'visible' => [
+          ':input[name*="youtube_size"]' => ['value' => 'custom'],
+        ],
+      ],
+    ];
+    $elements['youtube_autoplay'] = [
       '#type' => 'checkbox',
-      '#title' => t('Play video automatically when loaded (autoplay).'),
+      '#title' => $this->t('Play video automatically when loaded (autoplay).'),
       '#default_value' => $this->getSetting('youtube_autoplay'),
-    );
-    $elements['youtube_loop'] = array(
+    ];
+    $elements['youtube_mute'] = [
       '#type' => 'checkbox',
-      '#title' => t('Loop the playback of the video (loop).'),
+      '#title' => $this->t('Mute video by default when loaded (mute).'),
+      '#default_value' => $this->getSetting('youtube_mute'),
+    ];
+    $elements['youtube_loop'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Loop the playback of the video (loop).'),
       '#default_value' => $this->getSetting('youtube_loop'),
-    );
-    $elements['youtube_showinfo'] = array(
+    ];
+    $elements['youtube_controls'] = [
       '#type' => 'checkbox',
-      '#title' => t('Hide video title and uploader info (showinfo).'),
-      '#default_value' => $this->getSetting('youtube_showinfo'),
-    );
-    $elements['youtube_controls'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Always hide video controls (controls).'),
+      '#title' => $this->t('Always hide video controls (controls).'),
       '#default_value' => $this->getSetting('youtube_controls'),
-    );
-    $elements['youtube_autohide'] = array(
+    ];
+    $elements['youtube_autohide'] = [
       '#type' => 'checkbox',
-      '#title' => t('Hide video controls after play begins (autohide).'),
+      '#title' => $this->t('Hide video controls after play begins (autohide).'),
       '#default_value' => $this->getSetting('youtube_autohide'),
-    );
-    $elements['youtube_iv_load_policy'] = array(
+    ];
+    $elements['youtube_iv_load_policy'] = [
       '#type' => 'checkbox',
-      '#title' => t('Hide video annotations by default (iv_load_policy).'),
+      '#title' => $this->t('Hide video annotations by default (iv_load_policy).'),
       '#default_value' => $this->getSetting('youtube_iv_load_policy'),
-    );
+    ];
     return $elements;
   }
 
@@ -112,26 +107,26 @@ class YouTubeFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
-    $cp = "";
+    $summary = [];
+    $cp = '';
     $youtube_size = $this->getSetting('youtube_size');
 
-    $parameters = array(
+    $parameters = [
       $this->getSetting('youtube_autoplay'),
+      $this->getSetting('youtube_mute'),
       $this->getSetting('youtube_loop'),
-      $this->getSetting('youtube_showinfo'),
       $this->getSetting('youtube_controls'),
       $this->getSetting('youtube_autohide'),
       $this->getSetting('youtube_iv_load_policy'),
-    );
+    ];
 
     foreach ($parameters as $parameter) {
       if ($parameter) {
-        $cp = t(', custom parameters');
+        $cp = ', custom parameters';
         break;
       }
     }
-    $summary[] = t('YouTube video: @youtube_size@cp', array('@youtube_size' => $youtube_size, '@cp' => $cp));
+    $summary[] = $this->t('YouTube video: @youtube_size@cp', ['@youtube_size' => $youtube_size, '@cp' => $cp]);
     return $summary;
   }
 
@@ -144,16 +139,17 @@ class YouTubeFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $element = array();
+    $element = [];
     $settings = $this->getSettings();
 
     foreach ($items as $delta => $item) {
-      $element[$delta] = array(
+      $element[$delta] = [
         '#theme' => 'youtube_video',
+        '#input' => $item->input,
         '#video_id' => $item->video_id,
         '#entity_title' => $items->getEntity()->label(),
         '#settings' => $settings,
-      );
+      ];
 
       if ($settings['youtube_size'] == 'responsive') {
         $element[$delta]['#attached']['library'][] = 'youtube/drupal.youtube.responsive';

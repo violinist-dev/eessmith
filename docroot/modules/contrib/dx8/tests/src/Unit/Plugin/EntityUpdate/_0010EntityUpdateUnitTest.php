@@ -55,12 +55,15 @@ class _0010EntityUpdateUnitTest extends UnitTestCase {
 
   private $fixture_layout = '{"model":{"62bdeef6-a6a1-4dda-81d1-05f2f9316fa2":{"settings":{"type":"cohFileBrowser","options":{"buttonText":"Select image","imageUploader":false,"allowedDescription":"Allowed: png, gif, jpg, jpeg \nMax file size: 2MB","removeLabel":"Remove"},"title":"Image uploader","isStyle":true,"defaultActive":true,"schema":{"type":"image"}}}},"mapper":{},"previewModel":{},"canvas":[],"componentForm":[{"type":"form-field","uid":"form-image","title":"Image uploader","parentIndex":"form-fields","status":{"collapsed":false},"parentUid":"root","uuid":"62bdeef6-a6a1-4dda-81d1-05f2f9316fa2","humanId":"Field 2","isContainer":false}]}';
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     $this->unit = new _0010EntityUpdate([], null, null);
   }
 
   /**
-   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0005EntityUpdate::runUpdate
+   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0010EntityUpdate::runUpdate
    */
   public function testRunUpdate() {
 

@@ -25,7 +25,9 @@ class Dx8Commands extends DrushCommands {
     if ($errors) {
       $this->say('[error] ' . $errors['error']);
     }
-    $this->yell(t('Congratulations. Cohesion is installed and up to date. You can now build your website.'));
+    else {
+      $this->yell(t('Congratulations. Cohesion is installed and up to date. You can now build your website.'));
+    }
   }
 
   /**
@@ -37,6 +39,5 @@ class Dx8Commands extends DrushCommands {
   public function rebuild() {
     $this->say(t('Rebuilding all entities.'));
     DX8CommandHelpers::rebuild();
-    $this->yell(t('Finished rebuilding.'));
   }
 }

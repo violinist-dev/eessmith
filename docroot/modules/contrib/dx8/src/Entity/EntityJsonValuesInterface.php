@@ -64,10 +64,9 @@ interface EntityJsonValuesInterface {
   public function isLayoutCanvas();
 
   /**
-   *
    * Get the LayoutCanvas entity for this entity
    *
-   * @return \Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas|bool
+   * @return \Drupal\cohesion\LayoutCanvas\LayoutCanvas|bool
    */
   public function getLayoutCanvasInstance();
 

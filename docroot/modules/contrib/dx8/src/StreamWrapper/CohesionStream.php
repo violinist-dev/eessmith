@@ -58,16 +58,7 @@ class CohesionStream extends PublicStream {
   }
 
   /**
-   * Finds and returns the base URL for cohesion://.
-   *
-   * Defaults to the current site's base URL plus directory path.
-   *
-   * Note that this static method is used by \Drupal\system\Form\FileSystemForm
-   * so you should alter that form or substitute a different form if you change
-   * the class providing the stream_wrapper.public service.
-   *
-   * @return string
-   *   The external base URL for cohesion://
+   * {@inheritdoc}
    */
   public static function baseUrl() {
     $settings_base_url = Settings::get('file_public_base_url', '');
@@ -80,33 +71,9 @@ class CohesionStream extends PublicStream {
   }
 
   /**
-   * Returns the base path for cohesion://.
-   *
-   * If we have a setting for the cohesion:// scheme's path, we use that.
-   * Otherwise we build a reasonable default based on the site.path service if
-   * it's available, or a default behavior based on the request.
-   *
-   * Note that this static method is used by \Drupal\system\Form\FileSystemForm
-   * so you should alter that form or substitute a different form if you change
-   * the class providing the stream_wrapper.public service.
-   *
-   * The site path is injectable from the site.path service:
-   *
-   * @code
-   * $base_path = CohesionStream::basePath(\Drupal::service('site.path'));
-   * @endcode
-   *
-   * @param \SplString $site_path
-   *   (optional) The site.path service parameter, which is typically the path
-   *   to sites/ in a Drupal installation. This allows you to inject the site
-   *   path using services from the caller. If omitted, this method will use the
-   *   global service container or the kernel's default behavior to determine
-   *   the site path.
-   *
-   * @return string
-   *   The base path for cohesion:// typically sites/default/files.
+   * {@inheritdoc}
    */
-  public static function basePath(\SplString $site_path = NULL) {
+  public static function basePath($site_path = NULL) {
     if ($site_path === NULL) {
       // Find the site path. Kernel service is not always available at this
       // point, but is preferred, when available.

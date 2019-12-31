@@ -14,7 +14,7 @@ use Drupal\cohesion\Plugin\Api\PreviewApi;
  *
  * @ConfigEntityType(
  *   id = "cohesion_custom_style",
- *   label = @Translation("Custom styles"),
+ *   label = @Translation("Custom style"),
  *   label_singular = @Translation("Custom style"),
  *   label_plural = @Translation("Custom styles"),
  *   label_collection = @Translation("Custom styles"),
@@ -230,7 +230,7 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
     parent::process();
 
     /** @var CustomStylesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('custom_styles_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('custom_styles_api');
 
     $send_to_api->setEntity($this);
     $send_to_api->send();
@@ -244,11 +244,10 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
   public function jsonValuesErrors()
   {
     /** @var PreviewApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('preview_api');
 
     $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues());
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {
@@ -376,7 +375,7 @@ class CustomStyle extends CohesionConfigEntityBase implements CohesionSettingsIn
     } // Add top level deleted entities to a queue to send to the Api on prepareStyleSheet().
     else {
       /** @var CustomStylesApi $send_to_api */
-      $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('custom_styles_api');
+      $send_to_api = $this->apiProcessorManager()->createInstance('custom_styles_api');
 
       $send_to_api->setEntity($this);
       $send_to_api->delete();

@@ -3,8 +3,6 @@
 namespace Drupal\cohesion;
 
 use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
-use Drupal\Component\Render\HtmlEscapedText;
-use Drupal\image\Entity\ImageStyle;
 
 /**
  * Class CustomStylesApi
@@ -15,8 +13,6 @@ use Drupal\image\Entity\ImageStyle;
  */
 abstract class StylesApi extends ApiPluginBase {
 
-  private $replacements = [];
-
   /**
    * Render any tokens that appear in custom styles, base style or the style
    * preview (used for media tokens).
@@ -25,7 +21,7 @@ abstract class StylesApi extends ApiPluginBase {
    *
    * @return mixed
    */
-  protected function processStyleTokensRecursive(&$object) {
+  protected function processBackgroundImageInheritance(&$object) {
 
     // Handle background images inheritance
     if (isset($object['styles'])) {
@@ -46,7 +42,9 @@ abstract class StylesApi extends ApiPluginBase {
                   $background['backgroundImage']['value'] = $previous_bp[$key];
                 }
                 else {
-                  $current_bp[$key] = $background['backgroundImage']['value'];
+                  if (isset($background['backgroundImage']['value'])) {
+                    $current_bp[$key] = $background['backgroundImage']['value'];
+                  }
                 }
               }
             }
@@ -59,34 +57,9 @@ abstract class StylesApi extends ApiPluginBase {
 
     foreach ($object as $key => &$value) {
       if (is_array($value) || is_object($value)) {
-        $this->processStyleTokensRecursive($value);
-      }
-      else {
-        if ($found_tokens = $this->tokenService->scan($value)) {
-          foreach ($found_tokens as $context => $token_group) {
-            foreach ($token_group as $token) {
-              // Try and generate the token.
-              if ($replacement = $this->tokenService->replace(new HtmlEscapedText($token))) {
-                if ($context == 'media-reference') {
-                  if (is_array($object) && isset($object['imageStyle']) && $image_style = ImageStyle::load($object['imageStyle'])) {
-                    $value = $image_style->buildUri($replacement);
-                    $url = $image_style->buildUrl($replacement);
-                  }
-                  else {
-                    $value = $replacement;
-                    $url = file_create_url($replacement);
-                  }
-                  $base_path = \Drupal::request()->getSchemeAndHttpHost();
-                  $relative_url = str_replace($base_path, '', $url);
-                  $this->replacements[$value] = $relative_url;
-                }
-                else {
-                  $value = str_replace($token, $replacement, $value);
-                }
-              }
-            }
-          }
-        }
+        $this->processBackgroundImageInheritance($value);
+      }else{
+        $this->cohesionUtils->processTokenForApi($value);
       }
     }
   }
@@ -116,9 +89,6 @@ abstract class StylesApi extends ApiPluginBase {
    */
   public function callApi() {
     $this->response = CohesionApiClient::buildStyle($this->data);
-    foreach ($this->response['data'] as &$style) {
-      $style = str_replace(array_keys($this->replacements), $this->replacements, $style);
-    }
   }
 
 }

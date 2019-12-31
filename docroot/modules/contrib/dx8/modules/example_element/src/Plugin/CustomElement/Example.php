@@ -31,6 +31,8 @@ class Example extends CustomElementPluginBase {
         'type' => 'textfield',
         // These fields are specific to this form field type.
         'placeholder' => 'Placeholder text.',
+        'required' => true,
+        'validationMessage' => 'This field is required.'
       ],
       'myselectfield' => [
         'htmlClass' => 'col-xs-12',
@@ -78,7 +80,7 @@ class Example extends CustomElementPluginBase {
         'type' => 'wysiwyg',
         'title' => 'Title of my WYSIWYG field.',
         'defaultValue' => [
-          'text' => '<p>This is some default content.</p>',
+          'text' => '<p>This is some example content.</p>',
           'textFormat' => 'cohesion'
         ]
       ],

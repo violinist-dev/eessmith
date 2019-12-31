@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\youtube\Plugin\Field\FieldWidget\YouTubeDefaultWidget.
- */
-
 namespace Drupal\youtube\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -20,9 +15,6 @@ use Drupal\Core\Form\FormStateInterface;
  *   field_types = {
  *     "youtube"
  *   },
- *   settings = {
- *     "placeholder_url" = ""
- *   }
  * )
  */
 class YouTubeDefaultWidget extends WidgetBase {
@@ -30,15 +22,24 @@ class YouTubeDefaultWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
+  public static function defaultSettings() {
+    return [
+      'placeholder_url' => '',
+    ] + parent::defaultSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['placeholder_url'] = array(
+    $elements['placeholder_url'] = [
       '#type' => 'textfield',
-      '#title' => t('Placeholder for URL'),
+      '#title' => $this->t('Placeholder for URL'),
       '#default_value' => $this->getSetting('placeholder_url'),
-      '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
-    );
+      '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
+    ];
 
     return $elements;
   }
@@ -47,15 +48,15 @@ class YouTubeDefaultWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
 
     $placeholder_url = $this->getSetting('placeholder_url');
     if (empty($placeholder_url)) {
-      $summary[] = t('No placeholders');
+      $summary[] = $this->t('No placeholders');
     }
     else {
       if (!empty($placeholder_url)) {
-        $summary[] = t('URL placeholder: @placeholder_url', array('@placeholder_url' => $placeholder_url));
+        $summary[] = $this->t('URL placeholder: @placeholder_url', ['@placeholder_url' => $placeholder_url]);
       }
     }
 
@@ -66,27 +67,25 @@ class YouTubeDefaultWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $element['input'] = $element + array(
+    $element['input'] = $element + [
       '#type' => 'textfield',
-      '#placeholder' => $this->getSetting('placeholder_url'),
+      '#placeholder' => $this->getSetting('placearrayholder_url'),
       '#default_value' => isset($items[$delta]->input) ? $items[$delta]->input : NULL,
       '#maxlength' => 255,
-      '#element_validate' => array(array($this, 'validateInput')),
-    );
+      '#element_validate' => [[$this, 'validateInput']],
+    ];
 
     if ($element['input']['#description'] == '') {
-      $element['input']['#description'] = t('Enter the YouTube URL. Valid URL
-      formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and
-      http://youtu.be/1SqBdS0XkV4');
+      $element['input']['#description'] = $this->t('Enter the YouTube URL. Valid URL formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and http://youtu.be/1SqBdS0XkV4.');
     }
 
     if (isset($items->get($delta)->video_id)) {
-      $element['video_id'] = array(
+      $element['video_id'] = [
         '#prefix' => '<div class="youtube-video-id">',
-        '#markup' => t('YouTube video ID: @video_id', array('@video_id' => $items->get($delta)->video_id)),
+        '#markup' => $this->t('YouTube video ID: @video_id', ['@video_id' => $items->get($delta)->video_id]),
         '#suffix' => '</div>',
         '#weight' => 1,
-      );
+      ];
     }
     return $element;
   }
@@ -99,15 +98,15 @@ class YouTubeDefaultWidget extends WidgetBase {
     $video_id = youtube_get_video_id($input);
 
     if ($video_id && strlen($video_id) <= 20) {
-      $video_id_element = array(
+      $video_id_element = [
         '#parents' => $element['#parents'],
-      );
+      ];
       array_pop($video_id_element['#parents']);
       $video_id_element['#parents'][] = 'video_id';
       $form_state->setValueForElement($video_id_element, $video_id);
     }
     elseif (!empty($input)) {
-      $form_state->setError($element, t('Please provide a valid YouTube URL.'));
+      $form_state->setError($element, $this->t('Please provide a valid YouTube URL.'));
     }
   }
 

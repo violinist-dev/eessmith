@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\cohesion\Unit;
 
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
@@ -89,6 +90,7 @@ abstract class UsagePluginBaseUnitTest extends UnitTestCase {
   protected $entity_type_manager_mock;
   protected $stream_wrapper_manager_mock;
   protected $database_connection_mock;
+  protected $theme_handler_mock;
 
   /**
    * Create mocks of the objects that the plugin needs.
@@ -148,6 +150,11 @@ abstract class UsagePluginBaseUnitTest extends UnitTestCase {
     $prophecy = $this->prophesize(Connection::CLASS);
     //$prophecy->generate()->willReturn('0000-0000-0000-0000');
     $this->database_connection_mock = $prophecy->reveal();
+
+    // Mock service.
+    $prophecy = $this->prophesize(ThemeHandlerInterface::CLASS);
+    //$prophecy->generate()->willReturn('0000-0000-0000-0000');
+    $this->theme_handler_mock = $prophecy->reveal();
 
   }
 

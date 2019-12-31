@@ -185,8 +185,10 @@ class FileUsage extends UsagePluginBase {
    */
   private function convertBasepathsToUris(&$data) {
     foreach ($this->wrappers as $key => $wrapper) {
-      if ($base_path = $wrapper['instance']->getDirectoryPath()) {
-        $data = str_replace('/' . $base_path . '/', $key . '://', $data);
+      if (method_exists($wrapper['instance'], 'getDirectoryPath')) {
+        if ($base_path = $wrapper['instance']->getDirectoryPath()) {
+          $data = str_replace('/' . $base_path . '/', $key . '://', $data);
+        }
       }
     }
 

@@ -22,7 +22,7 @@ class AccountSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $config = $this->config('cohesion.settings');
+    $config = \Drupal::config('cohesion.settings');
     $site_config = \Drupal::config('system.site');
 
     $form['environment'] = [
@@ -37,6 +37,7 @@ class AccountSettingsForm extends ConfigFormBase {
         '#title' => $this->t('API key'),
         '#required' => TRUE,
         '#default_value' => $config ? $config->get('api_key') : '',
+        '#disabled' => $this->isOverridden('api_key'),
       ];
 
       $form['organization_key'] = [
@@ -44,6 +45,7 @@ class AccountSettingsForm extends ConfigFormBase {
         '#title' => $this->t('Agency key'),
         '#required' => TRUE,
         '#default_value' => $config ? $config->get('organization_key') : '',
+        '#disabled' => $this->isOverridden('organization_key'),
       ];
     }
 
@@ -186,6 +188,21 @@ class AccountSettingsForm extends ConfigFormBase {
       // Rebuild routes to deny access to DX8 menu items.
       \Drupal::service('router.builder')->rebuild();
     }
+  }
+
+  /**
+   * Check if config variable is overridden by the settings.php.
+   *
+   * @param string $name
+   *   SMTP settings key.
+   *
+   * @return bool
+   *   Boolean.
+   */
+  protected function isOverridden($name) {
+    $original = $this->configFactory->getEditable('cohesion.settings')->get($name);
+    $current = $this->configFactory->get('cohesion.settings')->get($name);
+    return $original != $current;
   }
 
 }

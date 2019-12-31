@@ -168,6 +168,7 @@ class TwigExtension extends \Twig_Extension {
         'hasDrupalPermission',
       ]),
       new \Twig_SimpleFunction('escape_url', [$this, 'escapeURL']),
+      new \Twig_SimpleFunction('isActiveTheme', [$this, 'isActiveTheme']),
     ];
   }
 
@@ -181,6 +182,17 @@ class TwigExtension extends \Twig_Extension {
       new \Twig_SimpleFilter('clean', [$this, 'clean']),
       new \Twig_SimpleFilter('coh_raw', [$this, 'cohRaw']),
     ];
+  }
+
+  /**
+   * Is the supplied theme name the same as the active theme?
+   *
+   * @param $theme
+   *
+   * @return bool
+   */
+  public function isActiveTheme($theme) {
+    return \Drupal::theme()->getActiveTheme()->getName() == $theme;
   }
 
   /**
@@ -247,14 +259,14 @@ class TwigExtension extends \Twig_Extension {
   }
 
   /**
-   * Render styles inline (for components with fields)
+   * Render styles inline (for components with fields and/or tokens).
    *
    * @param $content
    *
-   * @return mixed
+   * @return \Drupal\Component\Render\MarkupInterface|mixed
+   * @throws \Exception
    */
   public function renderInlineStyle($content) {
-
     $content = $this->streamWrappers($content);
     // Allow quotes in inline styles
     $content = str_replace('&quot;', '"', $content);
@@ -509,8 +521,10 @@ class TwigExtension extends \Twig_Extension {
       $cacheContexts = \Drupal::service('cohesion_templates.cache_contexts');
       $cache_contexts = $cacheContexts->getFromTemplateEntityId($component, $componentFields);
 
+      $template = 'component__cohesion_' . str_replace('-', '_', $componentId);
+
       return [
-        '#theme' => 'component__cohesion_' . str_replace('-', '_', $componentId),
+        '#theme' => $template,
         '#content' => isset($contextual_content) ? $contextual_content : '',
         '#cache' => [
           'tags' => ['component.cohesion.' . $componentId],
@@ -522,6 +536,7 @@ class TwigExtension extends \Twig_Extension {
         // Tell children elements that its parent is a component (for components in component)
         '#componentFields' => $componentFields,
         '#componentUuid' => $componentInstanceUuid,
+        '#template' => $template,
       ];
     }
   }
@@ -765,7 +780,7 @@ class TwigExtension extends \Twig_Extension {
   /**
    * Render the view mode of the first element in the $rows array.
    *
-   * @param $view_modes_json
+   * @param $view_modes
    * @param $rows
    *
    * @return array|string
@@ -779,7 +794,7 @@ class TwigExtension extends \Twig_Extension {
    *   exception is rethrown.
    *
    */
-  public function drupalViewItem($view_modes_json, $rows) {
+  public function drupalViewItem($view_modes, $rows) {
     if (is_array($rows) && isset($rows['#rows'])) {
 
       // Get the first element from the array.
@@ -797,11 +812,21 @@ class TwigExtension extends \Twig_Extension {
           }
         }
 
-        $view_modes = Json::decode($view_modes_json);
+        if (!is_array($view_modes)) {
+          $view_modes = Json::decode($view_modes);
+        }
+
         if (is_array($view_modes)) {
           $view_modes_bundle = [];
           // Add view modes for the current entity type per bundle to an key value array
           foreach ($view_modes as $view_mode_data) {
+            // Cast any Twig_Markup values to strings.
+            foreach ($view_mode_data as $view_mode_data_key => $view_mode_data_value) {
+              if (is_object($view_mode_data_value) && $view_mode_data_value instanceof \Twig_Markup) {
+                $view_mode_data[$view_mode_data_key] = $view_mode_data_value->__toString();
+              }
+            }
+
             // We only register defined view modes for the entity type of the current entity
             // We don't register view mode set as default as it is already in the resultrow array
             if ($view_mode_data['entity_type'] == $entity_type && $view_mode_data['view_mode'] !== 'default') {
@@ -817,9 +842,9 @@ class TwigExtension extends \Twig_Extension {
             }
           }
 
-          // Change the view mode served by the view to the view mode specified in DX8
-          // If none exists (for the bundle or if no `all` has been specified)
-          // it will fall back the one in the Drupal view
+          // Change the view mode served by the view to the view mode specified in Cohesion
+          // If none exists (for the bundle or if no `all` has been specified) it will fall
+          // back the one in the Drupal view.
           if (isset($view_modes_bundle[$entity->bundle()])) {
             $resultrow['#view_mode'] = $view_modes_bundle[$entity->bundle()];
           }
@@ -1285,6 +1310,24 @@ class TwigExtension extends \Twig_Extension {
    * @return mixed
    */
   public function customElement($elementSettings, $elementMarkup, $elementClassName, $elementContext = []) {
+    // Make TWig_Markup strings raw values.
+    array_walk_recursive($elementSettings, function (&$value) {
+      /** @var \Twig_Markup|mixed $value */
+      if (is_object($value) && $value instanceof \Twig_Markup) {
+        $value = $value->__toString();
+      }
+    });
+
+    // Fix component object key names.
+    foreach ($elementSettings as $settings_key => $items) {
+      if (is_array($items)) {
+        foreach ($items as $key => $value) {
+          unset($elementSettings[$settings_key][$key]);
+          $elementSettings[$settings_key][str_replace('#', '', $key)] = $value;
+        }
+      }
+    }
+
     // Fallback for v1 templates.
     if (is_object($elementSettings) || is_array($elementSettings)) {
       $elementSettings = json_encode($elementSettings, JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);

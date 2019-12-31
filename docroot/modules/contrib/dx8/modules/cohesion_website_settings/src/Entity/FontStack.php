@@ -64,7 +64,7 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
    */
   public function getResourceObject() {
     /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
 
     return $send_to_api->getFontGroup();
   }
@@ -74,7 +74,7 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
    */
   public function process() {
     /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('website_settings_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
     $send_to_api->setEntity($this);
     $send_to_api->send();
     $send_to_api->getData();

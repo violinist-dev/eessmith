@@ -81,6 +81,9 @@ function cohesion_custom_styles_update_8500(){
   $config_path = drupal_get_path('module', 'cohesion_custom_styles') . '/config/install';
   $source = new FileStorage($config_path);
 
+  // Install restful web services module
+  \Drupal::service('module_installer')->install(['rest']);
+
   foreach ($source->listAll('rest.resource') as $config_item_name) {
     // Load the config in.
     $config = $source->read($config_item_name);

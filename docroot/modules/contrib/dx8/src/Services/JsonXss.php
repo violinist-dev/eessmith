@@ -4,7 +4,7 @@ namespace Drupal\cohesion\Services;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Component\Utility\Xss;
-use Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas;
+use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 
 /**
  * Class JsonXss
@@ -47,31 +47,34 @@ class JsonXss {
     $layout_canvas = new LayoutCanvas($json_values);
 
     foreach ($layout_canvas->iterateCanvas() as $element) {
-      if ($model = $element->getModel()) {
-        // For each value in the element model, check for Xss directly.
-        foreach ($model->getLeavesWithPathToRoot() as $leaf) {
-          if (is_string($leaf['value']) && $leaf['value'] !== Xss::filterAdmin($leaf['value'])) {
-            // Check for WYSIWYG.
-            if (count($leaf['path']) > 2 && $leaf['path'][count($leaf['path'])-1] == 'text' && $leaf['path'][count($leaf['path'])-2] == 'content') {
-              array_pop($leaf['path']);
+      // Only check XSS on elements, not components.
+      if (!$element->isComponent()) {
+        if ($model = $element->getModel()) {
+          // For each value in the element model, check for Xss directly.
+          foreach ($model->getLeavesWithPathToRoot() as $leaf) {
+            if (is_string($leaf['value']) && $leaf['value'] !== Xss::filterAdmin($leaf['value'])) {
+              // Check for WYSIWYG.
+              if (count($leaf['path']) > 2 && $leaf['path'][count($leaf['path']) - 1] == 'text' && $leaf['path'][count($leaf['path']) - 2] == 'content') {
+                array_pop($leaf['path']);
+              }
+
+              $xss_paths[$model->getUUID() . '.' . implode('.', $leaf['path'])] = TRUE;
             }
-
-            $xss_paths[$model->getUUID() . '.' . implode('.', $leaf['path'])] = TRUE;
           }
-        }
 
-        // Check for Javascript event markup attributes.
-        if ($markup_attributes = $model->getProperty([
-          'markup',
-          'attributes'
-        ])) {
-          foreach ($markup_attributes as $index => $property) {
-            // Create a mock for <a property=attribute>
-            $mock = "<a " . AddSlashes($property->attribute) . "=\"" . AddSlashes($property->value) . "\">";
-            if (Xss::filterAdmin($mock) !== $mock) {
-              // If it fails validation, add both the attribute and value ot the paths so they both get disabled by the app.
-              $xss_paths[$model->getUUID() . '.markup.attributes.' . $index . '.attribute'] = $property->attribute;
-              $xss_paths[$model->getUUID() . '.markup.attributes.' . $index . '.value'] = $property->value;
+          // Check for Javascript event markup attributes.
+          if ($markup_attributes = $model->getProperty([
+            'markup',
+            'attributes'
+          ])) {
+            foreach ($markup_attributes as $index => $property) {
+              // Create a mock for <a property=attribute>
+              $mock = "<a " . AddSlashes($property->attribute) . "=\"" . AddSlashes($property->value) . "\">";
+              if (Xss::filterAdmin($mock) !== $mock) {
+                // If it fails validation, add both the attribute and value ot the paths so they both get disabled by the app.
+                $xss_paths[$model->getUUID() . '.markup.attributes.' . $index . '.attribute'] = $property->attribute;
+                $xss_paths[$model->getUUID() . '.markup.attributes.' . $index . '.value'] = $property->value;
+              }
             }
           }
         }

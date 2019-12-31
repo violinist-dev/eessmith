@@ -12,7 +12,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  *
  * @ConfigEntityType(
  *   id = "cohesion_menu_templates",
- *   label = @Translation("Menu templates"),
+ *   label = @Translation("Menu template"),
  *   label_singular = @Translation("menu template"),
  *   label_plural = @Translation("Menu templates"),
  *   label_collection = @Translation("Menu templates"),

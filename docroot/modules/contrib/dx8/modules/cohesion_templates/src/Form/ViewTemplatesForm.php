@@ -16,13 +16,6 @@ class ViewTemplatesForm extends TemplateForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
-    $operation = $this->getOperation();
-
-    // Set titles for scratch entity creation and pseduo create/activation.
-    if ($operation == 'add') {
-      // Apply to the form page title.
-      $form['#title'] = t('Create view template');
-    }
 
     // Attach tokens related to views.
     $form['cohesion']['#token_browser'] = 'view';

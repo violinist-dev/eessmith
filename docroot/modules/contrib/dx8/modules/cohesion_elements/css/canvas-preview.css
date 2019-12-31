@@ -102,6 +102,7 @@ body {
     justify-content: center;
     background-size: 600px;
     text-align: center;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", "Lucida Sans", sans-serif;
     color: rgb(87, 145, 178);
     text-shadow: 1px 3px 5px #d7ecf5;
     position: relative;
@@ -117,8 +118,8 @@ body {
     background-color: #d7ecf5;
     width: auto;
     position: absolute;
-    left: 0px;
-    right: 0px;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +127,7 @@ body {
     cursor: ns-resize;
     transition: background-color 100ms ease-in-out;
     bottom: 1px;
-    box-shadow: 0px -2px 4px 0px rgba(75, 169, 208, 0.2);
+    box-shadow: 0 -2px 4px 0 rgba(75, 169, 208, 0.2);
 }
 .dx-iframe-resize:hover {
     background-color: #e7f7ff;

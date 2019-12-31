@@ -2,7 +2,7 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
-use Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas;
+use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Core\Controller\ControllerBase;

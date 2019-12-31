@@ -79,7 +79,6 @@ class CohesionEndpointHelper {
 
       // Set other entity values.
       $entity->setStatus(TRUE);
-      $entity->setModified(TRUE);
 
       // Save.
       $entity->save();

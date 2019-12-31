@@ -25,6 +25,9 @@ class _0002EntityUpdateUnitTest extends UnitTestCase {
 
   protected $unit;
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     $this->unit = new _0002EntityUpdateMock([], null, null);
   }

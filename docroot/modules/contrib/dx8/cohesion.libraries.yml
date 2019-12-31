@@ -2,6 +2,9 @@ coh-theme:
   css:
     base:
       css/reset.css: { weight: -20 }
+      css/base-default.css: { media: all, weight: -19 }
+    theme:
+      css/theme-default.css: {media: all, weight: -19 }
 
 cohesion-admin-scripts:
   js:
@@ -52,9 +55,6 @@ admin-grid-settings:
       cohesion://styles/cohesion-responsive-grid.css: { media: all, weight: 99 }
 
 cohesion-accordion-element:
-  css:
-    component:
-      css/cohesion-accordion-element.css: {}
   js:
     js/cohesion-accordion-element.js: {}
   dependencies:

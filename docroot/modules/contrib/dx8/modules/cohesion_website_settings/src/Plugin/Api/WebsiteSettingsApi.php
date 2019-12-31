@@ -39,26 +39,32 @@ class WebsiteSettingsApi extends StylesApi {
   protected function processStyles($requestCSSTimestamp) {
     parent::processStyles($requestCSSTimestamp);
 
-    $data = $this->getData();
     $running_dx8_batch = &drupal_static('running_dx8_batch');
 
-    // Check to see if there are actually some stylesheets to process.
-    if (isset($data['base']) && isset($data['theme']) && isset($data['master'])) {
+    foreach ($this->getData() as $styles) {
 
-      // Create admin icon library and website settings stylesheet for admin.
-      $master = Json::decode($data['master']);
+      if (isset($styles['css']) && $styles['themeName']) {
 
-      if (isset($master['cohesion_website_settings']['icon_libraries']) && $this->entity instanceof IconLibrary) {
-        $destination = $this->localFilesManager->getStyleSheetFilename('icons');
-        if (file_unmanaged_save_data($master['cohesion_website_settings']['icon_libraries'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
-          \Drupal::logger('cohesion')->notice(t(':name stylesheet has been updated', [':name' => 'icon library']));
-        }
-      }
+        $data = $styles['css'];
+        // Check to see if there are actually some stylesheets to process.
+        if (isset($data['base']) && isset($data['theme']) && isset($data['master'])) {
 
-      if (isset($master['cohesion_website_settings']['responsive_grid_settings']) && $this->entity instanceof WebsiteSettings && $this->entity->id() == 'responsive_grid_settings') {
-        $destination = $this->localFilesManager->getStyleSheetFilename('grid');
-        if (file_unmanaged_save_data($master['cohesion_website_settings']['responsive_grid_settings'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
-          \Drupal::logger('cohesion')->notice(t(':name stylesheet has been updated', array(':name' => 'Responsive grid')));
+          // Create admin icon library and website settings stylesheet for admin.
+          $master = Json::decode($data['master']);
+
+          if (isset($master['cohesion_website_settings']['icon_libraries']) && $this->entity instanceof IconLibrary) {
+            $destination = $this->localFilesManager->getStyleSheetFilename('icons');
+            if (file_unmanaged_save_data($master['cohesion_website_settings']['icon_libraries'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
+              \Drupal::logger('cohesion')->notice(t(':name stylesheet has been updated', [':name' => 'icon library']));
+            }
+          }
+
+          if (isset($master['cohesion_website_settings']['responsive_grid_settings']) && $this->entity instanceof WebsiteSettings && $this->entity->id() == 'responsive_grid_settings') {
+            $destination = $this->localFilesManager->getStyleSheetFilename('grid');
+            if (file_unmanaged_save_data($master['cohesion_website_settings']['responsive_grid_settings'], $destination, FILE_EXISTS_REPLACE) && !$running_dx8_batch) {
+              \Drupal::logger('cohesion')->notice(t(':name stylesheet has been updated', array(':name' => 'Responsive grid')));
+            }
+          }
         }
       }
     }

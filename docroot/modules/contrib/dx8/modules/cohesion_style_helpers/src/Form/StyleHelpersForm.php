@@ -29,14 +29,15 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
     }
     $custom_style_type = $this->entityTypeManager->getStorage('custom_style_type')->load($custom_style_type_id);
 
+    // Must come after modifying the entity data.
+    $form = parent::form($form, $form_state);
+
     if ($operation == 'add') {
       $form['#title'] = $this->t('Create %label', [
         '%label' => strtolower($custom_style_type->label()),
       ]);
     }
 
-    // Must come after modifying the entity data.
-    $form = parent::form($form, $form_state);
 
     // Boot angular with the given custom style type
     $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'custom_styles';

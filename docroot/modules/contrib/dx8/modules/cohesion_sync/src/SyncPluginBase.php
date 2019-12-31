@@ -3,6 +3,7 @@
 namespace Drupal\cohesion_sync;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -15,6 +16,7 @@ use Drupal\Core\Entity\EntityRepository;
  * @package Drupal\cohesion_sync
  */
 abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface, ContainerFactoryPluginInterface {
+  use StringTranslationTrait;
 
   /**
    * @var \Drupal\Core\Entity\EntityRepository

@@ -36,16 +36,6 @@ cohesion_website_settings.batch_reload:
   requirements:
     _permission: 'administer website settings'
 
-# Batch re-build the color palette/icon library/font stack.
-cohesion_website_settings.inuse_batch_resave:
-  path: '/admin/cohesion/cohesion_website_settings/batch/rebuild'
-  defaults:
-    _controller: '\Drupal\cohesion_website_settings\RebuildInuseBatch::run'
-    _title: 'Rebuild website settings'
-  requirements:
-    _access: 'TRUE'
-    _permission: 'administer website settings'
-    
 cohesion_website_settings.font_libraries.upload:
   path: '/admin/cohesion/upload/font_libraries'
   defaults:

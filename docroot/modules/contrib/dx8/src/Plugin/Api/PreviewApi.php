@@ -29,7 +29,7 @@ class PreviewApi extends StylesApi {
    */
   public function setupPreview($entity_type_id, $style_model) {
     // Process the style model.
-    $this->processStyleTokensRecursive($style_model['styles']);
+    $this->processBackgroundImageInheritance($style_model['styles']);
 
     // And save the values.
     $this->entity_type_id = $entity_type_id;
@@ -61,7 +61,6 @@ class PreviewApi extends StylesApi {
         'values' => Json::encode($this->style_model),
         'mapper' => [],
       ]);
-      $this->data->css = [];
     }
     // Add additional payload config required for base styles.
     else {
@@ -74,7 +73,6 @@ class PreviewApi extends StylesApi {
         'schema' => [],
         'values' => Json::encode($this->style_model),
       ]);
-      $this->data->css = [];
     }
 
     // Perform the send.

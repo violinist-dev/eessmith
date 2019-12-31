@@ -10,7 +10,7 @@ cohesion_sync.index:
   description: 'Import and export your design patterns, styles and supporting assets.'
   route_name: cohesion_sync.index
   parent: cohesion.settings
-  weight: 70
+  weight: 80
 
 entity.cohesion_sync_package.collection:
   title: 'Manage packages'

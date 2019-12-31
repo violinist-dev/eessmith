@@ -18,11 +18,13 @@ class ElementsController {
    * @param string $entity_type_id
    *   Type of category entity, i.e. helpers, components, etc.
    *
+   * @param bool $bypass_permission_check
+   *
    * @return array|bool
    *   Return array of category objects,
    *   or FALSE if element is not of a supported type.
    */
-  public static function getElementCategories($entity_type_id) {
+  public static function getElementCategories($entity_type_id, $bypass_permission_check = FALSE) {
     // Get list of categories sorte dby weight.
     try {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
@@ -36,7 +38,7 @@ class ElementsController {
     if ($category_entities = $storage->loadMultiple($category_entities)) {
       /** @var $entity ElementCategoryBase */
       foreach ($category_entities as $entity) {
-        if ($entity->hasGroupAccess()) {
+        if ($entity->hasGroupAccess() || $bypass_permission_check) {
           // Add to the array.
           $categories[$entity->id()] = [
             'label' => $entity->label(),

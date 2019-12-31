@@ -1,14 +1,8 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\youtube\Tests\YouTubeTest.
- */
-
 namespace Drupal\youtube\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Component\Utility\Unicode;
 
 /**
  * Tests youtube field widgets and formatters.
@@ -17,17 +11,20 @@ use Drupal\Component\Utility\Unicode;
  */
 class YouTubeTest extends WebTestBase {
 
-  public static $modules = array('node', 'youtube', 'field_ui', 'image', 'file');
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = ['node', 'youtube', 'field_ui', 'image', 'file'];
 
   /**
    * {@inheritdoc}
    */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'YouTube field',
       'description' => 'Tests youtube field widgets and formatters.',
       'group' => 'YouTube',
-    );
+    ];
   }
 
   /**
@@ -38,11 +35,11 @@ class YouTubeTest extends WebTestBase {
 
     // Create Basic page and Article node types.
     if ($this->profile != 'standard') {
-      $this->drupalCreateContentType(array('type' => 'page', 'name' => 'Basic page'));
-      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+      $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
+      $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
     }
 
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->admin_user = $this->drupalCreateUser([
       'access content',
       'access administration pages',
       'administer site configuration',
@@ -53,7 +50,7 @@ class YouTubeTest extends WebTestBase {
       'edit any article content',
       'delete any article content',
       'administer image styles',
-    ));
+    ]);
     $this->drupalLogin($this->rootUser);
   }
 
@@ -61,34 +58,34 @@ class YouTubeTest extends WebTestBase {
    * Test downloading a remote image.
    */
   public function testRemoteImage() {
-    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_name = mb_strtolower($this->randomMachineName());
     // Create a field.
-    $field_storage = entity_create('field_storage_config', array(
+    $field_storage = \Drupal::entityTypeManager()->getStorage('field_storage_config')->create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'translatable' => FALSE,
       'type' => 'youtube',
       'cardinality' => '1',
-    ));
+    ]);
     $field_storage->save();
-    $field = entity_create('field_config', array(
+    $field = \Drupal::entityTypeManager()->getStorage('field_config')->create([
       'field_storage' => $field_storage,
       'bundle' => 'article',
       'title' => DRUPAL_DISABLED,
-    ));
+    ]);
     $field->save();
 
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
+    \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.article.default')
+      ->setComponent($field_name, [
         'type' => 'youtube',
-        'settings' => array(),
-      ))
+        'settings' => [],
+      ])
       ->save();
 
-    entity_get_display('node', 'article', 'full')
-      ->setComponent($field_name, array(
+    \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.article.full')
+      ->setComponent($field_name, [
         'type' => 'youtube_thumbnail',
-      ))
+      ])
       ->save();
 
     // Display creation form.
@@ -98,10 +95,10 @@ class YouTubeTest extends WebTestBase {
     // Verify that a valid URL can be submitted.
     $video_id = 'T5y3dJYHb_A';
     $value = 'http://www.youtube.com/watch?v=' . $video_id;
-    $edit = array(
+    $edit = [
       "title[0][value]" => "Test1",
       "{$field_name}[0][input]" => $value,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     preg_match('|/node/(\d+)|', $this->url, $match);
     $this->assertText(t('Article Test1 has been created.'));
@@ -109,7 +106,7 @@ class YouTubeTest extends WebTestBase {
     $video_id = 'T5y3dJYHb_A';
 
     // Verify that the image markup is displayed.
-    $matches = array();
+    $matches = [];
     $subject = $this->getRawContent();
     $pattern = '/<img .*src="(.*?' . $video_id . '[\/\d+]*\.[jpg].*?)"/s';
     preg_match($pattern, $subject, $matches);
@@ -125,34 +122,34 @@ class YouTubeTest extends WebTestBase {
    * Test ID validation and the proper video display of a valid ID.
    */
   public function testVideo() {
-    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_name = mb_strtolower($this->randomMachineName());
     // Create a field.
-    $field_storage = entity_create('field_storage_config', array(
+    $field_storage = \Drupal::entityTypeManager()->getStorage('field_storage_config')->create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'translatable' => FALSE,
       'type' => 'youtube',
       'cardinality' => '1',
-    ));
+    ]);
     $field_storage->save();
-    $field = entity_create('field_config', array(
+    $field = \Drupal::entityTypeManager()->getStorage('field_config')->create([
       'field_storage' => $field_storage,
       'bundle' => 'article',
       'title' => DRUPAL_DISABLED,
-    ));
+    ]);
     $field->save();
 
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
+    \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.article.default')
+      ->setComponent($field_name, [
         'type' => 'youtube',
-        'settings' => array(),
-      ))
+        'settings' => [],
+      ])
       ->save();
 
-    entity_get_display('node', 'article', 'full')
-      ->setComponent($field_name, array(
+    \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.article.full')
+      ->setComponent($field_name, [
         'type' => 'youtube_video',
-      ))
+      ])
       ->save();
 
     // Display creation form.
@@ -163,10 +160,10 @@ class YouTubeTest extends WebTestBase {
     $video_id = 'T5y3dJYHb_A';
     $value = 'http://www.youtube.com/watch?v=' . $video_id;
     $embed_value = 'http://www.youtube.com/embed/' . $video_id;
-    $edit = array(
+    $edit = [
       "title[0][value]" => 'Test',
       "{$field_name}[0][input]" => $value,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     preg_match('|/node/(\d+)|', $this->url, $match);
     $this->assertText(t('Article Test has been created.'));
@@ -181,10 +178,10 @@ class YouTubeTest extends WebTestBase {
     // Verify that invalid URLs cannot be submitted.
     $this->drupalGet('node/add/article');
     $value = 'not-a-url';
-    $edit = array(
+    $edit = [
       "title[0][value]" => 'Test1',
       "{$field_name}[0][input]" => $value,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $this->assertText(t('Please provide a valid YouTube URL.'));
   }

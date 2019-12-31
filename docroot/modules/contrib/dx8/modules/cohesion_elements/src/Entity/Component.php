@@ -4,7 +4,7 @@ namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\cohesion_templates\Plugin\Api\TemplatesApi;
+use Drupal\cohesion\Plugin\Api\TemplatesApi;
 use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
@@ -83,10 +83,10 @@ class Component extends CohesionElementEntityBase implements CohesionSettingsInt
    */
   public function process() {
     parent::process();
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
-    $send_to_api->setEntity($this);
-    $send_to_api->send();
+    /** @var TemplatesApi $template_api */
+    $template_api = $this->apiProcessorManager()->createInstance('templates_api');
+    $template_api->setEntity($this);
+    $template_api->send();
   }
 
   /**
@@ -159,6 +159,17 @@ class Component extends CohesionElementEntityBase implements CohesionSettingsInt
    */
   protected function getTwigPath() {
     return $this->get('twig_template') ? COHESION_TEMPLATE_PATH . '/' . $this->get('twig_template') . '.html.twig' : FALSE;
+  }
+
+  public function getTwigFilename($theme_name = NULL)
+  {
+    if ($this->get('twig_template')) {
+      if (!is_null($theme_name)) {
+        return $this->get('twig_template') . '--' . str_replace('_', '-', $theme_name);
+      }
+      return $this->get('twig_template');
+    }
+    return FALSE;
   }
 
   /**

@@ -2,11 +2,10 @@ sync-package-form:
   css:
     base:
       css/package-form.css: {}
-  js:
-    # form-js/runtime/package-form.js: {}
   dependencies:
     - core/drupal
     - core/jquery
+    - cohesion/cohesion-admin-styles
 
 sync-chunked-file:
   js:

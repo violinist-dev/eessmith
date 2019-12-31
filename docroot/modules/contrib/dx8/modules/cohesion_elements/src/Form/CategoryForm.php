@@ -4,6 +4,7 @@ namespace Drupal\cohesion_elements\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\cohesion_elements\Entity\ElementCategoryBase;
 
 /**
  * Class CategoryForm
@@ -11,6 +12,9 @@ use Drupal\Core\Form\FormStateInterface;
  * @package Drupal\cohesion_elements\Form
  */
 class CategoryForm extends EntityForm {
+
+  /** @var ElementCategoryBase */
+  protected $entity;
 
   /**
    * {@inheritdoc}

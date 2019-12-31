@@ -55,12 +55,15 @@ class _0014EntityUpdateUnitTest extends UnitTestCase {
 
   private $fixture_layout = '{"model":{"507c1624-455f-4e31-9603-329adf1640f2":{"settings":{"title":"Link","customStyle":[{"customStyle":""}],"type":"url","scrollToDuration":450,"styles":{"xl":{"linkAnimation":[{"animationType":"none","animationScope":"document","animationScale":null,"animationDirection":"up","animationOrigin":"top,center","animationHorizontalFirst":false,"animationEasing":"swing"}]}},"target":"_self","linkText":"Link text","titleAttribute":"Title","url":"https:\/\/cohesiondx.com"},"context-visibility":{"contextVisibility":{"condition":"ALL"}},"styles":{"settings":{"element":"link"}}}},"mapper":{"507c1624-455f-4e31-9603-329adf1640f2":{}},"previewModel":{"507c1624-455f-4e31-9603-329adf1640f2":{}},"canvas":[{"type":"item","uid":"link","title":"Link","status":{"collapsed":true},"parentIndex":0,"uuid":"507c1624-455f-4e31-9603-329adf1640f2","parentUid":"root","isContainer":false}]}';
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     $this->unit = new _0014EntityUpdate([], null, null);
   }
 
   /**
-   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0005EntityUpdate::runUpdate
+   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0014EntityUpdate::runUpdate
    */
   public function testRunUpdate() {
 

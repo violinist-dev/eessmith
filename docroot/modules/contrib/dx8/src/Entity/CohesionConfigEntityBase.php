@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion\Entity;
 
+use Drupal\cohesion\ApiPluginManager;
 use Drupal\cohesion\EntityJsonValuesTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;

@@ -2,8 +2,11 @@
 
 namespace Drupal\cohesion_sync\Element;
 
+use Drupal\Core\Ajax\DataCommand;
+use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\Element\ManagedFile;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides an form element for uploading managed files in chunks to bypass `upload_max_filesize`
@@ -62,6 +65,27 @@ class ChunkedFile extends ManagedFile {
 
     $return['fids'] = $fids;
     return $return;
+  }
+
+  /**
+   * {@inheritdoc]
+   */
+  public static function uploadAjaxCallback(&$form, FormStateInterface &$form_state, Request $request) {
+    $response = parent::uploadAjaxCallback($form, $form_state, $request);
+
+    // Only enable the upload button if there were no validation errors.
+    if ($form_state->getTriggeringElement()['#name'] == 'package_yaml_upload_button' && !$form_state->hasAnyErrors()) {
+      $response->addCommand(new InvokeCommand('[data-drupal-selector="edit-submit"]', 'removeAttr', ['disabled']));
+      $response->addCommand(new InvokeCommand('[data-drupal-selector="edit-submit"]', 'removeClass', ['is-disabled']));
+    }
+
+    // Enable the upload button if resetting the form.
+    if ($form_state->getTriggeringElement()['#name'] == 'package_yaml_remove_button') {
+      $response->addCommand(new InvokeCommand('[data-drupal-selector="edit-submit"]', 'attr', ['disabled', 'disabled']));
+      $response->addCommand(new InvokeCommand('[data-drupal-selector="edit-submit"]', 'addClass', ['is-disabled']));
+    }
+
+    return $response;
   }
 
 }

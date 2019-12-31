@@ -2,7 +2,7 @@
 
 namespace Drupal\cohesion\Controller;
 
-use Drupal\cohesion\Plugin\LayoutCanvas\LayoutCanvas;
+use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Core\Controller\ControllerBase;

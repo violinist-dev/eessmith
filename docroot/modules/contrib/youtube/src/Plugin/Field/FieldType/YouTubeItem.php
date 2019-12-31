@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\youtube\Plugin\Field\FieldType\YouTubeItem.
- */
-
 namespace Drupal\youtube\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\FieldItemBase;
@@ -35,22 +30,22 @@ class YouTubeItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
-    return array(
-      'columns' => array(
-        'input' => array(
+    return [
+      'columns' => [
+        'input' => [
           'description' => 'Video URL.',
           'type' => 'varchar',
           'length' => 1024,
           'not null' => FALSE,
-        ),
-        'video_id' => array(
+        ],
+        'video_id' => [
           'description' => 'Video ID.',
           'type' => 'varchar',
           'length' => 20,
           'not null' => FALSE,
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
   }
 
   /**

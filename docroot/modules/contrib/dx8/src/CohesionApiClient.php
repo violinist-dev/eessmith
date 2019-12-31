@@ -109,7 +109,7 @@ class CohesionApiClient {
     ];
 
     $code = NULL;
-    $data = NULL;
+    $response_data = NULL;
     $with_message = TRUE;
     // Add drupal messages only if not dx8 api call
     if (strpos(\Drupal::service('path.current')->getPath(), 'cohesionapi') !== FALSE) {
@@ -121,10 +121,10 @@ class CohesionApiClient {
       $request = \Drupal::httpClient()->request($method, \Drupal::service('cohesion.api.utils')->getAPIServerURL() . $uri, $options);
       $code = $request->getStatusCode();
       if ($json_as_object) {
-        $data = json_decode($request->getBody()->getContents());
+        $response_data = json_decode($request->getBody()->getContents());
       }
       else {
-        $data = Json::decode($request->getBody()->getContents());
+        $response_data = Json::decode($request->getBody()->getContents());
       }
     } catch (RequestException $e) {
 
@@ -133,13 +133,13 @@ class CohesionApiClient {
       // Otherwise, we'll just pass a network unavailable message.
       if ($e->hasResponse()) {
         $exception = (string) $e->getResponse()->getBody();
-        $data = JSON::decode($exception);
+        $response_data = JSON::decode($exception);
         $code = $e->getCode();
 
-        if (!$data['error']) {
-          $data['error'] = substr(strip_tags($exception), 0, 1024);
+        if (!$response_data['error']) {
+          $response_data['error'] = substr(strip_tags($exception), 0, 1024);
         }
-        \Drupal::logger('api-call-error')->error($data['error']);
+        \Drupal::logger('api-call-error')->error($response_data['error']);
 
       }
       else {
@@ -152,7 +152,7 @@ class CohesionApiClient {
         }
 
         $code = 503;
-        $data['error'] = $e->getMessage();
+        $response_data['error'] = $e->getMessage();
       }
 
       if ($with_message) {
@@ -160,6 +160,6 @@ class CohesionApiClient {
       }
     }
 
-    return ['code' => $code, 'data' => $data];
+    return ['code' => $code, 'data' => $response_data];
   }
 }

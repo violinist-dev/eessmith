@@ -121,6 +121,20 @@ Don't show the Google API key page:
 $settings['dx8_no_google_keys'] = TRUE;
 ```
 
+## Global $config options
+
+Set API key:
+
+```
+$config['cohesion.settings']['api_key'] = 'api-key';
+```
+
+Set organization key:
+
+```
+$config['cohesion.settings']['organization_key'] = 'org-key';
+```
+
 ## Using translations and content moderation together
 
 In order for the Layout Canvas field to work with content moderation and 

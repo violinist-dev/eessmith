@@ -18,11 +18,6 @@ class MenuTemplatesForm extends TemplateForm {
     $form = parent::form($form, $form_state);
     $operation = $this->getOperation();
 
-    if ($operation == 'add') {
-      // Apply to the form page title.
-      $form['#title'] = t('Create menu template');
-    }
-
     // Attach tokens related to menu links.
     $form['cohesion']['#token_browser'] = 'menu_link_content';
 

@@ -25,6 +25,9 @@ class _0015EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return $this->pluginDefinition['id'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function runUpdate(&$entity) {
     if($entity instanceof EntityJsonValuesInterface) {
       if ($entity->isLayoutCanvas()) {
@@ -49,6 +52,13 @@ class _0015EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   * @param $model_data
+   * @param $paths
+   * @param array $current_path
+   *
+   * @return array
+   */
   private function recurseModelData($model_data, &$paths, $current_path = [] ){
     if(is_object($model_data) || is_array($model_data)){
       foreach ($model_data as $key => $data){

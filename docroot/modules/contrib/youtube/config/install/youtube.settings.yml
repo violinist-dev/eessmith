@@ -4,6 +4,7 @@ youtube_theme: false
 youtube_color: false
 youtube_enablejsapi: false
 youtube_wmode: true
+youtube_override: false
 youtube_privacy: false
 youtube_player_class: "youtube-field-player"
 youtube_thumb_dir: "youtube"

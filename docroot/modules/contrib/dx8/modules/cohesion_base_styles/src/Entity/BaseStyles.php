@@ -13,7 +13,7 @@ use Drupal\cohesion_base_styles\Plugin\Api\BaseStylesApi;
  *
  * @ConfigEntityType(
  *   id = "cohesion_base_styles",
- *   label = @Translation("Base styles"),
+ *   label = @Translation("Base style"),
  *   label_singular = @Translation("Base style"),
  *   label_plural = @Translation("Base styles"),
  *   label_collection = @Translation("Base styles"),
@@ -80,7 +80,7 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
     // Only send to the API if the base style is enabled.
     if ($this->status) {
       /** @var BaseStylesApi $send_to_api */
-      $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('base_styles_api');
+      $send_to_api = $this->apiProcessorManager()->createInstance('base_styles_api');
       $send_to_api->setEntity($this);
       $send_to_api->send();
     }
@@ -98,10 +98,9 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
   public function jsonValuesErrors() {
 
     /** @var \Drupal\cohesion\Plugin\Api\PreviewApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('preview_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('preview_api');
     $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues());
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {
@@ -127,7 +126,7 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
    */
   public function clearData() {
     /** @var BaseStylesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('base_styles_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('base_styles_api');
     $send_to_api->setEntity($this);
     $send_to_api->delete();
   }

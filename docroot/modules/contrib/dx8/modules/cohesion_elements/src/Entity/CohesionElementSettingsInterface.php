@@ -12,14 +12,33 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  */
 interface CohesionElementSettingsInterface extends ConfigEntityInterface {
 
+  /**
+   * @return mixed
+   */
   public function getCategory();
 
+  /**
+   * @return mixed
+   */
   public function getCategoryEntity();
 
+  /**
+   * @param $category
+   *
+   * @return mixed
+   */
   public function setCategory($category);
 
+  /**
+   * @return mixed
+   */
   public function getPreviewImage();
 
+  /**
+   * @param $preview_image
+   *
+   * @return mixed
+   */
   public function setPreviewImage($preview_image);
 
   /**

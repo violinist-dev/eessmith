@@ -2,13 +2,14 @@
 
 namespace Drupal\cohesion_website_settings\Form;
 
+use Drupal\cohesion\EntityGroupsPluginInterface;
+use Drupal\cohesion\Services\RebuildInuseBatch;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cohesion\EntityGroupsPluginManager;
-use \Drupal\Core\TempStore\PrivateTempStore;
 
 /**
  * Class WebsiteSettingsGroupFormBase
@@ -46,14 +47,23 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
   /**
    * The instance of the entity groups plugin.
    *
-   * @var object
+   * @var EntityGroupsPluginInterface
    */
   protected $entityGroupsPlugin;
 
   /**
-   * @var object
+   * The instance of the entity group plugin manager
+   *
+   * @var EntityGroupsPluginManager
    */
   protected $entityGroupsManager;
+
+  /**
+   * The instance of the rebuild in use batch service
+   *
+   * @var RebuildInuseBatch
+   */
+  protected $rebuildInUseBatch;
 
   /**
    * @var int
@@ -77,24 +87,31 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
   /**
    * WebsiteSettingsGroupFormBase constructor.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Drupal\cohesion\EntityGroupsPluginManager $entity_groups_manager
+   * @param ConfigFactoryInterface $config_factory
+   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param EntityGroupsPluginManager $entity_groups_manager
+   * @param RebuildInuseBatch $rebuild_inuse_batch
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, EntityGroupsPluginManager $entity_groups_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, EntityGroupsPluginManager $entity_groups_manager, RebuildInuseBatch $rebuild_inuse_batch) {
     parent::__construct($config_factory);
     $this->storage = $entity_type_manager->getStorage(get_class($this)::ENTITY_TYPE);
     $this->entityGroupsManager = $entity_groups_manager;
+    $this->rebuildInUseBatch = $rebuild_inuse_batch;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('config.factory'), $container->get('entity_type.manager'), $container->get('plugin.manager.entity_groups.processor'));
+    return new static(
+      $container->get('config.factory'),
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.entity_groups.processor'),
+      $container->get('cohesion.rebuild_inuse_batch')
+    );
   }
 
   /**
@@ -102,7 +119,7 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
    * because the form can clear this value to avoid serialization problems when
    * switching between form steps.
    *
-   * @return object
+   * @return EntityGroupsPluginInterface
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getEntityGroupsPlugin() {
@@ -230,14 +247,7 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
       }
       // Rebuild button.
       elseif ($triggering_element['#type_value'] == 'rebuild') {
-        // Save the data to storage.
-        /** @var PrivateTempStore $tempstore */
-        $tempstore = \Drupal::service('user.private_tempstore')->get('website_settings');
-        $tempstore->set('in_use_list', $this->in_use_list);
-        $tempstore->set('changed_entities', $this->changed_entities);
-
-        // Redirect to the color rebuild batch.
-        $form_state->setRedirect('cohesion_website_settings.inuse_batch_resave');
+        $this->rebuildInUseBatch->run($this->in_use_list, $this->changed_entities);
       }
     }
   }

@@ -4,13 +4,15 @@ namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityJsonValuesTrait;
+use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\entity_reference_revisions\EntityNeedsSaveTrait;
-use Drupal\cohesion_templates\Plugin\Api\TemplatesApi;
+use Drupal\cohesion\Plugin\Api\TemplatesApi;
 use Drupal\Component\Serialization\Json;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\TypedData\TranslatableInterface;
@@ -83,6 +85,15 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   protected $host = NULL;
 
   /**
+   * Gets the theme manager.
+   *
+   * @return ThemeManagerInterface
+   */
+  protected function themeManager() {
+    return \Drupal::theme();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function setJsonValue($json_values) {
@@ -117,11 +128,20 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   }
 
   /**
+   * @param $theme - The theme name to get the template from
    * @return mixed
    */
-  public function getTwig() {
-    if ($this->get('template')->value) {
-      return Json::decode($this->get('template')->value)['twig'];
+  public function getTwig($theme = 'current') {
+
+    if($theme == 'current'){
+      $theme = \Drupal::theme()->getActiveTheme()->getName();
+    }
+
+    if ($this->get('template')->value && is_string($this->get('template')->value)) {
+      $templates = JSON::decode($this->get('template')->value);
+      if(is_array($templates) && isset($templates[$theme])){
+        return Json::decode($templates[$theme])['twig'];
+      }
     }
 
     return '';
@@ -138,20 +158,29 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   /**
    * @return mixed
    */
-  public function getTwigContexts() {
-    if ($this->get('template')->value) {
-      return Json::decode($this->get('template')->value)['metadata']['contexts'];
+  public function getTwigContexts($theme = 'current') {
+    if ($this->get('template')->value && isset($this->get('template')->value[$this->themeManager()->getActiveTheme()->getName()])) {
+      $template = $this->get('template')->value[$this->themeManager()->getActiveTheme()->getName()];
+      return Json::decode($template)['metadata']['contexts'];
     }
 
     return [];
   }
 
   /**
+   * @param $theme - The theme name to get the styles from
+   *
    * @return mixed
    */
-  public function getStyles() {
-    if ($this->get('styles')->value) {
-      return $this->get('styles')->value;
+  public function getStyles($theme = 'current') {
+    if($theme == 'current'){
+      $theme = \Drupal::theme()->getActiveTheme()->getName();
+    }
+    if ($this->get('styles')->value && is_string($this->get('styles')->value)) {
+      $styles = JSON::decode($this->get('styles')->value);
+      if(is_array($styles) && isset($styles[$theme])){
+        return $styles[$theme];
+      }
     }
 
     return FALSE;
@@ -227,10 +256,9 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
     }
 
     /** @var TemplatesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
     $send_to_api->setEntity($this);
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {     // layout-field
@@ -263,17 +291,13 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
     $this->preProcessJsonValues();
 
     /** @var TemplatesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('templates_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
     $send_to_api->setEntity($this);
     $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {     // layout-field
-      // Only update template/style data if there were no errors.
-      if (isset($responseData['theme']) && isset($responseData['template'])) {
-        $this->set('styles', $responseData['theme']);
-        $this->set('template', $responseData['template']);
-      }
+      $this->processApiResponse($responseData);
       return FALSE;
     }
     else {
@@ -282,6 +306,31 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
       return $cohesion_error;
     }
 
+  }
+
+  /**
+   * Sets the styles and template for the entity from the response from the API
+   *
+   * @param array $responseData
+   */
+  public function processApiResponse($responseData) {
+    $styles = [];
+    $templates = [];
+    foreach ($responseData as $themeData){
+      if(isset($themeData['themeName'])){
+        if(isset($themeData['css']['theme'])) {
+          $css_data = \Drupal::service('twig')->renderInline($themeData['css']['theme'])->__toString();
+          $styles[$themeData['themeName']] = $css_data;
+        }
+
+        if(isset($themeData['template'])) {
+          $templates[$themeData['themeName']] = $themeData['template'];
+        }
+      }
+    }
+
+    $this->set('styles', JSON::encode($styles));
+    $this->set('template', JSON::encode($templates));
   }
 
   /**

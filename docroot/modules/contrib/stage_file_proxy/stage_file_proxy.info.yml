@@ -5,9 +5,9 @@ package: Development
 configure: stage_file_proxy.admin_form
 core_version_requirement: ^8.7.7 || ^9
 dependencies:
-  - drupal:system (>=8.7)
+  - drupal:system (>=8.7.7)
 
-# Information added by Drupal.org packaging script on 2019-10-04
-version: '8.x-1.0-rc2'
+# Information added by Drupal.org packaging script on 2019-11-11
+version: '8.x-1.0-rc4'
 project: 'stage_file_proxy'
-datestamp: 1570222092
+datestamp: 1573489987

@@ -16,8 +16,7 @@ use Drupal\Core\Url;
 use Drupal\token\TokenEntityMapperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion_templates\Plugin\Api\TemplatesApi;
-use Drupal\cohesion\Services\CohesionUtils;
+use Drupal\cohesion\Plugin\Api\TemplatesApi;
 
 /**
  * Plugin implementation of the 'cohesion_layout_builder_widget' widget.
@@ -338,24 +337,13 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
 
           if ($op == 'preview') {
             /** @var TemplatesApi $send_to_api */
-            $send_to_api = \Drupal::service('plugin.manager.api.processor')
-              ->createInstance('templates_api');
-
+            $send_to_api = $entity->apiProcessorManager()->createInstance('templates_api');
             $send_to_api->isPreview(TRUE);
             $send_to_api->setEntity($entity);
             $send_to_api->setJsonValues($item['json_values']);
-            $send_to_api->setSaveData(FALSE);
-            $send_to_api->send();
+            $send_to_api->sendWithoutSave();
 
-            // If the APi call was successful, then merge the arrays.
-            if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')
-                ->usedx8Status()) {
-              $styles = isset($data['theme']) ? $data['theme'] : '';
-              $template = isset($data['template']) ? $data['template'] : '';
-
-              $entity->setStyles($styles);
-              $entity->setTemplate($template);
-            }
+            $entity->processApiResponse($send_to_api->getData());
           }
         }
 

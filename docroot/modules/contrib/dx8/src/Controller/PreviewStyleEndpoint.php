@@ -43,11 +43,13 @@ class PreviewStyleEndpoint extends ControllerBase {
     if ($success) {
       if (is_array($response)) {
         if ($entity_type_id == 'cohesion_custom_style') {
-          $data = isset($response['theme']) ? $response['theme'] : [];
+          $data = $send_to_api->getResponseStyles('theme') ? $send_to_api->getResponseStyles('theme') : [];
         }
         else {
-          $data = isset($response['base']) ? $response['base'] : [];
+          $data = $send_to_api->getResponseStyles('base') ? $send_to_api->getResponseStyles('base') : [];
         }
+
+        $data = \Drupal::service('twig')->renderInline($data)->__toString();
       }
       $error = FALSE;
       $status = 200;

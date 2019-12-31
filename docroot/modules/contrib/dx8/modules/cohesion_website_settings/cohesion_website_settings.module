@@ -67,7 +67,8 @@ function cohesion_website_settings_process_batch_import_start(&$context) {
  * @param $operations
  */
 function cohesion_website_settings_batch_import_finished($success, $results, $operations) {
-  $config = \Drupal::configFactory()->getEditable('cohesion.settings');
+  $config_editable = \Drupal::configFactory()->getEditable('cohesion.settings');
+  $config = \Drupal::config('cohesion.settings');
 
   if ($success && !isset($results['error'])) {
     $running_dx8_batch = &drupal_static('running_dx8_batch');
@@ -75,10 +76,10 @@ function cohesion_website_settings_batch_import_finished($success, $results, $op
 
     \Drupal::service('cohesion.local_files_manager')->tempToLive();
     drupal_set_message(t('Account settings have been saved.'));
-    drupal_set_message(t('DX8 is installed and up to date.'));
+    drupal_set_message(t('Cohesion is installed and up to date.'));
     if ($config->get('api_key') && !$config->get('asset_is_imported')) {
-      $config->set('asset_is_imported', TRUE);
-      $config->save();
+      $config_editable->set('asset_is_imported', TRUE);
+      $config_editable->save();
     }
   }
   elseif (isset($results['error'])) {
@@ -119,7 +120,7 @@ function cohesion_website_settings_batch_import_finished($success, $results, $op
  * @throws \Drupal\Core\Entity\EntityStorageException
  */
 function _resave_entity($entity, $realsave = FALSE, &$context = []) {
-  $context['message'] = t('Building ' . $entity->getEntityTypeId());
+  $context['message'] = t('Building ' . $entity->getEntityTypeId() . ' - ' . $entity->label() . ' - ' . $entity->id());
   // Ignore base styles that have not been created.
   if (isset($context['results']['error']) || ($entity->getEntityTypeId() === 'cohesion_base_styles' && !$entity->get('modified'))) {
     return;
@@ -198,6 +199,7 @@ function _resave_cohesion_layout_entity($ids, &$context) {
         // Rebuild the Usage.
         if ($parent_entity = $entity->getParentEntity()) {
           \Drupal::service('cohesion_usage.update_manager')->buildRequires($entity);
+          $context['message'] = t('Building ' . $parent_entity->getEntityTypeId() . ' - ' . $parent_entity->label() . ' - ' . $parent_entity->id());
         }
 
         // Re-save the entity.

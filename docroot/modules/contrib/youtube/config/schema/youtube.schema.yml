@@ -22,6 +22,9 @@ youtube.settings:
     youtube_wmode:
       type: boolean
       label: 'Fix IE8 overlay'
+    youtube_override:
+      type: boolean
+      label: 'Allow parameter overrides'
     youtube_privacy:
       type: boolean
       label: 'Privacy-enhanced mode'
@@ -54,12 +57,12 @@ field.formatter.settings.youtube_video:
     youtube_autoplay:
       type: boolean
       label: 'Play video automatically when loaded'
+    youtube_mute:
+      type: boolean
+      label: 'Mute video by default when loaded'
     youtube_loop:
       type: boolean
       label: 'Loop the playback of the video'
-    youtube_showinfo:
-      type: boolean
-      label: 'Hide video title and uploader info'
     youtube_controls:
       type: boolean
       label: 'Always hide video controls'
@@ -76,7 +79,7 @@ field.formatter.settings.youtube_thumbnail:
   mapping:
     image_style:
       type: string
-      label: 'Thummbnail image style'
+      label: 'Thumbnail image style'
     image_link:
       type: string
       label: 'What to link image to'
@@ -88,3 +91,11 @@ field.formatter.settings.youtube_url:
     image_style:
       type: boolean
       label: 'Output this field as a link'
+
+field.widget.settings.youtube:
+  type: mapping
+  label: 'Youtube widget settings'
+  mapping:
+    placeholder_url:
+      type: string
+      label: 'Placeholder URL'

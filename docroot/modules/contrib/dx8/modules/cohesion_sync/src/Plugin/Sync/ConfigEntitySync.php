@@ -91,7 +91,7 @@ class ConfigEntitySync extends SyncPluginBase {
    * @param \Drupal\cohesion\UsageUpdateManager $usage_update_manager
    * @param \Drupal\cohesion\EntityUpdateManager $entity_update_manager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepository $entity_repository, EntityTypeManagerInterface $entity_type_manager, StorageInterface $config_storage, ConfigManagerInterface $config_manager, EventDispatcherInterface $event_dispatcher, LockBackendInterface $lock, TypedConfigManagerInterface $typed_config, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, ThemeHandlerInterface $theme_handler, TranslationInterface $string_translation, UsageUpdateManager $usage_update_manager, EntityUpdateManager $entity_update_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepository $entity_repository, EntityTypeManagerInterface $entity_type_manager, TranslationInterface $string_translation, StorageInterface $config_storage, ConfigManagerInterface $config_manager, EventDispatcherInterface $event_dispatcher, LockBackendInterface $lock, TypedConfigManagerInterface $typed_config, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, ThemeHandlerInterface $theme_handler, UsageUpdateManager $usage_update_manager, EntityUpdateManager $entity_update_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_repository, $entity_type_manager);
     $this->configStorage = $config_storage;
     $this->configManager = $config_manager;
@@ -123,6 +123,7 @@ class ConfigEntitySync extends SyncPluginBase {
       $plugin_definition,
       $container->get('entity.repository'),
       $container->get('entity_type.manager'),
+      $container->get('string_translation'),
       $container->get('config.storage'),
       $container->get('config.manager'),
       $container->get('event_dispatcher'),
@@ -131,7 +132,6 @@ class ConfigEntitySync extends SyncPluginBase {
       $container->get('module_handler'),
       $container->get('module_installer'),
       $container->get('theme_handler'),
-      $container->get('string_translation'),
       $container->get('cohesion_usage.update_manager'),
       $container->get('cohesion.entity_update_manager')
     );
@@ -174,7 +174,7 @@ class ConfigEntitySync extends SyncPluginBase {
     if (isset($entry['last_entity_update'])) {
       // Has the imported entity run a higher entityupdate_xxxx script that is available on this site (is newer)?
       if (!$this->entityUpdateManager->pluginIdInRange($entry['last_entity_update'])) {
-        throw new ConfigImporterException('This package contains entities created with a later version of DX8. Upgrade this site to the latest version of DX8 before attempting to import this package.');
+        throw new ConfigImporterException('This package contains entities created with a later version of Cohesion. Upgrade this site to the latest version of Cohesion before attempting to import this package.');
       }
     }
 
@@ -232,7 +232,7 @@ class ConfigEntitySync extends SyncPluginBase {
             }
           }
         }
-        
+
         // Is it identical to the local entity?
         if ($storage_comparer->createChangelist()->hasChanges()) {
           // Make sure this will apply.
@@ -265,7 +265,7 @@ class ConfigEntitySync extends SyncPluginBase {
 
       // No UUID specified.
       if (!isset($entry['uuid'])) {
-        throw new \Exception(t('An entity with this machine name already exists but the import did not specify a UUID.'));
+        throw new \Exception($this->t('An entity with this machine name already exists but the import did not specify a UUID.'));
       }
 
       // id exists, but UUID is different.
@@ -292,8 +292,14 @@ class ConfigEntitySync extends SyncPluginBase {
 
     }
     // UUID exists, but id is different.
-    elseif (isset($entry['uuid']) && $this->entityTypeStorage->loadByProperties(['uuid' => $entry['uuid']])) {
-      throw new \Exception(t('An entity with this UUID already exists but the machine name does not match.'));
+    elseif (isset($entry['uuid']) && $source_entity_machine_name = $this->entityTypeStorage->loadByProperties(['uuid' => $entry['uuid']])) {
+      $source_entity_machine_name = reset($source_entity_machine_name);
+      throw new \Exception($this->t('@entity_type_label with UUID @uuid already exists but the machine name "@source_entity_machine_name" of the existing entity does not match the machine name "@imported_entity_machine_name" of the entity being imported.', [
+        '@entity_type_label' => $this->entityTypeDefinition->getLabel(),
+        '@uuid' => $entry['uuid'],
+        '@source_entity_machine_name' => $source_entity_machine_name->id(),
+        '@imported_entity_machine_name' => $entry['id']
+      ]));
     }
     // Entity is new.
     else {

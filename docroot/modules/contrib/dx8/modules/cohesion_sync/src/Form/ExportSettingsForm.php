@@ -33,7 +33,7 @@ class ExportSettingsForm extends ExportFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $config_type = NULL, $config_name = NULL) {
     $form['help'] = [
-      '#markup' => '<p>' . $this->t('Define the DX8 entity types that should be included when performing a full export.') . '</p>',
+      '#markup' => '<p>' . $this->t('Define the entity types that should be included when performing a full export.') . '</p>',
       '#weight' => 1,
     ];
 

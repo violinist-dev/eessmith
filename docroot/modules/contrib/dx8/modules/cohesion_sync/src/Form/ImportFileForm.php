@@ -134,6 +134,7 @@ class ImportFileForm extends FormBase {
         '#type' => 'submit',
         '#value' => $this->t('Import'),
         '#button_type' => 'primary',
+        '#disabled'=> !$form_state->isValidationComplete() // Don't disable the button if validation has completed otherwise the form won't submit.
       ],
     ];
 

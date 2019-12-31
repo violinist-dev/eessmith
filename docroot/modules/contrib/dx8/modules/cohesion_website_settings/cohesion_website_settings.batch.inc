@@ -10,7 +10,7 @@
  * @param $operations
  */
 function entity_rebuild_finished_callback($success, $results, $operations) {
-  if (is_array($results)) {
+  if (!is_array($results)) {
     $results = [];
   }
 

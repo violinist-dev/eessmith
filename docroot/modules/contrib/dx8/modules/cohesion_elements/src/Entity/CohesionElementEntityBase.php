@@ -7,7 +7,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\file\Entity\File;
 use Drupal\cohesion_elements\Controller\ElementsController;
-use Drupal\cohesion_templates\Plugin\Api\TemplatesApi;
+use Drupal\cohesion\Plugin\Api\TemplatesApi;
 
 /**
  * Defines the Cohesion component entity.
@@ -62,6 +62,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
 
   /**
    * Get the type of category entity for this entity.
+   *
    * @return mixed
    */
   public function getCategoryEntityTypeId() {
@@ -76,8 +77,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
   public function getCategoryEntity() {
     try {
       $storage = \Drupal::entityTypeManager()->getStorage($this->getCategoryEntityTypeId());
-    }
-    catch (\Throwable $e) {
+    } catch (\Throwable $e) {
       return [];
     }
 
@@ -228,7 +228,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     }
 
     // Add new preview images - make uploaded file permanent and update usage.
-    if ($preview_image !== null && $preview_image_original != $preview_image) {
+    if ($preview_image !== NULL && $preview_image_original != $preview_image) {
       /** @var File $file */
       $file = File::load($preview_image);
       $file->setPermanent();
@@ -258,7 +258,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     }
   }
 
-    /**
+  /**
    * {@inheritdoc}
    */
   public static function preDelete(EntityStorageInterface $storage, array $entities) {
@@ -294,12 +294,9 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     }
 
     /** @var TemplatesApi $send_to_api */
-    $send_to_api = \Drupal::service('plugin.manager.api.processor')
-      ->createInstance('templates_api');
+    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
     $send_to_api->setEntity($this);
-
-    $send_to_api->setSaveData(FALSE);
-    $success = $send_to_api->send();
+    $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
     if ($success === TRUE) {
@@ -324,27 +321,36 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
    */
   public function getTopType() {
     $json_values = $this->getDecodedJsonValues();
+    $top_uid = FALSE;
     $top_type = FALSE;
+    $top_component_type = FALSE;
 
     if (isset($json_values['canvas'])) {
       foreach ($json_values['canvas'] as $top_level_element) {
         if (isset($top_level_element['uid'])) {
-          if ($top_type === FALSE) {
-            $top_type = $top_level_element['uid'];
+          if ($top_uid === FALSE) {
+            $top_uid = $top_level_element['uid'];
+            $top_type = isset($top_level_element['type']) ? $top_level_element['type'] : FALSE;
+            $top_component_type = isset($top_level_element['componentType']) ? $top_level_element['componentType'] : FALSE;
           }
-          elseif ($top_type !== $top_level_element['uid']) {
-            $top_type = 'misc';
+          elseif ($top_uid !== $top_level_element['uid']) {
+            $top_uid = 'misc';
+            $top_type = FALSE;
+            $top_component_type = FALSE;
 
             $form_delimiter = 'form-';
-            if(isset($top_level_element['type']) && substr($top_level_element['type'], 0 , strlen($form_delimiter)) == $form_delimiter){
-              $top_type = "{$form_delimiter}{$top_type}";
+            if (isset($top_level_element['type']) && substr($top_level_element['type'], 0, strlen($form_delimiter)) == $form_delimiter) {
+              $top_uid = "{$form_delimiter}{$top_uid}";
             }
           }
         }
       }
     }
 
-    return $top_type;
+    // If the top element was a component, return the underlying component
+    // top type, otherwise just return what we found as the top type in
+    // this entity.
+    return $top_component_type == FALSE ? $top_uid : $top_component_type;
   }
 
 }

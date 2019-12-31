@@ -92,3 +92,7 @@ services:
   # Support help keys.
   cohesion.support_url:
       class: Drupal\cohesion\CohesionSupportUrl
+
+  cohesion.rebuild_inuse_batch:
+    class: Drupal\cohesion\Services\RebuildInuseBatch
+    arguments: ['@module_handler', '@cohesion_usage.update_manager', '@entity.repository']

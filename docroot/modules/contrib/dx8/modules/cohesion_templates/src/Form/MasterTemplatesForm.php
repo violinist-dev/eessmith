@@ -24,10 +24,7 @@ class MasterTemplatesForm extends TemplateForm {
 
     // If user is "creating" the master template, the title needs to reflect this
     $operation = $this->getOperation();
-    if ($operation == 'add') {
-      $form['#title'] = t('Create Master template');
-    }
-    elseif ($operation == 'duplicate') {
+    if ($operation == 'duplicate') {
       $this->entity->set('default', FALSE);
     }
 

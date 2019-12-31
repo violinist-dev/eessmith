@@ -114,6 +114,7 @@ class CohesionField extends FormElement {
       'cohesion-menu-templates' => 'cohesion_menu_templates',
       'cohesion-helper' => 'cohesion_helper',
       'cohesion-component' => 'cohesion_component',
+      'cohesion-style-guide' => 'cohesion_style_guide',
     ];
 
     foreach ($matches as $search => $entityTypeId) {
@@ -148,11 +149,7 @@ class CohesionField extends FormElement {
     $pluginManager = \Drupal::service('plugin.manager.editor');
 
     // Get the filter formats the current user has permissions to access.
-    $formats = [];
-    foreach (\Drupal::currentUser()->getRoles() as $role) {
-      $formats = array_merge(filter_get_formats_by_role($role), $formats);
-    }
-
+    $formats = filter_formats(\Drupal::currentUser());
     $format_ids = array_keys($formats);
     $element['#attached'] = BubbleableMetadata::mergeAttachments($element['#attached'], $pluginManager->getAttachments($format_ids));
 

@@ -55,12 +55,15 @@ class _0011EntityUpdateUnitTest extends UnitTestCase {
 
   private $fixture_layout = '{"model":{"a7110a38-5abe-4096-8c67-e41eab35eadb":{"settings":{"type":"cohSelect","isStyle":true,"nullOption":false,"defaultValue":false,"options":[{"label":"All closed","value":true},{"label":"First open","value":false}],"schema":["string","number","boolean"],"selectType":"existing","selectModel":["settings","accordion_tabs_container","accordion-tabs-container-start-state","startCollapsed"],"title":"Select"},"contextVisibility":{"condition":"ALL"},"model":{}}},"mapper":{},"previewModel":{"a7110a38-5abe-4096-8c67-e41eab35eadb":{}},"canvas":[],"componentForm":[{"type":"form-field","uid":"form-select","title":"Select","parentIndex":"form-fields","status":{"collapsed":false},"uuid":"a7110a38-5abe-4096-8c67-e41eab35eadb","parentUid":"root","humanId":"Field 1","isContainer":false}]}';
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     $this->unit = new _0011EntityUpdate([], null, null);
   }
 
   /**
-   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0005EntityUpdate::runUpdate
+   * @covers \Drupal\cohesion\Plugin\EntityUpdate\_0011EntityUpdate::runUpdate
    */
   public function testRunUpdate() {
 
