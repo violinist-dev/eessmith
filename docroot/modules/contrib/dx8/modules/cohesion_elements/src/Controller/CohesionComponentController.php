@@ -87,9 +87,14 @@ class CohesionComponentController extends ControllerBase {
       $send_to_api->setJsonValues($body);
       $send_to_api->sendWithoutSave();
 
+      $uuid = $this->tempStore->get(__FUNCTION__);
+      if(!$uuid){
+        $uuid = $this->uuid->generate();
+        $this->tempStore->set(__FUNCTION__, $uuid);
+      }
+
       // If the APi call was successful, then merge the arrays.
       if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
-        $uuid = $this->uuid->generate();
         $this->tempStore->set($uuid, $data);
 
         $result['iframe_url'] = Url::fromRoute('cohesion_elements.component.preview', [

@@ -36,7 +36,7 @@ function acquia_connector_requirements($phase) {
       if ($has_credentials) {
         $key = sha1(Drupal::service('private_key')->get());
         $description = '';
-        $ago = REQUEST_TIME - $last_sent;
+        $ago = \Drupal::time()->getRequestTime() - $last_sent;
 
         $blocked = $config->get('spi.blocked');
         $environment_change = \Drupal::service('acquia_connector.spi')->checkEnvironmentChange();

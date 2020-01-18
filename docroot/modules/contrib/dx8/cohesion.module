@@ -475,6 +475,7 @@ function cohesion_theme_suggestions_views_view(array $variables) {
   if ($variables['view']->style_plugin->getPluginId() == 'cohesion_layout') {
     if ($view_template_id = $variables['view']->style_plugin->options['views_template']) {
       $suggestions[] = 'views_view__cohesion_' . $view_template_id;
+      $suggestions[] = 'views_view__cohesion_' . $view_template_id . '__' . \Drupal::service('theme.manager')->getActiveTheme()->getName();
     }
   }
 
@@ -496,6 +497,10 @@ function cohesion_theme_suggestions_menu_alter(array &$suggestions, array $varia
     // If menu name contains the word mobile, create common template suggestion.
     if ((isset($variables['attributes']['block'])) && ($is_mobile_menu !== FALSE)) {
       $suggestions[] = 'menu__' . $region . '__mobile-menus';
+    }
+
+    if(isset($variables['theme_hook_original']) && strpos($variables['theme_hook_original'], 'menu__cohesion') == 0){
+      $suggestions[] = $variables['theme_hook_original'] . '__' . \Drupal::service('theme.manager')->getActiveTheme()->getName();
     }
 
     $suggestions[] = 'menu__cohesion_test';

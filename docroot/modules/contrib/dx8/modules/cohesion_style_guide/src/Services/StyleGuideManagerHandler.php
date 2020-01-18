@@ -229,7 +229,8 @@ class StyleGuideManagerHandler {
 
           if ($style_guide = $this->entityRepository
             ->loadEntityByUuid('cohesion_style_guide', $style_guide_uuid)) {
-
+            // Add the list of entities that will need to be re-saved
+            $in_use_entities = array_merge($in_use_entities, $this->usageUpdateManager->getInUseEntitiesList($style_guide));
             $style_guide_manager_id = $style_guide_uuid . $theme_id;
 
             // Loop through each field value and check if the value has been changed (compared to its parent)
@@ -246,45 +247,46 @@ class StyleGuideManagerHandler {
               }
             }
 
-            // Build the json for the style guide manager
-            $style_guide_manager_values = [
-              'model' => [
-                $style_guide_uuid => $style_guide_values,
-              ],
-              'changedFields' => $style_guide_changed_fields,
-            ];
+            // Only save or update a style guide if is has changed values
+            if (!empty($style_guide_changed_fields)) {
 
-            $style_json_values = json_encode($style_guide_manager_values);
+              // Build the json for the style guide manager
+              $style_guide_manager_values = [
+                'model' => [
+                  $style_guide_uuid => $style_guide_values,
+                ],
+                'changedFields' => $style_guide_changed_fields,
+              ];
 
-            // Style guide manager instance already exists -> update
-            if (isset($style_guide_managers[$style_guide_manager_id])) {
-              $style_guide_manager = $style_guide_managers[$style_guide_manager_id];
-              // Unset it after it's been save so any style guide manager instance left are to be deleted
-              unset($style_guide_managers[$style_guide_manager_id]);
+              $style_json_values = json_encode($style_guide_manager_values);
 
-              // Do not update if nothing has changed
-              if ($style_guide_manager->getDecodedJsonValues(TRUE) == json_decode($style_json_values)) {
-                continue;
+              // Style guide manager instance already exists -> update
+              if (isset($style_guide_managers[$style_guide_manager_id])) {
+                $style_guide_manager = $style_guide_managers[$style_guide_manager_id];
+                // Unset it after it's been save so any style guide manager instance left are to be deleted
+                unset($style_guide_managers[$style_guide_manager_id]);
+
+                // Do not update if nothing has changed
+                if ($style_guide_manager->getDecodedJsonValues(TRUE) == json_decode($style_json_values)) {
+                  continue;
+                }
+
+              }
+              else {
+                // Style guide manager instance does not exists -> create new one
+                /** @var \Drupal\cohesion_style_guide\Entity\StyleGuideManager $style_guide_manager */
+                $style_guide_manager = StyleGuideManager::create([
+                  'id' => $style_guide_uuid . $theme_id,
+                  'label' => $style_guide->label() . ' ' . $theme->info['name'],
+                  'theme' => $theme_id,
+                  'style_guide_uuid' => $style_guide_uuid,
+                ]);
               }
 
+              // Set the json values to the style guide manager instance and save
+              $style_guide_manager->setJsonValue($style_json_values);
+              $style_guide_manager->save();
             }
-            else {
-              // Style guide manager instance does not exists -> create new one
-              /** @var \Drupal\cohesion_style_guide\Entity\StyleGuideManager $style_guide_manager */
-              $style_guide_manager = StyleGuideManager::create([
-                'id' => $style_guide_uuid . $theme_id,
-                'label' => $style_guide->label() . ' ' . $theme->info['name'],
-                'theme' => $theme_id,
-                'style_guide_uuid' => $style_guide_uuid,
-              ]);
-            }
-
-            // Set the json values to the style guide manager instance and save
-            $style_guide_manager->setJsonValue($style_json_values);
-            $style_guide_manager->save();
-
-            //
-            $in_use_entities = array_merge($in_use_entities, $this->usageUpdateManager->getInUseEntitiesList($style_guide));
           }
 
 

@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\acquia_search\Tests;
+namespace Drupal\Tests\acquia_search\Functional;
 
 use Drupal\acquia_connector\Helper\Storage;
 use Drupal\Core\Database\Database;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the automatic switching behavior of the Acquia Search module.
  *
  * @group Acquia search
  */
-class AcquiaConnectorSearchOverrideTest extends WebTestBase {
+class AcquiaConnectorSearchOverrideTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
@@ -118,7 +118,7 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
     $this->assertText('automatically enforced read-only mode on this connection.');
 
     $delete_btn = $this->xpath('//input[@value="Delete all indexed data on this server"]');
-    $this->assertEqual((string) $delete_btn[0]['disabled'], 'disabled');
+    $this->assertEqual($delete_btn[0]->getAttribute('disabled'), 'disabled');
 
     $this->drupalGet('/admin/config/search/search-api/index/' . $this->index);
 
@@ -146,7 +146,7 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
     $this->assertNoText('The following Acquia Search Solr index IDs would have worked for your current environment');
 
     $delete_btn = $this->xpath('//input[@value="Delete all indexed data on this server"]');
-    $this->assertNotEqual((string) $delete_btn[0]['disabled'], 'disabled');
+    $this->assertNotEqual($delete_btn[0]->getAttribute('disabled'), 'disabled');
 
     $this->drupalGet('/admin/config/search/search-api/index/' . $this->index, ['query' => $overrides]);
 
@@ -179,7 +179,7 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
     $this->assertText($this->id . '.test.' . $this->getSiteFolderName());
 
     $delete_btn = $this->xpath('//input[@value="Delete all indexed data on this server"]');
-    $this->assertEqual((string) $delete_btn[0]['disabled'], 'disabled');
+    $this->assertEqual($delete_btn[0]->getAttribute('disabled'), 'disabled');
 
     $this->drupalGet('/admin/config/search/search-api/index/' . $this->index, ['query' => $overrides]);
 
@@ -211,7 +211,7 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
     $this->assertText($this->id . '.prod.' . $this->getSiteFolderName());
 
     $delete_btn = $this->xpath('//input[@value="Delete all indexed data on this server"]');
-    $this->assertEqual((string) $delete_btn[0]['disabled'], 'disabled');
+    $this->assertEqual($delete_btn[0]->getAttribute('disabled'), 'disabled');
 
     $this->drupalGet('/admin/config/search/search-api/index/' . $this->index, ['query' => $overrides]);
 
@@ -240,7 +240,7 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
     $this->assertNoText('The following Acquia Search Solr index IDs would have worked for your current environment');
 
     $delete_btn = $this->xpath('//input[@value="Delete all indexed data on this server"]');
-    $this->assertNotEqual((string) $delete_btn[0]['disabled'], 'disabled');
+    $this->assertNotEqual($delete_btn[0]->getAttribute('disabled'), 'disabled');
 
     $this->drupalGet('/admin/config/search/search-api/index/' . $this->index, ['query' => $overrides]);
 
@@ -253,10 +253,9 @@ class AcquiaConnectorSearchOverrideTest extends WebTestBase {
    * Connect to the Acquia Subscription.
    */
   protected function connect() {
-    global $base_url;
     \Drupal::configFactory()->getEditable('acquia_connector.settings')->set('spi.ssl_verify', FALSE)->save();
     \Drupal::configFactory()->getEditable('acquia_connector.settings')->set('spi.ssl_override', TRUE)->save();
-    \Drupal::configFactory()->getEditable('acquia_connector.settings')->set('spi.server', $base_url)->save();
+    \Drupal::configFactory()->getEditable('acquia_connector.settings')->set('spi.server', 'http://mock-spi-server')->save();
 
     $admin_user = $this->createAdminUser();
     $this->drupalLogin($admin_user);

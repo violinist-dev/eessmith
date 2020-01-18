@@ -10,13 +10,16 @@
     "drupal/core": "^8.8",
     "drupal/stage_file_proxy": "^1.0",
     "drupal-composer/drupal-scaffold":"^2.0.0",
-    "drupal/google_analytics": "^2.0",
+    "drupal/google_analytics": "^3.0",
     "drupal/head2head": "^1.0",
-    "drupal/acquia_connector": "^1.7",
+    "drupal/acquia_connector": "^1.19",
     "drupal/youtube": "^1.0",
     "drupal/bootstrap": "^3.0",
         "cohesion/dx8": "^5.5",
-        "cohesion/dx8-theme": "^5.5"
+        "cohesion/dx8-theme": "^5.5",
+        "drupal/entity_reference_revisions": "^1.7",
+        "drupal/imce": "^1.7",
+        "drupal/token": "^1.6"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -39,9 +42,6 @@
 		},
         
         "merge-plugin": {
-            "include": [
-                "docroot/core/composer.json"
-            ],
             "recurse": false,
             "replace": false,
             "merge-extra": false

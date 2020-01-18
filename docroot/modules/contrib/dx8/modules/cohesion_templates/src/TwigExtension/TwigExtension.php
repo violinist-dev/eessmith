@@ -1247,11 +1247,12 @@ class TwigExtension extends \Twig_Extension {
 
       // Suggest the menu template.
       $menu['#theme'] = 'menu__cohesion_' . $templateId;
+      $menu['#attributes'] = [];
     } catch (\Exception $e) {
     }
 
     // Return the output rendered menu.
-    return ['#markup' => \Drupal::service('renderer')->render($menu)];
+    return $menu;
   }
 
   /**

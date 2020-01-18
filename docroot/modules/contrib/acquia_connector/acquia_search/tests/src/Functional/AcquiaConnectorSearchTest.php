@@ -1,16 +1,16 @@
 <?php
 
-namespace Drupal\acquia_search\Tests;
+namespace Drupal\Tests\acquia_search\Functional;
 
 use Drupal\search_api\Entity\Server;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the functionality of the Acquia Search module.
  *
  * @group Acquia search
  */
-class AcquiaConnectorSearchTest extends WebTestBase {
+class AcquiaConnectorSearchTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
@@ -225,7 +225,7 @@ class AcquiaConnectorSearchTest extends WebTestBase {
     $this->drupalGet($settings_path);
     $this->clickLink('Edit', 1);
     // Check field data types.
-    $this->assertText('Data sources', t('The Data types label exist'), 'Acquia Search');
+    $this->assertText('Datasources', t('The Data types label exist'), 'Acquia Search');
     // Check default selected server.
     $this->assertFieldChecked('edit-server-acquia-search-server', t('By default selected Acquia Search Server'), 'Acquia Search');
     // Check fields used for indexing.
