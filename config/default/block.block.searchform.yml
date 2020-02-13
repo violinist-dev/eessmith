@@ -1,6 +1,6 @@
 uuid: 94a11377-7741-4e30-8c00-0c214f549c98
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - search
@@ -8,7 +8,7 @@ dependencies:
     - adminimal
 id: searchform
 theme: adminimal
-region: header
+region: ''
 weight: null
 provider: null
 plugin: search_form_block
@@ -17,4 +17,5 @@ settings:
   label: 'Search form'
   provider: search
   label_display: '0'
+  page_id: ''
 visibility: {  }

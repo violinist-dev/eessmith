@@ -1,0 +1,19 @@
+uuid: 882fff69-68b2-4b04-8146-9d0e2338206d
+langcode: en
+status: false
+dependencies: {  }
+label: 'Taxonomy term page (Taxonomy_term, Tags)'
+id: taxonomy_term_tags_full
+json_values: '{"canvas":[],"model":[],"mapper":null}'
+json_mapper: '{}'
+last_entity_update: entityupdate_0015
+locked: false
+modified: false
+selectable: false
+custom: false
+twig_template: null
+default: false
+entity_type: taxonomy_term
+bundle: tags
+view_mode: full
+master_template: ''

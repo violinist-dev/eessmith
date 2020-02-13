@@ -1,0 +1,18 @@
+uuid: 08b2d29f-f0b0-4b80-bc57-0ec8d6e45e4a
+langcode: en
+status: true
+dependencies:
+  module:
+    - cohesion_custom_styles
+    - serialization
+    - user
+id: cohesion_custom_styles
+plugin_id: cohesion_custom_styles
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - cookie
