@@ -1,14 +1,20 @@
 
 # Release notes
 
+## 5.7.10
+
+### Colors in the color palette could not be selected in certain circumstances
+
+Fixed an issue where if you had 2 or more colors only differentiated by their alpha transparency value then clicking any of them in the colour picker would always just select the first one.
+
 ## 5.7.9
 
 ### Style guide manager removed if all values are inheriting from parent theme
 
-If all values of style guide manager are set the inherit from the parent (ie: not edited) 
+If all values of style guide manager are set the inherit from the parent (ie: not edited)
 then the underlying entity will be removed. Therefore if you do a full export this entity will
-no longer exists. This prevents overriding a child site style guide manager values when doing a full 
-export / import  
+no longer exists. This prevents overriding a child site style guide manager values when doing a full
+export / import
 
 ### View template not rendering correctly when adding component with dropzone
 

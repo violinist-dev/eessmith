@@ -1,7 +1,7 @@
 {
     "name": "cohesion/dx8",
     "description": "DX8 module",
-    "version": "5.7.9",
+    "version": "5.7.10",
     "type": "drupal-module",
     "minimum-stability": "dev",
     "extra": {
