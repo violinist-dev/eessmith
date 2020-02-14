@@ -1,0 +1,19 @@
+uuid: 1853f540-88c9-4d52-a54d-9be13b30b825
+langcode: en
+status: false
+dependencies: {  }
+label: 'Full comment (Comment, Default comments)'
+id: comment_comment_full
+json_values: '{"canvas":[],"model":[],"mapper":null}'
+json_mapper: '{}'
+last_entity_update: entityupdate_0015
+locked: false
+modified: false
+selectable: false
+custom: false
+twig_template: null
+default: false
+entity_type: comment
+bundle: comment
+view_mode: full
+master_template: ''

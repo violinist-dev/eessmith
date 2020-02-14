@@ -1,0 +1,13 @@
+uuid: 06ea380d-b2be-4e41-ab32-0cda321cc654
+langcode: en
+status: false
+dependencies: {  }
+label: HTML
+id: html
+json_values: '{}'
+json_mapper: '{}'
+last_entity_update: entityupdate_0015
+locked: false
+modified: false
+selectable: false
+custom: null
