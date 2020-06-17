@@ -4,11 +4,10 @@ namespace Drupal\cohesion_custom_styles;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\cohesion\CohesionHtmlRouteProvider;
-use Symfony\Component\Routing\Route;
 use Drupal\cohesion_custom_styles\Controller\CustomStylesController;
 
 /**
- * Class CustomStylesHtmlRouteProvider
+ * Class CustomStylesHtmlRouteProvider.
  *
  * Provides routes for Cohesion base styles entities.
  *

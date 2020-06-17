@@ -8,12 +8,15 @@ use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Render\Element\MachineName as CoreMachineName;
 
 /**
- * Class MachineName
+ * Class MachineName.
  *
  * @FormElement("ajax_machine_name")
  */
 class MachineName extends CoreMachineName {
 
+  /**
+   *
+   */
   public static function processMachineName(&$element, FormStateInterface $form_state, &$complete_form) {
     // We need to pass the langcode to the client.
     $language = \Drupal::languageManager()->getCurrentLanguage();

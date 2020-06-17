@@ -5,7 +5,7 @@ namespace Drupal\cohesion_elements\Annotation;
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Defines a custom DX8 element.
+ * Defines a custom element.
  *
  * @package Drupal\cohesion_elements\Annotation
  *

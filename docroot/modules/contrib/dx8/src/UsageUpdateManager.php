@@ -3,14 +3,13 @@
 namespace Drupal\cohesion;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
- * Class UsageUpdateManager
+ * Class UsageUpdateManager.
  *
  * This service is what the various entities call on their postSave or update,
  * delete or create hooks.
@@ -70,9 +69,10 @@ class UsageUpdateManager {
    * @param $entity
    *
    * @return bool|null|object
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  private function getPluginInstanceForEntity($entity) {
+  public function getPluginInstanceForEntity($entity) {
     $instance = NULL;
 
     // And then the more specific entity def check.
@@ -98,6 +98,7 @@ class UsageUpdateManager {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getDependencies(EntityInterface $entity) {
@@ -149,6 +150,7 @@ class UsageUpdateManager {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *
    * @return int
+   *
    * @throws \Exception
    */
   public function buildRequires(EntityInterface $entity) {
@@ -160,14 +162,14 @@ class UsageUpdateManager {
 
     // Add the dependencies.
     foreach ($dependencies as $dependency) {
-      if($dependency['uuid']){
+      if ($dependency['uuid']) {
         // Remove duplicate.
         $this->connection->delete('coh_usage')
           ->condition('source_uuid', $entity->uuid())
           ->condition('requires_uuid', $dependency['uuid'])
           ->execute();
 
-        if($dependency['type']){
+        if ($dependency['type']) {
           // Insert.
           $this->connection->insert('coh_usage')->fields([
             'source_uuid' => $entity->uuid(),
@@ -189,6 +191,7 @@ class UsageUpdateManager {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *
    * @return bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function removeUsage(EntityInterface $entity) {
@@ -199,7 +202,8 @@ class UsageUpdateManager {
         ->condition('c1.source_uuid', $entity->uuid(), '=')
         ->execute()
         ->fetchAllKeyed();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return FALSE;
     }
 
@@ -207,7 +211,8 @@ class UsageUpdateManager {
     foreach ($requires as $uuid => $type) {
       try {
         $requires_entity = $this->entityRepository->loadEntityByUuid($type, $uuid);
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         continue;
       }
 
@@ -223,7 +228,8 @@ class UsageUpdateManager {
       $query = $this->connection->delete('coh_usage')->condition('source_uuid', $entity->uuid(), '=');
 
       $query->execute();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return FALSE;
     }
 
@@ -245,7 +251,8 @@ class UsageUpdateManager {
         ->condition('c1.requires_uuid', $entity->uuid(), '=')
         ->execute()
         ->fetchAllKeyed();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // DB connection problem.
       return [];
     }
@@ -269,7 +276,8 @@ class UsageUpdateManager {
 
       $usage = $query->countQuery()->execute()->fetchField();
 
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // DB connection problem.
       return FALSE;
     }
@@ -285,6 +293,7 @@ class UsageUpdateManager {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -301,7 +310,8 @@ class UsageUpdateManager {
       // Get the edit URL.
       try {
         $entity_edit_url = $entity->toUrl('edit-form')->toString();
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         $entity_edit_url = FALSE;
       }
 
@@ -333,7 +343,8 @@ class UsageUpdateManager {
       foreach ($this->entityTypeManager->getStorage($type)->loadMultiple() as $entity) {
         $this->buildRequires($entity);
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
     }
   }
 
@@ -355,7 +366,8 @@ class UsageUpdateManager {
           ->condition('c1.source_uuid', $entity->uuid(), '=')
           ->execute()
           ->fetchAllKeyed();
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         // DB connection problem.
         return $list;
       }
@@ -363,7 +375,7 @@ class UsageUpdateManager {
       // Loop through the results and add them to the dependencies.
       foreach ($dependencies as $uuid => $type) {
         try {
-          /** @var EntityInterface $dependency_entity */
+          /** @var \Drupal\Core\Entity\EntityInterface $dependency_entity */
           if ($dependency_entity = $this->entityRepository->loadEntityByUuid($type, $uuid)) {
             $list[] = [
               'key' => $dependency_entity->getConfigDependencyKey(),
@@ -373,7 +385,8 @@ class UsageUpdateManager {
             ];
           }
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
         }
       }
 

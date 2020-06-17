@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Entity;
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion\Plugin\Api\TemplatesApi;
+use Drupal\Core\File\Exception\FileException;
 
 /**
  * Class CohesionTemplateBase
@@ -13,14 +13,12 @@ use Drupal\cohesion\Plugin\Api\TemplatesApi;
  *
  * @package Drupal\cohesion_templates\Entity
  */
-abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements CohesionSettingsInterface
-{
+abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements CohesionSettingsInterface {
 
   /**
    * @inheritdoc
    */
-  public function setDefaultValues()
-  {
+  public function setDefaultValues() {
     parent::setDefaultValues();
 
     $this->set('custom', FALSE);
@@ -32,8 +30,7 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
    *
    * @param bool $default
    */
-  public function setDefault($default = TRUE)
-  {
+  public function setDefault($default = TRUE) {
     // Set the default value.
     $this->set('default', $default);
   }
@@ -41,21 +38,26 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public function preSave(EntityStorageInterface $storage)
-  {
+  public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
     $this->preProcessJsonValues();
   }
 
   /**
+   * @inheritDoc
+   */
+  public function getApiPluginInstance() {
+    return $this->apiProcessorManager()->createInstance('templates_api');
+  }
+
+  /**
    * {@inheritdoc}
    */
-  public function process()
-  {
+  public function process() {
     parent::process();
 
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $send_to_api->send();
 
@@ -66,10 +68,9 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public function jsonValuesErrors()
-  {
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+  public function jsonValuesErrors() {
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
 
     $send_to_api->setEntity($this);
     $success = $send_to_api->sendWithoutSave();
@@ -77,7 +78,8 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
 
     if ($success === TRUE) {
       return FALSE;
-    } else {
+    }
+    else {
       return $responseData;
     }
   }
@@ -85,11 +87,10 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public function postSave(EntityStorageInterface $storage, $update = TRUE)
-  {
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage);
 
-    // Send to API only if JSON has changed;
+    // Send to API only if JSON has changed;.
     if ($this->status()) {
       $this->process();
     }
@@ -98,8 +99,7 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public static function preDelete(EntityStorageInterface $storage, array $entities)
-  {
+  public static function preDelete(EntityStorageInterface $storage, array $entities) {
     parent::preDelete($storage, $entities);
 
     foreach ($entities as $entity) {
@@ -111,22 +111,24 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public function clearData()
-  {
+  public function clearData() {
     // Invalidate the template cache.
     self::clearCache($this);
 
     // Delete the entry from the stylesheet.json file.
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $send_to_api->delete();
-
 
     // Delete the twig template generated from the API.
     if ($template_file = $this->getTwigPath()) {
       if (file_exists($template_file)) {
-        file_unmanaged_delete($template_file);
+        try {
+          \Drupal::service('file_system')->delete($template_file);
+        }
+        catch (FileException $e) {
+        }
       }
     }
   }
@@ -134,16 +136,17 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * @return bool|string
    */
-  protected function getTwigPath()
-  {
+  protected function getTwigPath() {
     if ($this->get('twig_template')) {
       return COHESION_TEMPLATE_PATH . '/' . $this->get('twig_template') . '.html.twig';
     }
     return FALSE;
   }
 
-  public function getTwigFilename($theme_name = NULL)
-  {
+  /**
+   *
+   */
+  public function getTwigFilename($theme_name = NULL) {
     if ($this->get('twig_template')) {
       if (!is_null($theme_name)) {
         return $this->get('twig_template') . '--' . str_replace('_', '-', $theme_name);
@@ -157,14 +160,13 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
    * Delete the template twig cache (if available) and invalidate the render
    * cache tags.
    */
-  protected static function clearCache($entity)
-  {
+  protected static function clearCache($entity) {
     // The twig filename for this template.
     $filename = $entity->get('twig_template');
 
     _cohesion_templates_delete_twig_cache_file($filename);
 
-    // Content template
+    // Content template.
     if ($entity->get('entity_type') && $entity->get('bundle')) {
       $entity_cache_tags = [];
 
@@ -173,13 +175,15 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
         $entity_cache_tags[] = 'cohesion.templates.' . $entity->get('entity_type') . '.' . $entity->get('bundle') . '.' . $entity->get('view_mode') . '.__default__';
       }
 
-      // Template is global
+      // Template is global.
       if ($entity->get('bundle') == '__any__') {
         $entity_cache_tags[] = 'cohesion.templates.' . $entity->get('entity_type') . '.' . $entity->get('view_mode');
-      } else {
+      }
+      else {
         $entity_cache_tags[] = 'cohesion.templates.' . $entity->get('entity_type') . '.' . $entity->get('bundle') . '.' . $entity->get('view_mode') . '.' . $entity->id();
       }
-    } // All other templates.
+    }
+    // All other templates.
     else {
       $entity_cache_tags = ['cohesion.templates.' . $entity->id()];
     }
@@ -194,8 +198,8 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
   /**
    * {@inheritdoc}
    */
-  public function isLayoutCanvas()
-  {
+  public function isLayoutCanvas() {
     return TRUE;
   }
+
 }

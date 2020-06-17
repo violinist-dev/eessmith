@@ -8,30 +8,27 @@ use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\cohesion\Services\JsonXss;
 use Drupal\cohesion\Services\RebuildInuseBatch;
 use Drupal\cohesion\UsageUpdateManager;
-use Drupal\cohesion_elements\Element\CohesionLayout;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
-use Drupal\cohesion_style_guide\Entity\StyleGuide;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class StyleGuideForm
+ * Class StyleGuideForm.
  *
  * @package Drupal\cohesion_style_guide\Form
  */
 class StyleGuideForm extends CohesionBaseForm {
 
   /**
-   * The instance of the rebuild in use batch service
+   * The instance of the rebuild in use batch service.
    *
-   * @var RebuildInuseBatch
+   * @var \Drupal\cohesion\Services\RebuildInuseBatch
    */
   protected $rebuildInUseBatch;
 
   /**
-   * The instance of the update usage manager batch service
+   * The instance of the update usage manager batch service.
    *
-   * @var UsageUpdateManager
+   * @var \Drupal\cohesion\UsageUpdateManager
    */
   protected $usageUpdateManager;
 
@@ -40,8 +37,8 @@ class StyleGuideForm extends CohesionBaseForm {
    *
    * @param \Drupal\cohesion\ApiUtils $api_utils
    * @param \Drupal\cohesion\Services\JsonXss $json_xss
-   * @param RebuildInuseBatch $rebuild_inuse_batch
-   * @param UsageUpdateManager $usage_update_manager
+   * @param \Drupal\cohesion\Services\RebuildInuseBatch $rebuild_inuse_batch
+   * @param \Drupal\cohesion\UsageUpdateManager $usage_update_manager
    */
   public function __construct(ApiUtils $api_utils, JsonXss $json_xss, RebuildInuseBatch $rebuild_inuse_batch, UsageUpdateManager $usage_update_manager) {
     parent::__construct($api_utils, $json_xss);
@@ -65,8 +62,9 @@ class StyleGuideForm extends CohesionBaseForm {
     );
   }
 
-
-  /** @var StyleGuide */
+  /**
+   * @var \Drupal\cohesion_style_guide\Entity\StyleGuide
+   */
   protected $entity;
 
   /**
@@ -141,7 +139,7 @@ class StyleGuideForm extends CohesionBaseForm {
       $canvasInstance = $this->entity->getLayoutCanvasInstance();
       $new_models = $canvasInstance->iterateModels('style_guide_form');
       foreach ($current_canvas->iterateModels('style_guide_form') as $model_uuid => $model) {
-        // Rebuild if fields has been deleted or if field values have been changed
+        // Rebuild if fields has been deleted or if field values have been changed.
         if (!array_key_exists($model_uuid, $new_models) || $new_models[$model_uuid]->getValues() != $model->getValues()) {
           $run_rebuild = TRUE;
         }
@@ -154,7 +152,7 @@ class StyleGuideForm extends CohesionBaseForm {
   }
 
   /**
-   * Validate the Element form
+   * Validate the Element form.
    *
    * @inheritdoc
    *
@@ -175,27 +173,34 @@ class StyleGuideForm extends CohesionBaseForm {
           $machine_name = $model->getProperty(['settings', 'machineName']);
           $element_title = $model->getProperty(['settings', 'title']);
           if ($machine_name == '') {
-            $undefined_machines_names[] = $element_title;
+            $undefined_machines_names[$model->getUUID()] = $element_title;
           }
           else {
-            $machine_names[$machine_name][] = $element_title;
+            $machine_names[$machine_name][$model->getUUID()] = $element_title;
           }
 
         }
       }
 
       $error_count = 0;
+      $layout_canvas_error = [];
       if (!empty($undefined_machines_names)) {
         $error_count++;
         $form_state->setErrorByName('cohesion_' . $error_count, $this->t('Undefined machine name(s). Please make sure to define a machine name for these form elements: %machine_names', ['%machine_names' => implode(', ', $undefined_machines_names)]));
+        $layout_canvas_error = array_merge($layout_canvas_error, array_keys($undefined_machines_names));
       }
 
       foreach ($machine_names as $element_machine_name) {
         if (count($element_machine_name) > 1) {
           $error_count++;
           $form_state->setErrorByName('cohesion_' . $error_count, $this->t('Duplicate machine names. Please make sure to define unique machine names form these elements: %machine_names', ['%machine_names' => implode(', ', $element_machine_name)]));
+          $layout_canvas_error = array_merge($layout_canvas_error, array_keys($element_machine_name));
         }
       }
+    }
+
+    if (!empty($layout_canvas_error)) {
+      $form['#attached']['drupalSettings']['cohesion']['layout_canvas_errors'] = $layout_canvas_error;
     }
 
     // Check if the machine name is empty.
@@ -203,37 +208,5 @@ class StyleGuideForm extends CohesionBaseForm {
       $form_state->setErrorByName('machine_name', $this->t('The machine name cannot be empty.'));
     }
   }
-
-  //  /**
-  //   * {@inheritdoc}
-  //   */
-  //  public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
-  //    parent::save($form, $form_state);
-  //
-  //    $in_use_list = $this->usageUpdateManager->getInUseEntitiesList($this->entity);
-  //    $run_rebuild = FALSE;
-  //    if(!empty($in_use_list)){
-  //      try{
-  //      $json_values = $form_state->getValue('json_values');
-  //      $canvasInstance = new LayoutCanvas($form_state->getValue('json_values'));
-  //      $current_canvas = $this->entityTypeManager->getStorage($this->entity->getEntityTypeId())->load($this->entity->id())->getLayoutCanvasInstance();
-  //      $new_models = $canvasInstance->iterateModels('style_guide_form');
-  //      foreach ($current_canvas->iterateModels('style_guide_form') as $model_uuid => $model){
-  //        // Rebuild if fields has been deleted or if field values have been changed
-  //        if(!array_key_exists($model_uuid, $new_models) || $new_models[$model_uuid]->getValues() != $model->getValues()){
-  //          $run_rebuild = TRUE;
-  //        }
-  //      }
-  //
-  //      } catch (\Exception $e){
-  //        $run_rebuild = TRUE;
-  //      }
-  //
-  //    }
-  //
-  //    if($run_rebuild){
-  //      $this->rebuildInUseBatch->run($in_use_list);
-  //    }
-  //  }
 
 }

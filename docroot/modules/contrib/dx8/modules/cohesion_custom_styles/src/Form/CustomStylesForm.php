@@ -5,7 +5,6 @@ namespace Drupal\cohesion_custom_styles\Form;
 use Drupal\cohesion_custom_styles\Entity\CustomStyleType;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\cohesion\Form\CohesionStyleBuilderForm;
-use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\Core\Url;
 
 /**
@@ -21,7 +20,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
   public function form(array $form, FormStateInterface $form_state) {
     $operation = $this->getOperation();
 
-    // Get the custom style type from url or from the entity
+    // Get the custom style type from url or from the entity.
     if ($operation == 'add') {
       $request = \Drupal::request();
       $custom_style_type_id = $request->attributes->get('custom_style_type');
@@ -36,7 +35,8 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       $parent_class = $this->entity->getClass();
 
       // Make a clean duplicate.
-      $this->entity = $this->entity->createDuplicate(); // create a duplicate with a new UUID
+      // create a duplicate with a new UUID.
+      $this->entity = $this->entity->createDuplicate();
       $this->entity->setDefaultValues();
       $this->entity->set('parent', $parent_class);
 
@@ -50,27 +50,26 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       ]);
     }
 
-
     if ($operation == 'extend') {
 
-        $form['#title'] = $this->t('Extend %label', [
-          '%label' => strtolower($this->entity->label()),
-        ]);
+      $form['#title'] = $this->t('Extend %label', [
+        '%label' => strtolower($this->entity->label()),
+      ]);
 
       // Set Title to Extended from: ...
-      $form['details']['label']['#default_value'] = t('Extended from ') . $form['details']['label']['#default_value'];
+      $form['details']['label']['#default_value'] = $this->t('Extended from @extended', ['@extended' => $form['details']['label']['#default_value']]);
 
       $form['#attached']['drupalSettings']['cohesion']['clearModel'] = TRUE;
     }
 
-    // Boot angular with the given custom style type
+    // Boot angular with the given custom style type.
     $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'custom_styles';
     $form['#attached']['drupalSettings']['cohesion']['formId'] = $custom_style_type->id();
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')
       ->getCohFormOnInit('custom_styles', $custom_style_type->id());
     $form['#attached']['drupalSettings']['cohesion']['custom_style_type'] = $this->entity->get('custom_style_type');
 
-    // Attached to DrupalSettings javascript to have access to the Parent class name if any
+    // Attached to DrupalSettings javascript to have access to the Parent class name if any.
     if ($this->entity->getParentId()) {
       $storage = \Drupal::entityTypeManager()->getStorage('cohesion_custom_style');
       $parent = $storage->load($this->entity->getParentId());
@@ -83,18 +82,19 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
 
     // Add a class name field - this should match the class name from the json.
     // It should be added to the variable table with it's usages.
-    // If it changes it should be taken out the variable table upon save
+    // If it changes it should be taken out the variable table upon save.
     $form['details']['class_name'] = $form['details']['label'];
     $form['details']['class_name']['#description'] = custom_style_class_prefix;
-    $form['details']['class_name']['#title'] = t('Class Name ');
+    $form['details']['class_name']['#title'] = $this->t('Class Name') . ' ';
     $form['details']['class_name']['#attributes']['class'] = ['class-name'];
     $form['details']['class_name']['#description_display'] = 'before';
     $form['details']['class_name']['#default_value'] = str_replace(custom_style_class_prefix, '', $this->entity->get('class_name'));
     $form['details']['class_name']['#type'] = 'machine_name';
     $form['details']['class_name']['#required'] = FALSE;
+    $form['details']['class_name']['#disabled'] = !$this->entity->isNew();
     $form['details']['class_name']['#machine_name'] = [
       'source' => ['details', 'label'],
-      'label' => t('Class name'),
+      'label' => $this->t('Class name'),
       'replace_pattern' => '[^a-z0-9\-]+',
       'replace' => '-',
       'field_prefix' => custom_style_class_prefix,
@@ -107,7 +107,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       '#value' => $this->entity->getClass(),
     ];
 
-    // Show custom style type hidden from user
+    // Show custom style type hidden from user.
     $form['details']['custom_style_type'] = [
       '#type' => 'hidden',
       '#default_value' => $custom_style_type->id(),
@@ -115,10 +115,10 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       '#access' => TRUE,
     ];
 
-    // Show custom style type (read-only) for display purposes only
+    // Show custom style type (read-only) for display purposes only.
     $form['details']['custom_style_type_label'] = [
       '#type' => 'textfield',
-      '#title' => t('Custom style type'),
+      '#title' => $this->t('Custom style type'),
       '#maxlength' => 255,
       '#default_value' => $custom_style_type->label(),
       '#disabled' => TRUE,
@@ -128,10 +128,10 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
     ];
 
     if ($custom_style_type->getElement() != '' || $custom_style_type->id() == 'generic') {
-      // is the custom type type available in the WYSIWYG?
+      // Is the custom type type available in the WYSIWYG?
       $form['available_in_wysiwyg'] = [
         '#type' => 'checkbox',
-        '#title' => t('Make available in WYSIWYG editor'),
+        '#title' => $this->t('Make available in WYSIWYG editor'),
         '#maxlength' => 255,
         '#default_value' => $this->entity->get('available_in_wysiwyg'),
         '#disabled' => FALSE,
@@ -155,10 +155,10 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       }
     }
 
-    // Weight
+    // Weight.
     $form['weight'] = [
       '#type' => 'textfield',
-      '#title' => t('Weight'),
+      '#title' => $this->t('Weight'),
       '#maxlength' => 3,
       '#default_value' => $this->entity->getWeight(),
       '#weight' => 10,
@@ -169,7 +169,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
   }
 
   /**
-   * Validate the Content template form
+   * Validate the Content template form.
    *
    * {@inheritdoc}
    */
@@ -200,9 +200,8 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
-    /** @var CustomStyle $entity */
+    /** @var \Drupal\cohesion_custom_styles\Entity\CustomStyle $entity */
     $entity = $this->entity;
-    $op = $this->getOperation();
 
     // Add the prefix to the machine name (class_name) as it was removed for
     // the form.
@@ -222,16 +221,10 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       }
     }
 
-    /*
-    if ($this->entity->getClass() !== $form_state->getValue('class_name')) {
-      $new_class_name = custom_style_class_prefix . $form_state->getValue('class_name');
-    }
-    */
-
     // Set ID and custom flag if adding a custom template.
     $this->setEntityIdFromForm($entity, $form_state);
 
-    // Set active accordion group
+    // Set active accordion group.
     if (($url = $this->entity->toUrl('collection')) && ($url instanceof Url)) {
       $style_type_entity = $this->entityTypeManager->getStorage('custom_style_type')->load($this->entity->get('custom_style_type'));
       $url->setOption('query', ['active_group' => strtolower($style_type_entity->get('label'))]);
@@ -241,7 +234,9 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
 
   /**
    * Check to see if the machine name is unique.
+   *
    * @param $value
+   *
    * @return bool
    */
   public function checkMachineName($value) {
@@ -269,6 +264,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
    * @param $value
    *
    * @return bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -280,5 +276,5 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
 
     return count($entity_ids) > 0;
   }
-}
 
+}

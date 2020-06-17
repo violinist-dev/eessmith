@@ -2,32 +2,31 @@
 
 namespace Drupal\cohesion\Services;
 
-use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
- * Class CohesionUtils
+ * Class CohesionUtils.
  *
  * @package Drupal\cohesion
  */
 class CohesionUtils {
 
   /**
-   * @var ThemeHandlerInterface
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;
 
   /**
-   * @var ThemeManagerInterface
+   * @var \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected $themeManager;
 
   /**
    * CohesionUtils constructor.
    *
-   * @param ThemeHandlerInterface $theme_handler
-   * @param ThemeManagerInterface $theme_manager
+   * @param \Drupal\Core\Extension\ThemeHandlerInterface $theme_handler
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $theme_manager
    */
   public function __construct(ThemeHandlerInterface $theme_handler, ThemeManagerInterface $theme_manager) {
     $this->themeHandler = $theme_handler;
@@ -35,27 +34,50 @@ class CohesionUtils {
   }
 
   /**
+   * Handles errors in different ways depending on the state of the application.
+   *
+   * @param $message
+   * @param $force_exception
+   *
+   * @throws \Exception
+   */
+  public function errorHandler($message, $force_exception = FALSE) {
+    // Always send the error to dblog.
+    \Drupal::logger('cohesion')->error($message);
+
+    // If part of a batch process, always throw an exception.
+    if (\Drupal::config('cohesion.settings')->get('fail.on.error') || $force_exception) {
+      $running_dx8_batch = &drupal_static('running_dx8_batch');
+      if ($running_dx8_batch || $force_exception) {
+        throw new \Exception($message);
+      }
+      // If outside of a batch process, warn the user.
+      else {
+        \Drupal::messenger()->addMessage($message, 'error');
+      }
+    }
+  }
+
+  /**
    * @return bool
    */
   public function isAdminTheme() {
     return \Drupal::config('system.theme')
-        ->get('admin') == $this->themeManager->getActiveTheme()->getName();
+      ->get('admin') == $this->themeManager->getActiveTheme()->getName();
   }
 
   /**
    * Whether the current theme had cohesion enabled.
    *
-   *
    * @return bool - Returns TRUE if the current theme or one of its parent has
-   * cohesion enabled (cohesion: true in info.yml)
+   *   cohesion enabled (cohesion: true in info.yml)
    */
   public function currentThemeUseCohesion() {
     return $this->themeHasCohesionEnabled(NULL);
   }
 
   /**
-   *
-   * Given the theme info of a theme, is it cohesion enabled
+   * Given the theme info of a theme, is it cohesion enabled.
    *
    * @param $theme_info
    *
@@ -66,11 +88,11 @@ class CohesionUtils {
   }
 
   /**
-   * Get all enabled theme with Cohesion enabled
+   * Get all enabled theme with Cohesion enabled.
    *
-   * @return Extension[] - Array of theme info
+   * @return \Drupal\Core\Extension\Extension[] - Array of theme info
    */
-  public function getCohesionEnabledThemes(){
+  public function getCohesionEnabledThemes() {
     $themes = [];
     foreach ($this->themeHandler->listInfo() as $theme_info) {
       if ($this->themeHasCohesionEnabled($theme_info->getName())) {
@@ -87,11 +109,12 @@ class CohesionUtils {
    *
    * @return bool
    */
-  public function themeHasCohesionEnabled($theme_id = NULL){
+  public function themeHasCohesionEnabled($theme_id = NULL) {
 
-    if(is_null($theme_id) || !isset($this->themeHandler->listInfo()[$theme_id])) {
+    if (is_null($theme_id) || !isset($this->themeHandler->listInfo()[$theme_id])) {
       $theme_extension = $this->themeManager->getActiveTheme()->getExtension();
-    }else{
+    }
+    else {
       $theme_extension = $this->themeHandler->listInfo()[$theme_id];
     }
 
@@ -115,7 +138,7 @@ class CohesionUtils {
   public function getCohesionRoutes() {
     $query = \Drupal::database();
     $routes_results = $query->select('router', 'r')
-      ->fields('r', ['name',])
+      ->fields('r', ['name'])
       ->condition('name', '%cohesion%', 'LIKE')
       ->execute()
       ->fetchCol();
@@ -145,7 +168,7 @@ class CohesionUtils {
   }
 
   /**
-   * Format the tokens for the API
+   * Format the tokens for the API.
    *
    * @param $value
    */
@@ -163,15 +186,15 @@ class CohesionUtils {
 
               \Drupal::moduleHandler()->alter('dx8_' . $context . '_drupal_token_context', $context_variable);
 
-              // If token has been detected replace potential breaking chars with nothing as they are not valid
+              // If token has been detected replace potential breaking chars with nothing as they are not valid.
               $context = str_replace(['[', ']', '{', '}'], '', $context);
 
               $twig_token = '[token.' . str_replace([
-                  '[',
-                  ']',
-                  '{',
-                  '}',
-                ], '', $token) . '|' . $context . '|' . $context_variable . ']';
+                '[',
+                ']',
+                '{',
+                '}',
+              ], '', $token) . '|' . $context . '|' . $context_variable . ']';
               $value = str_replace($token, $twig_token, $value);
             }
           }

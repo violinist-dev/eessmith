@@ -23,14 +23,14 @@ It's possible to set the `dx8_sync` directory to the sync directory as core (whi
 
 **Configuring entity types to include in the export**
 
-With DX8 installed and activated with your license key, you'll be able to access this page:
+With Cohesion installed and activated with your license key, you'll be able to access this page:
 `/admin/cohesion/sync/export_settings`
 
 You can use this page to select which entity types will be scanned for the export.
 
 **Export**
 
-To export all DX8 packages and dependencies to your sync directory, use the following drush command:
+To export all Cohesion packages and dependencies to your sync directory, use the following drush command:
 
 ```
 drush sync:export
@@ -82,7 +82,7 @@ You can also use the `--overwrite-all` and `--keep-all` options when specifying 
 
 ## Deploying a list of packages on module install 
 
-Module developers can export DX8 Sync packages and include as part of their module. When set up correctly, the packages will automatically be deploy when the module is enabled. 
+Module developers can export Cohesion Sync packages and include as part of their module. When set up correctly, the packages will automatically be deploy when the module is enabled. 
 
 To set this up, create a new Yaml reference file inside your module: `config/dx8/packages.yml`
 

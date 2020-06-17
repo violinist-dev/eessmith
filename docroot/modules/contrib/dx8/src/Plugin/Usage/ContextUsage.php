@@ -3,14 +3,10 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
-use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Database\Connection;
 
 /**
- * Class ContextUsage
+ * Class ContextUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -47,8 +43,8 @@ class ContextUsage extends UsagePluginBase {
           $entities[] = [
             'type' => $this->getEntityType(),
             'uuid' => $entity_view_mode->uuid(),
-            //'subid' => NULL,
-            //'url' => $view_entity->toUrl('edit-form')
+            // 'subid' => NULL,
+            // 'url' => $view_entity->toUrl('edit-form')
           ];
         }
       }

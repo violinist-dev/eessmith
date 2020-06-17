@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CohesionDisableForm
+ * Class CohesionDisableForm.
  *
  * Builds the form to disable custom style.
  *
@@ -19,9 +19,9 @@ class CohesionDisableForm extends EntityConfirmFormBase {
    */
   public function getQuestion() {
     return $this->t('Are you sure you want to disable the @entity_type %entity_name?', [
-        '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
-        '%entity_name' => $this->entity->label(),
-      ]);
+      '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
+      '%entity_name' => $this->entity->label(),
+    ]);
   }
 
   /**
@@ -45,9 +45,9 @@ class CohesionDisableForm extends EntityConfirmFormBase {
     $this->entity->disable();
     $this->entity->save();
 
-    drupal_set_message($this->t('%entity_name successfully disabled.', [
-        '%entity_name' => $this->entity->label(),
-      ]));
+    \Drupal::messenger()->addMessage($this->t('%entity_name successfully disabled.', [
+      '%entity_name' => $this->entity->label(),
+    ]));
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }

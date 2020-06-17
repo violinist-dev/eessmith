@@ -7,7 +7,7 @@ use Drupal\Core\Site\Settings;
 use Drupal\Component\Serialization\Json;
 
 /**
- * Class ApiUtils
+ * Class ApiUtils.
  *
  * @package Drupal\cohesion\Plugin
  */
@@ -53,7 +53,12 @@ class ApiUtils {
     }
     else {
       // Get the version number from the module info.yml file.
-      $module_info = system_get_info('module', 'cohesion');
+      $module_info = [];
+      try {
+        $module_info = \Drupal::service('extension.list.module')->getExtensionInfo('cohesion');
+      }
+      catch (\Throwable $e) {
+      }
 
       if (strstr($module_info['version'], '-master')) {
         return 'master';
@@ -96,7 +101,8 @@ class ApiUtils {
       // Search key for UUIDS.
       if (preg_match_all($pattern, $key, $this_uuids)) {
         $uuids[] = $key;
-      }elseif (is_array($value)) { // Recurse unless the parent is a uuid which means this is component in a component
+// Recurse unless the parent is a uuid which means this is component in a component
+      }elseif (is_array($value)) {
         $this->extractUUIDKeys($value, $uuids);
       }
     }
@@ -120,7 +126,7 @@ class ApiUtils {
     }
     $uuids = array_unique($uuids);
 
-    // Generate new uuids
+    // Generate new uuids.
     $updated_uuids = array_map(function ($value) {
       $value = $this->uuid->generate();
       return $value;
@@ -129,4 +135,5 @@ class ApiUtils {
     // Replace UUIDs with newly generated ones.
     return str_replace($uuids, $updated_uuids, $json_values);
   }
+
 }

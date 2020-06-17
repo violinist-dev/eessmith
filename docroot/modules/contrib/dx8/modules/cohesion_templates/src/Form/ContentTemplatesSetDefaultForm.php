@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Class ContentTemplatesSetDefaultForm
+ * Class ContentTemplatesSetDefaultForm.
  *
  * Builds the form to confirm settings content template as default.
  *
@@ -21,9 +21,9 @@ class ContentTemplatesSetDefaultForm extends EntityConfirmFormBase {
   public function getQuestion() {
     $template_type = $this->entity->get('entity_type') == '__any__' ? 'Global' : ucwords($this->entity->get('entity_type'));
     return $this->t('Are you sure you want to set %template_name as the default %template_type content template?', [
-        '%template_type' => $template_type,
-        '%template_name' => $this->entity->label(),
-      ]);
+      '%template_type' => $template_type,
+      '%template_name' => $this->entity->label(),
+    ]);
   }
 
   /**
@@ -56,10 +56,10 @@ class ContentTemplatesSetDefaultForm extends EntityConfirmFormBase {
     $entity->save();
 
     $template_type = $this->entity->get('entity_type') == '__any__' ? 'Global' : ucwords($this->entity->get('entity_type'));
-    drupal_set_message($this->t('%template_type content template %template_name has been set as default.', [
-        '%template_type' => $template_type,
-        '%template_name' => $this->entity->label(),
-      ]));
+    \Drupal::messenger()->addMessage($this->t('%template_type content template %template_name has been set as default.', [
+      '%template_type' => $template_type,
+      '%template_name' => $this->entity->label(),
+    ]));
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }

@@ -6,33 +6,41 @@ use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\file\Entity\File;
-use Drupal\cohesion_elements\Controller\ElementsController;
-use Drupal\cohesion\Plugin\Api\TemplatesApi;
 
 /**
  * Defines the Cohesion component entity.
- *
  */
 abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implements CohesionSettingsInterface, CohesionElementSettingsInterface {
 
+  /**
+   * @var null
+   */
   protected $category = NULL;
 
+  /**
+   * @var null
+   */
   protected $preview_image = NULL;
 
+  /**
+   * @var array
+   */
   protected $entity_type_access = [];
 
+  /**
+   * @var array
+   */
   protected $bundle_access = [];
-
 
   /**
    * Component weight.
    *
-   * @var integer
+   * @var int
    */
   protected $weight;
 
   /**
-   * Component weight getter
+   * Component weight getter.
    *
    * @return int
    */
@@ -77,7 +85,8 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
   public function getCategoryEntity() {
     try {
       $storage = \Drupal::entityTypeManager()->getStorage($this->getCategoryEntityTypeId());
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       return [];
     }
 
@@ -182,7 +191,8 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
         }
       }
 
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
     }
 
     return NULL;
@@ -229,7 +239,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
 
     // Add new preview images - make uploaded file permanent and update usage.
     if ($preview_image !== NULL && $preview_image_original != $preview_image) {
-      /** @var File $file */
+      /** @var \Drupal\file\Entity\File $file */
       $file = File::load($preview_image);
       $file->setPermanent();
       $file->save();
@@ -246,7 +256,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
   }
 
   /**
-   * {@inheridoc}
+   * {@inheridoc}.
    */
   public function process() {
     $cohesion_sync_lock = &drupal_static('cohesion_sync_lock');
@@ -284,6 +294,13 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
   }
 
   /**
+   * @inheritDoc
+   */
+  public function getApiPluginInstance() {
+    return $this->apiProcessorManager()->createInstance('templates_api');
+  }
+
+  /**
    * @return array|bool|void
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -293,8 +310,8 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
       return FALSE;
     }
 
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();

@@ -2,10 +2,10 @@
 
 namespace Drupal\cohesion_base_styles\Plugin\Api;
 
-use Drupal\cohesion\StylesApi;
+use Drupal\cohesion\StylesApiPluginBase;
 
 /**
- * Class BaseStylesApi
+ * Class BaseStylesApi.
  *
  * @package Drupal\cohesion_base_styles\Plugin\Usage
  *
@@ -14,14 +14,17 @@ use Drupal\cohesion\StylesApi;
  *   name = @Translation("Base styles send to API"),
  * )
  */
-class BaseStylesApi extends StylesApi {
+class BaseStylesApi extends StylesApiPluginBase {
 
-  protected function prepareData($attach_css = TRUE) {
-    parent::prepareData();
-
+  /**
+   * {@inheritdoc}
+   */
+  public function getForms() {
     $resource = $this->entity->getResourceObject();
     $this->processBackgroundImageInheritance($resource->values);
-
-    $this->data->settings->forms[] = $this->getFormElement($resource);
+    return [
+      $this->getFormElement($resource),
+    ];
   }
+
 }

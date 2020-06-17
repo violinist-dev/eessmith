@@ -3,7 +3,6 @@
 namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
@@ -50,6 +49,21 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "duplicate-form" = "/admin/cohesion/helpers/helpers/{cohesion_helper}/duplicate",
  *     "enable-selection" = "/admin/cohesion/helpers/helpers/{cohesion_helper}/enable-selection",
  *     "disable-selection" = "/admin/cohesion/helpers/helpers/{cohesion_helper}/disable-selection",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "category",
+ *     "preview_image",
+ *     "entity_type_access",
+ *     "bundle_access",
+ *     "weight"
  *   }
  * )
  */
@@ -65,7 +79,7 @@ class Helper extends CohesionElementEntityBase implements CohesionSettingsInterf
    * {@inheritdoc}
    */
   public function clearData() {
-    // Helpers have no data to be cleared
+    // Helpers have no data to be cleared.
   }
 
   /**

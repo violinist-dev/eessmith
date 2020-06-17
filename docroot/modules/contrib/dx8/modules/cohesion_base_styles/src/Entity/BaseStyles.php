@@ -6,7 +6,6 @@ use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\EntityHasResourceObjectTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion_base_styles\Plugin\Api\BaseStylesApi;
 
 /**
  * Defines the Cohesion base styles entity.
@@ -58,18 +57,34 @@ use Drupal\cohesion_base_styles\Plugin\Api\BaseStylesApi;
  *   "/admin/cohesion/styles/cohesion_base_styles/{cohesion_base_styles}/disable",
  *     "enable" =
  *   "/admin/cohesion/styles/cohesion_base_styles/{cohesion_base_styles}/enable",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "custom"
  *   }
  * )
  */
 class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInterface {
 
-  use EntityHasResourceObjectTrait {
-    getResourceObject as protected getResourceObjectDefault;
-  }
+  use EntityHasResourceObjectTrait;
 
   const ASSET_GROUP_ID = 'base_styles';
 
   const entity_machine_name_prefix = 'base_';
+
+  /**
+   * @inheritDoc
+   */
+  public function getApiPluginInstance() {
+    return $this->apiProcessorManager()->createInstance('base_styles_api');
+  }
 
   /**
    * {@inheritdoc}
@@ -79,8 +94,8 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
 
     // Only send to the API if the base style is enabled.
     if ($this->status) {
-      /** @var BaseStylesApi $send_to_api */
-      $send_to_api = $this->apiProcessorManager()->createInstance('base_styles_api');
+      /** @var \Drupal\cohesion_base_styles\Plugin\Api\BaseStylesApi $send_to_api */
+      $send_to_api = $this->getApiPluginInstance();
       $send_to_api->setEntity($this);
       $send_to_api->send();
     }
@@ -89,17 +104,11 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
   /**
    * {@inheritdoc}
    */
-  public function getResourceObject() {
-    $entity_values = $this->getResourceObjectDefault();
-
-    return $entity_values;
-  }
-
   public function jsonValuesErrors() {
 
     /** @var \Drupal\cohesion\Plugin\Api\PreviewApi $send_to_api */
     $send_to_api = $this->apiProcessorManager()->createInstance('preview_api');
-    $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues());
+    $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues(), $this->getDecodedJsonMapper());
     $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
@@ -125,8 +134,8 @@ class BaseStyles extends CohesionConfigEntityBase implements CohesionSettingsInt
    * {@inheritdoc}
    */
   public function clearData() {
-    /** @var BaseStylesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('base_styles_api');
+    /** @var \Drupal\cohesion_base_styles\Plugin\Api\BaseStylesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $send_to_api->delete();
   }

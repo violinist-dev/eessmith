@@ -3,12 +3,10 @@
 namespace Drupal\cohesion_sync;
 
 use Drupal\Core\Config\ConfigImporter;
-use Drupal\Core\Config\ConfigImporterEvent;
-use Drupal\Core\Config\ConfigEvents;
 use Drupal\Core\Config\ConfigImporterException;
 
 /**
- * Class SyncConfigImporter
+ * Class SyncConfigImporter.
  *
  * @package Drupal\cohesion_sync
  */

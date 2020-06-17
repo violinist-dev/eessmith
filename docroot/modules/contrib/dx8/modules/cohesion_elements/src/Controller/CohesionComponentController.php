@@ -2,7 +2,7 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
-use Drupal\cohesion\Services\CohesionUtils;
+use GuzzleHttp\Exception\ClientException;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Serialization\Json;
@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Uuid\UuidInterface;
 
 /**
- * Class CohesionComponentController
+ * Class CohesionComponentController.
  *
  * Controller routines for Cohesion component.
  *
@@ -22,13 +22,16 @@ use Drupal\Component\Uuid\UuidInterface;
  */
 class CohesionComponentController extends ControllerBase {
 
-  /** @var \Drupal\Core\TempStore\PrivateTempStore */
+  /**
+   * @var \Drupal\Core\TempStore\PrivateTempStore*/
   protected $tempStore;
 
-  /** @var \Drupal\Component\Uuid\UuidInterface */
+  /**
+   * @var \Drupal\Component\Uuid\UuidInterface*/
   protected $uuid;
 
-  /** @var \Drupal\Core\Extension\ThemeHandlerInterface */
+  /**
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface*/
   protected $themeHandler;
 
   /**
@@ -61,7 +64,7 @@ class CohesionComponentController extends ControllerBase {
    * @return \Drupal\cohesion_elements\Controller\CohesionComponentController|\Drupal\Core\Controller\ControllerBase
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('user.private_tempstore'), $container->get('uuid'));
+    return new static($container->get('tempstore.private'), $container->get('uuid'));
   }
 
   /**
@@ -97,13 +100,15 @@ class CohesionComponentController extends ControllerBase {
       if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
         $this->tempStore->set($uuid, $data);
 
-        $result['iframe_url'] = Url::fromRoute('cohesion_elements.component.preview', [
-          'key' => $uuid,
-          'coh_clean_page' => 'true',
-        ])->toString();
       }
 
-    } catch (\GuzzleHttp\Exception\ClientException $e) {
+      $result['iframe_url'] = Url::fromRoute('cohesion_elements.component.preview', [
+        'key' => $uuid,
+        'coh_clean_page' => 'true',
+      ])->toString();
+
+    }
+    catch (ClientException $e) {
       $status = 500;
       $result = [
         'error' => t('Connection error.'),
@@ -115,7 +120,7 @@ class CohesionComponentController extends ControllerBase {
 
   /**
    * Render the contents of the component inside the wrapper template.
-   * See: templates/page--cohesionapi--component--preview.html.twig
+   * See: templates/page--cohesionapi--component--preview.html.twig.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
@@ -127,9 +132,9 @@ class CohesionComponentController extends ControllerBase {
     if ($key) {
       $requestData = $this->tempStore->get($key);
       $data = FALSE;
-      if(is_array($requestData)) {
-        foreach($requestData as $theme_data) {
-          if($this->themeHandler()->getDefault() == $theme_data['themeName']){
+      if (is_array($requestData)) {
+        foreach ($requestData as $theme_data) {
+          if ($this->themeHandler()->getDefault() == $theme_data['themeName']) {
             $data = $theme_data;
           }
         }
@@ -171,7 +176,7 @@ class CohesionComponentController extends ControllerBase {
 
   /**
    * Renders the preview full page wrapper.
-   * See: templates/preview-full.html.twig
+   * See: templates/preview-full.html.twig.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
@@ -188,7 +193,7 @@ class CohesionComponentController extends ControllerBase {
         'drupalSettings' => [
           'cohesion' => [
             'formGroup' => 'canvas',
-            'formId' =>  'preview',
+            'formId' => 'preview',
             'drupalFormId' => 'cohPreviewForm',
           ],
           'cohOnInitForm' => \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('canvas', 'preview'),

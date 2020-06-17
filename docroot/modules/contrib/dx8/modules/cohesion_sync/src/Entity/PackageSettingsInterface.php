@@ -3,7 +3,7 @@
 namespace Drupal\cohesion_sync\Entity;
 
 /**
- * Interface PackageSettingsInterface
+ * Interface PackageSettingsInterface.
  *
  * @package Drupal\cohesion_sync\Entity
  */
@@ -40,6 +40,5 @@ interface PackageSettingsInterface {
    * @return mixed
    */
   public function setSettings($settings);
-
 
 }

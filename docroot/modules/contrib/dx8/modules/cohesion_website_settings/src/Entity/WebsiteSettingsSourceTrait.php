@@ -3,20 +3,22 @@
 namespace Drupal\cohesion_website_settings\Entity;
 
 /**
- * Trait WebsiteSettingsSourceTrait
+ * Trait WebsiteSettingsSourceTrait.
  *
  * @package Drupal\cohesion_website_settings\Entity
  */
 trait WebsiteSettingsSourceTrait {
 
   /**
-   * "uploadFonts" | "webFonts"
+   * "uploadFonts" | "webFonts".
+   *
    * @var string
    */
   protected $source;
 
   /**
    * Getter.
+   *
    * @return int
    */
   public function getSource() {
@@ -25,9 +27,11 @@ trait WebsiteSettingsSourceTrait {
 
   /**
    * Setter.
+   *
    * @param $source
    */
   public function setSource($source) {
     $this->source = $source;
   }
+
 }

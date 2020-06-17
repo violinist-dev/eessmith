@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CohesionEnableForm
+ * Class CohesionEnableForm.
  *
  * Builds the form to enable a cohesion entity.
  *
@@ -54,7 +54,7 @@ class CohesionEnableForm extends EntityConfirmFormBase {
     $this->entity->set('status', TRUE);
     $this->entity->save();
 
-    drupal_set_message($this->t('%entity_name successfully enabled.', [
+    \Drupal::messenger()->addMessage($this->t('%entity_name successfully enabled.', [
       '%entity_name' => $this->entity->label(),
     ]));
 

@@ -38,14 +38,13 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
       ]);
     }
 
-
-    // Boot angular with the given custom style type
+    // Boot angular with the given custom style type.
     $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'custom_styles';
     $form['#attached']['drupalSettings']['cohesion']['formId'] = $custom_style_type->id();
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('custom_styles', $custom_style_type->id());
     $form['#attributes']['class'][] = 'cohesion-style-builder-edit-form';
 
-    // Show custom style type hidden from user
+    // Show custom style type hidden from user.
     $form['details']['custom_style_type'] = [
       '#type' => 'hidden',
       '#default_value' => $custom_style_type->id(),
@@ -53,10 +52,10 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
       '#access' => TRUE,
     ];
 
-    // Show custom style type (read-only) for display purposes only
+    // Show custom style type (read-only) for display purposes only.
     $form['details']['custom_style_type_label'] = [
       '#type' => 'textfield',
-      '#title' => t('Style helper type'),
+      '#title' => $this->t('Style helper type'),
       '#maxlength' => 255,
       '#default_value' => $custom_style_type->label(),
       '#disabled' => TRUE,
@@ -65,7 +64,7 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
       '#weight' => 1,
     ];
 
-    // Machine name generated from the label
+    // Machine name generated from the label.
     $form['details']['machine_name'] = [
       '#title' => $this->t('Machine name'),
       '#maxlength' => 32 - strlen($this->entity->getEntityMachineNamePrefix()),
@@ -78,7 +77,7 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
       '#required' => FALSE,
       '#machine_name' => [
         'source' => ['details', 'label'],
-        'label' => t('Machine name'),
+        'label' => $this->t('Machine name'),
         'replace_pattern' => '[^a-z0-9\_]+',
         'replace' => '_',
         'field_prefix' => $this->entity->getEntityMachineNamePrefix(),
@@ -93,7 +92,7 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
   }
 
   /**
-   * Validate the Content template form
+   * Validate the Content template form.
    *
    * @inheritdoc
    *
@@ -114,7 +113,6 @@ class StyleHelpersForm extends CohesionStyleBuilderForm {
 
     // Note, the machine name check is performed automatically in
     // cohesion_custom_styles.module => _cohesion_custom_styles_check_machine_name()
-
     // Check if the machine name is empty.
     if (empty($form_state->getValue('machine_name'))) {
       $form_state->setErrorByName('machine_name', $this->t('The machine name cannot be empty.'));

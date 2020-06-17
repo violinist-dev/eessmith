@@ -2,25 +2,24 @@
 
 namespace Drupal\cohesion\Plugin;
 
+use Drupal\Component\Serialization\Json;
+
 /**
- * Defines the IconInterpreter plugin
+ * Defines the IconInterpreter plugin.
  *
- * The IconInterpreter plugin actions calls that needs interpreting uploaded icon libraries
- *
- * @todo - ^^^ this is incorrect.
- *
+ * The IconInterpreter plugin actions calls that needs interpreting uploaded icon libraries.
  */
 class IconInterpreter {
 
   /**
-   * 
-   * @param type $json
-   * @return \Drupal\cohesion\CohesionApiClient response array
+   * @param string $json
+   *
+   * @return array
    */
   public function sendToApi($json = '') {
     $results = new \stdClass();
-    $results->body = \Drupal\Component\Serialization\Json::decode($json);
-    return \Drupal\cohesion\CohesionApiClient::resourceIcon($results);
+    $results->body = Json::decode($json);
+    return \Drupal::service('cohesion.api_client')->resourceIcon($results);
   }
 
 }

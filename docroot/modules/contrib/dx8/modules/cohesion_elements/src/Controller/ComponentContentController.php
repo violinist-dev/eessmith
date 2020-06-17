@@ -8,11 +8,10 @@ use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\Component\Serialization\Json;
 use Drupal\cohesion_elements\Entity\Component;
 
 /**
- * Class CohesionEndpointController
+ * Class CohesionEndpointController.
  *
  * Returns Drupal data to Angular (views, blocks, node lists, etc).
  * See function index() for the entry point.
@@ -22,14 +21,14 @@ use Drupal\cohesion_elements\Entity\Component;
 class ComponentContentController extends ControllerBase {
 
   /**
-   * This is an endpoint to retrieve all instances of a global component
+   * This is an endpoint to retrieve all instances of a global component.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
-   *
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @return \Drupal\cohesion\CohesionJsonResponse
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function getComponentContents(Request $request) {
 
@@ -49,7 +48,8 @@ class ComponentContentController extends ControllerBase {
         /** @var \Drupal\Core\Entity\Plugin\DataType\EntityAdapter $entityAdapter */
         $entityAdapter = $entityReference->getTarget();
 
-        if (!$entityAdapter) { // Component content entity exists, but no component config.
+        // Component content entity exists, but no component config.
+        if (!$entityAdapter) {
           continue;
         }
 
@@ -71,7 +71,8 @@ class ComponentContentController extends ControllerBase {
               'id' => $component->get('preview_image'),
               'url' => ElementsController::getElementPreviewImageURL('cohesion_component', $component->id()),
             ];
-          } catch (\Exception $e) {
+          }
+          catch (\Exception $e) {
             $preview_image = ['url' => FALSE];
           }
         }
@@ -128,8 +129,7 @@ class ComponentContentController extends ControllerBase {
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
-   *
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function getComponentContentsByIds(Request $request) {
     $components = [];
@@ -142,10 +142,10 @@ class ComponentContentController extends ControllerBase {
           $category_entity = $component_content->getComponent()->getCategoryEntity();
 
           $components[$uid] = array_merge([
-              'title' => $component_content->label(),
-              'url' => $component_content->url('edit-form'),
-              'category' => $category_entity ? $category_entity->getClass() : FALSE,
-            ]);
+            'title' => $component_content->label(),
+            'url' => $component_content->toUrl('edit-form')->toString(),
+            'category' => $category_entity ? $category_entity->getClass() : FALSE,
+          ]);
         }
       }
     }
@@ -160,9 +160,9 @@ class ComponentContentController extends ControllerBase {
   /**
    * Save a component as component content.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function save(Request $request) {
 
@@ -176,10 +176,10 @@ class ComponentContentController extends ControllerBase {
         $element = $elements[0];
         if ($componentEntity = Component::load($element->getComponentID())) {
           // Load the component used for this component content
-          // Get component content from model if it has been changed, from the element otherwise
+          // Get component content from model if it has been changed, from the element otherwise.
           $component_name = $element->getModel()->getProperty(['settings', 'title']) ? $element->getModel()->getProperty(['settings', 'title']) : $element->getProperty('title');
 
-          // Create a new component content
+          // Create a new component content.
           $component_content = ComponentContent::create([
             'title' => $component_name,
             'component' => $componentEntity,
@@ -200,7 +200,7 @@ class ComponentContentController extends ControllerBase {
             'data' => [
               'componentId' => 'cc_' . $component_content->id(),
               'title' => $component_content->label(),
-              'url' => $component_content->url('edit-form'),
+              'url' => $component_content->toUrl('edit-form')->toString(),
             ],
           ]);
         }
@@ -209,7 +209,7 @@ class ComponentContentController extends ControllerBase {
 
     return new CohesionJsonResponse([
       'status' => 'error',
-      'data' => ['error' => t('Bad request'),],
+      'data' => ['error' => t('Bad request')],
     ], 400);
   }
 

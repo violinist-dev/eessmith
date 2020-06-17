@@ -20,7 +20,8 @@ class CohesionSyncCommands extends DrushCommands {
   /**
    * Export DX8 packages to sync.
    *
-   * @param array $options An associative array of options whose values come from cli, aliases, config, etc.
+   * @param array $options
+   *   An associative array of options whose values come from cli, aliases, config, etc.
    *
    * @option filename-prefix
    *   The export filename prefix that will output a file like: [prefix]-package.yml_
@@ -39,9 +40,10 @@ class CohesionSyncCommands extends DrushCommands {
         $this->say($result);
       }
       else {
-        $this->say(t('DX8', 'Unable to export DX8 packages. Check the dblog for more information.'));
+        $this->say(t('Acquia Cohesion', 'Unable to export Acquia Cohesion packages. Check the dblog for more information.'));
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $this->yell($e->getMessage());
     }
   }
@@ -49,29 +51,33 @@ class CohesionSyncCommands extends DrushCommands {
   /**
    * Import DX8 packages from sync.
    *
-   * @param array $options An associative array of options whose values come from cli, aliases, config, etc.
+   * @param array $options
+   *   An associative array of options whose values come from cli, aliases, config, etc.
    *
    * @option overwrite-all
    *   Overwrite existing entities when differences detected
    * @option keep-all
-   *   Keep any existsing entities when differences detected
+   *   Keep any existing entities when differences detected
    * @option path
    *   Specify a local or remote path to a *.package.yml file
+   * @option force
+   *   Force importing entities even if this will break content
    * @validate-module-enabled cohesion_sync
    *
    * @command sync:import
    * @aliases sync-import
    */
-  public function import(array $options = ['overwrite-all' => NULL, 'keep-all' => NULL, 'path' => NULL]) {
+  public function import(array $options = ['overwrite-all' => NULL, 'keep-all' => NULL, 'path' => NULL, 'force' => NULL]) {
     // Get options.
     $overwrite_all = $options['overwrite-all'];
     $keep_all = $options['keep-all'];
     $path = $options['path'];
+    $force = $options['force'];
 
     // One must be set.
     try {
       if ($overwrite_all || $keep_all) {
-        $results = \Drupal::service('cohesion_sync.drush_helpers')->import($overwrite_all == 1, $keep_all == 1, $path);
+        $results = \Drupal::service('cohesion_sync.drush_helpers')->import($overwrite_all == 1, $keep_all == 1, $path, $force == 1);
 
         $this->say($results);
       }
@@ -79,8 +85,9 @@ class CohesionSyncCommands extends DrushCommands {
       else {
         $this->say(t('You must use one of the following options: --overwrite-all OR --keep-all'));
       }
-    } catch (\Exception $e) {
-      $this->yell($e->getMessage());
+    }
+    catch (\Exception $e) {
+      $this->yell($e->getMessage(), 200, 'red');
     }
   }
 

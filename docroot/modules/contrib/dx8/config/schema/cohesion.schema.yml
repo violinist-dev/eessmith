@@ -1,6 +1,6 @@
 cohesion_config_entity:
   type: config_entity
-  label: 'DX8 configuration entity base'
+  label: 'Cohesion configuration entity base'
   mapping:
     label:
       type: label
@@ -28,7 +28,7 @@ cohesion_config_entity:
       label: 'Selectable'
 cohesion.settings:
   type: config_entity
-  label: 'Global settings for DX8'
+  label: 'Global settings for Cohesion'
   mapping:
     api_build_status:
       type: string

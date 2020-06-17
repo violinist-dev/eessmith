@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
 
 /**
- * Class BaseStylesListBuilder
+ * Class BaseStylesListBuilder.
  *
  * Provides a listing of Cohesion base styles entities.
  *
@@ -20,7 +20,6 @@ class BaseStylesListBuilder extends CohesionListBuilder {
   public function buildHeader() {
     $header = parent::buildHeader();
     unset($header['label']);
-
 
     $header['status'] = [
       'data' => $this->t('Status'),

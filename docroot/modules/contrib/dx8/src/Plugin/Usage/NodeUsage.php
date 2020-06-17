@@ -2,10 +2,8 @@
 
 namespace Drupal\cohesion\Plugin\Usage;
 
-use Drupal\cohesion\Plugin\Usage\FieldableContentEntityUsageBase;
-
 /**
- * Class NodeUsage
+ * Class NodeUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *

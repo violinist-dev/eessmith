@@ -5,7 +5,7 @@ namespace Drupal\cohesion_base_styles\Form;
 use Drupal\cohesion\Form\CohesionEnableForm;
 
 /**
- * Class BaseStylesEnableForm
+ * Class BaseStylesEnableForm.
  *
  * Builds the form to disable custom style.
  *
@@ -17,7 +17,7 @@ class BaseStylesEnableForm extends CohesionEnableForm {
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Enabling a <em>Base style</em> will apply its CSS to your DX8 style sheet. ');
+    return $this->t('Enabling a <em>Base style</em> will apply its CSS to your style sheet.');
   }
 
 }

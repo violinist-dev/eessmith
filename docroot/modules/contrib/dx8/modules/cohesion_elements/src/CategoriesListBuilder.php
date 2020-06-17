@@ -7,12 +7,15 @@ use Drupal\cohesion\CohesionListBuilder;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CategoriesListBuilder
+ * Class CategoriesListBuilder.
  *
  * @package Drupal\cohesion_elements
  */
 class CategoriesListBuilder extends CohesionListBuilder {
 
+  /**
+   * @var string
+   */
   protected $formId = 'cohesion_categories_form';
 
   /**
@@ -24,11 +27,11 @@ class CategoriesListBuilder extends CohesionListBuilder {
 
     $header['label'] = [
       'data' => $this->t('Title'),
-      'width' => '40%'
+      'width' => '40%',
     ];
 
     $header['class'] = [
-      'data' => $this->t('Style')
+      'data' => $this->t('Color'),
     ];
 
     return $header;
@@ -42,7 +45,7 @@ class CategoriesListBuilder extends CohesionListBuilder {
     unset($row['type']);
     $row['label'] = '<span>' . $row['label'] . '</span>';
 
-    $row['class']['#markup'] = '<div class="coh-color-field-item ' . $row['class']['#markup'] . '"></div>';
+    $row['class']['#markup'] = '<div class="coh-category-color-item ' . $row['class']['#markup'] . '"></div>';
 
     return $row;
   }
@@ -66,4 +69,5 @@ class CategoriesListBuilder extends CohesionListBuilder {
     parent::submitForm($form, $form_state);
     \Drupal::messenger()->addMessage(t('Category order has been updated.'), 'status');
   }
+
 }

@@ -2,8 +2,8 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\cohesion\Services\JsonXss;
-use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -16,14 +16,13 @@ use Drupal\Core\Url;
 use Drupal\token\TokenEntityMapperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion\Plugin\Api\TemplatesApi;
 
 /**
  * Plugin implementation of the 'cohesion_layout_builder_widget' widget.
  *
  * @FieldWidget(
  *   id = "cohesion_layout_builder_widget",
- *   label = @Translation("DX8 layout builder"),
+ *   label = @Translation("Acquia Cohesion layout canvas"),
  *   field_types = {
  *     "entity_reference_revisions",
  *     "cohesion_entity_reference_revisions",
@@ -40,16 +39,20 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
    */
   private $isTranslating;
 
-  /** @var EntityTypeManagerInterface */
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface*/
   protected $entityTypeManager;
 
-  /** @var TokenEntityMapperInterface */
+  /**
+   * @var \Drupal\token\TokenEntityMapperInterface*/
   protected $tokenEntityMapper;
 
-  /** @var \Drupal\cohesion\Services\JsonXss */
+  /**
+   * @var \Drupal\cohesion\Services\JsonXss*/
   protected $jsonXss;
 
-  /** @var array */
+  /**
+   * @var array*/
   protected $xss_paths;
 
   /**
@@ -110,7 +113,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
 
     // Set list of field to blank by default. Template form that inherit from this one will override the variable.
     $language_none = \Drupal::languageManager()
-      ->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
+      ->getLanguage(LanguageInterface::LANGCODE_NOT_APPLICABLE);
 
     $form['#attached']['drupalSettings']['cohesion']['contextualKey'] = Url::fromRoute('cohesion.entity_fields', [
       'entity_type' => '__none__',
@@ -210,7 +213,6 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       '#token_browser' => $this->tokenEntityMapper->getTokenTypeForEntityType($host->getEntityTypeId(), ''),
     ];
 
-
     // Stash the Xss paths for this entity.
     if (!$this->jsonXss->userCanBypass()) {
       // Stash this so it can be compares inside validateForm.
@@ -219,7 +221,6 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       // Let the app know which form elements to disable.
       $form['#attached']['drupalSettings']['cohesion']['xss_paths'] = $this->xss_paths;
     }
-
 
     return $element;
   }
@@ -251,7 +252,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       $this->isTranslating = TRUE;
     }
     if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))
-        ->get($default_langcode_key)->value == 0) {
+      ->get($default_langcode_key)->value == 0) {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }
@@ -290,7 +291,6 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       }
     }
 
-
     $value += [
       'json_values' => $json,
     ];
@@ -312,7 +312,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
 
     foreach ($values as $delta => &$item) {
       if (isset($item['entity'])) {
-        /** @var CohesionLayout $entity */
+        /** @var \Drupal\cohesion_elements\Entity\CohesionLayout $entity */
         $entity = $item['entity'];
 
         $langcode_key = $entity->getEntityType()->getKey('langcode');
@@ -336,7 +336,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
           $op = end($triggering_element['#parents']);
 
           if ($op == 'preview') {
-            /** @var TemplatesApi $send_to_api */
+            /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
             $send_to_api = $entity->apiProcessorManager()->createInstance('templates_api');
             $send_to_api->isPreview(TRUE);
             $send_to_api->setEntity($entity);

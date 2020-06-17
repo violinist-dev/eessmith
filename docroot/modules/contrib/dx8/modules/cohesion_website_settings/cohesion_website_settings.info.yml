@@ -1,7 +1,7 @@
 name: Cohesion website settings
 type: module
 description: 'Defines the website settings configuration entities.'
-core: 8.x
+core_version_requirement: ^8.8.0 || ^9
 package: cohesion
 libraries:
   - core/jquery.ui

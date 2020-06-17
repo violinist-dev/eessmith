@@ -6,18 +6,23 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
- * Class CustomElementsService
+ * Class CustomElementsService.
  *
  * @package Drupal\cohesion_elements
  */
 class CustomElementsService {
 
+  /**
+   * @var mixed
+   */
   private $elements;
 
-  /** @var CustomElementPluginManager */
+  /**
+   * @var CustomElementPluginManager*/
   protected $customElementManager;
 
-  /** @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface */
+  /**
+   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface*/
   protected $staticAssets;
 
   /**
@@ -34,6 +39,7 @@ class CustomElementsService {
    * Get all elements defined by other modules.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getElementsFromManager() {
@@ -66,6 +72,7 @@ class CustomElementsService {
    * Return a value/label array of all hooks created by all modules.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   private function getElementsKeyLabel() {
@@ -91,6 +98,7 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementList($results) {
@@ -116,6 +124,7 @@ class CustomElementsService {
    * @param $results
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementCategoryList($results) {
@@ -159,6 +168,7 @@ class CustomElementsService {
    * @param $results
    *
    * @return mixed
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function patchElementBuilderForms($results) {
@@ -171,8 +181,8 @@ class CustomElementsService {
 
         // Patch the data in.
         $results[$element['value']]['model']['styles']['settings']['element'] = $element['value'];
-        $results[$element['value']]['form'][0]['tabs'][0]['items'][1]['propertyOptionsKey'] = $element['value'];
-        $results[$element['value']]['form'][0]['tabs'][0]['items'][1]['defaultKey'] = $element['value'];
+        $results[$element['value']]['form'][0]['tabs'][0]['items'][0]['propertyOptionsKey'] = $element['value'];
+        $results[$element['value']]['form'][0]['tabs'][0]['items'][0]['defaultKey'] = $element['value'];
       }
     }
 
@@ -194,8 +204,8 @@ class CustomElementsService {
         $results[$element['value']] = $this->staticAssets->get('custom-form-defaults-template');
 
         // Patch the data.
-        $results[$element['value']]['settings']['topLevel']['formDefinition'][0]['formKey'] = $element['value'] . '_settings';
-        $results[$element['value']]['settings']['topLevel']['formDefinition'][0]['children'][0]['formKey'] = $element['value'] . '_dynamic';
+        $results[$element['value']]['settings']['formDefinition'][0]['formKey'] = $element['value'] . '_settings';
+        $results[$element['value']]['settings']['formDefinition'][0]['children'][0]['formKey'] = $element['value'] . '_dynamic';
 
       }
     }
@@ -355,9 +365,9 @@ class CustomElementsService {
           'type' => 'cohSelect',
           'key' => $field_key,
           'title' => $field['title'],
-          'required' => $field['required'] ?? false,
+          'required' => $field['required'] ?? FALSE,
           'validationMessage' => [
-            '302' => $field['validationMessage'] ?? ''
+            '302' => $field['validationMessage'] ?? '',
           ],
           'nullOption' => isset($field['nullOption']) && $field['nullOption'],
           'options' => $options,
@@ -394,9 +404,9 @@ class CustomElementsService {
           'type' => 'cohFileBrowser',
           'key' => $field_key,
           'title' => $field['title'],
-          'required' => $field['required'] ?? false,
+          'required' => $field['required'] ?? FALSE,
           'validationMessage' => [
-            '302' => $field['validationMessage'] ?? ''
+            '302' => $field['validationMessage'] ?? '',
           ],
           'options' => [
             'buttonText' => $field['buttonText'] ?? 'Select file',
@@ -462,9 +472,9 @@ class CustomElementsService {
           'key' => $field_key,
           'title' => $field['title'],
           'placeholder' => $field['placeholder'] ?? '',
-          'required' => $field['required'] ?? false,
+          'required' => $field['required'] ?? FALSE,
           'validationMessage' => [
-              '302' => $field['validationMessage'] ?? ''
+            '302' => $field['validationMessage'] ?? '',
           ],
           'schema' => [
             'type' => 'string',
@@ -499,9 +509,9 @@ class CustomElementsService {
           'type' => 'cohTextarea',
           'key' => $field_key,
           'title' => $field['title'],
-          'required' => $field['required'] ?? false,
+          'required' => $field['required'] ?? FALSE,
           'validationMessage' => [
-            '302' => $field['validationMessage'] ?? ''
+            '302' => $field['validationMessage'] ?? '',
           ],
           'schema' => [
             'type' => 'string',
@@ -563,16 +573,17 @@ class CustomElementsService {
    * @param $elementContext
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function render($settings, $markup, $elementClassName, $elementContext) {
-    // Patch the settings
+    // Patch the settings.
     $settings = Json::decode($settings);
 
-    // Decode the markup
+    // Decode the markup.
     $markup = Json::decode($markup);
 
-    // Decode the markup
+    // Decode the markup.
     $elementContext = Json::decode(str_replace('{{}}', '{}', $elementContext));
 
     // Get the render function name.

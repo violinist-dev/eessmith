@@ -42,6 +42,17 @@ namespace Drupal\cohesion_elements\Entity;
  *     "delete-form" = "/admin/cohesion/helpers/categories/{cohesion_helper_category}/delete",
  *     "collection" = "/admin/cohesion/helpers/categories",
  *     "in-use" = "/admin/cohesion/helpers/categories/{cohesion_helper_category}/in_use"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "modified",
+ *     "selectable",
+ *     "class",
+ *     "weight"
  *   }
  * )
  */
@@ -55,4 +66,5 @@ class HelperCategory extends ElementCategoryBase {
   const target_entity_type = 'cohesion_helper';
 
   const default_category_id = 'hlp_cat_uncategorized';
+
 }

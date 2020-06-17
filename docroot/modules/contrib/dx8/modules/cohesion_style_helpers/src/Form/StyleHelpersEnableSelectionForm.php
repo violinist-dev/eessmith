@@ -5,7 +5,7 @@ namespace Drupal\cohesion_style_helpers\Form;
 use Drupal\cohesion\Form\CohesionEnableSelectionForm;
 
 /**
- * Class StyleHelpersEnableSelectionForm
+ * Class StyleHelpersEnableSelectionForm.
  *
  * Builds the form to delete Cohesion custom styles entities.
  *
@@ -19,6 +19,5 @@ class StyleHelpersEnableSelectionForm extends CohesionEnableSelectionForm {
   public function getDescription() {
     return $this->t('Enabling selection of your <em>Style helper</em> will include it in the <em>Style helper</em> menu.');
   }
-
 
 }

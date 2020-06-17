@@ -56,6 +56,19 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "disable-selection" = "/admin/cohesion/templates/master_templates/{cohesion_master_templates}/disable-selection",
  *     "set-default-form" = "/admin/cohesion/templates/master_templates/{cohesion_master_templates}/set_default",
  *     "in-use" = "/admin/cohesion/templates/master_templates/{cohesion_master_templates}/in-use",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "custom",
+ *     "twig_template",
+ *     "default"
  *   }
  * )
  */
@@ -71,16 +84,17 @@ class MasterTemplates extends CohesionTemplateBase implements CohesionSettingsIn
    * @param $entities
    *
    * @return bool
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  static public function importEntities($entities) {
+  public static function importEntities($entities) {
     $current_entities = self::loadMultiple();
-    // Only import master templates if there is some to import or if there no master template already
+    // Only import master templates if there is some to import or if there no master template already.
     if (!is_array($entities) || (count($entities) == 0) || count($current_entities) > 0) {
       return FALSE;
     }
 
-    // Import each entity
+    // Import each entity.
     $canonical_list = [];
     foreach ($entities as $e) {
       $entity_exists = self::load($e['element_id']);
@@ -104,7 +118,8 @@ class MasterTemplates extends CohesionTemplateBase implements CohesionSettingsIn
     parent::postSave($storage);
 
     if ($this->get('default') === TRUE) {
-      $default_templates_ids = \Drupal::service('entity.query')->get('cohesion_master_templates')->condition('default', TRUE)->condition('id', $this->id(), '<>')->execute();
+      $default_templates_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_master_templates')->getQuery()
+        ->condition('default', TRUE)->condition('id', $this->id(), '<>')->execute();
 
       $default_templates = $this->loadMultiple($default_templates_ids);
       foreach ($default_templates as $default_template) {

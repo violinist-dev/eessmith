@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class BaseStylesUsage
+ * Class BaseStylesUsage.
  *
  * @package Drupal\cohesion_base_styles\Plugin\Usage
  *
@@ -38,14 +38,6 @@ class BaseStylesUsage extends UsagePluginBase {
     ];
 
     return $scanable_data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function scanForInstancesOfThisType($data, EntityInterface $entity) {
-    // Base styles are not defined on any entity; they are set implicitly.
-    return parent::scanForInstancesOfThisType($data, $entity);
   }
 
 }

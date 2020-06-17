@@ -8,9 +8,8 @@ use Drupal\cohesion_elements\CustomElementPluginInterface;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update picture elements
+ * Update picture elements.
  *
  * @package Drupal\cohesion
  *
@@ -38,7 +37,7 @@ class _0007EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
       if ($entity->isLayoutCanvas()) {
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
-        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values
+        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values.
         foreach ($layoutCanvas->iterateModels('canvas') as $model) {
           if ($model->getProperty(['styles', 'settings', 'element']) == 'picture' && is_object($model->getProperty(['settings', 'styles']))) {
             foreach ($model->getProperty(['settings', 'styles']) as $breakpoint => $style) {
@@ -70,16 +69,25 @@ class _0007EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   *
+   */
   public function loadComponent($componentId) {
     return Component::load($componentId);
   }
 
+  /**
+   *
+   */
   public function getCustomElementFields($uid) {
     $custom_element_plugin_manager = \Drupal::service('plugin.manager.custom_elements');
-    /** @var CustomElementPluginInterface $instance */
-    if ($instance = $custom_element_plugin_manager->createInstance($uid) && $instance instanceof CustomElementPluginInterface) {
-      return $instance->getFields();
+    /** @var \Drupal\cohesion_elements\CustomElementPluginInterface $instance */
+    if ($instance = $custom_element_plugin_manager->createInstance($uid)) {
+      if ($instance instanceof CustomElementPluginInterface) {
+        return $instance->getFields();
+      }
     }
     return FALSE;
   }
+
 }

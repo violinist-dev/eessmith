@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class WebformUsage
+ * Class WebformUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -45,4 +45,5 @@ class WebformUsage extends UsagePluginBase {
   public function scanForInstancesOfThisType($data, EntityInterface $entity) {
     return [];
   }
+
 }

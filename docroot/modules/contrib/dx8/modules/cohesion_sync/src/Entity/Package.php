@@ -3,7 +3,6 @@
 namespace Drupal\cohesion_sync\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\cohesion_sync\Entity\PackageSettingsInterface;
 
 /**
  * Defines the sync package entity.
@@ -42,6 +41,13 @@ use Drupal\cohesion_sync\Entity\PackageSettingsInterface;
  *     "delete-form" = "/admin/cohesion/sync/packages/{cohesion_sync_package}/delete",
  *     "duplicate-form" = "/admin/cohesion/sync/packages/{cohesion_sync_package}/duplicate",
  *     "collection" = "/admin/cohesion/sync/packages",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "excluded_entity_types",
+ *     "settings"
  *   }
  * )
  */
@@ -71,14 +77,14 @@ class Package extends ConfigEntityBase implements PackageSettingsInterface {
   protected $description;
 
   /**
-   * @var
+   * @var mixed
    */
   protected $excluded_entity_types;
 
   /**
    * The entities set as requirements.
    *
-   * @var
+   * @var mixed
    */
   protected $settings;
 
@@ -117,7 +123,6 @@ class Package extends ConfigEntityBase implements PackageSettingsInterface {
     $this->set('excluded_entity_types', json_encode($excluded_entity_types));
     return $this;
   }
-
 
   /**
    * {@inheritdoc}

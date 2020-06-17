@@ -5,7 +5,7 @@ namespace Drupal\cohesion_elements\Form;
 use Drupal\cohesion\Form\CohesionDisableSelectionForm;
 
 /**
- * Class HelperDisableSelectionForm
+ * Class HelperDisableSelectionForm.
  *
  * @package Drupal\cohesion_elements\Form
  */

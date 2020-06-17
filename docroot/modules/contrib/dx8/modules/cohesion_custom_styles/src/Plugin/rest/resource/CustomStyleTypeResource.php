@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a Custom style type Resource
+ * Provides a Custom style type Resource.
  *
  * @RestResource(
  *   id = "cohesion_custom_style_type",
@@ -20,8 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class CustomStyleTypeResource extends CohesionResourceBase
-{
+class CustomStyleTypeResource extends CohesionResourceBase {
 
   /**
    * The entity type manager.
@@ -40,14 +39,13 @@ class CustomStyleTypeResource extends CohesionResourceBase
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager
+   *   The entity type manager.
    * @param array $serializer_formats
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, $serializer_formats, LoggerInterface $logger)
-  {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, $serializer_formats, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->entityTypeManager = $entity_type_manager;
   }
@@ -55,8 +53,7 @@ class CustomStyleTypeResource extends CohesionResourceBase
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
-  {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
       $plugin_id,
@@ -67,14 +64,12 @@ class CustomStyleTypeResource extends CohesionResourceBase
     );
   }
 
-
   /**
    * Get all custom style types.
    *
    * @return \Drupal\rest\ResourceResponse
    */
-  public function get()
-  {
+  public function get() {
     $data = [];
 
     foreach ($custom_style_types = $this->entityTypeManager->getStorage('custom_style_type')->loadMultiple() as $type) {
@@ -90,11 +85,12 @@ class CustomStyleTypeResource extends CohesionResourceBase
     $response->addCacheableDependency(CacheableMetadata::createFromRenderArray([
       '#cache' => [
         'tags' => [
-          'config:custom_style_type_list'
-        ]
+          'config:custom_style_type_list',
+        ],
       ],
     ]));
 
     return $response;
   }
+
 }

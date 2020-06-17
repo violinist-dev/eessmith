@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update background images set to none
+ * Update background images set to none.
  *
  * @package Drupal\cohesion
  *
@@ -36,7 +35,7 @@ class _0006EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
       if ($entity->isLayoutCanvas()) {
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
-        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values
+        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values.
         foreach ($layoutCanvas->iterateModels('canvas') as $model) {
           if ($model->getProperty(['styles'])) {
             $json_values->model->{$model->getUUID()}->styles = $this->setBackgroundImagesToNone($model->getProperty(['styles']));
@@ -55,18 +54,21 @@ class _0006EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   *
+   */
   private function setBackgroundImagesToNone($styles) {
     if (is_object($styles)) {
-      // Loop over all style breakpoints
+      // Loop over all style breakpoints.
       if (property_exists($styles, 'styles') && is_object($styles->styles)) {
         foreach ($styles->styles as $breakpoint => $bp_style) {
-          // Is the current breakpoint has some background
+          // Is the current breakpoint has some background.
           if (is_object($bp_style) && property_exists($bp_style, 'background-image-settings') && is_array($bp_style->{'background-image-settings'})) {
-            // Loop over each background
+            // Loop over each background.
             foreach ($bp_style->{'background-image-settings'} as $index => $background_image) {
-              // If the background is a background image
+              // If the background is a background image.
               if (property_exists($background_image, 'backgroundLayerType') && property_exists($background_image->backgroundLayerType, 'value') && $background_image->backgroundLayerType->value == 'image') {
-                // Set the background type to none if the background image has no images set
+                // Set the background type to none if the background image has no images set.
                 if (!property_exists($background_image, 'backgroundImage') || !is_object($background_image->backgroundImage) || !property_exists($background_image->backgroundImage, 'value') || strpos($background_image->backgroundImage->value, '[media-reference') != 0) {
                   $styles->styles->{$breakpoint}->{'background-image-settings'}[$index]->backgroundLayerType->value = 'none';
                   if (property_exists($background_image, 'backgroundImage') && is_object($background_image->backgroundImage)) {
@@ -112,4 +114,5 @@ class _0006EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return $styles;
   }
+
 }

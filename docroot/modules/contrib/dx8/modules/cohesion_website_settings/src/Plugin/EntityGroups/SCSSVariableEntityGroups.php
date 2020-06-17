@@ -7,7 +7,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\cohesion_website_settings\Entity\SCSSVariable;
 
 /**
- * Class SCSSVariableEntityGroups
+ * Class SCSSVariableEntityGroups.
  *
  * This handles loading and saving back combined SCSS Variable entities with single
  * JSON object.
@@ -24,7 +24,6 @@ class SCSSVariableEntityGroups extends EntityGroupsPluginBase {
 
   /**
    * {@inheritdoc}
-   *
    */
   public function saveFromModel($variables) {
 
@@ -38,7 +37,7 @@ class SCSSVariableEntityGroups extends EntityGroupsPluginBase {
 
       // No? Then create and save it.
       if (!count($entity_ids) && isset($variable->value)) {
-        /** @var SCSSVariable $entity */
+        /** @var \Drupal\cohesion_website_settings\Entity\SCSSVariable $entity */
         $entity = SCSSVariable::create([
           'id' => $variable->uid,
           'value' => $variable->value,
@@ -121,7 +120,7 @@ class SCSSVariableEntityGroups extends EntityGroupsPluginBase {
     }
 
     // And re-order all the SCSS variables.
-    /** @var SCSSVariable $entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\SCSSVariable $entity */
     foreach ($this->storage->loadMultiple() as $entity) {
       if (isset($weights[$entity->id()])) {
         $entity->setWeight($weights[$entity->id()]);
@@ -138,7 +137,7 @@ class SCSSVariableEntityGroups extends EntityGroupsPluginBase {
 
     $variable_entities = $this->storage->loadMultiple();
 
-    /** @var SCSSVariable $variable_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\SCSSVariable $variable_entity */
     foreach ($variable_entities as $variable_entity) {
 
       $json_values = $variable_entity->getDecodedJsonValues();

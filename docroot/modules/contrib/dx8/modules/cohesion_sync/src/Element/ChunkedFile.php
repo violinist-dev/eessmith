@@ -2,14 +2,13 @@
 
 namespace Drupal\cohesion_sync\Element;
 
-use Drupal\Core\Ajax\DataCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\Element\ManagedFile;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Provides an form element for uploading managed files in chunks to bypass `upload_max_filesize`
+ * Provides an form element for uploading managed files in chunks to bypass `upload_max_filesize`.
  *
  * @FormElement("chunked_file")
  */
@@ -68,7 +67,7 @@ class ChunkedFile extends ManagedFile {
   }
 
   /**
-   * {@inheritdoc]
+   * {@inheritdoc].
    */
   public static function uploadAjaxCallback(&$form, FormStateInterface &$form_state, Request $request) {
     $response = parent::uploadAjaxCallback($form, $form_state, $request);

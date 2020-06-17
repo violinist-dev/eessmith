@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Plugin\Menu;
 use Drupal\Core\Menu\MenuLinkDefault;
 
 /**
- * Class CohesionContentTemplateMenuLink
+ * Class CohesionContentTemplateMenuLink.
  *
  * Represents a menu link for a content template.
  *

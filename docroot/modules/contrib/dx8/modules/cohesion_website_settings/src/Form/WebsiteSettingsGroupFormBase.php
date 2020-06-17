@@ -2,7 +2,6 @@
 
 namespace Drupal\cohesion_website_settings\Form;
 
-use Drupal\cohesion\EntityGroupsPluginInterface;
 use Drupal\cohesion\Services\RebuildInuseBatch;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -12,7 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cohesion\EntityGroupsPluginManager;
 
 /**
- * Class WebsiteSettingsGroupFormBase
+ * Class WebsiteSettingsGroupFormBase.
  *
  * The base for form the color, icon library and font stack bulk edit form.
  *
@@ -47,21 +46,21 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
   /**
    * The instance of the entity groups plugin.
    *
-   * @var EntityGroupsPluginInterface
+   * @var \Drupal\cohesion\EntityGroupsPluginInterface
    */
   protected $entityGroupsPlugin;
 
   /**
-   * The instance of the entity group plugin manager
+   * The instance of the entity group plugin manager.
    *
-   * @var EntityGroupsPluginManager
+   * @var \Drupal\cohesion\EntityGroupsPluginManager
    */
   protected $entityGroupsManager;
 
   /**
-   * The instance of the rebuild in use batch service
+   * The instance of the rebuild in use batch service.
    *
-   * @var RebuildInuseBatch
+   * @var \Drupal\cohesion\Services\RebuildInuseBatch
    */
   protected $rebuildInUseBatch;
 
@@ -87,10 +86,10 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
   /**
    * WebsiteSettingsGroupFormBase constructor.
    *
-   * @param ConfigFactoryInterface $config_factory
-   * @param EntityTypeManagerInterface $entity_type_manager
-   * @param EntityGroupsPluginManager $entity_groups_manager
-   * @param RebuildInuseBatch $rebuild_inuse_batch
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\cohesion\EntityGroupsPluginManager $entity_groups_manager
+   * @param \Drupal\cohesion\Services\RebuildInuseBatch $rebuild_inuse_batch
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -119,7 +118,8 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
    * because the form can clear this value to avoid serialization problems when
    * switching between form steps.
    *
-   * @return EntityGroupsPluginInterface
+   * @return \Drupal\cohesion\EntityGroupsPluginInterface
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getEntityGroupsPlugin() {
@@ -137,7 +137,7 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
    * @return string
    */
   public function getTitle() {
-    return t(get_class($this)::FORM_TITLE);
+    return t('Edit <i>@class_title</i>', ['@class_title' => get_class($this)::FORM_TITLE]);
   }
 
   /**
@@ -179,7 +179,8 @@ abstract class WebsiteSettingsGroupFormBase extends ConfigFormBase {
         // Drupal\cohesion\Element\CohesionField.
         '#type' => 'cohesionfield',
         '#json_values' => empty($form_state->getUserInput()) ? $this->getEntityGroupsPlugin()->getGroupJsonValues() : $form_state->getUserInput()['json_values'],
-        '#json_mapper' => '{}', //$jsonMapper,
+      // $jsonMapper,
+        '#json_mapper' => '{}',
         '#entity' => NULL,
         '#classes' => [
           'cohesion-website-settings-edit-form',

@@ -2,18 +2,32 @@
 
 namespace Drupal\cohesion\Services;
 
-use Drupal\Component\PhpStorage\FileStorage;
+use Drupal\Component\FileSecurity\FileSecurity;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\File\Exception\FileException;
 
 /**
- * Class LocalFilesManager
+ * Class LocalFilesManager.
  *
- * Helper service used to move local cohesion:// files around for entity save / dx8:import.
+ * Helper service used to move local files around for entity save / dx8:import.
  *
  * \Drupal::service('cohesion.local_files_manager')
  *
  * @package Drupal\cohesion\Helper
  */
 class LocalFilesManager {
+  use StringTranslationTrait;
+
+  /**
+   * LocalFilesManager constructor.
+   *
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $stringTranslation
+   */
+  public function __construct(TranslationInterface $stringTranslation) {
+    $this->stringTranslation = $stringTranslation;
+  }
 
   /**
    * Flush the css dummy query string parameter (forces browser reload).
@@ -36,7 +50,11 @@ class LocalFilesManager {
       $from = $this->getStyleSheetFilename('json', $theme_info->getName(), TRUE);
       $to = $this->getStyleSheetFilename('json', $theme_info->getName());
       if (file_exists($from)) {
-        file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+        try {
+          \Drupal::service('file_system')->move($from, $to, FileSystemInterface::EXISTS_REPLACE);
+        }
+        catch (FileException $e) {
+        }
       }
     }
   }
@@ -55,7 +73,12 @@ class LocalFilesManager {
         $to = $this->getStyleSheetFilename($style, $theme_info->getName(), TRUE);
         if (file_exists($from)) {
           // Copy the file.
-          file_unmanaged_move($from, $to, FILE_EXISTS_REPLACE);
+          try {
+            \Drupal::service('file_system')->move($from, $to, FileSystemInterface::EXISTS_REPLACE);
+          }
+          catch (FileException $e) {
+          }
+
         }
       }
     }
@@ -65,12 +88,12 @@ class LocalFilesManager {
   }
 
   /**
-   * Move temporary template to cohesion template directory
+   * Move temporary template to cohesion template directory.
    *
-   * @return boolean
+   * @return bool
    */
   public function moveTemporaryTemplateToLive() {
-    // Create cohesion:// templates if it doesn't exist.
+    // Create Acquia Cohesion templates directory if it doesn't exist.
     if (!file_exists(COHESION_TEMPLATE_PATH)) {
       \Drupal::service('file_system')->mkdir(COHESION_TEMPLATE_PATH, 0777, FALSE);
     }
@@ -80,25 +103,25 @@ class LocalFilesManager {
 
       foreach ($templates as $temp_template) {
         $template_file = COHESION_TEMPLATE_PATH . '/' . basename($temp_template);
-
+        // Skip the the fiole doesn't exist.
         if (!file_exists($temp_template)) {
           continue;
         }
 
-        if (($file = file_unmanaged_move($temp_template, $template_file, FILE_EXISTS_REPLACE))) {
+        // Copy the file and add to the list to be saved for later.
+        try {
+          $file = \Drupal::service('file_system')->move($temp_template, $template_file, FileSystemInterface::EXISTS_REPLACE);
           $files[] = $file;
         }
-        else {
-          drupal_set_message(t('Error moving @file', ['@file' => $temp_template]), 'error');
+        catch (FileException $e) {
+          \Drupal::messenger()->addError($this->t('Error moving @file', ['@file' => $temp_template]));
         }
+
       }
 
-      // Reset temporary template list
+      // Reset temporary template list.
       \Drupal::keyValue('cohesion.temporary_template')->set('temporary_templates', []);
     }
-
-    // Refresh some caches.
-    drupal_flush_all_caches();
 
     return !empty($files) ? TRUE : FALSE;
   }
@@ -132,7 +155,6 @@ class LocalFilesManager {
       'icons' => 'cohesion-icon-libraries.css',
     ];
 
-
     if (array_key_exists($type, $cohesion_uris) && array_key_exists($type, $tmp_uris)) {
       $filename = '';
       $running_dx8_batch = &drupal_static('running_dx8_batch');
@@ -148,7 +170,7 @@ class LocalFilesManager {
   }
 
   /**
-   * Return a temp directory inside cohesion://
+   * Return a temp directory inside Acquia Cohesion directory
    * This is used because of unpredictable behavior of the /tmp diretory on
    * Pantheon and Acquia hosting.
    *
@@ -163,7 +185,12 @@ class LocalFilesManager {
       \Drupal::service('file_system')->mkdir($cohesion_scratch_path, 0777, FALSE);
 
       // Add a .htaccess file.
-      file_unmanaged_save_data(FileStorage::htaccessLines(TRUE), $cohesion_scratch_path . '/.htaccess', FILE_EXISTS_REPLACE);
+      try {
+        \Drupal::service('file_system')->saveData(FileSecurity::htaccessLines(TRUE), $cohesion_scratch_path . '/.htaccess', FileSystemInterface::EXISTS_REPLACE);
+      }
+      catch (\Throwable $e) {
+        \Drupal::service('cohesion.utils')->errorHandler('Unable to secure directory: ' . $cohesion_scratch_path);
+      }
     }
 
     return $cohesion_scratch_path;
@@ -175,7 +202,7 @@ class LocalFilesManager {
   public function resetScratchDirectory() {
     // Delete the directory.
     if (file_exists($this->scratchDirectory())) {
-      file_unmanaged_delete_recursive($this->scratchDirectory());
+      \Drupal::service('file_system')->deleteRecursive($this->scratchDirectory());
     }
 
     // Recreate it blank.
@@ -183,9 +210,10 @@ class LocalFilesManager {
   }
 
   /**
-   * Delete a file by URI checking if it's a managed file or not first
+   * Delete a file by URI checking if it's a managed file or not first.
    *
-   * @param $uri - the uri of the file
+   * @param $uri
+   *   - the uri of the file
    *
    * @return bool
    */
@@ -195,13 +223,18 @@ class LocalFilesManager {
       return $file->delete();
     }
     else {
-      return file_unmanaged_delete($uri);
+      try {
+        return \Drupal::service('file_system')->delete($uri);
+      }
+      catch (FileException $e) {
+        return FALSE;
+      }
     }
   }
 
   /**
-   * This recusrively scans a decoded JSON object for temporary:// files and
-   * moves them to the cohesion:// directory.
+   * This recursively scans a decoded JSON object for temporary:// files and
+   * moves them to the Acquia Cohesion directory.
    * It patches the object paths with the new URIs.
    *
    * @param $obj
@@ -235,13 +268,13 @@ class LocalFilesManager {
 
   /**
    * This scans a variable for a temporary file path, if found it creates a
-   * permanent file in cohesion://
+   * permanent file in Acquia Cohesion directory
    * Note, this does NOT set the core file usage because the FileUsage plugin
    * does this on entity postSave().
    *
    * @param $tmp_file
    *
-   * @return bool|\stdClass
+   * @return bool|object
    */
   private function resolveTemporaryFile($tmp_file) {
     $temp_folder = $this->scratchDirectory();
@@ -251,7 +284,7 @@ class LocalFilesManager {
       $file_get = file_get_contents($tmp_file);
       $filename = basename($tmp_file);
       $filename = preg_replace("/[^a-zA-Z0-9-_.]/", "", basename($filename));
-      $file = file_save_data($file_get, 'cohesion://' . $filename);
+      $file = file_save_data($file_get, 'public://cohesion/' . $filename);
       if ($file) {
         @ unlink($tmp_file);
         $return_object = new \stdClass();
@@ -263,4 +296,5 @@ class LocalFilesManager {
     }
     return FALSE;
   }
+
 }

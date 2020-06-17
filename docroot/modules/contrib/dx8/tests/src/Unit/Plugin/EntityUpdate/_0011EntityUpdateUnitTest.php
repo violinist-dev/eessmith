@@ -13,36 +13,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * @package Drupal\Tests\cohesion\Unit
  */
-class _0011MockUpdateEntity implements EntityJsonValuesInterface {
-
-  use EntityJsonValuesTrait;
-
-  protected $jsonValues;
-  protected $isLayoutCanvas;
-
-  public function __construct($json_values, $isLayoutCanvas) {
-    $this->jsonValues = $json_values;
-    $this->isLayoutCanvas = $isLayoutCanvas;
-  }
-
-  public function getJsonValues() {
-    return $this->jsonValues;
-  }
-
-  public function setJsonValue($json_values) {
-    $this->jsonValues = $json_values;
-    return $this;
-  }
-
-  public function process() {
-  }
-
-  public function jsonValuesErrors() {
-  }
-
-  public function isLayoutCanvas(){
-    return $this->isLayoutCanvas;
-  }
+class _0011MockUpdateEntity extends EntityMockBase implements EntityJsonValuesInterface {
 }
 
 /**

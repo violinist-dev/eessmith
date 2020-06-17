@@ -27,7 +27,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  *   config_export = {
  *     "id",
  *     "label",
- *     "element",
+ *     "element"
  *   }
  * )
  */
@@ -138,7 +138,7 @@ class CustomStyleType extends CohesionConfigEntityBase implements CohesionSettin
       $canonical_list[$e['element_id']] = $e['element_label'];
     }
 
-    // Remove old entities
+    // Remove old entities.
     $current_entities = CustomStyleType::loadMultiple();
     foreach ($current_entities as $k => $v) {
       if (!array_key_exists($k, $canonical_list)) {
@@ -153,4 +153,10 @@ class CustomStyleType extends CohesionConfigEntityBase implements CohesionSettin
   public function isLayoutCanvas() {
     return FALSE;
   }
+
+  /**
+   * @inheritdoc
+   */
+  public function getApiPluginInstance(){}
+
 }

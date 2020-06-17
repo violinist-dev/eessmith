@@ -14,6 +14,8 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  * @package Drupal\Tests\cohesion\Unit\Plugin\Usage
  */
 class MockFile extends CohesionConfigEntityBase implements CohesionSettingsInterface {
+  public function getApiPluginInstance(){
+  }
 }
 
 /**
@@ -21,6 +23,9 @@ class MockFile extends CohesionConfigEntityBase implements CohesionSettingsInter
  */
 class FileUsageUnitTest extends UsagePluginBaseUnitTest {
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 

@@ -10,7 +10,7 @@ use Drupal\Core\Link;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Class ContentTemplatesListBuilder
+ * Class ContentTemplatesListBuilder.
  *
  * Provides a listing of Cohesion content templates entities.
  *
@@ -45,9 +45,9 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
    *   Tree of content templates, organised by entity type.
    */
   public function load() {
-
     $entity_type = \Drupal::routeMatch()->getParameter('content_entity_type');
-    $candidate_template_ids = \Drupal::service('entity.query')->get('cohesion_content_templates')->condition('entity_type', $entity_type)->execute();
+    $candidate_template_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
+      ->condition('entity_type', $entity_type)->execute();
 
     if ($candidate_template_ids) {
       $candidate_templates = $this->storage->loadMultiple($candidate_template_ids);
@@ -63,8 +63,7 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
         $view_mode = $entity->get('view_mode');
         if ($view_mode == 'full') {
           $entity->weight = 1;
-        }
-        else {
+        } else {
           $entity->weight = 2;
         }
         $groups[$bundle][] = $entity;
@@ -78,8 +77,7 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
 
       ksort($groups);
       return $groups;
-    }
-    else {
+    } else {
       throw new NotFoundHttpException();
     }
   }
@@ -102,14 +100,12 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
       if (isset($bundles[$title]['label'])) {
         $bundle_title = $bundles[$title]['label'];
         $valid_entity_bundle = TRUE;
-      }
-      else {
+      } else {
         if ($title == '__any__') {
           $bundle_title = $this->t('Global');
           $valid_entity_bundle = TRUE;
-        }
-        else {
-          $bundle_title = '<span class="entity-meta__last-saved">' . $this->t('Missing bundle') . ' (Machine name: <span class="text-lowercase">' . $title . '</span>)</span>';
+        } else {
+          $bundle_title = '<span class="entity-meta__last-saved">Missing bundle (Machine name: <span class="text-lowercase">' . $title . '</span>)</span>';
           $valid_entity_bundle = FALSE;
         }
       }
@@ -130,7 +126,7 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
       // Add button to add custom node full content templates.
       if ($title != '__any__') {
         foreach ($template_group as $entity) {
-          // If it has a full view mode then add a link to add a tempalte
+          // If it has a full view mode then add a link to add a tempalte.
           $add_link = Link::createFromRoute($this->t('+ Add full content template'), 'entity.cohesion_content_templates.add_form', [
             'content_entity_type' => $entity->get('entity_type'),
             'bundle' => $entity->get('bundle'),
@@ -182,8 +178,27 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
     ];
 
     foreach ($template_group as $entity) {
-      if ($row = $this->buildRow($entity)) {
-        $table['table']['#rows'][$entity->id()] = $row;
+
+      // Always show for full view modes, global templates and for existing templates created
+      if ($entity->get('view_mode') !== 'full' && $entity->get('bundle') !== '__any__' && !$entity->isModified()) {
+
+        // Get active view modes for bundles
+        $active_view_modes = \Drupal::service('entity_display.repository')->getViewModeOptionsByBundle($entity->get('entity_type'), $entity->get('bundle'));
+
+        $view_modes = [];
+        foreach ($active_view_modes as $key => $view_mode) {
+          $view_modes[] = $key;
+        }
+
+        if (in_array($entity->get('view_mode'), $view_modes)) {
+          if ($row = $this->buildRow($entity)) {
+            $table['table']['#rows'][$entity->id()] = $row;
+          }
+        }
+      } else {
+        if ($row = $this->buildRow($entity)) {
+          $table['table']['#rows'][$entity->id()] = $row;
+        }
       }
     }
 
@@ -228,31 +243,31 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
+      $parent_row = parent::buildRow($entity);
 
-    $parent_row = parent::buildRow($entity);
+        $row['label'] = $parent_row['label'];
+        $row['view_mode'] = [
+          'data' => $entity->get('view_mode'),
+          'class' => [RESPONSIVE_PRIORITY_LOW],
+        ];
 
-    $row['label'] = $parent_row['label'];
-    $row['view_mode'] = [
-      'data' => $entity->get('view_mode'),
-      'class' => [RESPONSIVE_PRIORITY_LOW],
-    ];
+        $status = $parent_row['status'];
+        if ($entity->get('view_mode') === 'full' && $entity->get('bundle') != '__any__' && $entity->get('default') === TRUE) {
+          $status['data']['#markup'] .= ', ' . $this->t('default');
+        }
+        $row['status'] = $status;
 
-    $status = $parent_row['status'];
-    if ($entity->get('view_mode') === 'full' && $entity->get('bundle') != '__any__' && $entity->get('default') === TRUE) {
-      $status['data']['#markup'] .= ', ' . $this->t('default');
-    }
-    $row['status'] = $status;
+        $row['selectable'] = $parent_row['selectable'];
+        if ($entity->get('view_mode') !== 'full' || $entity->get('bundle') === '__any__') {
+          $row['selectable'] = '-';
+        }
 
-    $row['selectable'] = $parent_row['selectable'];
-    if ($entity->get('view_mode') !== 'full' || $entity->get('bundle') === '__any__') {
-      $row['selectable'] = '-';
-    }
+        $row['in_use'] = $parent_row['in_use'];
 
-    $row['in_use'] = $parent_row['in_use'];
+        $row['operations'] = $parent_row['operations'];
 
-    $row['operations'] = $parent_row['operations'];
+        return $row;
 
-    return $row;
   }
 
   /**
@@ -261,7 +276,7 @@ class ContentTemplatesListBuilder extends CohesionListBuilder {
   public function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
 
-    // Remove duplicate and delete actions on non full content template
+    // Remove duplicate and delete actions on non full content template.
     if ($entity->get('view_mode') !== 'full') {
       $operations['delete']['title'] = t('Reset');
       unset($operations['duplicate']);

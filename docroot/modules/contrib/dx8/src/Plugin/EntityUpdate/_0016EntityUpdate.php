@@ -4,11 +4,10 @@ namespace Drupal\cohesion\Plugin\EntityUpdate;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
-use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 use Drupal\Component\Plugin\PluginBase;
 
 /**
- * Update layout canvases to support the new variableFields
+ * Update layout canvases to support the new variableFields.
  *
  * @package Drupal\cohesion
  *
@@ -37,7 +36,7 @@ class _0016EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
         foreach ($json_values->model as $uuid => $data) {
           if (is_object($data) && property_exists($data, 'settings') && is_object($data->settings) && property_exists($data->settings, 'allowAll')) {
 
-            if ($json_values->model->{$uuid}->settings->allowAll == true) {
+            if ($json_values->model->{$uuid}->settings->allowAll == TRUE) {
               unset($json_values->model->{$uuid}->settings->allowAll);
               $json_values->model->{$uuid}->settings->restrictBy = "none";
             }

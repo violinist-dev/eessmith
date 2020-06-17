@@ -2,13 +2,9 @@
 
 namespace Drupal\cohesion_website_settings\Entity;
 
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
 
 /**
  * Defines the Cohesion website settings entity.
@@ -39,6 +35,17 @@ use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
  *   links = {
  *     "in-use" = "/admin/cohesion/cohesion_font_stack/{cohesion_font_stack}/in_use",
  *     "collection" = "/admin/cohesion/cohesion_website_settings"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "source",
  *   }
  * )
  */
@@ -58,13 +65,13 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
   protected $label_collection = '';
 
   /**
-   * Return all the icons combined for the form[]
+   * Return all the icons combined for the form[].
    *
-   * @return array|\stdClass|string
+   * @return array|object|string
    */
   public function getResourceObject() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
 
     return $send_to_api->getFontGroup();
   }
@@ -73,13 +80,12 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
    * {@inheritdoc}
    */
   public function process() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $send_to_api->send();
     $send_to_api->getData();
   }
-
 
   /**
    * {@inheritdoc}
@@ -128,6 +134,9 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
     ];
   }
 
+  /**
+   *
+   */
   public function clearData() {
   }
 
@@ -147,4 +156,5 @@ class FontStack extends WebsiteSettingsEntityBase implements CohesionSettingsInt
     $this->modified = TRUE;
     $this->status = TRUE;
   }
+
 }

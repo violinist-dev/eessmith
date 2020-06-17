@@ -5,9 +5,11 @@ namespace Drupal\cohesion;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\cohesion\ApiPluginInterface;
 use Drupal\cohesion\Annotation\Api;
 
+/**
+ *
+ */
 class ApiPluginManager extends DefaultPluginManager {
 
   /**

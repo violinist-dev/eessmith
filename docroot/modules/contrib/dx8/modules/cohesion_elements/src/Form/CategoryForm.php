@@ -4,16 +4,16 @@ namespace Drupal\cohesion_elements\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\cohesion_elements\Entity\ElementCategoryBase;
 
 /**
- * Class CategoryForm
+ * Class CategoryForm.
  *
  * @package Drupal\cohesion_elements\Form
  */
 class CategoryForm extends EntityForm {
 
-  /** @var ElementCategoryBase */
+  /**
+   * @var \Drupal\cohesion_elements\Entity\ElementCategoryBase*/
   protected $entity;
 
   /**
@@ -43,7 +43,7 @@ class CategoryForm extends EntityForm {
 
     $form['details']['machine_name'] = [
       '#title' => $this->t('Machine name'),
-      '#maxlength' => 32-strlen($this->entity->getEntityMachineNamePrefix()),
+      '#maxlength' => 32 - strlen($this->entity->getEntityMachineNamePrefix()),
       '#access' => TRUE,
       '#weight' => 1,
       '#description_display' => 'before',
@@ -63,16 +63,14 @@ class CategoryForm extends EntityForm {
       '#disabled' => !$this->entity->canEditMachineName(),
     ];
 
-
-    // COHESION_COMPONENT_CATEGORY_COUNT
+    // COHESION_ELEMENTS_COHESION_COMPONENT_CATEGORY_COUNT.
     $options = [];
-    for ($i = 1; $i <= COHESION_COMPONENT_CATEGORY_COUNT; $i++) {
+    for ($i = 1; $i <= COHESION_ELEMENTS_COHESION_COMPONENT_CATEGORY_COUNT; $i++) {
       $options['category-' . $i] = 'category-' . $i;
     }
 
     $form['details']['class'] = [
       '#type' => 'color_class_radios',
-      '#title' => $this->t('Style'),
       '#required' => FALSE,
       '#options' => $options,
       '#default_value' => $this->entity->getClass(),
@@ -119,7 +117,7 @@ class CategoryForm extends EntityForm {
 
       if ($ids = $query->execute()) {
         if ($weight_entity = $storage->load(reset($ids))) {
-          $this->entity->setWeight($weight_entity->getWeight()+1);
+          $this->entity->setWeight($weight_entity->getWeight() + 1);
         }
       }
       else {
@@ -149,6 +147,7 @@ class CategoryForm extends EntityForm {
    * @param $value
    *
    * @return bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */

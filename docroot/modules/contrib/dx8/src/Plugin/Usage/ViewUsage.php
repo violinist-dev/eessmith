@@ -2,11 +2,12 @@
 
 namespace Drupal\cohesion\Plugin\Usage;
 
+use Drupal\block\Entity\Block;
 use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ViewUsage
+ * Class ViewUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -83,7 +84,7 @@ class ViewUsage extends UsagePluginBase {
           // View referenced as a block.
           if ($k == 'block' && strstr($v, 'views_block__')) {
             try {
-              if ($dependency = \Drupal\block\Entity\Block::load($v)->getDependencies()['config'][0]) {
+              if ($dependency = Block::load($v)->getDependencies()['config'][0]) {
                 if ($view_entity = $this->storage->load(str_replace('views.view.', '', $dependency))) {
                   $entities[] = [
                     'type' => $this->getEntityType(),
@@ -91,7 +92,8 @@ class ViewUsage extends UsagePluginBase {
                   ];
                 }
               }
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
               continue;
             }
           }

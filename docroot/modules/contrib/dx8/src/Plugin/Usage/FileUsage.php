@@ -3,15 +3,14 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\file\Entity\File;
-use Drupal\file\FileInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\File\FileSystemInterface;
 
 /**
- * Class FileUsage
+ * Class FileUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -29,9 +28,16 @@ use Drupal\Core\Cache\Cache;
  */
 class FileUsage extends UsagePluginBase {
 
-  // Use a regex to scan the JSON blog for usages of file URIs.
+  /**
+   * Use a regex to scan the JSON blog for usages of file URIs.
+   *
+   * @var string
+   */
   protected $uriRegex;
 
+  /**
+   * @var string
+   */
   protected $mediaReferenceRegex;
 
   /**
@@ -93,9 +99,9 @@ class FileUsage extends UsagePluginBase {
     }
     else {
       if (empty($files) && file_exists($uri)) {
-        // Make file selected within DX8 managed and permanent
+        // Make file selected within Acquia Cohesion managed and permanent.
         $contents = file_get_contents($uri);
-        $file = file_save_data($contents, $uri, FILE_EXISTS_REPLACE);
+        $file = file_save_data($contents, $uri, FileSystemInterface::EXISTS_REPLACE);
         $file->setPermanent();
         $file->save();
         return $file;
@@ -109,6 +115,7 @@ class FileUsage extends UsagePluginBase {
    * @param $uri
    *
    * @return bool|\Drupal\Core\Entity\EntityInterface|\Drupal\file\FileInterface|false|mixed
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   private function getFileEntityByUri($uri) {
@@ -145,7 +152,8 @@ class FileUsage extends UsagePluginBase {
     // Remove 'cohesion' registered usage of all files for scanned entity.
     try {
       $this->connection->delete('file_usage')->condition('module', 'cohesion')->condition('type', $entity->getEntityTypeId())->condition('id', $entity->id())->execute();
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       return;
     }
 
@@ -173,13 +181,14 @@ class FileUsage extends UsagePluginBase {
       ]);
     }
 
-    $tags = Cache::mergeTags($tags, $file_entity->getCacheTagsToInvalidate()); // An existing entity was updated, also invalidate its unique cache tag.
+    // An existing entity was updated, also invalidate its unique cache tag.
+    $tags = Cache::mergeTags($tags, $file_entity->getCacheTagsToInvalidate());
     Cache::invalidateTags($tags);
   }
 
   /**
    * Patch all known stream wrapper basepaths into the content to catch files
-   * that are in use but not defined as URIs like stream://
+   * that are in use but not defined as URIs like stream://.
    *
    * @param $data
    */
@@ -205,7 +214,8 @@ class FileUsage extends UsagePluginBase {
     foreach ($data as $entry) {
       if ($entry['type'] == 'json_string' || $entry['type'] == 'string') {
         // Get all the files used by URI.
-        $entry['value'] = str_replace('\\/', '/', $entry['value']);  // Cheaply patch the JSON.
+        // Cheaply patch the JSON.
+        $entry['value'] = str_replace('\\/', '/', $entry['value']);
         $this->convertBasepathsToUris($entry['value']);
 
         preg_match_all($this->uriRegex, $entry['value'], $matches, PREG_SET_ORDER, 0);
@@ -239,7 +249,7 @@ class FileUsage extends UsagePluginBase {
           // Tell core 'file.usage' that this file is in use by this entity.
           $files[] = $file;
 
-          // Save the DX8 in-use.
+          // Save the Acquia Cohesion in-use.
           $entities[] = [
             'type' => $this->getEntityType(),
             'uuid' => $file->uuid(),
@@ -256,7 +266,7 @@ class FileUsage extends UsagePluginBase {
           // Tell core 'file.usage' that this file is in use by this entity.
           $files[] = $file;
 
-          // Save the DX8 in-use.
+          // Save the Acquia Cohesion in-use.
           $entities[] = [
             'type' => $this->getEntityType(),
             'uuid' => $file->uuid(),
@@ -266,7 +276,7 @@ class FileUsage extends UsagePluginBase {
       }
     }
 
-    // Register file usages with core 'file.usage'
+    // Register file usages with core 'file.usage'.
     if (!empty($files)) {
       $this->registerCoreFileUsage($files, $entity);
     }
@@ -282,8 +292,8 @@ class FileUsage extends UsagePluginBase {
     $this->refreshFileListCache($file_entity);
 
     // Update the file entity changed timestamp so it gets cleared on cron.
-    /** @var File $file_entity */
-    $file_entity->setChangedTime(REQUEST_TIME);
+    /** @var \Drupal\file\Entity\File $file_entity */
+    $file_entity->setChangedTime(\Drupal::time()->getRequestTime());
 
     // Remove CORE 'cohesion' registered usage of all files for scanned entity.
     $this->connection->delete('file_usage')->condition('module', 'cohesion')->condition('type', $entity->getEntityTypeId())->condition('id', $entity->id())->execute();

@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_templates\Form;
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
@@ -54,8 +55,8 @@ class ContentTemplatesForm extends TemplateForm {
     $token_type = $token_entity_mapper->getTokenTypeForEntityType($entity_type);
     $form['cohesion']['#token_browser'] = ($token_type) ? $token_type : '';
 
-    // Set Drupal field endpoint
-    $language_none = \Drupal::languageManager()->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
+    // Set Drupal field endpoint.
+    $language_none = \Drupal::languageManager()->getLanguage(LanguageInterface::LANGCODE_NOT_APPLICABLE);
 
     $form['#attached']['drupalSettings']['cohesion']['contextualKey'] = Url::fromRoute('cohesion.entity_fields', [
       'entity_type' => $entity_type,
@@ -126,7 +127,8 @@ class ContentTemplatesForm extends TemplateForm {
 
     // Show default & master template fields for full content templates.
     if ($view_mode == 'full') {
-      $master_template_ids = \Drupal::service('entity.query')->get('cohesion_master_templates')->condition('status', TRUE)->condition('selectable', TRUE)->execute();
+      $master_template_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_master_templates')->getQuery()
+        ->condition('status', TRUE)->condition('selectable', TRUE)->execute();
       $master_template_storage = $this->entityTypeManager->getStorage('cohesion_master_templates');
       $master_templates = $master_template_storage->loadMultiple($master_template_ids);
 
@@ -214,7 +216,7 @@ class ContentTemplatesForm extends TemplateForm {
   protected function actions(array $form, FormStateInterface $form_state) {
     $actions = parent::actions($form, $form_state);
 
-    // Remove delete action on non full content template
+    // Remove delete action on non full content template.
     if ((isset($actions['delete']) && $this->entity->get('view_mode') !== 'full') || !$this->entity->isModified()) {
       unset($actions['delete']);
     }

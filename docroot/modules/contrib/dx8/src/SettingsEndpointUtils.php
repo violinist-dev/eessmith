@@ -4,12 +4,12 @@ namespace Drupal\cohesion;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\cohesion\CohesionApiClient;
-use Drupal\cohesion\CohesionApiElementStorage;
-use Drupal\cohesion_website_settings\Entity\Color;
-use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
 
+/**
+ *
+ */
 class SettingsEndpointUtils {
 
   /**
@@ -50,9 +50,9 @@ class SettingsEndpointUtils {
     $referer = \Drupal::request()->server->get('HTTP_REFERER');
     $results = [];
 
-    // Filter categories based on dx8 access permissions
+    // Filter categories based on dx8 access permissions.
     foreach ($categories as $key => $category) {
-      // Component builder group should only be available within the component builder
+      // Component builder group should only be available within the component builder.
       if ($key == 'component-builder-elements' && !(strpos($referer, '/admin/cohesion/components/components') !== FALSE)) {
         continue;
       }
@@ -66,7 +66,7 @@ class SettingsEndpointUtils {
         foreach ($category['elements'] as $element_id) {
           $elements[$element_id] = isset($asset_data[$element_id]) ? $asset_data[$element_id] : [];
         }
-        // Assign new elements
+        // Assign new elements.
         $results[$key]['children'] = array_values($elements);
         unset($results[$key]['elements']);
       }
@@ -88,8 +88,7 @@ class SettingsEndpointUtils {
     if ($assetLibrary) {
       if ($group) {
         if ($type == '__ALL__') {
-          // Get all assets
-
+          // Get all assets.
           if ($group == 'elements' && $with_categories) {
 
             $asset_data = $assetLibrary->getAll();
@@ -128,7 +127,7 @@ class SettingsEndpointUtils {
 
         $data = $asset ?: [];
         $error = $data ? FALSE : TRUE;
-        $message = $data ? t('DX8 Asset library loaded.') : t('Empty DX8 Asset library.');
+        $message = $data ? t('Acquia Cohesion asset library loaded.') : t('Empty Acquia Cohesion asset library.');
       }
       else {
         $error = TRUE;
@@ -227,7 +226,7 @@ class SettingsEndpointUtils {
    */
   public function getLibraries($bundle, $all_values = FALSE) {
     $results = &drupal_static(__FUNCTION__);
-    $tag = [$bundle,];
+    $tag = [$bundle];
     if ($bundle) {
       $cid = $bundle . '_libraries:' . \Drupal::languageManager()->getCurrentLanguage()->getId();
 
@@ -252,7 +251,7 @@ class SettingsEndpointUtils {
    */
   public function getEndpointLibraries($bundle) {
     $results = &drupal_static(__FUNCTION__);
-    $tag = [$bundle,];
+    $tag = [$bundle];
     if ($bundle) {
       $cid = $bundle . '_endpoint_libraries:' . \Drupal::languageManager()->getCurrentLanguage()->getId();
 
@@ -275,18 +274,27 @@ class SettingsEndpointUtils {
    * @param null $item
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getColorsList($item = NULL) {
     $color_values = [];
 
-    /** @var Color $color_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\Color $color_entity */
     foreach ($this->entityTypeManager->getStorage('cohesion_color')->loadMultiple() as $color_entity) {
       $json_values = $color_entity->getDecodedJsonValues();
 
+      $weight = $color_entity->getWeight();
+
+      if (isset($color_values[$weight])) {
+        while (isset($color_values[$weight])) {
+          $weight++;
+        }
+      }
+
       if ($item == NULL || $item == $json_values['variable']) {
-        $color_values[$color_entity->getWeight() . $color_entity->id()] = $json_values;
+        $color_values[$weight] = $json_values;
       }
     }
 
@@ -302,8 +310,8 @@ class SettingsEndpointUtils {
    * @param null $id
    *
    * @return array|null
-   * @todo - the hardcoded/switch logic should be moved into the corresponding entity class file.
    *
+   * @todo - the hardcoded/switch logic should be moved into the corresponding entity class file.
    */
   private function getWebsiteSettingsValuesById($id = NULL) {
     $result = [];
@@ -337,7 +345,7 @@ class SettingsEndpointUtils {
             if ($storage = $this->entityTypeManager->getStorage('cohesion_website_settings')) {
               $entityId = $storage->getQuery()->condition("status", 1)->condition("id", $id, '=')->execute();
               if ($entityId) {
-                /** @var WebsiteSettings $website_settings */
+                /** @var \Drupal\cohesion_website_settings\Entity\WebsiteSettings $website_settings */
                 $website_settings = $storage->load(reset($entityId));
               }
             }
@@ -490,11 +498,10 @@ class SettingsEndpointUtils {
 
     $element_group = isset($data['element_group']) ? $data['element_group'] : NULL;
 
-    $exclude_groups = ['global_libraries', 'element_templates',];
+    $exclude_groups = ['global_libraries', 'element_templates'];
     $uri = '/group/' . $element_group;
 
-
-    if (($response = CohesionApiClient::getAssetJson($uri)) && $response->getStatusCode() === 200) {
+    if (($response = \Drupal::service('cohesion.api_client')->getAssetJson($uri)) && $response->getStatusCode() === 200) {
       $content = $response->getBody()->getContents();
     }
     else {
@@ -521,7 +528,7 @@ class SettingsEndpointUtils {
             }
           }
           else {
-            // content is already an array, so just store as is.
+            // Content is already an array, so just store as is.
             $content = $result['content'];
           }
         }
@@ -607,23 +614,26 @@ class SettingsEndpointUtils {
       if ($library['external'] === FALSE && $cohesion_asset_path) {
         $asset_dir_path = sprintf("%s/%s", $cohesion_asset_path, $asset['id']);
         $filename = basename($library['asset_url']);
+        if (isset($library['type'])) {
+          $asset_dir_path .= '/' . $library['type'];
+        }
         $asset_file_path = sprintf("%s/%s", $asset_dir_path, $filename);
         $asset_content = NULL;
         if (!is_dir($asset_dir_path) && !file_exists($asset_dir_path)) {
-          if (file_prepare_directory($asset_dir_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-            drupal_set_message('Element ' . $asset['id'] . ' asset directory created');
+          if (\Drupal::service('file_system')->prepareDirectory($asset_dir_path, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
+            \Drupal::messenger()->addMessage(t('Element @asset_id asset directory created', ['@asset_id' => $asset['id']]));
           }
         }
 
-        $asset_response = CohesionApiClient::getAssetJson($library['asset_url']);
+        $asset_response = \Drupal::service('cohesion.api_client')->getAssetJson($library['asset_url']);
         if ($asset_response && $asset_response->getStatusCode() == 200) {
           $asset_content = $asset_response->getBody()->getContents();
         }
 
-        if (file_unmanaged_save_data($asset_content, $asset_file_path, FILE_EXISTS_REPLACE)) {
+        try {
+          \Drupal::service('file_system')->saveData($asset_content, $asset_file_path, FileSystemInterface::EXISTS_REPLACE);
           $asset[$type][$key]['asset_url'] = $asset_file_path;
-        }
-        else {
+        } catch (\Throwable $e) {
           $asset[$type][$key]['asset_url'] = '';
         }
       }
@@ -638,7 +648,7 @@ class SettingsEndpointUtils {
   }
 
   /**
-   * Log js error message
+   * Log js error message.
    *
    * @param string $error_data
    */
@@ -670,11 +680,11 @@ class SettingsEndpointUtils {
    * @return array
    */
   private function dx8PermissionsByRole($role) {
-    // User 1 is always administrator
-    if(\Drupal::currentUser()->id() == 1){
+    // User 1 is always administrator.
+    if (\Drupal::currentUser()->id() == 1) {
       $role = 'administrator';
     }
-    
+
     $cache_key = __FUNCTION__ . $role;
 
     // Attempt to use an existing cache for this list.
@@ -691,12 +701,12 @@ class SettingsEndpointUtils {
 
         if ($user_permissions = user_role_permissions([$role])) {
 
-          // Filter permissions base on logged in user role
+          // Filter permissions base on logged in user role.
           foreach ($user_permissions as $permissions) {
             $results = array_merge($results, $permissions);
           }
 
-          // filter cohesion_permissions from site permissions
+          // Filter cohesion_permissions from site permissions.
           foreach (\Drupal::service('user.permissions')->getPermissions() as $permission_id => $permission) {
             if (in_array($permission['provider'], $cohesion_modules)) {
               $dx8_permissions[] = $permission_id;
@@ -719,9 +729,9 @@ class SettingsEndpointUtils {
    * @return array of cohesion submodules
    */
   private function dx8SubModules() {
-    $system_modules = system_rebuild_module_data();
+    $system_modules = \Drupal::service('extension.list.module')->reset()->getList();
     if (\Drupal::service('module_handler')
-        ->moduleExists('cohesion') && (in_array('cohesion', array_keys($system_modules)) || in_array('dx8', array_keys($system_modules))) && ($required_by = $system_modules['cohesion']->required_by)) {
+      ->moduleExists('cohesion') && (in_array('cohesion', array_keys($system_modules)) || in_array('dx8', array_keys($system_modules))) && ($required_by = $system_modules['cohesion']->required_by)) {
 
       $dx8_submodule_callback = function ($module) {
         return (\Drupal::service('module_handler')->moduleExists($module) && \Drupal::service('user.permissions')->moduleProvidesPermissions($module));

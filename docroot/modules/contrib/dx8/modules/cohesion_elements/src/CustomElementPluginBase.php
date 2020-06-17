@@ -6,7 +6,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Base class for a custom DX8 element.
+ * Base class for a custom element.
  *
  * @package Drupal\cohesion_elements
  */

@@ -6,35 +6,19 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Class BatchImportController
+ * Class BatchImportController.
  *
  * @package Drupal\cohesion_sync\Controller
  */
 class BatchImportController extends ControllerBase {
 
   /**
-   * Clear the results session data.
-   *
-   * @param $entry
-   * @param $context
-   */
-  public static function batchStartAction($entry, &$context) {
-    $context['message'] = t('Starting the import.');
-    $context['results'][] = TRUE;
-
-    \Drupal::service('user.private_tempstore')->get('sync_report')->delete('report');
-  }
-
-  /**
    * @param $entry
    * @param $context
    */
   public static function batchAction($entry, &$context) {
-
-    // Let this throw errors if something goes wrong.
     \Drupal::service('cohesion_sync.packager')->applyPackageEntry($entry);
-
-    $context['message'] = t('Importing %uuid', ['%uuid' => $entry['export']['uuid']]);
+    $context['message'] = t('Importing:  @type - @uuid', ['@type' => $entry['type'], '@uuid' => $entry['export']['uuid']]);
     $context['results'][] = TRUE;
   }
 
@@ -47,7 +31,7 @@ class BatchImportController extends ControllerBase {
     // Let this throw errors if something goes wrong.
     \Drupal::service('cohesion_sync.packager')->postApplyPackageEntry($entry);
 
-    $context['message'] = t('Applying %uuid', ['%uuid' => $entry['export']['uuid']]);
+    $context['message'] = t('Building:  @type - @uuid', ['@type' => $entry['type'], '@uuid' => $entry['export']['uuid']]);
     $context['results'][] = TRUE;
   }
 
@@ -62,11 +46,11 @@ class BatchImportController extends ControllerBase {
     // The 'success' parameter means no fatal PHP errors were detected. All
     // other error management should be handled using 'results'.
     if ($success) {
-      drupal_set_message(t('The import succeeded. @count tasks completed.', ['@count' => count($results)]));
+      \Drupal::messenger()->addMessage(t('The import succeeded. @count tasks completed.', ['@count' => count($results)]));
       return new RedirectResponse('/admin/cohesion/sync/import/report');
     }
     else {
-      drupal_set_message(t('Finished with an error.'));
+      \Drupal::messenger()->addMessage(t('Finished with an error.'));
     }
   }
 
@@ -80,7 +64,7 @@ class BatchImportController extends ControllerBase {
     $context['message'] = t('Building the report.');
     $context['results'][] = TRUE;
 
-    \Drupal::service('user.private_tempstore')->get('sync_report')->set('report', $action_data);
+    \Drupal::service('tempstore.private')->get('sync_report')->set('report', $action_data);
   }
 
 }

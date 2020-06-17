@@ -5,11 +5,10 @@ namespace Drupal\cohesion_sync;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\cohesion_sync\SyncPluginInterface;
 use Drupal\cohesion_sync\Annotation\Sync;
 
 /**
- * Class SyncPluginManager
+ * Class SyncPluginManager.
  *
  * @package Drupal\cohesion_sync
  */
@@ -28,4 +27,5 @@ class SyncPluginManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'cohesion_sync');
     $this->alterInfo('cohesion_sync');
   }
+
 }

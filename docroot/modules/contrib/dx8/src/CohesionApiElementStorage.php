@@ -1,18 +1,12 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\cohesion\CohesionApiElementStorage.
- */
-
-
 namespace Drupal\cohesion;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Database\Database;
 
 /**
- * Class CohesionApiElementStorage
+ * Class CohesionApiElementStorage.
  *
  * @package Drupal\cohesion
  */
@@ -55,6 +49,9 @@ class CohesionApiElementStorage {
     }
   }
 
+  /**
+   *
+   */
   public function get($element_id) {
     $entries = [];
 
@@ -76,7 +73,9 @@ class CohesionApiElementStorage {
     return $entries;
   }
 
-
+  /**
+   *
+   */
   public function getAll($limit = NULL) {
     $select = $this->connection->select('coh_element_schema_info', 'si');
     $select->addField('si', 'id');
@@ -149,9 +148,10 @@ class CohesionApiElementStorage {
 
     try {
       $query->execute();
-      //  Success message here
+      // Success message here.
       return TRUE;
-    } catch (\PDOException $e) {
+    }
+    catch (\PDOException $e) {
       \Drupal::logger('cohesionapi_element_update_error')
         ->error($e->getMessage());
       return FALSE;
@@ -168,9 +168,10 @@ class CohesionApiElementStorage {
         ->condition('element_id', $params['element_id'], '=')
         ->condition('element_group', $params['element_group'], '=')
         ->execute();
-      //  Success message here
-    } catch (\PDOException $e) {
-      //Query failed; recover based on $e->getMessage()
+      // Success message here.
+    }
+    catch (\PDOException $e) {
+      // Query failed; recover based on $e->getMessage()
       \Drupal::logger('cohesionapi_element_update_error')
         ->error($e->getMessage());
     }
@@ -187,14 +188,14 @@ class CohesionApiElementStorage {
     $element_group_id = isset($params['element_group']) ? $params['element_group'] : NULL;
     if ($element_id && $element_group_id) {
       if ($this->cohElementExists($element_id, $element_group_id)) {
-        // Update
+        // Update.
         $this->cohUpdate($params);
       }
       else {
 
-        // Insert
+        // Insert.
         if (isset($params[0])) {
-          // Handle multiple inserts
+          // Handle multiple inserts.
           $insert_data = [];
           foreach ($params as $key => $value) {
             $value['id'] = NULL;
@@ -230,8 +231,9 @@ class CohesionApiElementStorage {
           ->execute();
       }
 
-      //  Success message here
-    } catch (\PDOException $e) {
+      // Success message here.
+    }
+    catch (\PDOException $e) {
       \Drupal::logger('cohesionapi_element_update_error')
         ->error($e->getMessage());
     }
@@ -254,8 +256,9 @@ class CohesionApiElementStorage {
           ->execute();
       }
 
-      //  Success message here
-    } catch (\PDOException $e) {
+      // Success message here.
+    }
+    catch (\PDOException $e) {
       \Drupal::logger('cohesionapi_element_update_error')
         ->error($e->getMessage());
     }
@@ -274,7 +277,6 @@ class CohesionApiElementStorage {
       }
       return TRUE;
     }
-    return;
   }
 
 }

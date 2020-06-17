@@ -1,61 +1,100 @@
 <?php
-/**
- * @file
- * Contains Drupal\cohesion_elements\Form\CohesionLayoutForm;
- */
 
 namespace Drupal\cohesion_elements\Form;
 
-use Drupal\cohesion_elements\Entity\ComponentContent;
-use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityForm;
 
 /**
- * Class CohesionLayoutForm
+ * Class CohesionLayoutForm.
  *
  * @package Drupal\cohesion_elements\Form
  */
-class CohesionLayoutForm extends ContentEntityForm {
+class CohesionLayoutForm extends EntityForm {
 
-  private $component_instance_uuid;
-  private $component_form_json;
+  /**
+   * @var \Drupal\cohesion_elements\Entity\CohesionLayout
+   */
+  protected $entity;
+
+  /**
+   * @var mixed
+   */
+  protected $component_instance_uuid;
+
+  /**
+   * @var mixed
+   */
+  protected $component_id;
+
+  /**
+   * @var \Drupal\cohesion_elements\Entity\Component
+   */
+  protected $component_entity;
+
+  /**
+   * @var string
+   */
+  protected $component_form_json;
+
+  /**
+   * @var mixed
+   */
+  protected $cohesion_layout_revision_id;
+
+  /**
+   * @var string
+   */
+  protected $operation;
+
+  /**
+   * @var bool
+   */
+  protected $submit = TRUE;
+
+  /**
+   * CohesionLayoutForm constructor.
+   */
+  public function __construct() {
+    $this->component_instance_uuid = \Drupal::request()->attributes->get('component_instance_uuid');
+    $this->component_id = \Drupal::request()->attributes->get('component_id');
+    $this->cohesion_layout_revision_id = \Drupal::request()->attributes->get('cohesion_layout_revision');
+
+    // Load the entity.
+    if ($this->cohesion_layout_revision_id && (!$this->entity = \Drupal::service('entity_type.manager')
+      ->getStorage('cohesion_layout')
+      ->loadRevision($this->cohesion_layout_revision_id))) {
+      return FALSE;
+    }
+
+    // Load the component JSON.
+    if ($this->component_id && ($this->component_entity = \Drupal::service('entity_type.manager')
+      ->getStorage('cohesion_component')
+      ->load($this->component_id))) {
+      // Return the json data.
+      $this->component_form_json = $this->component_entity->getJsonValues();
+    }
+    else {
+      return FALSE;
+    }
+
+    $this->operation = 'edit';
+    $this->setModuleHandler(\Drupal::moduleHandler());
+  }
 
   /**
    * {@inheritdoc}
    */
-  public function __construct($entity_manager, $entity_type_bundle_info, $time) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
-
-    // Stash the component uuid from the path.
-    $this->component_instance_uuid = \Drupal::request()->attributes->get('component_instance_uuid');
-
-    // Load the component form data.
-    $component_id = \Drupal::request()->attributes->get('component_id');
-
-    if ($component_id && ($component_entity = \Drupal::service('entity_type.manager')
-        ->getStorage('cohesion_component')
-        ->load($component_id))) {
-      // Return the json data.
-      $this->component_form_json = $component_entity->getJsonValues();
-    }
-
-
-  }
-
-    /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    // Continue.
     $form = parent::buildForm($form, $form_state);
 
     $form['#attributes']['class'] = [
-      'cohesion-component-in-context'
+      'cohesion-component-in-context',
     ];
-
-    $form['actions']['submit']['#ajax'] = array(
-      'callback' => '\Drupal\cohesion_elements\Controller\CohesionLayoutModalController::cohesionLayoutAjax',
-      'wrapper' => 'cohesion',
-    );
 
     $json_values = $this->entity->get('json_values')->getValue();
     $json_values = array_shift($json_values);
@@ -77,7 +116,6 @@ class CohesionLayoutForm extends ContentEntityForm {
     $form['#attached']['drupalSettings']['cohesion']['componentInstanceUuid'] = $this->component_instance_uuid;
     $form['#attached']['drupalSettings']['cohesion']['componentFormJson'] = $this->component_form_json;
 
-
     // Add the shared attachments.
     _cohesion_shared_page_attachments($form);
 
@@ -87,15 +125,31 @@ class CohesionLayoutForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state) {
-    /* @var \Drupal\cohesion_elements\Entity\CohesionLayout $entity */
-    $entity = $this->getEntity();
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $actions = parent::actions($form, $form_state);
+
+    $actions['submit']['#ajax'] = [
+      'callback' => function ($form, FormStateInterface $form_state) {
+        return new AjaxResponse([]);
+      },
+      'wrapper' => 'cohesion',
+    ];
+    return $actions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function copyFormValuesToEntity(EntityInterface $entity, array $form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
 
-    if(isset($values['json_values'])){
-      $entity->setJsonValue($values['json_values']);
-      $entity->save();
+    if ($this->entity instanceof EntityWithPluginCollectionInterface) {
+      // Do not manually update values represented by plugin collections.
+      $values = array_diff_key($values, $this->entity->getPluginCollections());
     }
+
+    $entity->setJsonValue($values['json_values']);
+
   }
 
 }

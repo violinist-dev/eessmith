@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Form;
 use Drupal\cohesion\Form\CohesionDeleteForm;
 
 /**
- * Class TemplateDeleteForm
+ * Class TemplateDeleteForm.
  *
  * Builds the form to delete Cohesion custom styles entities.
  *
@@ -20,9 +20,9 @@ class TemplateDeleteForm extends CohesionDeleteForm {
 
     if ($this->entity->getEntityTypeId() === 'cohesion_content_templates' && $this->entity->get('view_mode') !== 'full') {
       return $this->t('Are you sure you want to reset the @entity_type %entity_name?', [
-          '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
-          '%entity_name' => $this->entity->label(),
-        ]);
+        '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
+        '%entity_name' => $this->entity->label(),
+      ]);
     }
 
     return parent::getQuestion();
@@ -44,20 +44,17 @@ class TemplateDeleteForm extends CohesionDeleteForm {
    */
   public function getDescription() {
 
-
     $description = $this->t('Deleting a @entity_type will stop it from being used and delete the configuration of your @entity_type. This action cannot be undone.', [
-        '@entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
-      ]);
+      '@entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
+    ]);
 
     if ($this->entity->getEntityTypeId() === 'cohesion_content_templates' && $this->entity->get('view_mode') !== 'full') {
       $description = $this->t('Resetting a @entity_type will stop it from being used and delete the configuration of your @entity_type. This action cannot be undone.', [
-          '@entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
-        ]);
+        '@entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
+      ]);
     }
-
 
     return $description;
   }
-
 
 }

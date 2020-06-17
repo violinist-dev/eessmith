@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update link animations and modifiers
+ * Update link animations and modifiers.
  *
  * @package Drupal\cohesion
  *
@@ -37,12 +36,12 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
         foreach ($layoutCanvas->iterateModels('canvas') as $model) {
-          $elements = ['link', 'container', 'column', 'button', 'slide',];
+          $elements = ['link', 'container', 'column', 'button', 'slide'];
           $types = ['animation', 'modifier'];
           if (in_array($model->getElement()->getProperty('uid'), $elements) && in_array($model->getProperty([
-              'settings',
-              'type',
-            ]), $types)) {
+            'settings',
+            'type',
+          ]), $types)) {
             $json_values->model->{$model->getUUID()}->settings->type = 'interaction';
           }
 
@@ -66,9 +65,11 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
                 case 'link-settings':
                   $modifier->formKey = 'link-modifier';
                   break;
+
                 case 'button-settings':
                   $modifier->formKey = 'button-modifier';
                   break;
+
                 default:
                   $modifier->formKey = 'common-link-modifier';
                   break;
@@ -88,9 +89,11 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
                 case 'link-settings':
                   $animation->formKey = 'link-animation';
                   break;
+
                 case 'button-settings':
                   $animation->formKey = 'button-animation';
                   break;
+
                 default:
                   $animation->formKey = 'common-link-animation';
                   break;
@@ -107,8 +110,7 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
               ];
 
               $has_animation = FALSE;
-              $button_style = NULL;
-              foreach ($json_values->mapper->{$model->getUUID()}->settings->topLevel->formDefinition[$index]->children as $key => $mapper) {
+              foreach ($json_values->mapper->{$model->getUUID()}->settings->topLevel->formDefinition[$index]->children as $mapper) {
                 if ($mapper->formKey == $animation->formKey) {
                   $has_animation = TRUE;
                   break;
@@ -130,6 +132,9 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   *
+   */
   private function mapperHasSettings($json_values, $uuid, $formKeys) {
 
     $encode = json_encode($json_values);
@@ -148,4 +153,5 @@ class _0012EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return FALSE;
   }
+
 }

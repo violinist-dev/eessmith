@@ -12,7 +12,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class UsagePluginBase
+ * Class UsagePluginBase.
  *
  * @package Drupal\cohesion
  */
@@ -67,7 +67,8 @@ abstract class UsagePluginBase extends PluginBase implements UsagePluginInterfac
 
     try {
       $this->storage = $this->entityTypeManager->getStorage($this->getEntityType());
-    } // Entity defined in the Usage plugin was not found.
+    }
+    // Entity defined in the Usage plugin was not found.
     catch (PluginNotFoundException $e) {
       return FALSE;
     }
@@ -101,6 +102,9 @@ abstract class UsagePluginBase extends PluginBase implements UsagePluginInterfac
     return $this->pluginDefinition['entity_type'];
   }
 
+  /**
+   *
+   */
   public function scanForInstancesOfThisType($data, EntityInterface $entity) {
     $entities = [];
 

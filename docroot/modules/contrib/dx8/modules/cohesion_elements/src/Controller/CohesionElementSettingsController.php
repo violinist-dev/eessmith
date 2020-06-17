@@ -5,13 +5,9 @@ namespace Drupal\cohesion_elements\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Component\Serialization\Json;
 
 /**
- * Class CohesionElementSettingsController
+ * Class CohesionElementSettingsController.
  *
  * Controller routines for Cohesion admin index page.
  *
@@ -36,6 +32,9 @@ class CohesionElementSettingsController extends ControllerBase {
     $this->systemManager = $systemManager;
   }
 
+  /**
+   *
+   */
   public static function create(ContainerInterface $container) {
     return new static($container->get('system.manager'));
   }

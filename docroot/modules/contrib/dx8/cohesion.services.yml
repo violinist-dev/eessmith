@@ -2,6 +2,7 @@ services:
 
   stream_wrapper.cohesion:
     class: Drupal\cohesion\StreamWrapper\CohesionStream
+    arguments: ['@string_translation']
     tags:
       - { name: 'stream_wrapper', scheme: cohesion }
 
@@ -19,6 +20,9 @@ services:
     class: Drupal\cohesion\SettingsEndpointUtils
     arguments: ['@cohesion.element.storage', '@entity_type.manager', '@plugin.manager.entity_groups.processor']
 
+  cohesion.api_client:
+    class: Drupal\cohesion\CohesionApiClient
+
   cohesion.utils:
     class: Drupal\cohesion\Services\CohesionUtils
     arguments: ['@theme_handler', '@theme.manager']
@@ -28,25 +32,26 @@ services:
     arguments: ['@current_user']
 
   cohesion.html_response_subscriber:
-      class: '\Drupal\cohesion\EventSubscriber\CohesionHtmlResponseSubscriber'
-      tags:
-        - { name: 'event_subscriber' }
+    class: '\Drupal\cohesion\EventSubscriber\CohesionHtmlResponseSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+
   cohesion.icon_interpreter:
-      class: '\Drupal\cohesion\Plugin\IconInterpreter'
-      tags:
-        - { name: 'icon_interpreter' }
+    class: '\Drupal\cohesion\Plugin\IconInterpreter'
+    tags:
+      - { name: 'icon_interpreter' }
 
   cohesion.api.utils:
     class: Drupal\cohesion\ApiUtils
     arguments: ['@uuid']
     tags:
-    - { name: cohesion.api.utils, scheme: cohesion }
+      - { name: cohesion.api.utils, scheme: cohesion }
 
   cohesion.local_files_manager:
     class: Drupal\cohesion\Services\LocalFilesManager
-    arguments: []
+    arguments: ['@string_translation']
     tags:
-    - { name: cohesion.local_files_manager, scheme: cohesion }
+      - { name: cohesion.local_files_manager, scheme: cohesion }
 
   cohesion.autocomplete_matcher:
     class: Drupal\cohesion\Entity\CohesionEntityAutocompleteMatcher
@@ -80,7 +85,7 @@ services:
     class: Drupal\cohesion\ImageBrowserUpdateManager
     arguments: ['@config.factory', '@plugin.manager.image_browser.processor', '@module_handler', '@entity.repository']
 
-  # DX8 entity update service.
+  # Entity update service.
   plugin.manager.entity_update.processor:
     class: Drupal\cohesion\EntityUpdatePluginManager
     parent: default_plugin_manager
@@ -91,8 +96,14 @@ services:
 
   # Support help keys.
   cohesion.support_url:
-      class: Drupal\cohesion\CohesionSupportUrl
+    class: Drupal\cohesion\CohesionSupportUrl
 
   cohesion.rebuild_inuse_batch:
     class: Drupal\cohesion\Services\RebuildInuseBatch
-    arguments: ['@module_handler', '@cohesion_usage.update_manager', '@entity.repository']
+    arguments: ['@module_handler', '@cohesion_usage.update_manager', '@entity.repository', '@string_translation']
+
+  cohesion.event_subscriber:
+    class: '\Drupal\cohesion\EventSubscriber\CohesionEventSubscriber'
+    arguments: ['@messenger', '@cohesion.utils', '@theme_handler']
+    tags:
+      - { name: 'event_subscriber' }

@@ -4,13 +4,10 @@ namespace Drupal\cohesion_elements\Plugin\Usage;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\Component\Serialization\Json;
 
 /**
- * Class ComponentContentUsage
+ * Class ComponentContentUsage.
  *
  * @package Drupal\cohesion_elements\Plugin\Usage
  *
@@ -37,7 +34,8 @@ class ComponentContentUsage extends UsagePluginBase {
     // Get the json values list.
     try {
       $cohesion_layout_entity = $entity->get('layout_canvas')->entity;;
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return $scannable;
     }
 
@@ -89,4 +87,3 @@ class ComponentContentUsage extends UsagePluginBase {
   }
 
 }
-

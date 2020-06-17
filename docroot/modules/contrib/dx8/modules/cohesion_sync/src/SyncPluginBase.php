@@ -4,6 +4,7 @@ namespace Drupal\cohesion_sync;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -11,7 +12,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepository;
 
 /**
- * Class SyncPluginBase
+ * Class SyncPluginBase.
  *
  * @package Drupal\cohesion_sync
  */
@@ -31,19 +32,21 @@ abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface,
   protected $entityTypeManager;
 
   /**
-   * @var EntityTypeInterface
+   * @var \Drupal\Core\Entity\EntityTypeInterface
    */
   protected $entityTypeDefinition;
 
   /**
    * Holds the id key of the entity type.
+   *
    * @var string
    */
   protected $id_key;
 
   /**
    * Holds the storage of the active entity entity type.
-   * @var
+   *
+   * @var mixed
    */
   protected $entityTypeStorage;
 
@@ -55,13 +58,15 @@ abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface,
    * @param $plugin_definition
    * @param \Drupal\Core\Entity\EntityRepository $entity_repository
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepository $entity_repository, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepository $entity_repository, EntityTypeManagerInterface $entity_type_manager, TranslationInterface $string_translation) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     // Save the injected services.
     $this->entityRepository = $entity_repository;
     $this->entityTypeManager = $entity_type_manager;
+    $this->stringTranslation = $string_translation;
   }
 
   /**
@@ -73,7 +78,8 @@ abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface,
       $plugin_id,
       $plugin_definition,
       $container->get('entity.repository'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('string_translation')
     );
   }
 
@@ -97,6 +103,7 @@ abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface,
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type_definition
    *
    * @return $this
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -115,10 +122,10 @@ abstract class SyncPluginBase extends PluginBase implements SyncPluginInterface,
   public function validatePackageEntryShouldApply($entry) {
     // Make sure the ID key is in the entry.
     if (!isset($entry[$this->id_key])) {
-      throw new \Exception(t('Missing ID key "@id_key" for this @entity_type import.', [
-        '@id_key' => $this->id_key,
-        '@entity_type' => $this->entityTypeDefinition->getLabel(),
-      ]));
+      throw new \Exception(sprintf('Missing ID key "%s" for this %s import.',
+        $this->id_key,
+        $this->entityTypeDefinition->getLabel()
+      ));
     }
   }
 

@@ -2,15 +2,15 @@
 
 namespace Drupal\cohesion_elements\Form;
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\cohesion\Form\CohesionBaseForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\cohesion_elements\Controller\ElementsController;
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
-use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 
 /**
- * Class ElementBaseForm
+ * Class ElementBaseForm.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -23,9 +23,9 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     // Prepare the upload directory.
     $preview_upload_location = 'public://element-preview-images';
     if (!file_exists($preview_upload_location)) {
-      @ drupal_mkdir($preview_upload_location, 0777, TRUE);
+      @ \Drupal::service('file_system')->mkdir($preview_upload_location, 0777, TRUE);
     }
-    @ drupal_chmod($preview_upload_location, 0777);
+    @ \Drupal::service('file_system')->chmod($preview_upload_location, 0777);
 
     // Now handle the form.
     $form = parent::form($form, $form_state);
@@ -36,8 +36,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     $form_class = str_replace('_', '-', $this->entity->getEntityTypeId()) . '-' . str_replace('_', '-', $this->entity->id()) . '-form';
     $form['#attributes']['class'][] = $form_class;
 
-    // Set Drupal field endpoint
-    $language_none = \Drupal::languageManager()->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
+    // Set Drupal field endpoint.
+    $language_none = \Drupal::languageManager()->getLanguage(LanguageInterface::LANGCODE_NOT_APPLICABLE);
 
     $form['#attached']['drupalSettings']['cohesion']['contextualKey'] = Url::fromRoute('cohesion.entity_fields', [
       'entity_type' => '__any__',
@@ -47,7 +47,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     // Show categories.
     $form['details']['category'] = [
       '#type' => 'select',
-      '#title' => t('Category'),
+      '#title' => $this->t('Category'),
       '#options' => [],
       '#required' => TRUE,
       '#access' => TRUE,
@@ -57,7 +57,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     // Add new category link.
     $add_category_url = Url::fromRoute($this->entity->getEntityTypeId() == 'cohesion_component' ? 'entity.cohesion_component_category.add_form' : 'entity.cohesion_helper_category.add_form');
 
-    if ($add_category_url->access()) { // Only show if user has access to this route.
+    // Only show if user has access to this route.
+    if ($add_category_url->access()) {
       $form['details']['add_category'] = [
         '#prefix' => '<p>',
         '#suffix' => '</p>',
@@ -77,7 +78,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     // Preview image upload.
     $form['details']['preview_image'] = [
       '#type' => 'managed_file',
-      '#title' => t('Preview image'),
+      '#title' => $this->t('Preview image'),
       '#upload_validators' => [
         'file_validate_is_image' => [],
         'file_validate_extensions' => ['gif png jpg jpeg'],
@@ -106,7 +107,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       '#required' => FALSE,
       '#machine_name' => [
         'source' => ['details', 'label'],
-        'label' => t('Machine name'),
+        'label' => $this->t('Machine name'),
         'replace_pattern' => '[^a-z0-9\_]+',
         'replace' => '_',
         'field_prefix' => $this->entity->getEntityMachineNamePrefix(),
@@ -116,7 +117,6 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       ],
       '#disabled' => !$this->entity->canEditMachineName(),
     ];
-
 
     $storage = $this->entityTypeManager->getStorage('entity_view_mode');
     $entity_ids = $storage->getQuery()->execute();
@@ -134,7 +134,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
         }
       }
     }
-    $entity_type_options['dx8_templates'] = $this->t('DX8 Templates');
+    $entity_type_options['dx8_templates'] = $this->t('Acquia Cohesion templates');
 
     $active_index = [];
     $entity = $this->entity;
@@ -146,14 +146,14 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       $count = count($bundle_access_data) ?: 1;
       $form_state->set('entity_types_count', $count);
     }
-    // Set default removed index
+    // Set default removed index.
     if (empty($form_state->get('removed_index'))) {
       $form_state->set('removed_index', []);
     }
 
     $form['availability'] = [
       '#type' => 'cohesion_accordion',
-      '#title' => t('Availability'),
+      '#title' => $this->t('Availability'),
       '#weight' => -99,
       '#help_link' => \Drupal::service('cohesion.support_url')->getSupportUrlPrefix() . 'component-form-builder-component-availability',
     ];
@@ -176,12 +176,12 @@ abstract class ElementBaseForm extends CohesionBaseForm {
 
     for ($i = 0; $i < $form_state->get('entity_types_count'); $i++) {
 
-      // Skip removed row
+      // Skip removed row.
       if (in_array($i, $form_state->get('removed_index'))) {
         continue;
       }
       // We need store the index of all entity types so we can
-      // Availability
+      // Availability.
       $active_index[] = $i;
 
       if (isset($entity_type_access_data[$i]) && !$form_state->getTriggeringElement()) {
@@ -204,7 +204,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
 
       $form['availability']['add']['types_container'][$i]['item']['row']['entity_type_access_' . $i] = [
         '#type' => 'select',
-        '#title' => t('Available on entity type:'),
+        '#title' => $this->t('Available on entity type:'),
         '#empty_option' => 'All',
         '#options' => $entity_type_options,
         '#access' => TRUE,
@@ -251,7 +251,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
 
       $form['availability']['add']['types_container'][$i]['item']['row']['remove'] = [
         '#type' => 'submit',
-        '#value' => t('Remove'),
+        '#value' => $this->t('Remove'),
         '#submit' => ['::removeOneCallback'],
         '#name' => 'remove_button_name_' . $i,
         '#ajax' => [
@@ -265,7 +265,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
         '#prefix' => '<div class="coh-btn-container">',
         '#suffix' => '</div>',
         '#weight' => 6,
-        '#access' => $i === 0 ? FALSE : TRUE, // hide 'remove' button from first type option
+        // Hide 'remove' button from first type option.
+        '#access' => $i === 0 ? FALSE : TRUE,
       ];
     }
 
@@ -280,7 +281,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
 
     $form['availability']['add']['add_button_container']['add_type'] = [
       '#type' => 'submit',
-      '#value' => t('Add another type'),
+      '#value' => $this->t('Add another type'),
       '#button_type' => 'primary',
       '#submit' => ['::addOne'],
       '#name' => 'add_more_button',
@@ -290,16 +291,15 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       ],
     ];
 
-    // Weight
+    // Weight.
     $form['weight'] = [
       '#type' => 'textfield',
-      '#title' => t('Weight'),
+      '#title' => $this->t('Weight'),
       '#maxlength' => 3,
       '#default_value' => $this->entity->getWeight(),
       '#weight' => 10,
       '#access' => FALSE,
     ];
-
 
     return $form;
   }
@@ -357,7 +357,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
   public function removeOneCallback(array &$form, FormStateInterface $form_state) {
     $removed_index = $form_state->get('removed_index');
     $triggering_element = $form_state->getTriggeringElement();
-    // Get removed index from trigger object
+    // Get removed index from trigger object.
     $trigger_index = isset($triggering_element['#attributes']['data-remove-index']) ? $triggering_element['#attributes']['data-remove-index'] : NULL;
 
     if ($trigger_index) {
@@ -372,7 +372,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
    * Returns colors that correspond with the given temperature.
    *
    * @param string $entity_type
-   *   The entity type
+   *   The entity type.
    *
    * @return array
    *   An associative array of colors that correspond to the given color
@@ -386,7 +386,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
         $bundle_options[$bundle_key] = $bundle['label'];
       }
     }
-    // Add custom bundle type for DX8 templates
+    // Add custom bundle type for DX8 templates.
     if ($entity_type == 'dx8_templates') {
       $bundle_options['dx8_templates'] = $this->t('Templates');
     }
@@ -409,10 +409,10 @@ abstract class ElementBaseForm extends CohesionBaseForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
-    /** @var CohesionElementEntityBase $entity ; */
+    /** @var \Drupal\cohesion_elements\Entity\CohesionElementEntityBase $entity ; */
     $entity = $this->entity;
 
-    // Merge entity types and bundles data
+    // Merge entity types and bundles data.
     list($types, $bundles) = $this->filterEntityTypes($form_state);
     $entity->set('entity_type_access', $types);
     $entity->set('bundle_access', $bundles);
@@ -432,7 +432,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
   }
 
   /**
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *
    * @return array
    */
@@ -440,13 +440,13 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     $values = $form_state->getValues();
     $select_index = $form_state->get('active_index');
     $results = [];
-    $data = ['types' => [], 'bundles' => [],];
-    // Extract entity types and corresponding bundles from form state values
+    $data = ['types' => [], 'bundles' => []];
+    // Extract entity types and corresponding bundles from form state values.
     $select_data = array_filter($values, function ($key) {
       return ((strpos($key, 'entity_type_access') !== FALSE) || (strpos($key, 'bundle_access') !== FALSE)) ?: FALSE;
     }, ARRAY_FILTER_USE_KEY);
 
-    // Merge common type options to prevent duplications
+    // Merge common type options to prevent duplications.
     $merge_options = function ($value = []) {
       $results = [];
       foreach ($value as $val) {
@@ -470,9 +470,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     return [$data['types'] ?: [], $data['bundles'] ?: []];
   }
 
-
   /**
-   * Validate the Element form
+   * Validate the Element form.
    *
    * @inheritdoc
    *

@@ -1,6 +1,6 @@
 cohesion_template:
   type: cohesion_config_entity
-  label: 'DX8 template base'
+  label: 'Cohesion template base'
   mapping:
     custom:
       type: bool

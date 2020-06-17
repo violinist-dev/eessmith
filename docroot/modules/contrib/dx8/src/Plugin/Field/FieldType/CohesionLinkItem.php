@@ -37,4 +37,5 @@ class CohesionLinkItem extends LinkItem {
 
     return parent::__get($name);
   }
+
 }

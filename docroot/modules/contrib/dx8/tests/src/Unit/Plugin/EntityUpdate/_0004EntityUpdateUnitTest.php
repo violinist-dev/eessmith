@@ -11,39 +11,7 @@ use Drupal\cohesion\Plugin\EntityUpdate\_0004EntityUpdate;
  *
  * @package Drupal\Tests\cohesion\Unit
  */
-class MockUpdateEntity implements EntityJsonValuesInterface {
-  protected $jsonValues;
-
-  public function __construct($json_values) {
-    $this->jsonValues = $json_values;
-  }
-
-  public function getJsonValues() {
-    return $this->jsonValues;
-  }
-
-  public function setJsonValue($json_values) {
-    $this->jsonValues = $json_values;
-    return $this;
-  }
-
-  public function process() {
-  }
-
-  public function jsonValuesErrors() {
-  }
-
-  public function getDecodedJsonValues($bool = FALSE) {
-
-  }
-
-  public function isLayoutCanvas(){
-
-  }
-
-  public function getLayoutCanvasInstance(){
-
-  }
+class MockUpdateEntity extends EntityMockBase implements EntityJsonValuesInterface {
 }
 
 /**

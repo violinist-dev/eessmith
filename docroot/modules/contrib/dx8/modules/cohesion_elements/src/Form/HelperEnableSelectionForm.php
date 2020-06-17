@@ -5,7 +5,7 @@ namespace Drupal\cohesion_elements\Form;
 use Drupal\cohesion\Form\CohesionEnableSelectionForm;
 
 /**
- * Class HelperEnableSelectionForm
+ * Class HelperEnableSelectionForm.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -17,6 +17,5 @@ class HelperEnableSelectionForm extends CohesionEnableSelectionForm {
   public function getDescription() {
     return $this->t('Enabling selection of your <em>Helper</em> will include it in the Sidebar browser.');
   }
-
 
 }

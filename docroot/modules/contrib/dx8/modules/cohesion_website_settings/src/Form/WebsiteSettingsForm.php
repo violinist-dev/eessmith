@@ -5,15 +5,17 @@ namespace Drupal\cohesion_website_settings\Form;
 use Drupal\cohesion\Form\CohesionBaseForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\cohesion_website_settings\Entity\SCSSVariable;
 
 /**
- * Class WebsiteSettingsForm
+ * Class WebsiteSettingsForm.
  *
  * @package Drupal\cohesion_website_settings\Form
  */
 class WebsiteSettingsForm extends CohesionBaseForm {
 
+  /**
+   * @var int
+   */
   protected $step = 1;
 
   /**
@@ -41,7 +43,7 @@ class WebsiteSettingsForm extends CohesionBaseForm {
     // Attach the SCSS variables to this form.
     $scss_variable_values = [];
 
-    /** @var SCSSVariable $scss_variable_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\SCSSVariable $scss_variable_entity */
     foreach ($this->entityTypeManager->getStorage('cohesion_scss_variable')->loadMultiple() as $scss_variable_entity) {
       $values = $scss_variable_entity->getDecodedJsonValues();
       $scss_variable_values[$values['uid']] = $values['value'];
@@ -86,7 +88,7 @@ class WebsiteSettingsForm extends CohesionBaseForm {
     else {
       $actions['enable']['#type_value'] = 'save';
       $actions['enable']['#attributes']['class'][] = 'button--primary';
-      // Only one button so remove drop button
+      // Only one button so remove drop button.
       unset($actions['enable']['#dropbutton']);
     }
     unset($actions['continue']);
@@ -107,7 +109,7 @@ class WebsiteSettingsForm extends CohesionBaseForm {
     elseif ($triggeringElement['#type_value'] == 'rebuild') {
       $redirect = Url::fromRoute('cohesion_website_settings.batch_reload');
 
-      // Only save the entity if user clicked "Save" button $op
+      // Only save the entity if user clicked "Save" button $op.
       parent::save($form, $form_state, $redirect);
     }
     else {

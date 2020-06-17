@@ -2,7 +2,6 @@
 
 namespace Drupal\cohesion\Entity;
 
-use Drupal\cohesion\ApiPluginManager;
 use Drupal\cohesion\EntityJsonValuesTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
@@ -52,7 +51,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   protected $json_mapper = '{}';
 
   /**
-   * The modified status of the entity, only turns to TRUE on form submit
+   * The modified status of the entity, only turns to TRUE on form submit.
    *
    * @var bool
    */
@@ -102,7 +101,8 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   public function getDecodedJsonMapper() {
     try {
       return json_decode($this->getJsonMapper());
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return [];
     }
   }
@@ -221,7 +221,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
       $this->enable();
     }
 
-    // Move any temporary files to cohesion://
+    // Move any temporary files to cohesion.
     $decoded_json_values = $this->getDecodedJsonValues(TRUE);
     if (!empty($decoded_json_values)) {
       \Drupal::service('cohesion.local_files_manager')->moveTemporaryFiles($decoded_json_values);
@@ -230,7 +230,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
 
     parent::preSave($storage);
 
-    // if the entity is disabled set selectable as disabled as well
+    // If the entity is disabled set selectable as disabled as well.
     if (!$this->getStatus()) {
       $this->setSelectable(FALSE);
     }
@@ -277,7 +277,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
    * {@inheritdoc}
    */
   public function setDefaultValues() {
-    // Set default entity values
+    // Set default entity values.
     $this->json_values = '{}';
     $this->json_mapper = '{}';
 
@@ -286,7 +286,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   }
 
   /**
-   * Get all CohesionConfigEntity entities
+   * Get all CohesionConfigEntity entities.
    *
    * @param bool $enabled
    *
@@ -294,12 +294,12 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
    */
   public static function getAll($enabled = TRUE) {
     $entities = [];
-    $entity_defs = \Drupal::service('entity.manager')->getDefinitions();
+    $entity_defs = \Drupal::service('entity_type.manager')->getDefinitions();
     $config_entities = array_keys($entity_defs);
 
     foreach ($config_entities as $entity_id) {
       if (strpos($entity_id, 'cohesion_') !== FALSE) {
-        if ($storage = \Drupal::service('entity.manager')->getStorage($entity_id)) {
+        if ($storage = \Drupal::service('entity_type.manager')->getStorage($entity_id)) {
           if ($enabled) {
             $ids = $storage->getQuery()->condition('status', $enabled)->execute();
           }
@@ -387,7 +387,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   protected function urlRouteParameters($rel) {
     $uri_route_parameters = parent::urlRouteParameters($rel);
 
-    // Add entity id as a parameter for the in use route
+    // Add entity id as a parameter for the in use route.
     if ($rel == 'in-use') {
       $uri_route_parameters[$this->getEntityTypeId()] = $this->id();
     }
@@ -403,9 +403,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   }
 
   /**
-   * Duplicates an entity.
-   *
-   * @return \Drupal\Core\Entity\Entity|static
+   * {@inheritdoc}
    */
   public function createDuplicate() {
     $duplicate = parent::createDuplicate();
@@ -424,7 +422,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
   }
 
   /**
-   * @return \Drupal\cohesion\SendToApiBase|void
+   * @return \Drupal\cohesion\ApiPluginBase|void
    */
   public function process() {
   }
@@ -465,7 +463,7 @@ abstract class CohesionConfigEntityBase extends ConfigEntityBase implements Cohe
    * {@inheritdoc}
    */
   public function canEditMachineName() {
-    return $this->isNew() || !$this->hasInUse();
+    return $this->isNew();
   }
 
 }

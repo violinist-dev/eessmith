@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update component form selects schema types
+ * Update component form selects schema types.
  *
  * @package Drupal\cohesion
  *
@@ -53,4 +52,5 @@ class _0011EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return TRUE;
   }
+
 }

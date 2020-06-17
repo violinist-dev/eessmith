@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion_sync\Form;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\cohesion_sync\PackagerManager;
-use Drupal\file\Entity\File;
 
 /**
  * Provides a form for importing a single configuration file.
@@ -31,7 +31,7 @@ class ImportFileForm extends FormBase {
   protected $configExists = FALSE;
 
   /**
-   * @var PackagerManager
+   * @var \Drupal\cohesion_sync\PackagerManager
    */
   protected $packagerManager;
 
@@ -42,8 +42,21 @@ class ImportFileForm extends FormBase {
    */
   public $action_data = [];
 
+  /**
+   * The entities that would loss data if the package is imported
+   *
+   * @var array
+   */
+  public $broken_entities = [];
+
+  /**
+   * @var int
+   */
   public $step = 0;
 
+  /**
+   * @var mixed
+   */
   public $file_uri;
 
   /**
@@ -61,7 +74,7 @@ class ImportFileForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.manager'), $container->get('cohesion_sync.packager'));
+    return new static($container->get('entity_type.manager'), $container->get('cohesion_sync.packager'));
   }
 
   /**
@@ -76,7 +89,7 @@ class ImportFileForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['help'] = [
-      '#markup' => $this->t('Import a DX8 package from a file uploaded from your local device.'),
+      '#markup' => $this->t('Import an Acquia Cohesion package from a file uploaded from your local device.'),
     ];
 
     // Step 1: Upload file.
@@ -105,6 +118,10 @@ class ImportFileForm extends FormBase {
         ],
       ];
 
+      if(!empty($this->broken_entities)) {
+        $form['entry_actions']['indexes']['#header'][] = ['data' => $this->t('Warning')];
+      }
+
       foreach ($this->action_data as $uuid => $action_data_entry) {
         // If the entry requires user input.
         if ($action_data_entry['entry_action_state'] === ENTRY_EXISTING_ASK) {
@@ -123,6 +140,43 @@ class ImportFileForm extends FormBase {
               FALSE => t('Keep existing'),
             ],
           ];
+
+          if(!empty($this->broken_entities)) {
+            $this->messenger()->addWarning($this->t('Some entities you are importing are missing populated fields, this will result in a loss of content. Please check the warnings listed below.'));
+          }
+
+          $warning_markup = [];
+          if (isset($this->broken_entities[$action_data_entry['entry_uuid']])) {
+            $form['entry_actions']['indexes'][$uuid]['#attributes'] = ['class' => 'color-warning'];
+            $broken_entity = $this->broken_entities[$action_data_entry['entry_uuid']];
+            $warning_markup[] = [
+              '#markup' => $this->t('This entity is missing populated fields. If you choose to <strong>Overwrite existing</strong>, content in these fields will be lost.'),
+            ];
+            $warning_markup[] = [
+              '#markup' => '<br />' . $this->formatPlural(count($broken_entity['entities']), '1 entity affected.', '@count entities affected.'),
+            ];
+
+            $warning_markup[] = [
+              '#type' => 'link',
+              '#title' => ' ' . $this->t('See where this entity is in use.'),
+              '#url' => $broken_entity['entity']->toUrl('in-use'),
+              '#options' => [
+                'attributes' => [
+                  'class' => ['use-ajax'],
+                  'data-dialog-type' => 'modal',
+                  'data-dialog-options' => Json::encode([
+                    'width' => 700,
+                  ]),
+                ],
+              ],
+              '#attached' => ['library' => ['core/drupal.dialog.ajax']],
+            ];
+
+          }
+
+          if(!empty($this->broken_entities)) {
+            $form['entry_actions']['indexes'][$uuid]['warning'] = $warning_markup;
+          }
         }
       }
     }
@@ -134,7 +188,8 @@ class ImportFileForm extends FormBase {
         '#type' => 'submit',
         '#value' => $this->t('Import'),
         '#button_type' => 'primary',
-        '#disabled'=> !$form_state->isValidationComplete() // Don't disable the button if validation has completed otherwise the form won't submit.
+        // Don't disable the button if validation has completed otherwise the form won't submit.
+        '#disabled' => !$form_state->isValidationComplete(),
       ],
     ];
 
@@ -148,13 +203,14 @@ class ImportFileForm extends FormBase {
     if ($form_state->getTriggeringElement()['#name'] == 'package_yaml_upload_button') {
       // Get the uploaded file entity.
       $file_id = $form_state->getUserInput()['files']['package_yaml'];
-      if ($file_entity = File::load($file_id)) {
+      if ($file_entity = $this->entityTypeManager->getStorage('file')
+        ->load(trim($file_id))) {
         $this->file_uri = $file_entity->getFileUri();
 
         try {
           // Validate the stream.
           $this->action_data = $this->packagerManager->validateYamlPackageStream($this->file_uri);
-
+          $this->broken_entities = $this->packagerManager->validateYamlPackageContentIntegrity($this->file_uri);
         } catch (\Exception $e) {
           $form_state->setErrorByName('package_yaml', $this->t('The validation failed with the following message: %message', ['%message' => $e->getMessage()]));
           return FALSE;
@@ -198,15 +254,15 @@ class ImportFileForm extends FormBase {
 
     // Check to see if there is anything to do.
     if (!count($this->action_data)) {
-      drupal_set_message($this->t('There were no changes detected. Nothing was applied.'));
+      \Drupal::messenger()->addMessage($this->t('There were no changes detected. Nothing was applied.'));
       return TRUE;
     }
 
     // Apply all the items from the import.
     try {
-      batch_set($this->packagerManager->applyBatchYamlPackageStream($this->file_uri, $this->action_data));
+      $this->packagerManager->applyBatchYamlPackageStream($this->file_uri, $this->action_data);
     } catch (\Exception $e) {
-      $form_state->setErrorByName('import', $this->t('The import failed with the following message: %message', ['%message' => $e->getMessage()]));
+      \Drupal::messenger()->addError($this->t('The import failed with the following message: %message', ['%message' => $e->getMessage()]));
       return FALSE;
     }
 

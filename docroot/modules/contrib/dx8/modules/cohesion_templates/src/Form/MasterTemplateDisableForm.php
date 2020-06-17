@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Form;
 use Drupal\cohesion\Form\CohesionDisableForm;
 
 /**
- * Class MasterTemplateDisableForm
+ * Class MasterTemplateDisableForm.
  *
  * Builds the form to disable custom style.
  *

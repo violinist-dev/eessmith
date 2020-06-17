@@ -13,9 +13,8 @@ class CustomStylesDeleteForm extends CohesionDeleteForm {
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Deleting a <em>Custom style</em> will remove its CSS from your DX8 style sheet and delete the configuration of your <em>Custom style</em>. 
+    return $this->t('Deleting a <em>Custom style</em> will remove its CSS from your style sheet and delete the configuration of your <em>Custom style</em>. 
        Any extended styles will also be deleted. This action cannot be undone.');
   }
-
 
 }

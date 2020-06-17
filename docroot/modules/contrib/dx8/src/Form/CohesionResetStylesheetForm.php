@@ -5,7 +5,6 @@ namespace Drupal\cohesion\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Implements the form controller.
@@ -20,17 +19,17 @@ class CohesionResetStylesheetForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $rebuild_list_items = [
-      t('Re-save DX8 Website settings and rebuild the CSS styles for them'),
-      t('Re-save DX8 Base styles and rebuild the CSS styles for them'),
-      t('Re-save DX8 Custom styles and rebuild the CSS styles for them'),
-      t('Re-save DX8 Templates and rebuild the Twig files and inline CSS styles for them'),
-      t('Re-save content entities using the DX8 layout canvas field and rebuild the Twig files and inline CSS styles for them'),
+      $this->t('Re-save Website settings and rebuild the CSS styles for them'),
+      $this->t('Re-save Base styles and rebuild the CSS styles for them'),
+      $this->t('Re-save Custom styles and rebuild the CSS styles for them'),
+      $this->t('Re-save Templates and rebuild the Twig files and inline CSS styles for them'),
+      $this->t('Re-save content entities using the layout canvas field and rebuild the Twig files and inline CSS styles for them'),
     ];
 
     $form['reset_stylesheet'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
-      '#value' => t('Click rebuild below to:'),
+      '#value' => $this->t('Click rebuild below to:'),
     ];
 
     $form['reset_stylesheet']['list'] = [
@@ -66,10 +65,11 @@ class CohesionResetStylesheetForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Rebuild cohesion configs
+    // Rebuild cohesion configs.
     $url = Url::fromRoute('cohesion_website_settings.batch_reload');
     if ($url->isRouted()) {
       $form_state->setRedirectUrl($url);
     }
   }
+
 }

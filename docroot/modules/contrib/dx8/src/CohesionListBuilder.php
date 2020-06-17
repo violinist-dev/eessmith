@@ -3,7 +3,6 @@
 namespace Drupal\cohesion;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\Core\Config\Entity\DraggableListBuilder;
 
 /**
@@ -13,6 +12,7 @@ class CohesionListBuilder extends DraggableListBuilder {
 
   /**
    * The unique form ID (override this when subclassing).
+   *
    * @var string
    */
   protected $formId = 'cohesion_form';
@@ -34,7 +34,7 @@ class CohesionListBuilder extends DraggableListBuilder {
     if ($this->entityType->hasKey('class')) {
       $header['class'] = [
         'data' => $this->t('Class'),
-        'class' => [RESPONSIVE_PRIORITY_MEDIUM]
+        'class' => [RESPONSIVE_PRIORITY_MEDIUM],
       ];
     }
 
@@ -73,7 +73,7 @@ class CohesionListBuilder extends DraggableListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var CohesionConfigEntityBase $entity */
+    /** @var \Drupal\cohesion\Entity\CohesionConfigEntityBase $entity */
     $row = [];
 
     $row['label'] = $entity->label();
@@ -96,7 +96,7 @@ class CohesionListBuilder extends DraggableListBuilder {
     }
 
     $row['locked']['data'] = [
-      '#markup' => $entity->isLocked() ? 'Locked' : 'Unlocked'
+      '#markup' => $entity->isLocked() ? 'Locked' : 'Unlocked',
     ];
 
     return $row + parent::buildRow($entity);
@@ -143,4 +143,5 @@ class CohesionListBuilder extends DraggableListBuilder {
 
     return $operations;
   }
+
 }

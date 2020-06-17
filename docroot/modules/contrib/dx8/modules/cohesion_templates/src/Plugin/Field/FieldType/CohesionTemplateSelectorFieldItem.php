@@ -4,7 +4,6 @@ namespace Drupal\cohesion_templates\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldItemInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 
@@ -15,7 +14,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "cohesion_template_selector",
  *   label = @Translation("Template selector"),
  *   description = @Translation("Template selector"),
- *   category = @Translation("DX8"),
+ *   category = @Translation("Acquia Cohesion"),
  *   module = "cohesion",
  *   default_formatter = "basic_string",
  *   default_widget = "cohesion_template_selector_widget",

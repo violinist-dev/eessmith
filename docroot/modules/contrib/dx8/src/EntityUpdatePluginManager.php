@@ -5,9 +5,11 @@ namespace Drupal\cohesion;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\cohesion\Annotation\EntityUpdate;
 
+/**
+ *
+ */
 class EntityUpdatePluginManager extends DefaultPluginManager {
 
   /**

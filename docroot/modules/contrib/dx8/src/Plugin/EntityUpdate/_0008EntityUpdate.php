@@ -6,7 +6,6 @@ use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
  * Update categories to new entities.
  *
@@ -38,6 +37,9 @@ class _0008EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   *
+   */
   public function mapCategory($existing_category, $type) {
     $maps = [
       'component' => [

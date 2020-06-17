@@ -25,7 +25,7 @@ class CohesionLayoutAccessControlHandler extends EntityAccessControlHandler {
       // access permissions on the parent.
       $operation = ($operation == 'delete') ? 'update' : $operation;
       $parent_access = $cohesion_layout->getParentEntity()->access($operation, $account, TRUE);
-      return  $access_result = AccessResult::allowedIf($parent_access);
+      return $access_result = AccessResult::allowedIf($parent_access);
     }
     return AccessResult::allowed();
   }

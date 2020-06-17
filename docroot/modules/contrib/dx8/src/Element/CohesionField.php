@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\cohesion\Element;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -13,9 +9,10 @@ use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Component\Utility\Environment;
 
 /**
- * Provides a DX8 layout form element. This is used in the BaseForm and
+ * Provides a layout form element. This is used in the BaseForm and
  * the CohesionLayout field formatter.
  *
  * @FormElement("cohesionfield")
@@ -49,12 +46,15 @@ class CohesionField extends FormElement {
     $entity = $element['#entity'];
     if ($entity instanceof CohesionSettingsInterface || $entity instanceof CohesionLayout) {
       $entity->setJsonValue($element['#json_values']);
+      if(!$entity->isLayoutCanvas()) {
+        $entity->setJsonMapper($element['#json_mapper']);
+      }
       $errors = $entity->jsonValuesErrors();
 
       if ($errors !== FALSE) {
-        // If errors has uuid it is a layout canvas error
+        // If errors has uuid it is a layout canvas error.
         if (isset($errors['uuid'])) {
-          // Set the uuid so it can be added to drupalSettings later
+          // Set the uuid so it can be added to drupalSettings later.
           $uuids = &drupal_static('cohesion_layout_canvas_error');
           if (is_null($uuids)) {
             $uuids = [];
@@ -99,9 +99,9 @@ class CohesionField extends FormElement {
       ];
     }
 
-    // Prevent progress spinning wheel from loading if form is field config form
+    // Prevent progress spinning wheel from loading if form is field config form.
     $is_loading = ($form_state->getFormObject()
-        ->getFormId() == 'field_config_edit_form') ? '' : 'is-loading';
+      ->getFormId() == 'field_config_edit_form') ? '' : 'is-loading';
 
     // Add the entity style.
     $matches = [
@@ -139,13 +139,13 @@ class CohesionField extends FormElement {
     }
 
     // Add the max file size.
-    $element['#attached']['drupalSettings']['cohesion']['upload_max_filesize'] = file_upload_max_size();
+    $element['#attached']['drupalSettings']['cohesion']['upload_max_filesize'] = Environment::getUploadMaxSize();
 
     // Image browser page attachments.
     \Drupal::service('cohesion_image_browser.update_manager')
       ->sharedPageAttachments($element['#attached'], $element['#entity'] instanceof ContentEntityInterface ? 'content' : 'config');
 
-    // Attach the editor.module text format settings
+    // Attach the editor.module text format settings.
     $pluginManager = \Drupal::service('plugin.manager.editor');
 
     // Get the filter formats the current user has permissions to access.
@@ -189,11 +189,11 @@ class CohesionField extends FormElement {
       $element['#attached']['library'][] = 'cohesion/admin-responsive-grid-settings';
     }
 
-    // Set Global form attributes
+    // Set Global form attributes.
     $complete_form['toast'] = [
       '#type' => 'item',
       '#markup' => '<toast></toast>',
-      '#allowed_tags' => ['toast',],
+      '#allowed_tags' => ['toast'],
       '#parents' => [],
     ];
 
@@ -215,7 +215,7 @@ class CohesionField extends FormElement {
         ->getCohFormOnInit($element['#cohFormGroup'], $element['#cohFormId']);
     }
 
-    // Define field
+    // Define field.
     $class_name_canvas = 'cohApp';
     $model_class_name = '_modelAsJson';
     $mapper_class_name = '_mapperAsJson';
@@ -246,7 +246,7 @@ class CohesionField extends FormElement {
       ];
 
       // Render it using the service.
-      $rendered_token_tree = \Drupal::service('renderer')->render($token_tree);
+      \Drupal::service('renderer')->render($token_tree);
 
       // Attach the bootstrap fix to the form element.
       $element['#attached']['library'][] = 'cohesion/cohesion_token';
@@ -285,10 +285,12 @@ class CohesionField extends FormElement {
 
     $config = \Drupal::configFactory()->getEditable('cohesion_devel.settings');
 
-    if ($config && $config->get("show_json_fields")) {  // Check config
+    // Check config.
+    if ($config && $config->get("show_json_fields")) {
       $show_json_fields = TRUE;
     }
-    else {  // Check global $settings[]
+    // Check global $settings[].
+    else {
       if (Settings::get('dx8_json_fields', FALSE)) {
         $show_json_fields = TRUE;
       }
@@ -299,12 +301,13 @@ class CohesionField extends FormElement {
 
       $element['json_values_view'] = [
         '#type' => 'html_tag',
-        '#tag' => 'pre',
+        '#tag' => 'textarea',
         '#attributes' => [
-          'class' => [$model_class_name . 'View'],
+          'class' => [$model_class_name . 'View', 'coh-devel-json-textarea'],
           'id' => [$model_class_name . 'View'],
-          'style' => 'max-height: 250px; border: 1px solid #ccc; padding: 1em;',
           'title' => 'Model',
+          'rows' => 8,
+          'readonly' => '',
         ],
         '#weight' => 4,
       ];
@@ -312,12 +315,13 @@ class CohesionField extends FormElement {
       if (isset($element['#json_mapper'])) {
         $element['json_mapper_view'] = [
           '#type' => 'html_tag',
-          '#tag' => 'pre',
+          '#tag' => 'textarea',
           '#attributes' => [
-            'class' => [$mapper_class_name . 'View'],
+            'class' => [$mapper_class_name . 'View', 'coh-devel-json-textarea'],
             'id' => [$mapper_class_name . 'View'],
-            'style' => 'max-height: 250px; border: 1px solid #ccc; padding: 1em;',
             'title' => 'Mapper',
+            'rows' => 8,
+            'readonly' => '',
           ],
           '#weight' => 6,
         ];

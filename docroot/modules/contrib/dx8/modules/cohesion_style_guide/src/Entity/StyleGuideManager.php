@@ -4,13 +4,10 @@ namespace Drupal\cohesion_style_guide\Entity;
 
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion\EntityHasResourceObjectTrait;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion\Plugin\Api\PreviewApi;
 use Drupal\Core\Url;
 
 /**
- * Defines the DX8 Style guide manager entity.
+ * Defines the Style guide manager entity.
  *
  * @ConfigEntityType(
  *   id = "cohesion_style_guide_manager",
@@ -31,6 +28,18 @@ use Drupal\Core\Url;
  *     "theme" = "theme",
  *     "style_guide_uuid" = "style_guide_uuid",
  *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "theme",
+ *     "style_guide_uuid"
+ *   }
  * )
  */
 class StyleGuideManager extends CohesionConfigEntityBase implements CohesionSettingsInterface {
@@ -45,7 +54,7 @@ class StyleGuideManager extends CohesionConfigEntityBase implements CohesionSett
   protected $theme;
 
   /**
-   * The style guide entity it belongs to
+   * The style guide entity it belongs to.
    *
    * @var string
    */
@@ -64,13 +73,17 @@ class StyleGuideManager extends CohesionConfigEntityBase implements CohesionSett
     return FALSE;
   }
 
+  public function getApiPluginInstance() {
+    return FALSE;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function toUrl($rel = 'edit-form', array $options = []) {
     // Style guide managers are editing in the theme settings so the edit form url
-    // needs to be overwritten to point to the theme settings page
-    if($rel == 'edit-form'){
+    // needs to be overwritten to point to the theme settings page.
+    if ($rel == 'edit-form') {
       $uri = new Url('system.theme_settings_theme', ['theme' => $this->get('theme')]);
       return $uri;
     }

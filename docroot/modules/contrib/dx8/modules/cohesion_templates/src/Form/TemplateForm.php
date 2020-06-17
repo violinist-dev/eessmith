@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_templates\Form;
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\cohesion\Form\CohesionBaseForm;
@@ -24,7 +25,7 @@ class TemplateForm extends CohesionBaseForm {
     $form['#attached']['drupalSettings']['cohOnInitForm'] = \Drupal::service('settings.endpoint.utils')->getCohFormOnInit('template', 'content_template');
 
     // Set list of field to blank by default. Template form that inherit from this one will override the variable.
-    $language_none = \Drupal::languageManager()->getLanguage(\Drupal\Core\Language\LanguageInterface::LANGCODE_NOT_APPLICABLE);
+    $language_none = \Drupal::languageManager()->getLanguage(LanguageInterface::LANGCODE_NOT_APPLICABLE);
 
     $form['#attached']['drupalSettings']['cohesion']['contextualKey'] = Url::fromRoute('cohesion.entity_fields', [
       'entity_type' => '__none__',
@@ -40,7 +41,7 @@ class TemplateForm extends CohesionBaseForm {
   }
 
   /**
-   * Validate the Template form
+   * Validate the Template form.
    *
    * @inheritdoc
    *
@@ -58,6 +59,5 @@ class TemplateForm extends CohesionBaseForm {
     // Note, the machine name check is performed automatically in
     // $this->>checkUniqueMachineName()
   }
-
 
 }

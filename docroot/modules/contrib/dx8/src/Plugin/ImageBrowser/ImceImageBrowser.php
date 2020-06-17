@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion\Plugin\ImageBrowser;
 
+use Drupal\imce\Entity\ImceProfile;
 use Drupal\cohesion\ImageBrowserPluginBase;
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ImceImageBrowser
+ * Class ImceImageBrowser.
  *
  * @package Drupal\cohesion
  *
@@ -30,7 +30,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
     $wrapper_keys = array_keys($stream_wrappers);
     $options = [];
     foreach ($wrapper_keys as $path_key) {
-      if (in_array($path_key, ['temporary', 'cohesion',])) {
+      if (in_array($path_key, ['temporary', 'cohesion'])) {
         continue;
       }
       $options[$path_key] = t('@path', ['@path' => $path_key . '://']);
@@ -40,7 +40,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
     $form['dx8_imce_stream_wrapper_' . $browser_type] = [
       '#type' => 'radios',
       '#title' => t('Stream wrapper'),
-      '#description' => t('Select a stream wrapper (base directory) for the IMCE file manager when used within DX8.'),
+      '#description' => t('Select a stream wrapper (base directory) for the IMCE file manager when used within Cohesion.'),
       '#required' => TRUE,
       '#default_value' => isset($options[$index]) ? $index : 'public',
       '#options' => $options,
@@ -80,7 +80,8 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
         $found = FALSE;
         foreach ($profile['conf']['folders'] as $folder) {
           if (isset($folder['path']) && $folder['path'] == 'cohesion') {
-            $found = TRUE; // cohesion is already in the profile.
+            // Cohesion is already in the profile.
+            $found = TRUE;
           }
         }
 
@@ -104,9 +105,10 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
    */
   public function onEntityInsertUpdate(EntityInterface $entity) {
     // _restrict_imce_cohesion_directory().
-    if ($entity instanceof \Drupal\imce\Entity\ImceProfile) {
+    if ($entity instanceof ImceProfile) {
       $profile_config = $this->configFactory->getEditable($entity->getConfigDependencyName());
-      $values = $profile_config->getRawData(); // Get imce profile data
+      // Get imce profile data.
+      $values = $profile_config->getRawData();
       if (isset($values['conf']) && isset($values['conf']['folders'])) {
         $values['conf']['folders'] = $this->filter_folders($values['conf']);
       }
@@ -146,7 +148,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
       $stream_wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::ALL);
       $wrapper_keys = array_keys($stream_wrappers);
 
-      // Set default stream wrapper
+      // Set default stream wrapper.
       $stream_wrapper = [
         'name' => 'public',
         'path' => file_create_url('public://'),
@@ -171,4 +173,5 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
       ];
     }
   }
+
 }

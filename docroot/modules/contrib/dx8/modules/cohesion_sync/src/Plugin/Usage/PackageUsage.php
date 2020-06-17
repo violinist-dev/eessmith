@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class PackageUsage
+ * Class PackageUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -38,7 +38,7 @@ class PackageUsage extends UsagePluginBase {
           $scannable[] = [
             'type' => 'entity_uuid',
             'entity_type' => $item['type'],
-            'uuid' => $uuid
+            'uuid' => $uuid,
           ];
         }
       }

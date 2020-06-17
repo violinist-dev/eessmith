@@ -3,7 +3,6 @@
 namespace Drupal\cohesion\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\cohesion\ImageBrowserPluginInterface;
 use Drupal\cohesion\ImageBrowserPluginManager;
 use Drupal\cohesion\ImageBrowserUpdateManager;
 use Drupal\Core\Form\FormStateInterface;
@@ -45,7 +44,9 @@ class SystemSettingsForm extends ConfigFormBase {
    */
   protected $image_browser_object;
 
-
+  /**
+   *
+   */
   public function __construct(ConfigFactoryInterface $config_factory, ImageBrowserUpdateManager $imageBrowserManager, ImageBrowserPluginManager $imageBrowserPluginManager, ThemeHandlerInterface $theme_handler) {
     parent::__construct($config_factory);
     $this->setConfigFactory($config_factory);
@@ -79,7 +80,7 @@ class SystemSettingsForm extends ConfigFormBase {
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => t('Default sidebar view style.'),
+      '#title' => $this->t('Default sidebar view style.'),
       '#weight' => -99,
       'sidebar_view_style' => [
         '#type' => 'radios',
@@ -87,10 +88,10 @@ class SystemSettingsForm extends ConfigFormBase {
         '#required' => FALSE,
         '#default_value' => $this->cohesionSettings->get('sidebar_view_style') ?: 'titles',
         '#options' => [
-          'titles' => t('Show title'),
+          'titles' => $this->t('Show title'),
           'thumbnails' => $this->t('Show thumbnails'),
         ],
-        '#wrapper_attributes' => ['class' => ['clearfix',]],
+        '#wrapper_attributes' => ['class' => ['clearfix']],
         '#attributes' => [
           'class' => [],
         ],
@@ -100,14 +101,14 @@ class SystemSettingsForm extends ConfigFormBase {
     ];
 
     // Log errors group.
-    $options = ['enable' => 'Enable', 'disable' => 'Disable',];
+    $options = ['enable' => 'Enable', 'disable' => 'Disable'];
     $index = $this->cohesionSettings->get('log_dx8_error');
 
     $form['log_dx8_error_accordion'] = [
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => t('Log errors.'),
+      '#title' => $this->t('Log errors.'),
       '#weight' => -99,
       'log_dx8_error' => [
         '#type' => 'radios',
@@ -115,7 +116,7 @@ class SystemSettingsForm extends ConfigFormBase {
         '#required' => FALSE,
         '#default_value' => isset($options[$index]) ? $this->cohesionSettings->get('log_dx8_error') : 'disable',
         '#options' => $options,
-        '#wrapper_attributes' => ['class' => ['clearfix',]],
+        '#wrapper_attributes' => ['class' => ['clearfix']],
         '#attributes' => [
           'class' => [],
         ],
@@ -132,7 +133,7 @@ class SystemSettingsForm extends ConfigFormBase {
         '#type' => 'details',
         '#collapsible' => TRUE,
         '#collapsed' => FALSE,
-        '#title' => t('Image browser for ' . $browser_type),
+        '#title' => $this->t('Image browser for @browser_type', ['@browser_type' => $browser_type]),
         '#weight' => -98,
         '#open' => 'panel-open',
       ];
@@ -140,13 +141,13 @@ class SystemSettingsForm extends ConfigFormBase {
       if ($available_plugins = $this->imageBrowserManager->getAvailablePlugins()) {
         // Build the available plugins up.
         array_walk($available_plugins, function (&$plugin, $key) {
-          /** @var ImageBrowserPluginInterface $plugin */
+          /** @var \Drupal\cohesion\ImageBrowserPluginInterface $plugin */
           $plugin = $plugin->getName();
         });
 
         $form['image_browser_' . $browser_type]['image_browser_' . $browser_type] = [
           '#type' => 'select',
-          '#title' => $this->t('Select the image browser to use for ' . $browser_type . ' on this site.'),
+          '#title' => $this->t('Select the image browser to use for @browser_type on this site.', ['@browser_type' => $browser_type]),
           '#required' => TRUE,
           '#options' => array_merge([FALSE => 'No image browser'], $available_plugins),
           '#default_value' => $this->image_browser_object[$browser_type]['type'] ? [$this->image_browser_object[$browser_type]['type']] : FALSE,
@@ -160,7 +161,8 @@ class SystemSettingsForm extends ConfigFormBase {
           '#prefix' => '<div id="edit-image-browser-' . $browser_type . '-wrapper">',
           '#suffix' => '</div>',
         ];
-        $form['image_browser_' . $browser_type]['edit-image-browser-' . $browser_type . '-wrapper'] = $this->updateImageBrowser($browser_type, $form, $form_state); // Initial state.
+        // Initial state.
+        $form['image_browser_' . $browser_type]['edit-image-browser-' . $browser_type . '-wrapper'] = $this->updateImageBrowser($browser_type, $form, $form_state);
 
       }
       else {
@@ -172,13 +174,12 @@ class SystemSettingsForm extends ConfigFormBase {
       }
     }
 
-
     // Animation settings group.
     $form['animate_on_view_accordion'] = [
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => t('Animate on view settings'),
+      '#title' => $this->t('Animate on view settings'),
       '#weight' => -97,
       'animate_on_view_mobile' => [
         '#type' => 'select',
@@ -197,7 +198,7 @@ class SystemSettingsForm extends ConfigFormBase {
       '#type' => 'details',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#title' => t('Animate on scroll settings'),
+      '#title' => $this->t('Animate on scroll settings'),
       '#weight' => -96,
       'add_animation_classes' => [
         '#type' => 'select',
@@ -234,7 +235,7 @@ class SystemSettingsForm extends ConfigFormBase {
    *
    * @param $browser_type
    * @param $form
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *
    * @return mixed
    */
@@ -317,7 +318,7 @@ class SystemSettingsForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -335,7 +336,7 @@ class SystemSettingsForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -346,10 +347,10 @@ class SystemSettingsForm extends ConfigFormBase {
     $this->cohesionSettings->set('log_dx8_error', $form_state->getValue('log_dx8_error'));
 
     if ($form_state->getValue('log_dx8_error') === 'enable') {
-      $this->messenger()->addStatus(t('DX8 errors will be logged.'));
+      $this->messenger()->addStatus(t('Acquia Cohesion errors will be logged.'));
     }
     else {
-      $this->messenger()->addWarning(t('DX8 errors will not be logged.'));
+      $this->messenger()->addWarning(t('Acquia Cohesion errors will not be logged.'));
     }
 
     // Animation settings.
@@ -372,7 +373,6 @@ class SystemSettingsForm extends ConfigFormBase {
     else {
       unset($this->image_browser_object['config']);
     }
-
 
     // Image browser (content).
     if ($this->image_browser_object['content']['type'] = $form_state->getValue('image_browser_content')) {

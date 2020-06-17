@@ -1,19 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\cohesion_custom_styles\Controller\CustomStylesEndpointController.
- */
-
 namespace Drupal\cohesion_style_helpers\Controller;
 
-use Drupal\Component\Serialization\Json;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\cohesion\CohesionJsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class StyleHelpersEndpointController
+ * Class StyleHelpersEndpointController.
  *
  * An endpoint to return a list of style helpers entities.
  *
@@ -22,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class StyleHelpersEndpointController extends ControllerBase {
 
   /**
-   * @return CohesionJsonResponse $response json containing data for all variables
+   * @return \Drupal\cohesion\CohesionJsonResponse $response json containing data for all variables
    */
   public function getAll() {
     $style_helpers = [];
@@ -32,7 +27,8 @@ class StyleHelpersEndpointController extends ControllerBase {
         if (!isset($style_helpers[$entity->getCustomStyleType()])) {
           try {
             $custom_group_entity = \Drupal::entityTypeManager()->getStorage('custom_style_type')->load($entity->getCustomStyleType());
-          } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+          }
+          catch (PluginNotFoundException $ex) {
             watchdog_exception('cohesion', $ex);
             $custom_group_entity = NULL;
           }
@@ -65,7 +61,7 @@ class StyleHelpersEndpointController extends ControllerBase {
   }
 
   /**
-   * @return CohesionJsonResponse $response json containing data for all variables
+   * @return \Drupal\cohesion\CohesionJsonResponse $response json containing data for all variables
    */
   public function getOne($style_helper_id) {
     $data = [];
@@ -86,20 +82,20 @@ class StyleHelpersEndpointController extends ControllerBase {
    * POST: /cohesionapi/style-helper-save
    * Save an element given the provided details.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function styleHelperSave(Request $request) {
 
     $content_raw = $request->getContent();
     $content = json_decode($content_raw);
 
-    // Validate input data
+    // Validate input data.
     if (!$this->validateInputData($content)) {
       return new CohesionJsonResponse([
         'status' => 'error',
-        'data' => ['error' => t('Bad request'),],
+        'data' => ['error' => $this->t('Bad request')],
       ], 400);
     }
 
@@ -116,21 +112,21 @@ class StyleHelpersEndpointController extends ControllerBase {
     if ($this->checkDuplicateByLabel('cohesion_style_helper', $values['label']) > 0) {
       return new CohesionJsonResponse([
         'status' => 'error',
-        'data' => ['error' => t('There is already a style helper with that name, please choose a different name.'),],
+        'data' => ['error' => $this->t('There is already a style helper with that name, please choose a different name.')],
       ], 400);
     }
 
     if ($values && is_array($values) && $this->createStyleHelper($entity_type_id, $values)) {
       return new CohesionJsonResponse([
         'status' => 'success',
-        'data' => ['success' => t('Style helper saved'),],
+        'data' => ['success' => $this->t('Style helper saved')],
       ]);
     }
     else {
       // No values or incorrect value format.
       return new CohesionJsonResponse([
         'status' => 'error',
-        'data' => ['error' => t('Style helper not saved'),],
+        'data' => ['error' => $this->t('Style helper not saved')],
       ], 400);
     }
   }
@@ -141,10 +137,11 @@ class StyleHelpersEndpointController extends ControllerBase {
    */
   private function styleHelperEntities() {
     try {
-      $ids = \Drupal::service('entity.manager')->getStorage('cohesion_style_helper')->getQuery()->condition('status', TRUE)->condition('selectable', TRUE)->execute();
+      $ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_style_helper')->getQuery()->condition('status', TRUE)->condition('selectable', TRUE)->execute();
 
-      return \Drupal::service('entity.manager')->getStorage('cohesion_style_helper')->loadMultiple($ids);
-    } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+      return \Drupal::service('entity_type.manager')->getStorage('cohesion_style_helper')->loadMultiple($ids);
+    }
+    catch (PluginNotFoundException $ex) {
       watchdog_exception('cohesion', $ex);
     }
     return [];
@@ -156,8 +153,9 @@ class StyleHelpersEndpointController extends ControllerBase {
    */
   private function styleHelperEntity($entity_id) {
     try {
-      return \Drupal::service('entity.manager')->getStorage('cohesion_style_helper')->load($entity_id);
-    } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+      return \Drupal::service('entity_type.manager')->getStorage('cohesion_style_helper')->load($entity_id);
+    }
+    catch (PluginNotFoundException $ex) {
       watchdog_exception('cohesion', $ex);
     }
     return NULL;
@@ -167,7 +165,7 @@ class StyleHelpersEndpointController extends ControllerBase {
    *
    * @param $content
    *
-   * @return boolean
+   * @return bool
    */
   private function validateInputData($content) {
     $validate_keys = ['label', 'category', 'json_values', 'json_mapper'];
@@ -191,7 +189,8 @@ class StyleHelpersEndpointController extends ControllerBase {
   private function checkDuplicateByLabel($entity_type_id, $label) {
     try {
       return \Drupal::entityQuery($entity_type_id)->condition('label', trim($label), '=')->count()->execute();
-    } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+    }
+    catch (PluginNotFoundException $ex) {
       watchdog_exception('cohesion', $ex);
     }
     return 0;
@@ -211,9 +210,9 @@ class StyleHelpersEndpointController extends ControllerBase {
 
       // Set entity id.
       $entity->set('id', implode('-', [
-          $entity->get('custom_style_type'),
-          hash('crc32b', $entity->uuid()),
-        ]));
+        $entity->get('custom_style_type'),
+        hash('crc32b', $entity->uuid()),
+      ]));
 
       // Set other entity values.
       $entity->set('status', TRUE);
@@ -223,7 +222,8 @@ class StyleHelpersEndpointController extends ControllerBase {
       // Save.
       $entity->save();
       return $entity->id();
-    } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+    }
+    catch (PluginNotFoundException $ex) {
       watchdog_exception('cohesion', $ex);
     }
     return FALSE;

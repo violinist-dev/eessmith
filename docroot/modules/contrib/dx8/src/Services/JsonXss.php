@@ -7,13 +7,14 @@ use Drupal\Component\Utility\Xss;
 use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 
 /**
- * Class JsonXss
+ * Class JsonXss.
  *
  * @package Drupal\cohesion\Services
  */
 class JsonXss {
 
-  /** @var \Drupal\Core\Session\AccountInterface */
+  /**
+   * @var \Drupal\Core\Session\AccountInterface*/
   protected $account;
 
   /**
@@ -65,11 +66,11 @@ class JsonXss {
           // Check for Javascript event markup attributes.
           if ($markup_attributes = $model->getProperty([
             'markup',
-            'attributes'
+            'attributes',
           ])) {
             foreach ($markup_attributes as $index => $property) {
-              // Create a mock for <a property=attribute>
-              $mock = "<a " . AddSlashes($property->attribute) . "=\"" . AddSlashes($property->value) . "\">";
+              // Create a mock for <a property=attribute>.
+              $mock = "<a " . addslashes($property->attribute) . "=\"" . addslashes($property->value) . "\">";
               if (Xss::filterAdmin($mock) !== $mock) {
                 // If it fails validation, add both the attribute and value ot the paths so they both get disabled by the app.
                 $xss_paths[$model->getUUID() . '.markup.attributes.' . $index . '.attribute'] = $property->attribute;
@@ -83,4 +84,5 @@ class JsonXss {
 
     return $xss_paths;
   }
+
 }

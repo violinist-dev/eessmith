@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update Link element convert to container
+ * Update Link element convert to container.
  *
  * @package Drupal\cohesion
  *
@@ -53,4 +52,5 @@ class _0014EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return TRUE;
   }
+
 }

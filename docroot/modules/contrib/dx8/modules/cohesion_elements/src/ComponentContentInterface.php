@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
- * Interface ComponentContentInterface
+ * Interface ComponentContentInterface.
  *
  * Provides an interface defining a component content entity.
  *

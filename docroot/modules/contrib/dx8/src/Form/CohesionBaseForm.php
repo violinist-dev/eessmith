@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion\Form;
 
+use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\cohesion\ApiUtils;
 use Drupal\cohesion\Services\JsonXss;
-use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
 /**
  * Class CohesionBaseForm.
@@ -16,10 +16,12 @@ use Drupal\Core\TempStore\PrivateTempStoreFactory;
  */
 class CohesionBaseForm extends EntityForm {
 
-  /** @var \Drupal\cohesion\ApiUtils */
+  /**
+   * @var \Drupal\cohesion\ApiUtils*/
   protected $apiUtils;
 
-  /** @var \Drupal\cohesion\Services\JsonXss */
+  /**
+   * @var \Drupal\cohesion\Services\JsonXss*/
   protected $jsonXss;
 
   /**
@@ -57,7 +59,7 @@ class CohesionBaseForm extends EntityForm {
     switch ($operation) {
       case 'add':
         $form['#title'] = t('Create %label', [
-          '%label' => $this->entityTypeManager->getStorage($this->entity->getEntityTypeId())->getEntityType()->getLowercaseLabel(),
+          '%label' => $this->entityTypeManager->getStorage($this->entity->getEntityTypeId())->getEntityType()->getSingularLabel(),
         ]);
         break;
 
@@ -68,8 +70,9 @@ class CohesionBaseForm extends EntityForm {
         break;
 
       case 'duplicate':
-        // Clone the entity
-        $this->entity = $this->entity->createDuplicate(); // create a duplicate with a new UUID
+        // Clone the entity.
+        // Create a duplicate with a new UUID.
+        $this->entity = $this->entity->createDuplicate();
 
         $form['#title'] = $this->t('Duplicate of %label', [
           '%label' => strtolower($this->entity->label()),
@@ -107,9 +110,9 @@ class CohesionBaseForm extends EntityForm {
       $form_state->setTemporaryValue('xss_paths_response', $form_state->getTemporaryValue('xss_paths_entity'));
     }
 
-    // Regenerate UUID for duplicate component entity
+    // Regenerate UUID for duplicate component entity.
     // @todo - this logic should be in the child form.
-    if ($this->getOperation() == 'duplicate' && $entity instanceof \Drupal\cohesion_elements\Entity\Component) {
+    if ($this->getOperation() == 'duplicate' && $entity instanceof Component) {
       $jsonValue = $this->apiUtils->uniqueJsonKeyUuids($jsonValue);
     }
 
@@ -151,7 +154,7 @@ class CohesionBaseForm extends EntityForm {
     ];
 
     if ($operation == 'duplicate') {
-      $form['details']['label']['#default_value'] = t('Duplicate of ') . $form['details']['label']['#default_value'];
+      $form['details']['label']['#default_value'] = t('Duplicate of @duplicate', ['@duplicate' => $form['details']['label']['#default_value']]);
     }
 
     if ($this->entity->getEntityType()->hasKey('status')) {
@@ -212,7 +215,8 @@ class CohesionBaseForm extends EntityForm {
       }
 
       // Highlight elements with errors.
-      $cohesion_layout_canvas_error = &drupal_static('cohesion_layout_canvas_error'); // See processCohesionError().
+      // See processCohesionError().
+      $cohesion_layout_canvas_error = &drupal_static('cohesion_layout_canvas_error');
       $cohesion_layout_canvas_error = array_unique($highlighted_elements);
     }
   }
@@ -222,7 +226,7 @@ class CohesionBaseForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
     // Set modified on save
-    // Only on form and not on entity as modified should be set upon user action not code
+    // Only on form and not on entity as modified should be set upon user action not code.
     $this->entity->setModified();
 
     $status = parent::save($form, $form_state);
@@ -233,7 +237,7 @@ class CohesionBaseForm extends EntityForm {
       '@type' => $this->entity->getEntityType()->getSingularLabel(),
       '%label' => $this->entity->label(),
     ]);
-    drupal_set_message($message);
+    \Drupal::messenger()->addMessage($message);
 
     \Drupal::request()->query->remove('destination');
 
@@ -261,7 +265,6 @@ class CohesionBaseForm extends EntityForm {
     $actions['continue']['#dropbutton'] = 'save';
     $actions['continue']['#value'] = t('Save and continue');
     $actions['continue']['#weight'] = 0;
-
 
     // Add a "Save" button.
     $actions['enable'] = $actions['submit'];
@@ -312,6 +315,7 @@ class CohesionBaseForm extends EntityForm {
    * @param $value
    *
    * @return bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -324,4 +328,5 @@ class CohesionBaseForm extends EntityForm {
 
     return count($entity_ids) > 0;
   }
+
 }

@@ -3,12 +3,12 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\cohesion\UsagePluginBase;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_elements\Entity\CohesionLayout;
 
+/**
+ *
+ */
 abstract class FieldableContentEntityUsageBase extends UsagePluginBase {
 
   /**
@@ -23,12 +23,12 @@ abstract class FieldableContentEntityUsageBase extends UsagePluginBase {
 
     if ($template != '__default__') {
       // Not a default template, so just make sure the template exists.
-      $template_result = \Drupal::service('entity.query')->get('cohesion_content_templates')->condition('id', $template)->execute();
+      $template_result = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
+        ->condition('id', $template)->execute();
     }
     else {
       // Default, so query for the default of this entity type/bundle.
-      $template_result = \Drupal::service('entity.query')
-        ->get('cohesion_content_templates')
+      $template_result = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
         ->condition('entity_type', $entity->getEntityTypeId())
         ->condition('bundle', $entity->bundle())
         ->condition('view_mode', 'full')
@@ -57,12 +57,12 @@ abstract class FieldableContentEntityUsageBase extends UsagePluginBase {
 
         // cohesion_layout reference.
         if ($field->getSetting('handler') == 'default:cohesion_layout') {
-          /** @var ContentEntityInterface $item */
+          /** @var \Drupal\Core\Entity\ContentEntityInterface $item */
           foreach ($entity->get($field->getName()) as $item) {
             try {
               $target_id = $item->getValue()['target_id'];
               if (!is_null($item->getValue()['target_id'])) {
-                /** @var CohesionLayout $cohesion_layout_entity */
+                /** @var \Drupal\cohesion_elements\Entity\CohesionLayout $cohesion_layout_entity */
                 $cohesion_layout_entity = $this->entityTypeManager->getStorage('cohesion_layout')->load($target_id);
 
                 $scannable[] = [
@@ -113,13 +113,6 @@ abstract class FieldableContentEntityUsageBase extends UsagePluginBase {
 
     // Return everything.
     return $scannable;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function scanForInstancesOfThisType($data, EntityInterface $entity) {
-    return parent::scanForInstancesOfThisType($data, $entity);
   }
 
 }

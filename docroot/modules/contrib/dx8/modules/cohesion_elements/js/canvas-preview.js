@@ -52,6 +52,9 @@
         }
 
         function setContainerType(boxedWidth) {
+            if(!self.el.container) {
+                return;
+            }
             if (boxedWidth) {
                 self.el.container.children[0].classList.add('coh-container-boxed');
             } else {
@@ -63,6 +66,9 @@
         }
 
         function setContentWidth(colWidth) {
+            if(!self.el.colContainer) {
+                return;
+            }
             self.el.colContainer.classList.remove('dx-preview-col-' + self.columnWidth);
             self.el.colContainer.classList.add('dx-preview-col-' + colWidth);
             self.columnWidth = colWidth;
@@ -173,7 +179,13 @@
             window.parent.postMessage(JSON.stringify(msg), '*');
 
             // This is to ensure child elements like videos are triggered into updating their size.
-            window.dispatchEvent(new Event('resize'));
+            if (typeof(Event) === 'function') {
+                window.dispatchEvent(new Event('resize'));
+            } else {
+              var evt = window.document.createEvent('UIEvents');
+              evt.initUIEvent('resize', true, false, window, 0);
+              window.dispatchEvent(evt);
+            }
 
             Array.prototype.forEach.call(document.getElementsByClassName('dx-resizable'), function(el) {
                 el.getElementsByClassName('dx-placeholder-dimensions')[0].innerHTML = '(' + el.offsetWidth + 'px x ' + el.offsetHeight + 'px)';
@@ -206,10 +218,13 @@
 
                 el.dxdata.dxHighlightEls.forEach(function(highlightEl) {
                     var rect = highlightEl.getBoundingClientRect();
-                    tops.push(rect.top);
-                    lefts.push(rect.left);
-                    rights.push(rect.left + rect.width);
-                    bottoms.push(rect.top + rect.height);
+                    // check the element is actually visible on the page - otherwise we end up incorrectly setting the minTop & minLeft to be 0 for hidden elements.
+                    if (elemIsVisible(highlightEl)) {
+                        tops.push(rect.top);
+                        lefts.push(rect.left);
+                        rights.push(rect.left + rect.width);
+                        bottoms.push(rect.top + rect.height);
+                    }
                 });
 
                 minTop = getMinOfArray(tops);
@@ -223,6 +238,10 @@
             } else {
                 self.el.highlight.style.opacity = 0;
             }
+        }
+
+        function elemIsVisible(elem) {
+            return !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
         }
 
         function getMaxOfArray(numArray) {
@@ -297,6 +316,11 @@
         }
 
         function initResizable() {
+            // only if we have jquery, jquery.ui and jquery ui resizable.
+            if (!$ || typeof $.ui === 'undefined' || typeof $().resizable !== 'function'){
+              return;
+            }
+
             $(function() {
                 $('.dx-resizable').resizable({
                     autoHide: true,
@@ -332,15 +356,17 @@
 
         function handleBreakpointIndicator() {
             // if we are not popped out, we need to prevent the breakpoint indicator module from showing unnecessarily.
-            if (drupalSettings && drupalSettings.path.currentQuery.popped !== 'true') {
+            if (drupalSettings && (!drupalSettings.path.currentQuery || drupalSettings.path.currentQuery.popped !== 'true')) {
                 delete Drupal.behaviors.cohesionBreakpointIndicator;
             }
         }
 
         function init() {
-            if(!self.el.colContainer.children.length) {
-                self.el.colContainer.innerText = 'No content';
-                self.el.colContainer.classList.add('dx-no-content');
+            if(self.el.colContainer) {
+                if(!self.el.colContainer.children.length) {
+                    self.el.colContainer.innerText = 'No content';
+                    self.el.colContainer.classList.add('dx-no-content');
+                }
             }
 
             if (navigator.userAgent.match(/(iPhone|iPod|iPad)/i)) {
@@ -349,10 +375,12 @@
 
             initGridMask();
             initHighlight();
-            self.el.container.style.transition = 'width ' + self.animSpeed + 'ms ease-in-out';
+            if(self.el.container) {
+                self.el.container.style.transition = 'width ' + self.animSpeed + 'ms ease-in-out';
+                self.disableLinks();
+            }
             handleBreakpointIndicator();
             self.bindEvents();
-            self.disableLinks();
             onResizeWindowFinished();
             window.parent.postMessage(JSON.stringify({
                 type: 'ready',

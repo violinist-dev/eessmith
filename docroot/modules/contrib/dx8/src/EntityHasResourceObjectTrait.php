@@ -8,9 +8,9 @@ namespace Drupal\cohesion;
 trait EntityHasResourceObjectTrait {
 
   /**
-   * Return the object formatted for the API
+   * Return the object formatted for the API.
    *
-   * @return \stdClass
+   * @return object
    */
   public function getResourceObject() {
     $entity_values = new \stdClass();
@@ -19,10 +19,10 @@ trait EntityHasResourceObjectTrait {
     $entity_values->type = $this->getAssetGroupId();
     $entity_values->bundle = $this->id();
     $entity_values->values = $this->getDecodedJsonValues();
-    $entity_values->mapper = $this->getJsonMapper();
+    $entity_values->mapper = $this->getDecodedJsonMapper();
     $entity_values->itemID = $this->getConfigItemId();
-    $entity_values->modified = $this->isModified();
 
     return $entity_values;
   }
+
 }

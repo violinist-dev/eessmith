@@ -3,13 +3,33 @@
 namespace Drupal\cohesion\Services;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Class CohesionEndpointHelper
+ * Class CohesionEndpointHelper.
  *
  * @package Drupal\cohesion\Helper
  */
 class CohesionEndpointHelper {
+  use StringTranslationTrait;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * @var \Drupal\Core\StringTranslation\TranslationInterface
+   */
+  protected $stringTranslation;
+
+  /**
+   * CohesionEndpointHelper constructor.
+   */
+  public function __construct() {
+    $this->entityTypeManager = \Drupal::service('entity_type.manager');
+    $this->stringTranslation = \Drupal::service('string_translation');
+  }
 
   /**
    * @param array $values
@@ -33,11 +53,11 @@ class CohesionEndpointHelper {
     else {
       // Unsupported entity type.
       $error = TRUE;
-      $message = t('Unsupported entity type');
+      $message = $this->t('Unsupported entity type');
     }
 
     // Create a machine name from the label.
-    $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
+    $storage = $this->entityTypeManager->getStorage($entity_type_id);
 
     $machine_name = preg_replace("/[^A-Za-z0-9\s]/", '', strtolower($values['label']));
     $machine_name = str_replace('-', '_', $machine_name);
@@ -49,13 +69,13 @@ class CohesionEndpointHelper {
 
     if ($storage->load($machine_name)) {
       $error = TRUE;
-      $message = t('You cannot save a ' . $type . ' with the same name.');
+      $message = $this->t('You cannot save a @type with the same name.', ['@type' => $type]);
     }
     else {
       list($error, $message) = $this->createElement($entity_type_id, $values, $machine_name);
     }
 
-    return [$error, $message,];
+    return [$error, $message];
   }
 
   /**
@@ -72,7 +92,7 @@ class CohesionEndpointHelper {
     }
     try {
       // Create the entity object.
-      $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->create($payload);
+      $entity = $this->entityTypeManager->getStorage($entity_type_id)->create($payload);
 
       // Set entity id.
       $entity->set('id', $machine_name);
@@ -83,13 +103,14 @@ class CohesionEndpointHelper {
       // Save.
       $entity->save();
       $error = FALSE;
-      $message = t('Entity saved');
-    } catch (\Exception $ex) {
+      $message = $this->t('Entity saved');
+    }
+    catch (\Exception $ex) {
       // Error creating entity.
       $error = TRUE;
-      $message = t('Cannot create entity with error: @error', ['@error' => $ex->getMessage()]);
+      $message = $this->t('Cannot create entity with error: @error', ['@error' => $ex->getMessage()]);
     }
-    return [$error, $message,];
+    return [$error, $message];
   }
 
 }

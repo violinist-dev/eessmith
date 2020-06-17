@@ -169,7 +169,6 @@ class CohesionHtmlRouteProvider extends AdminHtmlRouteProvider {
   /**
    * Gets the set default form route.
    *
-   *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
    *

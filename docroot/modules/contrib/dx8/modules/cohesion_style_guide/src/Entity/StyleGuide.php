@@ -4,7 +4,7 @@ namespace Drupal\cohesion_style_guide\Entity;
 
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\Console\Bootstrap\Drupal;
+use Drupal\cohesion\LayoutCanvas\ElementModel;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
@@ -57,6 +57,21 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "disable" =
  *   "/admin/cohesion/style_guides/{cohesion_style_guide}/disable",
  *     "enable" = "/admin/cohesion/style_guides/{cohesion_style_guide}/enable",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "has_quick_edit",
+ *     "entity_type_access",
+ *     "bundle_access",
+ *     "twig_template",
+ *     "weight"
  *   }
  * )
  */
@@ -101,13 +116,22 @@ class StyleGuide extends CohesionConfigEntityBase implements CohesionSettingsInt
     return TRUE;
   }
 
+  /**
+   *
+   */
   public function jsonValuesErrors() {
-    // @todo to implement
     return FALSE;
   }
 
+  /**
+   *
+   */
   public function process() {
     return NULL;
+  }
+
+  public function getApiPluginInstance() {
+    return FALSE;
   }
 
   /**
@@ -120,7 +144,7 @@ class StyleGuide extends CohesionConfigEntityBase implements CohesionSettingsInt
   public function delete() {
     parent::delete();
 
-    // Upon delete of style guide also delete all style guide manager instances referencing this style guide entity
+    // Upon delete of style guide also delete all style guide manager instances referencing this style guide entity.
     $style_guide_manager_storage = $this->entityTypeManager()
       ->getStorage('cohesion_style_guide_manager');
     $style_guide_manager_ids = $style_guide_manager_storage->getQuery()
@@ -135,9 +159,57 @@ class StyleGuide extends CohesionConfigEntityBase implements CohesionSettingsInt
     token_clear_cache();
   }
 
+  /**
+   *
+   */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage, $update);
     token_clear_cache();
+  }
+
+  /**
+   * Check whether the content defined where this component has been used is
+   * still usable Content may not be usable anymore (and might be lost) if a
+   * component field has been remove
+   *
+   * @param $json_values NULL|string - Values to check against if not using the
+   *   stored values
+   *
+   * @return array - the list of entities with broken integrity
+   */
+  public function checkContentIntegrity($json_values = NULL) {
+    $broken_entities = [];
+    if ($json_values !== NULL) {
+      $this->setJsonValue($json_values);
+    }
+
+    $component_field_uuids = [];
+    foreach ($this->getLayoutCanvasInstance()
+      ->iterateStyleGuideForm() as $form_element) {
+      $component_field_uuids[] = $form_element->getUUID();
+    }
+
+    $in_use_list = \Drupal::service('cohesion_usage.update_manager')
+      ->getInUseEntitiesList($this);
+
+    foreach ($in_use_list as $uuid => $type) {
+
+      if ($type == 'cohesion_style_guide_manager') {
+        /** @var \Drupal\cohesion_style_guide\Entity\StyleGuideManager $entity */
+        $entity = \Drupal::service('entity.repository')
+          ->loadEntityByUuid($type, $uuid);
+        $json_values = $entity->getDecodedJsonValues();
+        if (isset($json_values['model'][$this->get('uuid')])) {
+          foreach ($json_values['model'][$this->get('uuid')] as $model_key => $model_value) {
+            if (preg_match(ElementModel::MATCH_UUID, $model_key) && !in_array($model_key, $component_field_uuids)) {
+              $broken_entities[$entity->uuid()] = $entity;
+            }
+          }
+        }
+      }
+    }
+
+    return array_values($broken_entities);
   }
 
 }

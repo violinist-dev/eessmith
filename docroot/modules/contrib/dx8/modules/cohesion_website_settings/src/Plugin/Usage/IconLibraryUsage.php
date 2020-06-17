@@ -3,11 +3,10 @@
 namespace Drupal\cohesion_website_settings\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class IconLibraryUsage
+ * Class IconLibraryUsage.
  *
  * @package Drupal\cohesion_website_settings\Plugin\Usage
  *
@@ -25,11 +24,14 @@ use Drupal\Core\Entity\EntityInterface;
  */
 class IconLibraryUsage extends UsagePluginBase {
 
+  /**
+   * @var array
+   */
   private $entities;
 
   /**
    * Implemented as a recursive function because the RecursiveIterator
-   * only visits leaf nodes :/
+   * only visits leaf nodes :/.
    *
    * @param $array
    *

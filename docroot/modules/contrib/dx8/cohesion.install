@@ -10,6 +10,8 @@ use Drupal\cohesion_website_settings\Entity\FontLibrary;
 use Drupal\cohesion_website_settings\Entity\FontStack;
 use Drupal\Component\Serialization\Json;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
+use Drupal\Core\File\Exception\FileException;
+use Drupal\Core\File\FileSystemInterface;
 
 /**
  * Implements hook_install().
@@ -103,7 +105,7 @@ function cohesion_schema() {
       'unique_keys' => ['element_group', 'element_id'],
     ],
     'coh_usage' => [
-      'description' => 'DX8 usage tracking.',
+      'description' => 'Cohesion usage tracking.',
       'fields' => [
         'source_uuid' => [
           'type' => 'varchar',
@@ -159,7 +161,7 @@ function cohesion_update_8102(&$sandbox) {
     }
   };
 
-  foreach (\Drupal::entityManager()
+  foreach (\Drupal::entityTypeManager()
              ->getStorage('field_storage_config')
              ->loadMultiple() as $bundle_field) {
     if ($bundle_field instanceof Drupal\field\Entity\FieldStorageConfig && 'cohesion_layout' == $bundle_field->get('type')) {
@@ -211,12 +213,21 @@ function cohesion_update_8104(&$variables) {
     $profile_config = \Drupal::service('config.factory')
       ->getEditable($profile_config_id);
     if (file_exists(DRUPAL_ROOT . '/' . $path)) {
-      $files = file_scan_directory(DRUPAL_ROOT . '/' . $path, "/{$profile_config_id}.yml$/", ['recurse' => TRUE]);
+      $files = [];
+      $dir = DRUPAL_ROOT . '/' . $path;
+      try {
+        if (is_dir($dir)) {
+          $files = \Drupal::service('file_system')->scanDirectory($dir, "/{$profile_config_id}.yml$/", ['recurse' => TRUE]);
+        }
+      }
+      catch (FileException $e) {
+        // Ignore and return empty array for BC.
+      }
       $file = reset($files);
       $data = Yml::decode(file_get_contents($file->uri));
       $profile_config->merge($data);
       if ($profile_config->save()) {
-        drupal_set_message(t("Success: @config updated", ['@config' => $profile_config->getName(),]));
+        \Drupal::messenger()->addMessage(t("Success: @config updated", ['@config' => $profile_config->getName(),]));
       }
     }
   }
@@ -247,7 +258,7 @@ function cohesion_update_8113(&$sandbox) {
   };
 
   // Loop through layout_fields and add subfields using the $addColumn() function above.
-  foreach (\Drupal::entityManager()
+  foreach (\Drupal::entityTypeManager()
              ->getStorage('field_storage_config')
              ->loadMultiple() as $bundle_field) {
 
@@ -367,7 +378,7 @@ function cohesion_update_8125(&$variables) {
   ];
 
   // Merge existing headings(h1...h6) into heading
-  $entities = \Drupal::service('entity.manager')
+  $entities = \Drupal::service('entity_type.manager')
     ->getStorage('cohesion_custom_style')
     ->loadMultiple();
   foreach ($entities as $entity) {
@@ -380,7 +391,7 @@ function cohesion_update_8125(&$variables) {
 }
 
 /**
- * Remove reference to unused custom style groups from keyValue storage and DX8
+ * Remove reference to unused custom style groups from keyValue storage and Cohesion
  * storage
  */
 function cohesion_update_8126(&$variables) {
@@ -396,7 +407,7 @@ function cohesion_update_8126(&$variables) {
   \Drupal::keyValue('cohesion.assets.custom_styles')
     ->deleteMultiple($legacy_headings);
 
-  // Remove from DX8 storage
+  // Remove from Cohesion storage
   foreach ($legacy_headings as $legacy_heading) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_heading, 'custom_styles');
   }
@@ -465,7 +476,7 @@ function cohesion_update_8129(&$variables) {
   ];
 
   // Merge existing headings(h1...h6) into heading
-  $entities = \Drupal::service('entity.manager')
+  $entities = \Drupal::service('entity_type.manager')
     ->getStorage('cohesion_style_helper')
     ->loadMultiple();
   foreach ($entities as $entity) {
@@ -478,7 +489,7 @@ function cohesion_update_8129(&$variables) {
 }
 
 /**
- * Remove reference to unused custom style groups from keyValue storage and DX8
+ * Remove reference to unused custom style groups from keyValue storage and Cohesion
  * storage
  */
 function cohesion_update_8130(&$variables) {
@@ -489,7 +500,7 @@ function cohesion_update_8130(&$variables) {
   \Drupal::keyValue('cohesion.assets.custom_styles')
     ->deleteMultiple($legacy_icons);
 
-  // Remove from DX8 storage
+  // Remove from Cohesion storage
   foreach ($legacy_icons as $legacy_icon) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_icon, 'custom_styles');
   }
@@ -527,7 +538,7 @@ function cohesion_update_8501(&$variables) {
   \Drupal::keyValue('cohesion.assets.elements')
     ->deleteMultiple($legacy_element);
 
-  // Remove from DX8 storage
+  // Remove from Cohesion storage
   foreach ($legacy_element as $legacy_icon) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_element, 'elements');
   }
@@ -750,7 +761,7 @@ function cohesion_update_8502(&$variables) {
 }
 
 /**
- * Split model model and mapper from DX8 configs
+ * Split model model and mapper from configs
  */
 function cohesion_update_8503(){
   $dx8_no_send_to_api = &drupal_static('dx8_no_send_to_api');
@@ -791,7 +802,7 @@ function cohesion_update_8504(){
     $query = \Drupal::entityQuery('cohesion_layout');
     $entity_ids_all = $query->execute();
 
-    $entity_data = \Drupal::service('entity.manager')->getStorage('cohesion_layout');
+    $entity_data = \Drupal::service('entity_type.manager')->getStorage('cohesion_layout');
 
     foreach (array_chunk($entity_ids_all, 25) as $entity_ids){
       if ($entity_data && ($entities = $entity_data->loadMultiple($entity_ids))) {
@@ -819,7 +830,7 @@ function cohesion_update_8505(){
     $query = \Drupal::entityQuery('cohesion_layout');
     $entity_ids_all = $query->execute();
 
-    $entity_data = \Drupal::service('entity.manager')->getStorage('cohesion_layout');
+    $entity_data = \Drupal::service('entity_type.manager')->getStorage('cohesion_layout');
 
     foreach (array_chunk($entity_ids_all, 25) as $entity_ids){
 
@@ -917,7 +928,7 @@ function cohesion_update_8510() {
 }
 
 /**
- * Install the DX8 elements preview image style.
+ * Install the elements preview image style.
  */
 function cohesion_update_8511() {
   \Drupal::service('config.installer')->installDefaultConfig('module', 'cohesion_elements');
@@ -1077,7 +1088,7 @@ function cohesion_update_8518() {
 }
 
 /**
- * Set IMCE as selected image browser in DX8 System settings configuration.
+ * Set IMCE as selected image browser in System settings configuration.
  */
 function cohesion_update_8519() {
   $config = \Drupal::service('config.factory')->getEditable('cohesion.settings');
@@ -1484,7 +1495,7 @@ function update_all_canvases($update_function, $type = 'json_values') {
   // Convert CohesionConfigEntityBase entities.
   foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type => $definition) {
     if ($definition->entityClassImplements(CohesionSettingsInterface::class)) {
-      if ($entities = \Drupal::service('entity.manager')->getStorage($entity_type)->loadMultiple()) {
+      if ($entities = \Drupal::service('entity_type.manager')->getStorage($entity_type)->loadMultiple()) {
         foreach ($entities as $entity) {
           try {
             switch ($type){
@@ -1532,7 +1543,7 @@ function update_layout_canvas_model_element($update_function, $type = 'json_valu
     $query = \Drupal::entityQuery('cohesion_layout');
     $entity_ids_all = $query->execute();
 
-    $entity_data = \Drupal::service('entity.manager')->getStorage('cohesion_layout');
+    $entity_data = \Drupal::service('entity_type.manager')->getStorage('cohesion_layout');
 
     foreach (array_chunk($entity_ids_all, 25) as $entity_ids){
       if ($entity_data && ($entities = $entity_data->loadMultiple($entity_ids))) {
@@ -1799,13 +1810,22 @@ function _update_cohesion_admin_list_views() {
     $profile_config = \Drupal::service('config.factory')
       ->getEditable($profile_config_id);
     if (file_exists(DRUPAL_ROOT . '/' . $path)) {
-      $files = file_scan_directory(DRUPAL_ROOT . '/' . $path, "/{$profile_config_id}.yml$/", ['recurse' => TRUE]);
+      $files = [];
+      $dir = DRUPAL_ROOT . '/' . $path;
+      try {
+        if (is_dir($dir)) {
+          $files = \Drupal::service('file_system')->scanDirectory($dir, "/{$profile_config_id}.yml$/", ['recurse' => TRUE]);
+        }
+      }
+      catch (FileException $e) {
+      }
+
       $file = reset($files);
       $data = Yml::decode(file_get_contents($file->uri));
       if ($data) {
         $profile_config->merge($data);
         if ($profile_config->save()) {
-          drupal_set_message(t("Success: @config updated", ['@config' => $profile_config->getName(),]));
+          \Drupal::messenger()->addMessage(t("Success: @config updated", ['@config' => $profile_config->getName(),]));
         }
       }
     }
@@ -1818,13 +1838,13 @@ function _update_cohesion_admin_list_views() {
  * @param string $message
  */
 function _cohesion_create_directory($path, $message = '') {
-  // Clean the cohesion:// directory if this is a reinstall.
+  // Clean the Acquia Cohesion  directory if this is a reinstall.
   if (is_dir($path)) {
-    file_unmanaged_delete_recursive($path);
+    \Drupal::service('file_system')->deleteRecursive($path);
   }
 
-  // Create the cohesion:// directory.
-  if (file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
-    drupal_set_message(t(":message", [':message' => $message,]));
+  // Create the Acquia Cohesion  directory.
+  if (\Drupal::service('file_system')->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY)) {
+    \Drupal::messenger()->addMessage(t(":message", [':message' => $message,]));
   }
 }

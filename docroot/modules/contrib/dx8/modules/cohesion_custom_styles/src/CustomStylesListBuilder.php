@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_custom_styles;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
@@ -14,7 +15,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Class CustomStylesListBuilder
+ * Class CustomStylesListBuilder.
  *
  * @package Drupal\cohesion_custom_styles
  */
@@ -28,7 +29,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
   protected $formBuilder;
 
   /**
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface;
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -51,7 +52,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static($entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
       $container->get('form_builder'),
       $container->get('entity_type.manager')
     );
@@ -76,7 +77,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       '#type' => 'container',
     ];
 
-    // Group by custom style types
+    // Group by custom style types.
     if ($custom_style_types = $this->entityTypeManager->getStorage('custom_style_type')
       ->loadMultiple()) {
       // Make sure the custom style types are in alphabetical order.
@@ -85,12 +86,12 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
 
       foreach ($custom_style_types as $custom_style_type) {
         $custom_style_type_id = $custom_style_type->id();
-        // Filter entities by custom style group ID
+        // Filter entities by custom style group ID.
         $grouped_entities = array_filter($custom_styles, function ($value) use ($custom_style_type_id) {
           return ($custom_style_type_id === $value->get('custom_style_type')) ? TRUE : FALSE;
         });
 
-        // Build the accordions
+        // Build the accordions.
         $form['styles'][$custom_style_type_id]['accordion'] = [
           '#type' => 'details',
           '#open' => FALSE,
@@ -99,7 +100,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
 
         $title = $custom_style_type->label();
 
-        // Build the accordion group tables
+        // Build the accordion group tables.
         $this->buildTable($form['styles'][$custom_style_type_id]['accordion'], $title, $grouped_entities, $custom_style_type_id);
       }
     }
@@ -218,7 +219,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       ],
     ];
 
-    // Build rows
+    // Build rows.
     foreach ($style_entities as $entity) {
       $common_row = parent::buildRow($entity);
       $label = [
@@ -230,7 +231,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       try {
         $type_entity = $this->entityTypeManager->getStorage('custom_style_type')
           ->load($entity->getCustomStyleType());
-      } catch (\Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException $ex) {
+      } catch (InvalidPluginDefinitionException $ex) {
         watchdog_exception('cohesion', $ex);
         $type_entity = NULL;
       }
@@ -239,7 +240,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
 
       // Extended style.
       if ($entity->getParentId()) {
-        // Indent children
+        // Indent children.
         $form_data['table'][$id]['label'] = [
           [
             '#theme' => 'indentation',
@@ -247,7 +248,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
           ],
           $label,
         ];
-        // lock parent so no child can be dragged into it
+        // Lock parent so no child can be dragged into it.
         $form_data['table'][$id]['#attributes']['class'][] = 'coh-tabledrag-parent-locked';
         $form_data['table'][$id]['#attributes']['class'][] = 'tabledrag-root';
         $form_data['table'][$id]['#attributes']['class'][] = 'coh-extended-style';
@@ -350,7 +351,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       }
 
       // Re-save all the custom styles via a batch process to ensure they are
-      // in the correct order in the output .css
+      // in the correct order in the output .css.
       if (!empty($entities)) {
         $form_state->setRedirect('cohesion_custom_style.batch_resave');
       }

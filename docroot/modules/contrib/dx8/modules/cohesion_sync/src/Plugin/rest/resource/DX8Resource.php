@@ -2,16 +2,13 @@
 
 namespace Drupal\cohesion_sync\Plugin\rest\resource;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Drupal\Core\Cache\CacheableMetadata;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
-use Drupal\Core\Config\Entity\ConfigEntityStorage;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\cohesion_sync\PackagerManager;
 
@@ -20,7 +17,7 @@ use Drupal\cohesion_sync\PackagerManager;
  *
  * @RestResource(
  *   id = "dx8_resource",
- *   label = @Translation("DX8 package resource"),
+ *   label = @Translation("Cohesion package resource"),
  *   uri_paths = {
  *     "canonical" = "/sync/package/{entity_type}"
  *   }
@@ -29,27 +26,27 @@ use Drupal\cohesion_sync\PackagerManager;
 class DX8Resource extends ResourceBase {
 
   /**
-   * @var EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
-   * @var KillSwitch
+   * @var \Drupal\Core\PageCache\ResponsePolicy\KillSwitch
    */
   protected $cacheKillSwitch;
 
   /**
-   * @var ConfigEntityStorage
+   * @var \Drupal\Core\Config\Entity\ConfigEntityStorage
    */
   protected $storage;
 
   /**
-   * @var EntityRepository
+   * @var \Drupal\Core\Entity\EntityRepository
    */
   protected $entityRepository;
 
   /**
-   * @var PackagerManager
+   * @var \Drupal\cohesion_sync\PackagerManager
    */
   protected $packagerManager;
 
@@ -85,7 +82,7 @@ class DX8Resource extends ResourceBase {
       $plugin_definition,
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('page_cache_kill_switch'),
       $container->get('entity.repository'),
       $container->get('cohesion_sync.packager')
@@ -102,12 +99,12 @@ class DX8Resource extends ResourceBase {
 
     // Unknown entity type exception.
     try {
-      /** @var ConfigEntityStorage storage */
+      /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage storage */
       $this->storage = $this->entityTypeManager->getStorage($params['entity_type']);
     }
     catch (\Exception $e) {
       return new ResourceResponse(['error' => 'Entity type not found'], 404);
-      // throw new AccessDeniedHttpException();
+      // Throw new AccessDeniedHttpException();
     }
 
     // Add in the query string stuff.
@@ -121,7 +118,7 @@ class DX8Resource extends ResourceBase {
   }
 
   /**
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *
    * @return string
    * @throws \ReflectionException
@@ -133,6 +130,7 @@ class DX8Resource extends ResourceBase {
    * Responds to entity GET requests.
    *
    * @return array|\Drupal\rest\ResourceResponse
+   *
    * @throws \ReflectionException
    */
   public function get() {

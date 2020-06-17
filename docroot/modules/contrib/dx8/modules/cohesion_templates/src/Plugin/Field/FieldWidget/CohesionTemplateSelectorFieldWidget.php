@@ -6,7 +6,6 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\Plugin\DataType\EntityAdapter;
 
 /**
  * Plugin implementation of the 'cohesion_template_selector_widget' widget.
@@ -44,13 +43,12 @@ class CohesionTemplateSelectorFieldWidget extends WidgetBase {
       $entity_type = $entity->getEntityTypeId();
     }
     else {
-      // The cohesion template selector field is supported only on content entity and field config
+      // The cohesion template selector field is supported only on content entity and field config.
       return [];
     }
 
-    // Get list of templates for this content type
-    $template_ids = \Drupal::service('entity.query')
-      ->get('cohesion_content_templates')
+    // Get list of templates for this content type.
+    $template_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
       ->condition('entity_type', $entity_type)
       ->condition('bundle', $bundle)
       ->condition('view_mode', 'full')
@@ -79,9 +77,6 @@ class CohesionTemplateSelectorFieldWidget extends WidgetBase {
       '#options' => $options,
       '#default_value' => (isset($options[$items[$delta]->selected_template])) ? $items[$delta]->selected_template : '__default__',
     ];
-
-    // var_dump($element);
-    // exit;
 
     return $element;
   }
