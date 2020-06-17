@@ -122,26 +122,36 @@
     },
     {
         "name": "cohesion/dx8-theme",
-        "version": "5.7.10",
-        "version_normalized": "5.7.10.0",
+        "version": "6.1.2",
+        "version_normalized": "6.1.2.0",
         "source": {
             "type": "git",
             "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git",
-            "reference": "c1c9e2e616c17786051e0d7afd753035abc93e52"
+            "reference": "6de1c040d5c9a931ef301077115ee78698a4ba37"
         },
         "dist": {
             "type": "zip",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/c1c9e2e616c17786051e0d7afd753035abc93e52.zip",
-            "reference": "c1c9e2e616c17786051e0d7afd753035abc93e52",
+            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/6de1c040d5c9a931ef301077115ee78698a4ba37.zip",
+            "reference": "6de1c040d5c9a931ef301077115ee78698a4ba37",
             "shasum": ""
         },
-        "time": "2020-01-22T14:00:41+00:00",
+        "time": "2020-06-15T11:39:02+00:00",
         "type": "drupal-theme",
         "installation-source": "dist",
-        "description": "DX8 base theme",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Acquia Engineering",
+                "homepage": "https://www.acquia.com",
+                "role": "Maintainer"
+            }
+        ],
+        "description": "Acquia Cohesion minimal theme",
         "homepage": "https://bitbucket.org/cohesion_dev/dx8-theme",
         "support": {
-            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/c1c9e2e616c17786051e0d7afd753035abc93e52/?at=5.7.10"
+            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/6de1c040d5c9a931ef301077115ee78698a4ba37/?at=6.1.2"
         }
     },
     {

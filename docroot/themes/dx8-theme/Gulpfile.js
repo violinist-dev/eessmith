@@ -6,7 +6,7 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var stripCssComments = require('gulp-strip-css-comments');
 
-gulp.task('default', function () {
+gulp.task('default', async function () {
     gulp.src('./scss/*.scss')
         .pipe(sass({outputStyle: 'expanded', follow: true}).on('error', sass.logError))
         .pipe(stripCssComments())
@@ -14,5 +14,5 @@ gulp.task('default', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch('scss/**/*.scss', ['default']);
+    gulp.watch('scss/**/*.scss', {}, gulp.series('default'));
 });
