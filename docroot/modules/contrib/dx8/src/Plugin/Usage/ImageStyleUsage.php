@@ -3,14 +3,10 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
-use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Database\Connection;
 
 /**
- * Class ImageStyleUsage
+ * Class ImageStyleUsage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -53,8 +49,8 @@ class ImageStyleUsage extends UsagePluginBase {
               $entities[] = [
                 'type' => $this->getEntityType(),
                 'uuid' => $image_style_entity->uuid(),
-                //'subid' => NULL,
-                //'url' => $view_entity->toUrl('edit-form')
+                // 'subid' => NULL,
+                // 'url' => $view_entity->toUrl('edit-form')
               ];
             }
           }

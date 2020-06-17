@@ -6,10 +6,9 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\cohesion\UsagePluginManager;
-use Drupal\cohesion_sync\Entity\Package;
 
 /**
- * Class PackageForm
+ * Class PackageForm.
  *
  * @package Drupal\cohesion_sync\Form
  */
@@ -54,7 +53,8 @@ class PackageForm extends EntityForm {
      */
     $form['app'] = [
       '#markup' => '<div id="cohApp"></div>',
-      '#parents' => [], // Suppresses https://www.drupal.org/project/drupal/issues/3027240
+    // Suppresses https://www.drupal.org/project/drupal/issues/3027240
+      '#parents' => [],
     ];
 
     /**
@@ -128,7 +128,6 @@ class PackageForm extends EntityForm {
     $form['excluded']['excluded_types'] = [
       '#markup' => '<div id="package-excluded-container" class="package-loading-overlay"></div>',
     ];
-
 
     /**
      * LHS package requirements wrappers.
@@ -221,6 +220,7 @@ class PackageForm extends EntityForm {
    * @param $value
    *
    * @return bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -240,7 +240,7 @@ class PackageForm extends EntityForm {
    */
   public function buildEntity(array $form, FormStateInterface $form_state) {
     /**
-     * @var Package $entity
+     * @var \Drupal\cohesion_sync\Entity\Package $entity
      */
     $entity = clone $this->entity;
 
@@ -263,10 +263,9 @@ class PackageForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state, $redirect = NULL) {
     // Set entity id from supplied machine name.
-    //if ($this->getOperation() == 'add' || $this->getOperation() == 'duplicate') {
+    // if ($this->getOperation() == 'add' || $this->getOperation() == 'duplicate') {
     //  $this->entity->set('id', $this->entity->getEntityMachineNamePrefix() . $form_state->getValue('machine_name'));
-    //}
-
+    // }
     // Save it and get the status.
     $status = parent::save($form, $form_state);
 

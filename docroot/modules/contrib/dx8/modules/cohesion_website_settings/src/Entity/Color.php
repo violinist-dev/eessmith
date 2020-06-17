@@ -2,12 +2,9 @@
 
 namespace Drupal\cohesion_website_settings\Entity;
 
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
 
 /**
  * Defines the Cohesion website settings entity.
@@ -38,6 +35,17 @@ use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
  *   links = {
  *     "in-use" = "/admin/cohesion/cohesion_color/{cohesion_color}/in_use",
  *     "collection" = "/admin/cohesion/cohesion_website_settings"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "weight"
  *   }
  * )
  */
@@ -78,13 +86,13 @@ class Color extends WebsiteSettingsEntityBase implements CohesionSettingsInterfa
   }
 
   /**
-   * Return all the icons combined for the form[]
+   * Return all the icons combined for the form[].
    *
-   * @return array|\stdClass|string
+   * @return array|object|string
    */
   public function getResourceObject() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
 
     return $send_to_api->getColorGroup();
   }
@@ -93,8 +101,8 @@ class Color extends WebsiteSettingsEntityBase implements CohesionSettingsInterfa
    * {@inheritdoc}
    */
   public function process() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $send_to_api->send();
     return $send_to_api;
@@ -104,8 +112,8 @@ class Color extends WebsiteSettingsEntityBase implements CohesionSettingsInterfa
    * {@inheritdoc}
    */
   public function jsonValuesErrors() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
@@ -158,6 +166,9 @@ class Color extends WebsiteSettingsEntityBase implements CohesionSettingsInterfa
     ];
   }
 
+  /**
+   *
+   */
   public function clearData() {
   }
 
@@ -177,4 +188,5 @@ class Color extends WebsiteSettingsEntityBase implements CohesionSettingsInterfa
     $this->modified = TRUE;
     $this->status = TRUE;
   }
+
 }

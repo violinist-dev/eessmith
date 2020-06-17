@@ -2,6 +2,9 @@
 
 namespace Drupal\cohesion_templates\Controller;
 
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Render\Markup;
+use Drupal\cohesion_templates\Entity\MasterTemplates;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,7 +13,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class CohesionTemplateSettingsController
+ * Class CohesionTemplateSettingsController.
  *
  * Controller routines for Cohesion admin index page.
  *
@@ -35,6 +38,9 @@ class CohesionTemplateSettingsController extends ControllerBase {
     $this->systemManager = $systemManager;
   }
 
+  /**
+   *
+   */
   public static function create(ContainerInterface $container) {
     return new static($container->get('system.manager'));
   }
@@ -47,9 +53,9 @@ class CohesionTemplateSettingsController extends ControllerBase {
   }
 
   /**
-   * GET: /cohesionapi/menu_templates
+   * GET: /cohesionapi/menu_templates.
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function menuTemplates() {
     // Loop through the available menu templates.
@@ -85,10 +91,10 @@ class CohesionTemplateSettingsController extends ControllerBase {
     $route_type = end($route_name_parts);
 
     $master_template = $route_match->getParameter('cohesion_master_templates');
-    if ($route_type == 'edit_form' && $master_template instanceof \Drupal\cohesion_templates\Entity\MasterTemplates) {
+    if ($route_type == 'edit_form' && $master_template instanceof MasterTemplates) {
       return t('Edit @type: @label', [
         '@type' => $master_template->getEntityType()->getLabel(),
-        '@label' => \Drupal\Core\Render\Markup::create('<em>' . $master_template->label() . '</em>'),
+        '@label' => Markup::create('<em>' . $master_template->label() . '</em>'),
       ]);
     }
 
@@ -109,8 +115,9 @@ class CohesionTemplateSettingsController extends ControllerBase {
     try {
       $entity_ids = \Drupal::entityQuery('cohesion_menu_templates')->condition('status', TRUE)->condition('selectable', TRUE)->execute();
 
-      return \Drupal::service('entity.manager')->getStorage('cohesion_menu_templates')->loadMultiple($entity_ids);
-    } catch (\Drupal\Component\Plugin\Exception\PluginNotFoundException $ex) {
+      return \Drupal::service('entity_type.manager')->getStorage('cohesion_menu_templates')->loadMultiple($entity_ids);
+    }
+    catch (PluginNotFoundException $ex) {
       watchdog_exception('cohesion', $ex);
     }
     return [];

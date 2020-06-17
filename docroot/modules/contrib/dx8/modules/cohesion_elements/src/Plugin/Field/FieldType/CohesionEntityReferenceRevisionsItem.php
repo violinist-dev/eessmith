@@ -2,9 +2,7 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldType;
 
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\TypedData\DataDefinition;
 use Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 
@@ -22,7 +20,7 @@ use Drupal\cohesion_elements\Entity\CohesionLayout;
  *   label = @Translation("Cohesion Entity reference revisions"),
  *   description = @Translation("An entity field containing a CohesionLayout
  *   entity reference to a specific revision."), category =
- *   @Translation("DX8"), no_ui = FALSE, class =
+ * @Translation("Acquia Cohesion"), no_ui = FALSE, class =
  *   "\Drupal\cohesion_elements\Plugin\Field\FieldType\CohesionEntityReferenceRevisionsItem",
  *   list_class =
  *   "\Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList",
@@ -70,7 +68,7 @@ class CohesionEntityReferenceRevisionsItem extends EntityReferenceRevisionsItem 
     $form['access_elements']['warning'] = [
       '#prefix' => '<div class="messages messages--warning">',
       '#suffix' => '</div>',
-      '#markup' => t('This feature is not recommended. It provides content creators with access to primitive elements. Content added to primitive elements will be stored as JSON along with layout information. You will not be able to separate content from layout at a later date.')
+      '#markup' => t('This feature is not recommended. It provides content creators with access to primitive elements. Content added to primitive elements will be stored as JSON along with layout information. You will not be able to separate content from layout at a later date.'),
     ];
 
     $form['access_elements']['access_elements'] = [
@@ -78,7 +76,7 @@ class CohesionEntityReferenceRevisionsItem extends EntityReferenceRevisionsItem 
       '#title' => t('Allow access to elements on this field.'),
       '#options' => [
         0 => 'No',
-        1 => 'Yes'
+        1 => 'Yes',
       ],
       '#default_value' => $this->getSetting('access_elements') ?? 0,
       '#required' => TRUE,
@@ -91,7 +89,7 @@ class CohesionEntityReferenceRevisionsItem extends EntityReferenceRevisionsItem 
         '#type' => 'checkbox',
         '#title' => t('Confirm you understand the implications of enabling access to elements on a content entity.'),
         '#default_value' => FALSE,
-        '#required' => TRUE
+        '#required' => TRUE,
       ];
     }
 
@@ -103,8 +101,8 @@ class CohesionEntityReferenceRevisionsItem extends EntityReferenceRevisionsItem 
    */
   public static function defaultFieldSettings() {
     return [
-        'access_elements' => 0,
-      ] + parent::defaultFieldSettings();
+      'access_elements' => 0,
+    ] + parent::defaultFieldSettings();
   }
 
   /**

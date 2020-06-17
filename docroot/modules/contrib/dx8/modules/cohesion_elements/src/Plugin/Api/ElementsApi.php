@@ -2,11 +2,10 @@
 
 namespace Drupal\cohesion_elements\Plugin\Api;
 
-use Drupal\cohesion\CohesionApiClient;
 use Drupal\cohesion\ApiPluginBase;
 
 /**
- * Class ElementsApi
+ * Class ElementsApi.
  *
  * @package Drupal\cohesion_elements
  *
@@ -17,10 +16,15 @@ use Drupal\cohesion\ApiPluginBase;
  */
 class ElementsApi extends ApiPluginBase {
 
+  public function getForms() {
+    return [];
+  }
+
   /**
    * {@inheritdoc}
    */
   public function callApi() {
-    $this->response = CohesionApiClient::buildElements($this->data);
+    $this->response = \Drupal::service('cohesion.api_client')->buildElements($this->data);
   }
+
 }

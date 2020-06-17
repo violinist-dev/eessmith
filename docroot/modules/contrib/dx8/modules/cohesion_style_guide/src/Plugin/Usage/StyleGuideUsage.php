@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class StyleGuideUsage
+ * Class StyleGuideUsage.
  *
  * @package Drupal\cohesion_style_guide\Plugin\Usage
  *
@@ -25,7 +25,7 @@ use Drupal\Core\Entity\EntityInterface;
 class StyleGuideUsage extends UsagePluginBase {
 
   /**
-   * @var string Regex for finding style guide tokens
+   * @var stringRegexforfindingstyleguidetokens
    */
   protected $styleGuideRegex = '/\[style-guide:(.*?):(.*?)\]/m';
 

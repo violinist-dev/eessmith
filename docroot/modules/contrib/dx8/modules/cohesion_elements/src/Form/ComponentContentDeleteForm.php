@@ -3,7 +3,6 @@
 namespace Drupal\cohesion_elements\Form;
 
 use Drupal\Core\Entity\ContentEntityDeleteForm;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Builds the form to delete Cohesion custom styles entities.
@@ -18,4 +17,5 @@ class ComponentContentDeleteForm extends ContentEntityDeleteForm {
     $entity = $this->getEntity();
     $this->logger('content')->notice('@type: deleted %title.', ['@type' => $entity->getEntityType()->getLabel(), '%title' => $entity->label()]);
   }
+
 }

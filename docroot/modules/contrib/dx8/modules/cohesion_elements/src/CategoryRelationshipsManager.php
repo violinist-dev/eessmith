@@ -2,13 +2,10 @@
 
 namespace Drupal\cohesion_elements;
 
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_elements\CustomElementPluginBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
- * Class CategoryRelationshipsManager
+ * Class CategoryRelationshipsManager.
  *
  * Handles resetting components and helpers with no category to a new "Uncategorized" category.
  *
@@ -50,7 +47,7 @@ class CategoryRelationshipsManager {
     $category_storage = $this->entityTypeManager->getStorage($category_entity_type_id);
     $element_storage = $this->entityTypeManager->getStorage($element_entity_type);
 
-    // is the category missing?
+    // Is the category missing?
     if (empty($category_storage->load($category_id)) && !empty($category_storage->loadMultiple())) {
 
       // Is this category in use anywhere?
@@ -58,14 +55,13 @@ class CategoryRelationshipsManager {
 
       if ($entity_ids = $query->execute()) {
         // Does the uncategorized category exist?
-
         // Create the uncategorized category.
         if (!$category_storage->load($default_category_id)) {
           $uncategorized = $category_storage->create([
             'id' => $default_category_id,
             'label' => t('Uncategorized'),
             'class' => 'category-1',
-            'weight' => 999
+            'weight' => 999,
           ]);
 
           $uncategorized->save();

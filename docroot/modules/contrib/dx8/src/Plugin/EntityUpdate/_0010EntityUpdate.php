@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update Image uploader field element
+ * Update Image uploader field element.
  *
  * @package Drupal\cohesion
  *
@@ -36,9 +35,9 @@ class _0010EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
       if ($entity->isLayoutCanvas()) {
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
-        // Update component field default values
+        // Update component field default values.
         foreach ($layoutCanvas->iterateModels('component_form') as $model) {
-          // If the component form element is a WYSIWYG and has a value update to the new model
+          // If the component form element is a WYSIWYG and has a value update to the new model.
           if ($model->getProperty(['settings', 'type']) == 'cohFileBrowser') {
             if ($model->getProperty(['settings', 'schema', 'type']) == 'image') {
               $json_values->model->{$model->getUUID()}->settings->schema->type = 'string';
@@ -53,4 +52,5 @@ class _0010EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return TRUE;
   }
+
 }

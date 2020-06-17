@@ -2,11 +2,10 @@
 
 namespace Drupal\cohesion;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 
 /**
- * Interface EntityUpdatePluginInterface
+ * Interface EntityUpdatePluginInterface.
  *
  * @package Drupal\cohesion
  */

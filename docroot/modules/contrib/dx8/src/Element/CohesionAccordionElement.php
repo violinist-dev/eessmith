@@ -1,14 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\cohesion\Element\CohesionAccordionElement.
- *
- * Created by PhpStorm.
- * User: nathansimmonds
- * Date: 13/03/2017
- * Time: 14:53
- */
-
 
 namespace Drupal\cohesion\Element;
 
@@ -39,7 +29,7 @@ class CohesionAccordionElement extends RenderElement {
    * Prepare the render array for the template.
    */
   public static function preRenderCohesionAccordionElement($element) {
-    // Attach library
+    // Attach library.
     $element['#attached'] = [
       'library' => [
         'cohesion/cohesion-accordion-element',
@@ -48,4 +38,5 @@ class CohesionAccordionElement extends RenderElement {
 
     return $element;
   }
+
 }

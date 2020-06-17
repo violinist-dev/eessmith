@@ -6,9 +6,8 @@ use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update cohTypeahead endpoint
+ * Update cohTypeahead endpoint.
  *
  * @package Drupal\cohesion
  *
@@ -48,4 +47,5 @@ class _0013EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
     return TRUE;
   }
+
 }

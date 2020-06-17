@@ -7,6 +7,7 @@ use Drupal\entity_reference_revisions\EntityNeedsSaveInterface;
 
 /**
  * Provides an interface defining a paragraphs entity.
+ *
  * @ingroup paragraphs
  */
 interface CohesionLayoutInterface extends ContentEntityInterface, EntityNeedsSaveInterface {
@@ -16,11 +17,9 @@ interface CohesionLayoutInterface extends ContentEntityInterface, EntityNeedsSav
    *
    * Preserves language context with translated entities.
    *
-   * @return ContentEntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The parent entity.
    */
   public function getParentEntity();
-
-
 
 }

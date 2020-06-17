@@ -2,9 +2,6 @@
 
 namespace Drupal\cohesion_templates\Entity;
 
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Component\Serialization\Json;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 
 /**
@@ -51,7 +48,18 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  *     "enable-selection" = "/admin/cohesion/templates/menu_templates/{cohesion_menu_templates}/enable-selection",
  *     "disable-selection" = "/admin/cohesion/templates/menu_templates/{cohesion_menu_templates}/disable-selection",
  *     "in-use" = "/admin/cohesion/templates/menu_templates/{cohesion_menu_templates}/in_use",
- *
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "custom",
+ *     "twig_template"
  *   }
  * )
  */

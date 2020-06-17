@@ -3,10 +3,12 @@
 namespace Drupal\cohesion;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ *
+ */
 interface ImageBrowserPluginInterface extends PluginInspectionInterface {
 
   /**
@@ -81,4 +83,5 @@ interface ImageBrowserPluginInterface extends PluginInspectionInterface {
    * @return mixed
    */
   public function sharedPageAttachments($type, &$attachments);
+
 }

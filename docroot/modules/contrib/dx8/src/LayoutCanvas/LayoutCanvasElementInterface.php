@@ -3,7 +3,7 @@
 namespace Drupal\cohesion\LayoutCanvas;
 
 /**
- * Interface LayoutCanvasElementInterface
+ * Interface LayoutCanvasElementInterface.
  *
  * @package Drupal\cohesion\LayoutCanvas
  */
@@ -15,6 +15,5 @@ interface LayoutCanvasElementInterface {
    * @return mixed
    */
   public function prepareDataForAPI($is_preview);
-
 
 }

@@ -4,7 +4,6 @@ namespace Drupal\cohesion_elements\Element;
 
 use Drupal\Core\Render\Element\RenderElement;
 
-
 /**
  * Provides a container element.
  *

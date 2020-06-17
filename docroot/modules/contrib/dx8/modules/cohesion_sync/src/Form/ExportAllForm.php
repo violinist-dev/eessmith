@@ -4,8 +4,6 @@ namespace Drupal\cohesion_sync\Form;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Provides a form for exporting a single configuration file.
@@ -43,8 +41,9 @@ class ExportAllForm extends ExportFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $config_type = NULL, $config_name = NULL) {
+
     $form['help'] = [
-      '#markup' => $this->t('Export and download the full DX8 configuration of this site including all dependencies and assets.'),
+      '#markup' => $this->t('Export and download the full Acquia Cohesion configuration of this site including all dependencies and assets.'),
     ];
 
     if ($this->entityTypesAvailable()) {
@@ -77,17 +76,18 @@ class ExportAllForm extends ExportFormBase {
       }
     }
 
-    // Loop over each DX8 entity type to get all the entities.
+    // Loop over each entity type to get all the entities.
     $entities = [];
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type => $definition) {
       if ($definition->entityClassImplements(CohesionSettingsInterface::class) && !in_array($entity_type, $excluded_entity_type_ids) && $entity_type !== 'custom_style_type') {
         try {
           $entity_storage = $this->entityTypeManager->getStorage($entity_type);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           continue;
         }
 
-        /** @var ConfigEntityInterface $entity */
+        /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $entity */
         foreach ($entity_storage->loadMultiple() as $entity) {
           if ($entity->status()) {
             $entities[] = $entity;
@@ -101,7 +101,8 @@ class ExportAllForm extends ExportFormBase {
     try {
       $response->setContentDisposition('attachment', $this->getExportFilename());
       $form_state->setResponse($response);
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       // Failed, to build, so ignore the response and just show the error.
     }
   }

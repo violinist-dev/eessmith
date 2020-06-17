@@ -3,16 +3,15 @@
 namespace Drupal\cohesion_templates\Plugin;
 
 /**
- * Class CacheContexts
+ * Class CacheContexts.
  *
  * @package Drupal\cohesion_templates\Plugin
  */
 class CacheContexts {
 
   /**
-   *
    * Return cache contexts for a given set a machine name context
-   * Needs context module to be enabled
+   * Needs context module to be enabled.
    *
    * @param array $machine_names
    *
@@ -23,12 +22,12 @@ class CacheContexts {
 
     if (is_array($machine_names)) {
 
-      // Contexts form the context module
+      // Contexts form the context module.
       $contexts = [];
 
       foreach ($machine_names as $machine_name) {
         $context_name = $machine_name;
-        // If the context is driven by a component field, get the values from the components field values
+        // If the context is driven by a component field, get the values from the components field values.
         foreach ($componentFields as $componentFieldUUID => $componentField) {
           if (strpos($machine_name, $componentFieldUUID) !== FALSE) {
             $context_name = $componentField;
@@ -57,8 +56,7 @@ class CacheContexts {
   }
 
   /**
-   *
-   * Return cache contexts for a given template entity id
+   * Return cache contexts for a given template entity id.
    *
    * @param $candidate_template
    *
@@ -73,8 +71,10 @@ class CacheContexts {
           }
         }
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
     }
     return [];
   }
+
 }

@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Class ComponentContentAccessControlHandler
+ * Class ComponentContentAccessControlHandler.
  *
  * Defines the access control handler for the component entity entity type.
  *

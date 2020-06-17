@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Class MasterTemplateSetDefaultForm
+ * Class MasterTemplateSetDefaultForm.
  *
  * Builds the form to confirm settings content template as default.
  *
@@ -54,7 +54,7 @@ class MasterTemplateSetDefaultForm extends EntityConfirmFormBase {
     $entity->save();
 
     $template_type = $this->entity->get('entity_type') == '__any__' ? 'Global' : ucwords($this->entity->get('entity_type'));
-    drupal_set_message($this->t('Master template %template_name has been set as default.', [
+    \Drupal::messenger()->addMessage($this->t('Master template %template_name has been set as default.', [
       '%template_name' => $this->entity->label(),
     ]));
 

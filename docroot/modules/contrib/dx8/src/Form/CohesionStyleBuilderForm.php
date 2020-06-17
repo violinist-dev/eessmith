@@ -21,7 +21,7 @@ class CohesionStyleBuilderForm extends CohesionBaseForm {
 
     $form['cohesion']['#token_browser'] = 'style-guide';
 
-
     return $form;
   }
+
 }

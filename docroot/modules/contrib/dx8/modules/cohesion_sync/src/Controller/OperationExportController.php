@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityRepository;
 use Drupal\cohesion_sync\Entity\PackageSettingsInterface;
 
 /**
- * Class OperationExportController
+ * Class OperationExportController.
  *
  * Export a package from a single entity from the entities operations (see
  * cohesion_sync_entity_operation_alter() in cohesion_sync.module).
@@ -25,7 +25,7 @@ class OperationExportController extends ControllerBase {
   protected $packagerManager;
 
   /**
-   * @var EntityRepository
+   * @var \Drupal\Core\Entity\EntityRepository
    */
   protected $entityRepository;
 
@@ -55,6 +55,7 @@ class OperationExportController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function index(Request $request) {
@@ -76,7 +77,7 @@ class OperationExportController extends ControllerBase {
       return $this->packagerManager->sendYamlDownload($entity_type_id . '_(' . $entity->id() . ')_' . preg_replace('/[^a-z0-9]+/', '-', strtolower(substr($entity->label(), 0, 50))) . '.package.yml', [$entity], $excluded_entity_type_ids);
     }
     else {
-      drupal_set_message(t('Entity could not be loaded.'), 'error');
+      \Drupal::messenger()->addError($this->t('Entity could not be loaded.'));
       return $this->redirect('cohesion.settings');
     }
   }

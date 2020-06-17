@@ -21,7 +21,7 @@ class BaseStylesForm extends CohesionStyleBuilderForm {
     /** @var \Drupal\cohesion_base_styles\Entity\BaseStyles $entity */
     $entity = $this->entity;
 
-    // If editing a base style for the first time then simulate a create
+    // If editing a base style for the first time then simulate a create.
     if ($operation == 'edit' && !$entity->isModified()) {
       $form['#title'] = $this->t('Create %label', [
         '%label' => strtolower($this->entity->label()),
@@ -29,7 +29,7 @@ class BaseStylesForm extends CohesionStyleBuilderForm {
 
     }
 
-    // If the base style as already been saved or is new
+    // If the base style as already been saved or is new.
     $form['#attached']['drupalSettings']['cohesion']['formGroup'] = 'base_styles';
     $form['#attached']['drupalSettings']['cohesion']['formId'] = $entity->id() && !strstr($entity->id(), 'base_') ? $entity->id() : 'generic';
 

@@ -9,7 +9,7 @@ use Drupal\Core\TypedData\DataDefinition;
 
 /**
  *
- * @deprecated
+ * deprecated
  *
  * Plugin implementation of the 'cohesion_layout' field type.
  *
@@ -21,7 +21,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   default_widget = "cohesion_layout_builder_widget",
  *   no_ui = TRUE,
  *   default_formatter = "cohesion_layout_formatter",
- *   category = @Translation("DX8"),
+ *   category = @Translation("Acquia Cohesion"),
  *   module = "cohesion",
  * )
  */
@@ -30,7 +30,7 @@ class CohesionLayout extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  static $propertyDefinitions;
+  protected static $propertyDefinitions;
 
   /**
    * {@inheritdoc}

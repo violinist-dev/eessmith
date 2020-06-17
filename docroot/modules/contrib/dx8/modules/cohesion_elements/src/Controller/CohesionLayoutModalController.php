@@ -1,19 +1,12 @@
 <?php
-/**
- * @file
- * Contains Drupal\cohesion_elements\Controller\CohesionLayoutModalController;
- */
 
 namespace Drupal\cohesion_elements\Controller;
 
-use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\AjaxResponse;
 
 /**
- * Class CohesionLayoutModalController
+ * Class CohesionLayoutModalController.
  *
  * @package Drupal\cohesion_elements\Controller
  */
@@ -25,15 +18,15 @@ class CohesionLayoutModalController extends ControllerBase {
    * @return array
    */
   public function iframe() {
-
     if (\Drupal::request()->attributes->get('entity_type_id') == 'cohesion_layout') {
       // Build the path of the cohesion_layout edit page.
       $entity_id = \Drupal::request()->attributes->get('id');
       $uuid = \Drupal::request()->attributes->get('uuid');
+      $revision_id = \Drupal::request()->attributes->get('revision_id');
       $component_id = \Drupal::request()->attributes->get('component_id');
 
-      $edit_path = Url::fromRoute('entity.cohesion_layout.edit_form', [
-        'cohesion_layout' => $entity_id,
+      $edit_path = Url::fromRoute('cohesion_elements.layout_canvas.edit_revision', [
+        'cohesion_layout_revision' => $revision_id,
         'component_instance_uuid' => $uuid,
         'component_id' => $component_id,
       ])->toString();
@@ -47,13 +40,6 @@ class CohesionLayoutModalController extends ControllerBase {
         ],
       ];
     }
-  }
-
-  /**
-   * Ajax handler for quick edit cohesion layout
-   */
-  public static function cohesionLayoutAjax($form, FormStateInterface $form_state) {
-    return new AjaxResponse([]);
   }
 
 }

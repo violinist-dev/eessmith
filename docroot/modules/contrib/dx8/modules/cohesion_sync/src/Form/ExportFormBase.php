@@ -8,12 +8,11 @@ use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cohesion\UsagePluginManager;
 use Drupal\cohesion_sync\PackagerManager;
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
- * Class ExportFormBase
+ * Class ExportFormBase.
  *
  * @package Drupal\cohesion_sync\Form
  */
@@ -34,12 +33,12 @@ abstract class ExportFormBase extends ConfigFormBase {
   protected $configStorage;
 
   /**
-   * @var PackagerManager
+   * @var \Drupal\cohesion_sync\PackagerManager
    */
   protected $packagerManager;
 
   /**
-   * @var EntityRepository
+   * @var \Drupal\Core\Entity\EntityRepository
    */
   protected $entityRepository;
 
@@ -78,7 +77,7 @@ abstract class ExportFormBase extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('config.factory'), $container->get('entity.manager'), $container->get('config.storage'), $container->get('cohesion_sync.packager'), $container->get('entity.repository'), $container->get('plugin.manager.usage.processor'));
+    return new static($container->get('config.factory'), $container->get('entity_type.manager'), $container->get('config.storage'), $container->get('cohesion_sync.packager'), $container->get('entity.repository'), $container->get('plugin.manager.usage.processor'));
   }
 
   /**
@@ -94,7 +93,7 @@ abstract class ExportFormBase extends ConfigFormBase {
    * Show no entity types message with link.
    */
   protected function showNoEntityTypesMessage() {
-    drupal_set_message(t('Entities available for export have not been defined. <a href="/admin/cohesion/sync/export_settings">Click here to go to the export settings.</a>'), 'warning');
+    \Drupal::messenger()->addWarning($this->t('Entities available for export have not been defined. <a href="/admin/cohesion/sync/export_settings">Click here to go to the export settings.</a>'), 'warning');
   }
 
   /**
@@ -126,7 +125,7 @@ abstract class ExportFormBase extends ConfigFormBase {
         '#type' => 'submit',
         '#value' => $this->t('Download file'),
         '#button_type' => 'primary',
-        //'#disabled' => TRUE
+        // '#disabled' => TRUE
       ],
     ];
   }

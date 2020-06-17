@@ -9,7 +9,7 @@ use Drupal\Component\Serialization\Json;
 
 /**
  * Class ComponentContextualLink
- * This class exists to add options to cohesion_elements.links.contextual.yml
+ * This class exists to add options to cohesion_elements.links.contextual.yml.
  *
  * @package Drupal\cohesion_elements\Plugin\Menu\ContextualLink
  */
@@ -35,10 +35,11 @@ class ComponentContextualLink extends ContextualLinkDefault {
         'data-dialog-renderer' => 'off_canvas',
         'data-settings-tray-edit' => TRUE,
         'data-dialog-options' => Json::encode([
-          'width' => COHESION_COMPONENT_SETTINGS_TRAY_WIDTH,
+          'width' => COHESION_ELEMENTS_COHESION_COMPONENT_SETTINGS_TRAY_WIDTH,
           'dialogClass' => 'ui-dialog-off-canvas dx8-settings-dialog',
         ]),
       ],
     ];
   }
+
 }

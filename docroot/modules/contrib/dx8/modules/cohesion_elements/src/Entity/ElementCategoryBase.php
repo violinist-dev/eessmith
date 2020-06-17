@@ -6,7 +6,7 @@ use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 
 /**
- * Class ElementCategoryBase
+ * Class ElementCategoryBase.
  *
  * @package Drupal\cohesion_elements\Entity
  */
@@ -97,6 +97,8 @@ abstract class ElementCategoryBase extends CohesionConfigEntityBase implements C
     return FALSE;
   }
 
+  public function getApiPluginInstance(){}
+
   /**
    * {@inheritdoc}
    */
@@ -106,4 +108,5 @@ abstract class ElementCategoryBase extends CohesionConfigEntityBase implements C
 
     return \Drupal::currentUser()->hasPermission($access_key) || \Drupal::currentUser()->hasPermission($this->getEntityType()->getAdminPermission());
   }
+
 }

@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class MenuTemplatesUsage
+ * Class MenuTemplatesUsage.
  *
  * @package Drupal\cohesion_templates\Plugin\Usage
  *
@@ -24,12 +24,15 @@ use Drupal\Core\Entity\EntityInterface;
  */
 class MenuTemplatesUsage extends UsagePluginBase {
 
+  /**
+   * @var array
+   */
   private $entities;
 
   /**
    * Search for menu templates in the decoded JSON layout.
    * Implemented as a recursive function because the RecursiveIterator
-   * only visits leaf nodes :/
+   * only visits leaf nodes :/.
    *
    * @param $array
    *

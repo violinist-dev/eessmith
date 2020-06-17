@@ -2,12 +2,16 @@
 
 namespace Drupal\cohesion_sync\Plugin\Sync;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\cohesion_sync\SyncPluginBase;
+use Drupal\Core\Entity\EntityRepository;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\file\Entity\File;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class FileSync
+ * Class FileSync.
  *
  * @package Drupal\cohesion_sync
  *
@@ -20,11 +24,52 @@ use Drupal\file\Entity\File;
 class FileSync extends SyncPluginBase {
 
   /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * SyncPluginBase constructor.
+   *
+   * @param array $configuration
+   * @param $plugin_id
+   * @param $plugin_definition
+   * @param \Drupal\Core\Entity\EntityRepository $entity_repository
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepository $entity_repository, EntityTypeManagerInterface $entity_type_manager, TranslationInterface $string_translation, FileSystemInterface $file_system) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_repository, $entity_type_manager, $string_translation);
+
+    $this->fileSystem = $file_system;
+  }
+
+  /**
    * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity.repository'),
+      $container->get('entity_type.manager'),
+      $container->get('string_translation'),
+      $container->get('file_system')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   *
    * @testme
    */
   public function buildExport($entity) {
-    /** @var File $entity */
+    /** @var \Drupal\file\Entity\File $entity */
     $struct = [];
 
     // Get all the field values into the struct.
@@ -48,9 +93,11 @@ class FileSync extends SyncPluginBase {
       $struct['content'] = base64_encode(file_get_contents($entity->getFileUri()));
     }
     else {
-      throw new \Exception($this->t('File @uri does not exist on the local filesystem although the entity @label exists.', ['@uri' => $entity->getFileUri(), '@label' => $entity->label()]));
+      \Drupal::service('cohesion.utils')->errorHandler(
+        $this->t('File @uri does not exist on the local filesystem although the entity @label exists.', ['@uri' => $entity->getFileUri(), '@label' => $entity->label()]),
+        TRUE
+      );
     }
-
 
     return $struct;
   }
@@ -59,7 +106,7 @@ class FileSync extends SyncPluginBase {
    * {@inheritdoc}
    */
   public function getDependencies($entity) {
-    /** @var File $entity */
+    /** @var \Drupal\file\Entity\File $entity */
     return [];
   }
 
@@ -70,15 +117,15 @@ class FileSync extends SyncPluginBase {
     parent::validatePackageEntryShouldApply($entry);
 
     if (!isset($entry['uuid'])) {
-      throw new \Exception($this->t('Import did not specify a file UUID.'));
+      throw new \Exception('Import did not specify a file UUID.');
     }
 
     if (!isset($entry['uri'])) {
-      throw new \Exception($this->t('Import did not specify a file URI.'));
+      throw new \Exception('Import did not specify a file URI.');
     }
 
     if (!isset($entry['content'])) {
-      throw new \Exception($this->t('Import did not specify file contents.'));
+      throw new \Exception('Import did not specify file contents.');
     }
 
     if (!base64_decode($entry['content'])) {
@@ -90,7 +137,7 @@ class FileSync extends SyncPluginBase {
     // File already exists (by UUID) - flag it.
     if ($entity = $this->entityRepository->loadEntityByUuid('file', $entry['uuid'])) {
       if ($entity->get('uri')->getValue()[0]['value'] !== $entry['uri']) {
-        throw new \Exception($this->t('An entity with this UUID already exists but the URI does not match.'));
+        throw new \Exception('An entity with this UUID already exists but the URI does not match.');
       }
 
       // See if any of the entity data has changed.
@@ -98,9 +145,16 @@ class FileSync extends SyncPluginBase {
         if ($entity->hasField($key) && $key !== 'fid' && $key !== 'created' && $key !== 'changed') {
           $entity_val = $entity->get($key)->getValue()[0];
 
+          if($key == 'uri') {
+            if(strpos($value, 'cohesion://') !== FALSE) {
+              $value = str_replace('cohesion://', 'public://cohesion/', $value);
+            }
+          }
+
           if (isset($entity_val['value']) && $entity_val['value'] !== $value) {
             // Entity has changes.
-            return ENTRY_EXISTING_ASK;  // Ask the user what to do.
+            // Ask the user what to do.
+            return ENTRY_EXISTING_ASK;
           }
         }
       }
@@ -109,10 +163,11 @@ class FileSync extends SyncPluginBase {
       @ $local_file_contents = file_get_contents($entry['uri']);
       if ($local_file_contents) {
         if (base64_encode($local_file_contents) !== $entry['content']) {
-          return ENTRY_EXISTING_ASK;  // Ask the user what to do.
+          // Ask the user what to do.
+          return ENTRY_EXISTING_ASK;
         }
       } else {
-        throw new \Exception($this->t('File @uri does not exist on the local filesystem although the entity exists.', ['@uri' => $entry['uri']]));
+        throw new \Exception("File {$entry['uri']} does not exist on the local filesystem although the entity exists.");
       }
 
       // Nothing changed, so ignore it.
@@ -133,26 +188,32 @@ class FileSync extends SyncPluginBase {
     // Load existing entity.
     try {
       $entity = $this->entityRepository->loadEntityByUuid('file', $entry['uuid']);
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       $entity = NULL;
     }
 
+    $uri = $entry['uri'];
+    // Patch old entities using the cohesion stream wrapper
+    if(strpos($uri, 'cohesion://') !== FALSE) {
+      $uri = str_replace('cohesion://', 'public://cohesion/', $uri);
+    }
+
     // Set up the directory.
-    $dirname = dirname($entry['uri']);
-    file_prepare_directory($dirname, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
+    $dirname = $this->fileSystem->dirname($uri);
+    $this->fileSystem->prepareDirectory($dirname, FileSystemInterface::MODIFY_PERMISSIONS | FileSystemInterface::CREATE_DIRECTORY);
 
     // Only attempt to save the file if it can be decoded, otherwise just create the entity.
     if ($content = base64_decode($entry['content'])) {
-      if (!file_unmanaged_save_data($content, $entry['uri'], FILE_EXISTS_REPLACE)) {
-        throw new \Exception($this->t('Unable to save file %fileuri', ['%fileuri' => $entry['uri']]));
+      if (!$this->fileSystem->saveData($content, $uri, FileSystemInterface::EXISTS_REPLACE)) {
+        throw new \Exception("Unable to save file {$uri}");
       }
 
       // Create new entity.
       if (!$entity) {
         // $user = \Drupal::currentUser();
-
         $entity = File::create([
-          'uri' => $entry['uri'],
+          'uri' => $uri,
           'uuid' => $entry['uuid'],
           'status' => FILE_STATUS_PERMANENT,
           'langcode' => $entry['langcode'],
@@ -161,7 +222,7 @@ class FileSync extends SyncPluginBase {
 
       // Apply all the $entry data to it.
       $entity->setFilename($entry['filename']);
-      $entity->setFileUri($entry['uri']);
+      $entity->setFileUri($uri);
       $entity->setMimeType($entry['filemime']);
       $entity->setSize($entry['filesize']);
 

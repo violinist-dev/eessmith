@@ -2,8 +2,8 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
+use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
-use Drupal\cohesion_elements\Entity\ElementCategoryBase;
 
 /**
  * Class ElementsController.
@@ -28,7 +28,8 @@ class ElementsController {
     // Get list of categories sorte dby weight.
     try {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       return [];
     }
 
@@ -70,7 +71,7 @@ class ElementsController {
 
       // Check the component/helper has a preview image defined.
       if ($preview_image = $entity->getPreviewImage()) {
-        if ($file = \Drupal\file\Entity\File::load($preview_image)) {
+        if ($file = File::load($preview_image)) {
           if ($is = ImageStyle::load('dx8_component_preview')) {
             $url = $is->buildUrl($file->getFileUri());
             $url = parse_url($url);
@@ -91,4 +92,5 @@ class ElementsController {
 
     return FALSE;
   }
+
 }

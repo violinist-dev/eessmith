@@ -4,16 +4,15 @@ namespace Drupal\cohesion_elements\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Serialization\Json;
 
 /**
- * Class ComponentContentForm
+ * Class ComponentContentForm.
  *
  * Form handler for the node edit forms.
  *
@@ -29,19 +28,15 @@ class ComponentContentForm extends ContentEntityForm {
   protected $currentUser;
 
   /**
-   * Constructs a NodeForm object.
+   * ComponentContentForm constructor.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
-   *   The time service.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|NULL $entity_type_bundle_info
+   * @param \Drupal\Component\Datetime\TimeInterface|NULL $time
    * @param \Drupal\Core\Session\AccountInterface $current_user
-   *   The current user.
    */
-  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, AccountInterface $current_user) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, AccountInterface $current_user) {
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->currentUser = $current_user;
   }
 
@@ -49,7 +44,12 @@ class ComponentContentForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.manager'), $container->get('entity_type.bundle.info'), $container->get('datetime.time'), $container->get('current_user'));
+    return new static(
+      $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
+      $container->get('current_user')
+    );
   }
 
   /**
@@ -166,14 +166,20 @@ class ComponentContentForm extends ContentEntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
+    if ($this->entity->id() && $this->entity->access('view')) {
+      $form_state->setRedirect(
+        'entity.component_content.canonical',
+        ['component_content' => $this->entity->id()]
+      );
+    }
     $context = ['@type' => $this->entity->getEntityType()->getLabel(), '%title' => $this->entity->label()];
     if ($this->entity->isNew()) {
       $this->logger('content')->notice('@type: added %title.', $context);
-      drupal_set_message(t('@type %title has been created.', $context));
+      \Drupal::messenger()->addMessage(t('@type %title has been created.', $context));
     }
     else {
       $this->logger('content')->notice('@type: updated %title.', $context);
-      drupal_set_message(t('@type %title has been updated.', $context));
+      \Drupal::messenger()->addMessage($this->t('@type %title has been updated.', $context));
     }
   }
 

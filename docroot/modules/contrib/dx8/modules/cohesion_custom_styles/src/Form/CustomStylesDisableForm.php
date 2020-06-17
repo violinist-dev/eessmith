@@ -13,7 +13,7 @@ class CustomStylesDisableForm extends CohesionDisableForm {
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Disabling a <em>Custom style</em> will remove its CSS from your DX8 style sheet and disable it from selection.
+    return $this->t('Disabling a <em>Custom style</em> will remove its CSS from your style sheet and disable it from selection.
      Any extended styles will also be disabled. The configuration of your <em>Custom style</em> will remain so you can enable it later.');
   }
 

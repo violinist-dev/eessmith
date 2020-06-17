@@ -2,12 +2,8 @@
 
 namespace Drupal\cohesion\Entity;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Component\Plugin\PluginInspectionInterface;
-
 /**
- * Interface UsagePluginInterface
+ * Interface UsagePluginInterface.
  *
  * @package Drupal\cohesion
  */
@@ -42,7 +38,7 @@ interface EntityJsonValuesInterface {
   public function setJsonValue($json_values);
 
   /**
-   * Process entity to be validated
+   * Process entity to be validated.
    *
    * @return array
    *   Return processed values or errors
@@ -50,24 +46,57 @@ interface EntityJsonValuesInterface {
   public function jsonValuesErrors();
 
   /**
+   * Return json_mapper field data for angular form.
+   *
+   * @return string
+   *   Return the JSON mapper data.
+   */
+  public function getJsonMapper();
+
+  /**
+   * Set the json_mapper field data for angular form.
+   *
+   * @param string $json_mapper
+   *   The json_mapper field from the angular form.
+   *
+   * @return string
+   *   Return the JSON mapper data that was set.
+   */
+  public function setJsonMapper($json_mapper);
+
+  /**
    * Process json_values to the API.
    *
-   * @return \Drupal\cohesion\SendToApiBase
+   * @return \Drupal\cohesion\ApiPluginBase
    */
   public function process();
 
   /**
-   * Determine if the config is a layout canvas the returns a template
+   * Determine if the config is a layout canvas the returns a template.
    *
    * @return bool
    */
   public function isLayoutCanvas();
 
   /**
-   * Get the LayoutCanvas entity for this entity
+   * Get the LayoutCanvas entity for this entity.
    *
    * @return \Drupal\cohesion\LayoutCanvas\LayoutCanvas|bool
    */
   public function getLayoutCanvasInstance();
+
+  /**
+   * Return the API plugin instance for this entity
+   *
+   * @return \Drupal\cohesion\ApiPluginInterface
+   */
+  public function getApiPluginInstance();
+
+  /**
+   * Process values to be sent to the API
+   *
+   * @return bool
+   */
+  public function preProcessJsonValues();
 
 }

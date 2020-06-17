@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -29,7 +29,7 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -39,7 +39,7 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
   /**
    * Static create method.
    *
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
@@ -98,6 +98,7 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
    * a style set.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   protected function getStyleSet() {
@@ -108,7 +109,7 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
 
         // Load the type data.
         $type_id = $custom_style->getCustomStyleType();
-        if ($custom_style->get('status') && $custom_style_type = \Drupal::service('entity.manager')->getStorage('custom_style_type')->load($type_id)) {
+        if ($custom_style->get('status') && $custom_style_type = \Drupal::service('entity_type.manager')->getStorage('custom_style_type')->load($type_id)) {
           if ($custom_style->get('available_in_wysiwyg')) {
 
             if ($custom_style_type->getElement() != '') {
@@ -131,7 +132,7 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
             }
             elseif ($type_id == 'generic') {
               $list['generic'][] = [
-                'name' => $custom_style_type->get('label'),
+                'name' => $custom_style->label(),
                 'element' => '',
                 'attributes' => ['class' => str_replace('.', '', $custom_style->getClass())],
                 'displayGroup' => $custom_style_type->get('label'),
@@ -142,9 +143,9 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
       }
     }
 
-    // Reorder style list so generic styles come last
+    // Reorder style list so generic styles come last.
     $generic = isset($list['generic']) ? $list['generic'] : [];
-    // Remove generic styles from list
+    // Remove generic styles from list.
     unset($list['generic']);
     $results = [];
     foreach ($list as $value) {
@@ -152,4 +153,5 @@ class DX8StylesCombo extends CKEditorPluginBase implements ContainerFactoryPlugi
     }
     return array_merge($results, $generic);
   }
+
 }

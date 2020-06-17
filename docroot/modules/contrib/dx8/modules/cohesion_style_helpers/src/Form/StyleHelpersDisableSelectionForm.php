@@ -5,7 +5,7 @@ namespace Drupal\cohesion_style_helpers\Form;
 use Drupal\cohesion\Form\CohesionDisableSelectionForm;
 
 /**
- * Class StyleHelpersDisableSelectionForm
+ * Class StyleHelpersDisableSelectionForm.
  *
  * Builds the form to delete Cohesion custom styles entities.
  *

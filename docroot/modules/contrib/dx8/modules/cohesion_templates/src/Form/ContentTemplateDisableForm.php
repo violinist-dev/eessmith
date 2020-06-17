@@ -14,7 +14,7 @@ class ContentTemplateDisableForm extends CohesionDisableForm {
    */
   public function getDescription() {
 
-    if($this->entity->getEntityTypeId() === 'cohesion_content_templates' && $this->entity->get('view_mode') !== 'full'){
+    if ($this->entity->getEntityTypeId() === 'cohesion_content_templates' && $this->entity->get('view_mode') !== 'full') {
       return $this->t('Disabling a <em>Content template</em> will stop it from being used by your view mode.
        The configuration of your <em>Content template</em> will remain so you can enable it later.');
     }

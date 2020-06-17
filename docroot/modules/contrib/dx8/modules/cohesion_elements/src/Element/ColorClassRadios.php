@@ -3,9 +3,7 @@
 namespace Drupal\cohesion_elements\Element;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\FormElement;
-use Drupal\Component\Utility\Html as HtmlUtility;
 
 /**
  * Select from a list of css classes.

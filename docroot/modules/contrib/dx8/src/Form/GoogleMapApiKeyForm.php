@@ -35,7 +35,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
     $config = $this->config('cohesion.settings');
 
     $form['google_map_api_key_description'] = [
-      '#markup' => t('<p>To use Google Maps on your site you must have a Google account and a Google Maps API key with the correct credentials. DX8 uses the Maps JavaScript API and Maps Embed API.</p>
+      '#markup' => t('<p>To use Google Maps on your site you must have a Google account and a Google Maps API key with the correct credentials. Acquia Cohesion uses the Maps JavaScript API and Maps Embed API.</p>
                           <p>You can register your project and configure your API key in the <a href="https://console.developers.google.com/flows/enableapi?apiid=maps_backend,geocoding_backend,directions_backend,distance_matrix_backend,elevation_backend,places_backend&reusekey=true" target="_blank">Google API Console</a>.</p>'),
     ];
 
@@ -97,7 +97,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -111,7 +111,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -122,7 +122,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
     $cohesion_module_libraries = \Drupal::keyValue('cohesion.elements.asset.libraries');
     $gmap_lib = $cohesion_module_libraries->get('element_templates.google-map');
 
-    // Alter Google Maps API key
+    // Alter Google Maps API key.
     array_walk_recursive($gmap_lib, function (&$value, $key) use (&$form_state) {
       if ('asset_url' == $key && (strpos($value, 'maps.googleapis.com') !== FALSE) && (strpos($value, 'key') !== FALSE) && $form_state instanceof FormStateInterface) {
         $url_parts = parse_url($value);
@@ -130,15 +130,16 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
       }
     });
 
-    // Override Google Maps API key settings in keyValue storage
+    // Override Google Maps API key settings in keyValue storage.
     $cohesion_module_libraries->set('element_templates.google-map', $gmap_lib);
 
-    // Invalidate "libray_info" tag so that udated map api key is loaded
-    \Drupal::service('cache_tags.invalidator')->invalidateTags(['library_info',]);
+    // Invalidate "libray_info" tag so that udated map api key is loaded.
+    \Drupal::service('cache_tags.invalidator')->invalidateTags(['library_info']);
 
-    // Rebuild site routes
+    // Rebuild site routes.
     \Drupal::service('router.builder')->rebuild();
 
     parent::submitForm($form, $form_state);
   }
+
 }

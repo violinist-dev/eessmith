@@ -3,52 +3,59 @@
 namespace Drupal\cohesion\Services;
 
 use Drupal\cohesion\UsageUpdateManager;
+use Drupal\cohesion_base_styles\Entity\BaseStyles;
+use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Class RebuildInuseBatch
+ * Class RebuildInuseBatch.
  *
  * Saves website settings and all entities used by those entities.
  *
  * @package Drupal\cohesion_website_settings
  */
 class RebuildInuseBatch {
+  use StringTranslationTrait;
 
   /**
-   * @var ModuleHandlerInterface $moduleHandler
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 
   /**
-   * @var UsageUpdateManager $usageUpdateManager
+   * @var \Drupal\cohesion\UsageUpdateManager
    */
   protected $usageUpdateManager;
 
   /**
-   * @var EntityRepositoryInterface $entityRepository
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
    */
   protected $entityRepository;
 
-
   /**
    * RebuildInuseBatch constructor.
-   * @param EntityTypeManagerInterface $entity_type_manager
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
-  public function __construct( ModuleHandlerInterface $module_handler,  UsageUpdateManager $usage_update_manager, EntityRepositoryInterface $entity_repository) {
+  public function __construct(ModuleHandlerInterface $module_handler, UsageUpdateManager $usage_update_manager, EntityRepositoryInterface $entity_repository, TranslationInterface $stringTranslation) {
     $this->moduleHandler = $module_handler;
     $this->usageUpdateManager = $usage_update_manager;
     $this->entityRepository = $entity_repository;
+    $this->stringTranslation = $stringTranslation;
   }
 
   /**
    * Entry point into the batch run.
    *
-   * @param $in_use_list - the list of in used entities to be saved
-   * @param $changed_entities - the lsit of entities changed to be saved
+   * @param $in_use_list
+   *   - the list of in used entities to be saved
+   * @param $changed_entities
+   *   - the lsit of entities changed to be saved
    *
    * @return void
    */
@@ -56,7 +63,7 @@ class RebuildInuseBatch {
 
     // Setup the batch.
     $batch = [
-      'title' => t('Rebuilding entities in use.'),
+      'title' => $this->t('Rebuilding entities in use.'),
       'operations' => [],
       'finished' => '\Drupal\cohesion\Services\RebuildInuseBatch::finishedCallback',
     ];
@@ -70,18 +77,20 @@ class RebuildInuseBatch {
     foreach ($changed_entities as $entity) {
       // Only rebuild entities that have been activated.
       $batch['operations'][] = [
-        '_resave_entity',
-        ['entity' => $entity, 'realsave' => TRUE],
+        '_resave_entity', [
+          'entity' => $entity,
+          'realsave' => TRUE
+        ],
       ];
     }
 
     // If style guide is used and the in use list contains a style guide manager instance
     // Get the style guide in use entities and add them to the list rather than the style guide manager entity
     // Ex: If a color is change and that color is used in a style guide manager instance then we need to rebuild
-    // the entities where the token for this color is used rather than the style guide manager entity
-    if($this->moduleHandler->moduleExists('cohesion_style_guide')){
-      foreach ($in_use_list as $uuid => $type){
-        if($type == 'cohesion_style_guide_manager'){
+    // the entities where the token for this color is used rather than the style guide manager entity.
+    if ($this->moduleHandler->moduleExists('cohesion_style_guide')) {
+      foreach ($in_use_list as $uuid => $type) {
+        if ($type == 'cohesion_style_guide_manager') {
           $style_guide_manager = $this->entityRepository->loadEntityByUuid('cohesion_style_guide_manager', $uuid);
           if($style_guide_manager){
             $style_guide = $this->entityRepository->loadEntityByUuid('cohesion_style_guide', $style_guide_manager->get('style_guide_uuid'));
@@ -91,6 +100,8 @@ class RebuildInuseBatch {
         }
       }
     }
+
+    $forms = [];
 
     // Save entities that use these entities.
     foreach ($in_use_list as $uuid => $type) {
@@ -105,16 +116,30 @@ class RebuildInuseBatch {
             ['entity' => $entity],
           ];
         }
-        else {
+        elseif($entity instanceof CustomStyle || $entity instanceof BaseStyles) {
+          $api_plugin = $entity->getApiPluginInstance();
+          if($api_plugin){
+            $api_plugin->setEntity($entity);
+            $forms = array_merge($forms, $api_plugin->getForms());
+          }
+        }else{
           $batch['operations'][] = [
-            '_resave_entity',
-            ['entity' => $entity, 'realsave' => TRUE],
+            '_resave_entity', [
+              'entity' => $entity,
+              'realsave' => FALSE
+            ],
           ];
         }
 
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
       }
     }
+
+    $batch['operations'][] = [
+      '_cohesion_style_save',
+      ['forms' => $forms],
+    ];
 
     $operations[] = ['cohesion_templates_secure_directory', []];
 
@@ -135,7 +160,8 @@ class RebuildInuseBatch {
    */
   public static function startCallback(&$context) {
     $running_dx8_batch = &drupal_static('running_dx8_batch');
-    $running_dx8_batch = TRUE;  // Initial state.
+    // Initial state.
+    $running_dx8_batch = TRUE;
 
     // Copy the live stylesheet.json to temporary:// so styles don't get wiped when  re-importing.
     \Drupal::service('cohesion.local_files_manager')->liveToTemp();
@@ -161,6 +187,7 @@ class RebuildInuseBatch {
       $local_file_manager = \Drupal::service('cohesion.local_files_manager');
       $local_file_manager->tempToLive();
       $local_file_manager->moveTemporaryTemplateToLive();
+      drupal_flush_all_caches();
       Cache::invalidateTags(['dx8-form-data-tag']);
       $message = t('Entities in use have been rebuilt.');
     }
@@ -168,7 +195,7 @@ class RebuildInuseBatch {
       $message = t('Entities in use rebuild failed to complete.');
     }
 
-    drupal_set_message($message);
+    \Drupal::messenger()->addMessage($message);
   }
 
   /**

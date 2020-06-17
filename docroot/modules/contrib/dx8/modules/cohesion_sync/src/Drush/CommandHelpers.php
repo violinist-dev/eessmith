@@ -3,23 +3,24 @@
 namespace Drupal\cohesion_sync\Drush;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cohesion_sync\PackagerManager;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use \Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\Config\FileStorageFactory;
+use Drupal\Core\File\FileSystemInterface;
 
 const DX8_SYNC_DIRECTORY = 'dx8_sync';
 
 /**
- * Class CommandHelpers
+ * Class CommandHelpers.
  *
  * @package Drupal\cohesion_sync\Drush
  */
 final class CommandHelpers {
 
+  /**
+   * @var null
+   */
   protected static $instance = NULL;
 
   /**
@@ -61,7 +62,7 @@ final class CommandHelpers {
     $this->packagerManager = $packagerManager;
     $this->entityRepository = $entityRepository;
 
-    /** @var ImmutableConfig config */
+    /** @var \Drupal\Core\Config\ImmutableConfig config */
     $this->config = $this->configFactory->get('cohesion.sync.settings');
   }
 
@@ -80,13 +81,17 @@ final class CommandHelpers {
    * @param $filename_prefix
    *
    * @return bool|string
+   *
    * @throws \Exception
    */
   public function exportAll($filename_prefix = FALSE) {
+    global $config_directories;
+
     // Make sure the config sync directory has been set.
-    try {
-      $dir = config_get_config_directory(DX8_SYNC_DIRECTORY);
-    } catch (\Throwable $e) {
+    if (!empty($config_directories[DX8_SYNC_DIRECTORY])) {
+      $dir = $config_directories[DX8_SYNC_DIRECTORY];
+    }
+    else {
       $dir = 'sites/default/files/sync';
     }
 
@@ -110,11 +115,12 @@ final class CommandHelpers {
       if ($definition->entityClassImplements(CohesionSettingsInterface::class) && !in_array($entity_type, $excluded_entity_type_ids) && $entity_type !== 'custom_style_type') {
         try {
           $entity_storage = $this->entityTypeManager->getStorage($entity_type);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           continue;
         }
 
-        /** @var ConfigEntityInterface $entity */
+        /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $entity */
         foreach ($entity_storage->loadMultiple() as $entity) {
           if ($entity->status()) {
             $entities[] = $entity;
@@ -125,11 +131,11 @@ final class CommandHelpers {
 
     // Check there are entities.
     if (!count($entities)) {
-      return 'No DX8 entities were found. Nothing was exported.';
+      return 'No Acquia Cohesion entities were found. Nothing was exported.';
     }
 
     // Prepare the directory.
-    if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY)) {
+    if (!\Drupal::service('file_system')->prepareDirectory($dir, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
       throw new \Exception('Unable to prepare directory: ' . $dir);
     }
 
@@ -161,11 +167,14 @@ final class CommandHelpers {
    * @param $overwrite
    * @param $keep
    * @param $path
+   * @param $force
    *
    * @return string
    * @throws \Exception
    */
-  public function import($overwrite, $keep, $path) {
+  public function import($overwrite, $keep, $path, $force = FALSE) {
+    global $config_directories;
+
     $paths = [];
     $messages = [];
 
@@ -179,17 +188,23 @@ final class CommandHelpers {
       \Drupal::state()->set('system.maintenance_mode', TRUE);
 
       // Make sure the config sync directory has been set.
-      try {
-        $dir = config_get_config_directory(DX8_SYNC_DIRECTORY);
-      } catch (\Throwable $e) {
+      if (!empty($config_directories[DX8_SYNC_DIRECTORY])) {
+        $dir = $config_directories[DX8_SYNC_DIRECTORY];
+      }
+      else {
         $dir = 'sites/default/files/sync';
       }
 
-      file_scan_directory($dir, '/.package.yml_$/', [
-        'callback' => function ($file) use (&$paths, &$messages) {
-          $paths[] = $file;
-        },
-      ]);
+      try {
+        \Drupal::service('file_system')->scanDirectory($dir, '/.package.yml_$/', [
+          'callback' => function ($file) use (&$paths, &$messages) {
+            $paths[] = $file;
+          },
+        ]);
+      }
+      catch (\Throwable $e) {
+        \Drupal::messenger()->addError(t('Unable to scan directory for sync import.'));
+      }
 
       if (empty($paths)) {
         $messages[] = 'No *.package.yml_ files found in ' . $dir;
@@ -200,7 +215,29 @@ final class CommandHelpers {
     foreach ($paths as $path) {
       try {
         $action_data = $this->packagerManager->validateYamlPackageStream($path);
-      } catch (\Exception $e) {
+        // Prevent from importing if some content will be broken/lost and it is set to overwrite all entities
+        if($overwrite && !$force) {
+          $broken_entities = $this->packagerManager->validateYamlPackageContentIntegrity($path);
+          $error_messages = [];
+          $drupal_translate = \Drupal::translation();
+          foreach ($broken_entities as $broken_entity) {
+            /** @var $entity \Drupal\cohesion\Entity\CohesionConfigEntityBase */
+            $entity = $broken_entity['entity'];
+            $error_messages[] = "\n";
+            $error_messages[] = $drupal_translate->translate('Cannot import @entity_type \'@label\' (id: @id). This entity is missing populated fields. If you proceed, content in these fields will be lost.', ['@entity_type' => $entity->getEntityType()->getLabel(), '@label' => $entity->label(), '@id' => $entity->id()]);
+            $error_messages[] = $drupal_translate->formatPlural(count($broken_entity['entities']), '1 entity affected:', '@count entities affected:');
+            foreach ($broken_entity['entities'] as $entity) {
+              $error_messages[] = $drupal_translate->translate('@entity_type \'@label\' (id: @id)', ['@entity_type' => $entity->getEntityType()->getLabel(), '@label' => $entity->label(), '@id' => $entity->id()]);
+            }
+          }
+
+          if(!empty($error_messages)) {
+            $error_messages[] = "\n" . $drupal_translate->translate('You can choose to ignore and proceed with the import by adding `--force` to your command');
+            throw new \Exception(implode("\n", $error_messages));
+          }
+        }
+      }
+      catch (\Exception $e) {
         \Drupal::state()->set('system.maintenance_mode', FALSE);
         throw new \Exception('Error in ' . $path . ' ' . $e->getMessage());
       }
@@ -223,8 +260,8 @@ final class CommandHelpers {
       $messages[] = 'Imported ' . $applied_count . ' items from package: ' . $path;
     }
 
-
     \Drupal::state()->set('system.maintenance_mode', FALSE);
     return implode("\n", $messages);
   }
+
 }

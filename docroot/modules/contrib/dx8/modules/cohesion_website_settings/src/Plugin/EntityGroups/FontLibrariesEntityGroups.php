@@ -8,7 +8,7 @@ use Drupal\cohesion_website_settings\Entity\FontLibrary;
 use Drupal\cohesion_website_settings\Entity\FontStack;
 
 /**
- * Class FontLibrariesEntityGroups
+ * Class FontLibrariesEntityGroups.
  *
  * This handles loading and saving back combined FontLibrary and FontStack
  * entities with single JSON object.
@@ -25,6 +25,7 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
 
   /**
    * {@inheritdoc}
+   *
    * @testme
    */
   public function saveFromModel($libraries) {
@@ -42,7 +43,7 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
               $hash = hash('md5', Json::encode($library->library));
               $libraries->{$source}[$index]->library->uid = $hash;
 
-              /** @var FontLibrary $entity */
+              /** @var \Drupal\cohesion_website_settings\Entity\FontLibrary $entity */
               $entity = FontLibrary::create([
                 'id' => $hash,
                 'label' => $library->library->name,
@@ -65,7 +66,7 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
 
             // No? Then create and save it.
             if (!count($entity_ids) && property_exists($library->stack, 'name')) {
-              /** @var FontStack $entity */
+              /** @var \Drupal\cohesion_website_settings\Entity\FontStack $entity */
               $entity = FontStack::create([
                 'id' => $library->stack->uid,
                 'label' => $library->stack->name,
@@ -132,22 +133,22 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
 
         switch ($source) {
           case 'fonts':
-            /** @var FontLibrary $entity */ if (property_exists($library, 'library') && !in_array($library->library->uid, $new_ids) && $entity = $this->storage->load($library->library->uid)) {
-            // Check everything is the same.
-            $entity_json_values = $entity->getJsonValues();
+            /** @var \Drupal\cohesion_website_settings\Entity\FontLibrary $entity */ if (property_exists($library, 'library') && !in_array($library->library->uid, $new_ids) && $entity = $this->storage->load($library->library->uid)) {
+              // Check everything is the same.
+              $entity_json_values = $entity->getJsonValues();
 
-            // Changes detected.
-            if ($entity_json_values !== Json::encode($library->library)) {
-              // Save the entity.
-              $entity->setJsonValue(Json::encode($library->library));
-              $changed_entities[] = $entity;
+              // Changes detected.
+              if ($entity_json_values !== Json::encode($library->library)) {
+                // Save the entity.
+                $entity->setJsonValue(Json::encode($library->library));
+                $changed_entities[] = $entity;
 
-              // Because there is no strong connection between font libraries
-              // and font stacks, we have to flush the render cache when
-              // libraries are changed.
-              $flush_caches = TRUE;
+                // Because there is no strong connection between font libraries
+                // and font stacks, we have to flush the render cache when
+                // libraries are changed.
+                $flush_caches = TRUE;
+              }
             }
-          }
             break;
 
           case 'fontStacks':
@@ -156,10 +157,9 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
               $entity_json_values = $entity->getJsonValues();
 
               // Changes detected.
-              //if (isset($library['stack']['inuse'])) {
+              // if (isset($library['stack']['inuse'])) {
               //  unset($library['stack']['inuse']);
-              //}
-
+              // }.
               if ($entity_json_values !== json_encode($library->stack, JSON_UNESCAPED_UNICODE)) {
                 // Save the entity.
                 $entity->setJsonValue(Json::encode($library->stack));
@@ -186,7 +186,7 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
     $merged_font_libraries = [];
     $count = 0;
 
-    /** @var FontLibrary $font_library_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\FontLibrary $font_library_entity */
     foreach ($this->storage->loadMultiple() as $font_library_entity) {
       $json_values = $font_library_entity->getDecodedJsonValues();
 
@@ -198,7 +198,7 @@ class FontLibrariesEntityGroups extends EntityGroupsPluginBase {
       $count++;
     }
 
-    /** @var FontStack $font_stack_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\FontStack $font_stack_entity */
     foreach ($this->entityTypeManager->getStorage('cohesion_font_stack')->loadMultiple() as $font_stack_entity) {
       $json_values = $font_stack_entity->getDecodedJsonValues();
 

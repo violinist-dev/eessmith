@@ -3,11 +3,10 @@
 namespace Drupal\cohesion_website_settings\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class SCSSVariableUsage
+ * Class SCSSVariableUsage.
  *
  * @package Drupal\cohesion_website_settings\Plugin\Usage
  *

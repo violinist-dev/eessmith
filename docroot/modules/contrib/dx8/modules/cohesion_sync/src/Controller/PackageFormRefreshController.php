@@ -13,7 +13,7 @@ use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Class PackageFormRefreshController
+ * Class PackageFormRefreshController.
  *
  * @package Drupal\cohesion_sync\Controller
  */
@@ -25,7 +25,7 @@ class PackageFormRefreshController extends ControllerBase {
   protected $packagerManager;
 
   /**
-   * @var EntityRepository
+   * @var \Drupal\Core\Entity\EntityRepository
    */
   protected $entityRepository;
 
@@ -69,6 +69,7 @@ class PackageFormRefreshController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
    * @return \Drupal\cohesion\CohesionJsonResponse
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -104,7 +105,6 @@ class PackageFormRefreshController extends ControllerBase {
         ];
       }
 
-
       // Set the group data including the label.
       $package_requirements_form[$entity_type_id] = [
         'label' => ucfirst($definition['entity_type']->getPluralLabel()->__toString()),
@@ -123,7 +123,7 @@ class PackageFormRefreshController extends ControllerBase {
       $source_entity_type = $meta['type'];
 
       if ($source_entity = $this->entityRepository->loadEntityByUuid($source_entity_type, $source_entity_uuid)) {
-        // Get details about the source entity type
+        // Get details about the source entity type.
         $source_entity_type_id = $source_entity->getEntityTypeID();
         $source_entity_type_label = ucfirst($this->entityTypeManager->getDefinition($source_entity_type_id)->getPluralLabel()->__toString());
 
@@ -168,7 +168,8 @@ class PackageFormRefreshController extends ControllerBase {
           $excluded_entity_types_form[$item['entity_type']] = [
             'label' => $this->entityTypeManager->getDefinition($item['entity_type'])->getPluralLabel()->__toString(),
           ];
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
           continue;
         }
       }
@@ -207,7 +208,8 @@ class PackageFormRefreshController extends ControllerBase {
 
         // The group is the string of the group key value.
         if (!$usage['group_key_entity_type'][$index]) {
-          if ($group_key) { // Probably a content template.
+          // Probably a content template.
+          if ($group_key) {
             $label[] = $entity->get($group_key);
           }
           else {
@@ -218,7 +220,8 @@ class PackageFormRefreshController extends ControllerBase {
         else {
           try {
             $label[] = 'All ' . $this->entityTypeManager->getStorage($group_key_entity_type[$index])->load($entity->get($group_key))->label();
-          } catch (\Throwable $e) {
+          }
+          catch (\Throwable $e) {
             return 'All';
           }
         }
@@ -236,6 +239,7 @@ class PackageFormRefreshController extends ControllerBase {
    * See: form().
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -250,7 +254,8 @@ class PackageFormRefreshController extends ControllerBase {
         // Get the entity type definition.
         try {
           $entity_type_definition = $this->entityTypeManager->getDefinition($usage_plugin_definition['entity_type']);
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
           continue;
         }
 
@@ -269,4 +274,5 @@ class PackageFormRefreshController extends ControllerBase {
     ksort($list);
     return $list;
   }
+
 }

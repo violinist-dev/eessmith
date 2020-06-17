@@ -42,6 +42,18 @@ namespace Drupal\cohesion_elements\Entity;
  *     "delete-form" = "/admin/cohesion/components/categories/{cohesion_component_category}/delete",
  *     "collection" = "/admin/cohesion/components/categories",
  *     "in-use" = "/admin/cohesion/components/categories/{cohesion_component_category}/in_use"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "class",
+ *     "weight"
  *   }
  * )
  */
@@ -55,4 +67,5 @@ class ComponentCategory extends ElementCategoryBase {
   const target_entity_type = 'cohesion_component';
 
   const default_category_id = 'cpt_cat_uncategorized';
+
 }

@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\user\Entity\Role;
 use Drupal\user\RoleStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -42,7 +41,7 @@ class ElementsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.manager')->getStorage('user_role'));
+    return new static($container->get('entity_type.manager')->getStorage('user_role'));
   }
 
   /**
@@ -195,7 +194,7 @@ class ElementsSettingsForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -210,4 +209,5 @@ class ElementsSettingsForm extends ConfigFormBase {
 
     parent::submitForm($form, $form_state);
   }
+
 }

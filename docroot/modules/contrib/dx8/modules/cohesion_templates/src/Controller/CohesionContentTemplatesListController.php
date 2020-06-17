@@ -2,7 +2,6 @@
 
 namespace Drupal\cohesion_templates\Controller;
 
-use Drupal\Core\Entity\Controller\EntityListController;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\Core\Link;
@@ -10,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Class CohesionContentTemplatesListController
+ * Class CohesionContentTemplatesListController.
  *
  * Returns responses for Templates routes.
  *
@@ -18,10 +17,12 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  */
 class CohesionContentTemplatesListController extends ControllerBase {
 
-  /** @var \Drupal\Core\Entity\EntityTypeManagerInterface */
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface*/
   protected $entityTypeManager;
 
-  /** @var \Drupal\Core\Entity\EntityTypeInterface|null */
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeInterface|null*/
   protected $entityTypeDefinition;
 
   /**
@@ -37,6 +38,9 @@ class CohesionContentTemplatesListController extends ControllerBase {
     $this->entityTypeDefinition = $this->entityTypeManager->getDefinition('cohesion_content_templates');
   }
 
+  /**
+   *
+   */
   public static function create(ContainerInterface $container) {
     return new static($container->get('entity_type.manager'));
   }
@@ -92,4 +96,5 @@ class CohesionContentTemplatesListController extends ControllerBase {
       throw new NotFoundHttpException();
     }
   }
+
 }

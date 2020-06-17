@@ -2,11 +2,8 @@
 
 namespace Drupal\cohesion_elements\Plugin\Usage;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion\UsagePluginBase;
-
 /**
- * Class HelperUsage
+ * Class HelperUsage.
  *
  * @package Drupal\cohesion_elements\Plugin\Usage
  *

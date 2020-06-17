@@ -6,8 +6,14 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ *
+ */
 class StyleGuideListBuilder extends CohesionListBuilder {
 
+  /**
+   * @var string
+   */
   protected $formId = 'cohesion_style_guide_form';
 
   /**

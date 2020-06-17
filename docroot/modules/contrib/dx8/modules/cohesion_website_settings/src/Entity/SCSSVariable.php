@@ -2,11 +2,8 @@
 
 namespace Drupal\cohesion_website_settings\Entity;
 
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
 
 /**
  * Defines the Cohesion website settings entity.
@@ -37,6 +34,17 @@ use Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi;
  *   links = {
  *     "in-use" = "/admin/cohesion/cohesion_scss_variable/{cohesion_scss_variable}/in_use",
  *     "collection" = "/admin/cohesion/cohesion_website_settings"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "weight"
  *   }
  * )
  */
@@ -50,7 +58,7 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
   protected $weight;
 
   /**
-   * @var
+   * @var mixed
    */
   protected $label_collection;
 
@@ -73,14 +81,13 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
   }
 
   /**
-   * Return all the icons combined for the form[]
+   * Return all the icons combined for the form[].
    *
-   * @return array|\stdClass|string
+   * @return array|object|string
    */
   public function getResourceObject() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
-
+    /** @var \Drupal\cohesion_website_settings\Plugin\Api\WebsiteSettingsApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     return $send_to_api->getSCSSVariableGroup();
   }
 
@@ -88,40 +95,14 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
    * {@inheritdoc}
    */
   public function process() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
-    $send_to_api->setEntity($this);
-    $send_to_api->send();
-    return $send_to_api;
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function jsonValuesErrors() {
-    /** @var WebsiteSettingsApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('website_settings_api');
-    $send_to_api->setEntity($this);
-    $success = $send_to_api->sendWithoutSave();
-    $responseData = $send_to_api->getData();
-    if ($success === TRUE) {
-      return FALSE;
-    }
-    else {
-      return $responseData;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
-    parent::postSave($storage, $update);
-
-    $this->process();
-
-    // Invalidate settings endpoint shared cache entries.
-    // Cache::invalidateTags($tags);
+    return FALSE;
   }
 
   /**
@@ -153,6 +134,9 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
     ];
   }
 
+  /**
+   *
+   */
   public function clearData() {
   }
 
@@ -172,4 +156,5 @@ class SCSSVariable extends WebsiteSettingsEntityBase implements CohesionSettings
     $this->modified = TRUE;
     $this->status = TRUE;
   }
+
 }

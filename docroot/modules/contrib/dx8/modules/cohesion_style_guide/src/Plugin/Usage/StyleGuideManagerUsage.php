@@ -12,7 +12,7 @@ use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class StyleGuideManagerUsage
+ * Class StyleGuideManagerUsage.
  *
  * @package Drupal\cohesion_style_guide\Plugin\Usage
  *
@@ -31,7 +31,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class StyleGuideManagerUsage extends UsagePluginBase {
 
   /**
-   * @var ThemeHandlerInterface
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface
    */
   protected $themeHandler;
 
@@ -54,6 +54,9 @@ class StyleGuideManagerUsage extends UsagePluginBase {
     $this->themeHandler = $theme_handler;
   }
 
+  /**
+   *
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
@@ -64,7 +67,6 @@ class StyleGuideManagerUsage extends UsagePluginBase {
       $container->get('database'),
       $container->get('theme_handler'));
   }
-
 
   /**
    * {@inheritdoc}

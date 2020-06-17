@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a Custom styles Resource
+ * Provides a Custom styles Resource.
  *
  * @RestResource(
  *   id = "cohesion_custom_styles",
@@ -22,8 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class CustomStylesResource extends CohesionResourceBase
-{
+class CustomStylesResource extends CohesionResourceBase {
 
   /**
    * The entity type manager.
@@ -42,14 +41,13 @@ class CustomStylesResource extends CohesionResourceBase
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\entityTypeManagerManagerInterface $entity_type_manager
-   *   The entity type manager
+   *   The entity type manager.
    * @param array $serializer_formats
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, $serializer_formats, LoggerInterface $logger)
-  {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, $serializer_formats, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->entityTypeManager = $entity_type_manager;
   }
@@ -57,8 +55,7 @@ class CustomStylesResource extends CohesionResourceBase
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
-  {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
       $plugin_id,
@@ -69,7 +66,6 @@ class CustomStylesResource extends CohesionResourceBase
     );
   }
 
-
   /**
    * Get all custom styles.
    *
@@ -77,21 +73,20 @@ class CustomStylesResource extends CohesionResourceBase
    *
    * @return \Drupal\rest\ResourceResponse
    */
-  public function get(CustomStyleType $custom_style_type)
-  {
+  public function get(CustomStyleType $custom_style_type) {
     $data = [];
 
     $storage = $this->entityTypeManager->getStorage('cohesion_custom_style');
 
-    // Get parent custom styles
+    // Get parent custom styles.
     $entity_ids = $storage->getQuery()->sort('weight')->notExists('parent')
       ->condition('custom_style_type', [$custom_style_type->get('id'), 'generic'], 'IN')->condition('status', TRUE)->execute();
 
     // Execute the query.
     if ($entities = $storage->loadMultiple($entity_ids)) {
-      /** @var CustomStyle $entity */
+      /** @var \Drupal\cohesion_custom_styles\Entity\CustomStyle $entity */
       foreach ($entities as $entity) {
-        // Add the parent if it is selectable
+        // Add the parent if it is selectable.
         if ($entity->isSelectable()) {
           $data[] = $this->entityToMapped($entity);
         }
@@ -101,7 +96,7 @@ class CustomStylesResource extends CohesionResourceBase
         $children_ids = $storage->getQuery()->condition('parent', $entity->getClass())->condition('status', TRUE)->condition('selectable', TRUE)->sort('weight')->execute();
         if ($children_ids && count($children_ids) > 0) {
           foreach ($storage->loadMultiple($children_ids) as $child_entity) {
-            /** @var CustomStyle $child_entity */
+            /** @var \Drupal\cohesion_custom_styles\Entity\CustomStyle $child_entity */
             if ($child_entity->isSelectable()) {
               $children[] = $this->entityToMapped($child_entity);
             }
@@ -117,8 +112,8 @@ class CustomStylesResource extends CohesionResourceBase
     $response->addCacheableDependency(CacheableMetadata::createFromRenderArray([
       '#cache' => [
         'tags' => [
-          'config:cohesion_custom_style_list'
-        ]
+          'config:cohesion_custom_style_list',
+        ],
       ],
     ]));
 
@@ -128,19 +123,18 @@ class CustomStylesResource extends CohesionResourceBase
   /**
    * Maps config entity to something Angular expects.
    *
-   * @param $entity CustomStyle
+   * @param \Drupal\cohesion_custom_styles\Entity\CustomStyle $entity
    *
    * @return array
    */
-  private function entityToMapped(CustomStyle $entity)
-  {
+  private function entityToMapped(CustomStyle $entity) {
     $mapped_object = [];
     $mapped_object['label'] = $entity->get('label');
     $class_name = $entity->get('class_name');
     $mapped_object['value'] = ltrim($class_name, '.');
-    // Add custom style group
+    // Add custom style group.
     $type_id = $entity->get('custom_style_type');
-    // Add group if custom style  type is generic
+    // Add group if custom style  type is generic.
     if ('generic' === $type_id) {
       $custom_style_type_entity = $this->entityTypeManager->getStorage('custom_style_type')->load($type_id);
       if ($custom_style_type_entity) {
@@ -154,8 +148,7 @@ class CustomStylesResource extends CohesionResourceBase
   /**
    * {@inheritdoc}
    */
-  protected function getBaseRoute($canonical_path, $method)
-  {
+  protected function getBaseRoute($canonical_path, $method) {
     $route = parent::getBaseRoute($canonical_path, $method);
 
     $parameters = $route->getOption('parameters') ?: [];

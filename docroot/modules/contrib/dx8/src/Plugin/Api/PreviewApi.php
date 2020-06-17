@@ -2,13 +2,13 @@
 
 namespace Drupal\cohesion\Plugin\Api;
 
-use Drupal\cohesion\StylesApi;
-use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
+use Drupal\cohesion\StylesApiPluginBase;
+use Drupal\cohesion_base_styles\Entity\BaseStyles;
+use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 use Drupal\Component\Serialization\Json;
-use Drupal\cohesion\CohesionApiClient;
 
 /**
- * Class PreviewApi
+ * Class PreviewApi.
  *
  * @package Drupal\cohesion
  *
@@ -17,23 +17,68 @@ use Drupal\cohesion\CohesionApiClient;
  *   name = @Translation("Preview send to API"),
  * )
  */
-class PreviewApi extends StylesApi {
+class PreviewApi extends StylesApiPluginBase {
 
+  /**
+   * The type of style to be previewed.
+   *
+   * @var string
+   */
+  protected $type;
+
+  /**
+   * @var string
+   */
   protected $entity_type_id;
 
+  /**
+   * @var mixed
+   */
   protected $style_model;
+
+  /**
+   * @var mixed
+   */
+  protected $style_mapper;
+
+  public function getForms() {
+    $form = [
+      'parent' => [
+        'title' => '',
+        'type' => $this->type,
+        'bundle' => 'preview_1',
+        'values' => Json::encode($this->style_model),
+        'mapper' => Json::encode($this->style_mapper),
+      ]
+    ];
+
+    if ($this->entity_type_id != 'cohesion_base_styles') {
+      $form['parent']['class_name'] = '.coh-preview';
+    }
+
+    return [
+      $form
+    ];
+  }
 
   /**
    * @param $entity_type_id
    * @param $style_model
+   * @param $style_mapper
    */
-  public function setupPreview($entity_type_id, $style_model) {
+  public function setupPreview($entity_type_id, $style_model, $style_mapper) {
     // Process the style model.
     $this->processBackgroundImageInheritance($style_model['styles']);
+    $this->style_model = $style_model;
+    $this->style_mapper = $style_mapper;
+    $this->entity_type_id = $entity_type_id;
 
     // And save the values.
-    $this->entity_type_id = $entity_type_id;
-    $this->style_model = $style_model;
+    if($this->entity_type_id == 'cohesion_custom_style'){
+      $this->type = CustomStyle::ASSET_GROUP_ID;
+    }else{
+      $this->type = BaseStyles::ASSET_GROUP_ID;
+    }
   }
 
   /**
@@ -41,40 +86,13 @@ class PreviewApi extends StylesApi {
    */
   public function send() {
 
-    if (!(\Drupal::service('cohesion.utils')->usedx8Status()) || $this->configInstaller->isSyncing()) {
+    if (!(\Drupal::service('cohesion.utils')
+      ->usedx8Status()) || $this->configInstaller->isSyncing()) {
       return FALSE;
     }
 
-    // Prepare the data and DO NOT attach the stylesheet.json to the payload
+    // Prepare the data and DO NOT attach the stylesheet.json to the payload.
     $this->prepareData(FALSE);
-
-    // Add additional payload config required for custom styles.
-    if ($this->entity_type_id != 'cohesion_base_styles') {
-      $this->data->entity_type_id = $this->entity_type_id;
-      $this->data->entity_id = 'preview_1';
-      $this->data->settings->forms[0]['parent'] = Json::encode([
-        'title' => '',
-        'type' => 'custom_styles',
-        'class_name' => '.coh-preview',
-        'bundle' => 'preview_customstyle',
-        'schema' => [],
-        'values' => Json::encode($this->style_model),
-        'mapper' => [],
-      ]);
-    }
-    // Add additional payload config required for base styles.
-    else {
-      $this->data->entity_type_id = $this->entity_type_id;
-      $this->data->entity_id = 'preview_1';
-      $this->data->settings->forms[0]['parent'] = Json::encode([
-        'title' => '',
-        'type' => 'base_styles',
-        'bundle' => isset($this->style_model['styles']) ? $this->style_model['styles']['settings']['element'] : NULL,
-        'schema' => [],
-        'values' => Json::encode($this->style_model),
-      ]);
-    }
-
     // Perform the send.
     $this->callApi();
 

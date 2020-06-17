@@ -1,12 +1,12 @@
 # handles relations between variables/components and entries with the var/component as the master lookup
 cohesion.cohesion_variables:
   type: config_entity
-  label: 'DX8 Variables'
+  label: 'Cohesion variables'
   mapping:
     variables:
       type: sequence
-      label: 'Variables'        
-      sequence:         
+      label: 'Variables'
+      sequence:
         type: mapping
         label: 'Variables'
         mapping:
@@ -20,7 +20,7 @@ cohesion.cohesion_variables:
         #sequence of entities linked to this var/component - abritrary entries for now
           entity:
             type: sequence
-            label: 'A sequence of entities it is linked to'        
+            label: 'A sequence of entities it is linked to'
             sequence:
               type: string
               label: 'Entity'

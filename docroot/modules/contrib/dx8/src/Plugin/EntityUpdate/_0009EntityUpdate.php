@@ -6,9 +6,8 @@ use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 use Drupal\cohesion\EntityUpdatePluginInterface;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Change dropzone settings.label to settings.title
+ * Change dropzone settings.label to settings.title.
  *
  * @package Drupal\cohesion
  *
@@ -37,7 +36,7 @@ class _0009EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
         foreach ($json_values->model as $uuid => $data) {
           // If it's a dropzone entry.
           if (is_object($data) && property_exists($data, 'settings') && is_object($data->settings) && property_exists($data->settings, 'dropzoneHideSelector') && property_exists($data->settings, 'label')) {
-            // Convert the 'label' key to 'title'
+            // Convert the 'label' key to 'title'.
             $json_values->model->{$uuid}->settings->title = $json_values->model->{$uuid}->settings->label;
             unset($json_values->model->{$uuid}->settings->label);
           }

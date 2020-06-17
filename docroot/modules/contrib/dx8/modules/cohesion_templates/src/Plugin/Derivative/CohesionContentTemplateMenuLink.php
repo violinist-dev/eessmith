@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class CohesionContentTemplateMenuLink
+ * Class CohesionContentTemplateMenuLink.
  *
  * Derivative class that provides the menu links for the Content Template.
  *
@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CohesionContentTemplateMenuLink extends DeriverBase implements ContainerDeriverInterface {
 
   /**
-   * @var EntityTypeManagerInterface $entityTypeManager .
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -25,7 +25,7 @@ class CohesionContentTemplateMenuLink extends DeriverBase implements ContainerDe
    * Creates a ProductMenuLink instance.
    *
    * @param $base_plugin_id
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
   public function __construct($base_plugin_id, EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
@@ -56,11 +56,11 @@ class CohesionContentTemplateMenuLink extends DeriverBase implements ContainerDe
           if (isset($entity_types[$entity->get('entity_type')])) {
             $entity_type = $entity_types[$entity->get('entity_type')];
             $links['cohesion_template_menu_' . $entity->get('entity_type')] = [
-                'title' => ($entity_type->get('bundle_label')) ? $entity_type->get('bundle_label') : $entity_type->get('label'),
-                'route_name' => 'entity.cohesion_content_templates.collection',
-                'parent' => 'entity.cohesion_content_templates',
-                'route_parameters' => ['content_entity_type' => $entity->get('entity_type')],
-              ] + $base_plugin_definition;
+              'title' => ($entity_type->get('bundle_label')) ? $entity_type->get('bundle_label') : $entity_type->get('label'),
+              'route_name' => 'entity.cohesion_content_templates.collection',
+              'parent' => 'entity.cohesion_content_templates',
+              'route_parameters' => ['content_entity_type' => $entity->get('entity_type')],
+            ] + $base_plugin_definition;
           }
         }
       }
@@ -68,4 +68,5 @@ class CohesionContentTemplateMenuLink extends DeriverBase implements ContainerDe
 
     return $links;
   }
+
 }

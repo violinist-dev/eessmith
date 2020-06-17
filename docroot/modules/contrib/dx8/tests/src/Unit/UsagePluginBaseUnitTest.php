@@ -10,11 +10,11 @@ use Drupal\Core\Database\Connection;
 use Drupal\cohesion\UsagePluginInterface;
 
 /**
- * Class MockEntity
+ * Class MockUsageEntity
  *
  * @package Drupal\Tests\cohesion\Unit
  */
-class MockEntity {
+class MockUsageEntity {
   protected $id;
 
   public function __construct($id) {
@@ -30,47 +30,6 @@ class MockEntity {
   }
 }
 
-/**
- * Class MockQuery
- *
- * @package Drupal\Tests\cohesion\Unit
- */
-class MockQuery {
-  protected $entities = [];
-
-  public function condition($where, $is) {
-    if ($where == 'class_name') {
-      $this->entities[] = $is;
-      return $this;
-    }
-
-    if ($where == 'default') {
-      $this->entities[] = 'default';
-      return $this;
-    }
-  }
-
-  public function execute() {
-    return $this->entities;
-  }
-}
-
-/**
- * Class MockStreamWrapperInstance
- *
- * @package Drupal\Tests\cohesion\Unit
- */
-class MockStreamWrapperInstance {
-  protected $id;
-
-  public function __construct($id) {
-    $this->id = $id;
-  }
-
-  public function getDirectoryPath() {
-    return 'directory/' . $this->id . '/';
-  }
-}
 
 /**
  * This abstract is used by other tests.
@@ -109,24 +68,43 @@ abstract class UsagePluginBaseUnitTest extends UnitTestCase {
     // Mock function call.
     $prophecy->load(\Prophecy\Argument::type('string'))->will(function ($args) {
       // Just return the ID of the entity sent to ->load()
-      return new MockEntity($args[0]);
+      return new MockUsageEntity($args[0]);
     });
     $prophecy->loadByProperties(\Prophecy\Argument::type('array'))->will(function ($args) {
       $key = key($args[0]);
       // Just return the whatever key and value of the entity sent to ->load()
       return [
-        new MockEntity($key . '-' . $args[0][$key])
+        new MockUsageEntity($key . '-' . $args[0][$key])
       ];
     });
     // Mock function call.
     $prophecy->getQuery(\Prophecy\Argument::type('string'))->will(function ($args) {
       // Just return the ID of the entity sent to ->load()
-      return new MockQuery();
+      return new class {
+        protected $entities = [];
+
+        public function condition($where, $is) {
+          if ($where == 'class_name') {
+            $this->entities[] = $is;
+            return $this;
+          }
+
+          if ($where == 'default') {
+            $this->entities[] = 'default';
+            return $this;
+          }
+        }
+
+        public function execute() {
+          return $this->entities;
+        }
+      };
     });
+
     // Mock function call.
     $prophecy->loadMultiple(\Prophecy\Argument::type('array'))->will(function ($args) {
       return array_map(function($id) {
-        return new MockEntity($id[0]);
+        return new MockUsageEntity($id[0]);
       }, $args[0]);
     });
     $storage_manager_mock = $prophecy->reveal();
@@ -142,7 +120,17 @@ abstract class UsagePluginBaseUnitTest extends UnitTestCase {
     $prophecy->getWrappers()->willReturn([]);
     $prophecy->getViaUri(\Prophecy\Argument::type('string'))->will(function ($args) {
       // Just return the ID of the entity sent to ->load()
-      return new MockStreamWrapperInstance($args[0]);
+      return new class ($args[0]) {
+        protected $id;
+
+        public function __construct($id) {
+          $this->id = $id;
+        }
+
+        public function getDirectoryPath() {
+          return 'directory/' . $this->id . '/';
+        }
+      };
     });
     $this->stream_wrapper_manager_mock = $prophecy->reveal();
 

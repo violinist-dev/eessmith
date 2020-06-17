@@ -3,11 +3,9 @@
 namespace Drupal\cohesion_website_settings\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_website_settings\Entity\SCSSVariable;
 
 /**
- * Class SCSSVariablesEditForm
+ * Class SCSSVariablesEditForm.
  *
  * A form that allows users to edit SCSS variables on a single page.
  *
@@ -17,7 +15,7 @@ class SCSSVariablesEditForm extends WebsiteSettingsGroupFormBase {
 
   const ENTITY_TYPE = 'cohesion_scss_variable';
 
-  const FORM_TITLE = 'Edit <i>SCSS variables</i>';
+  const FORM_TITLE = 'SCSS variables';
 
   const FORM_ID = 'website_settings_scss_variables_form';
 
@@ -49,17 +47,17 @@ class SCSSVariablesEditForm extends WebsiteSettingsGroupFormBase {
       }
       else {
         // No need to run the batch, so just save any entities and show message.
-        /** @var SCSSVariable $variable_entity */
+        /** @var \Drupal\cohesion_website_settings\Entity\SCSSVariable $variable_entity */
         foreach ($this->changed_entities as $variable_entity) {
           $variable_entity->save();
         }
 
-        drupal_set_message($this->t('The SCSS variables have been updated.'));
+        \Drupal::messenger()->addMessage($this->t('The SCSS variables have been updated.'));
       }
     }
     // Json data was corrupt.
     else {
-      drupal_set_message($this->t('There was an error saving the SCSS variables. The form data was invalid or corrupt.'), 'error');
+      \Drupal::messenger()->addError($this->t('There was an error saving the SCSS variables. The form data was invalid or corrupt.'));
     }
   }
 
@@ -69,7 +67,7 @@ class SCSSVariablesEditForm extends WebsiteSettingsGroupFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
 
-    // check that we don't try to validate when submitting after a rebuild.
+    // Check that we don't try to validate when submitting after a rebuild.
     if ($this->step !== 2) {
       $form_values = json_decode($form_state->getValues()['json_values'])->SCSSVariables;
 

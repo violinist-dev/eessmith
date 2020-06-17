@@ -3,11 +3,10 @@
 namespace Drupal\cohesion_website_settings\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class FontLibraryUsage
+ * Class FontLibraryUsage.
  *
  * Only used to track font files. Font libraries are treated as a sort of
  * quasi-global entity with no explicit dependencies.
@@ -42,13 +41,6 @@ class FontLibraryUsage extends UsagePluginBase {
     ];
 
     return $scanable_data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function scanForInstancesOfThisType($data, EntityInterface $entity) {
-    return parent::scanForInstancesOfThisType($data, $entity);
   }
 
 }

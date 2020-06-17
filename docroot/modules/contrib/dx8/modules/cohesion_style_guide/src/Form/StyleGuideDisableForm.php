@@ -14,23 +14,23 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class StyleGuideDisableForm extends CohesionDisableForm {
 
   /**
-   * The instance of the rebuild in use batch service
+   * The instance of the rebuild in use batch service.
    *
-   * @var RebuildInuseBatch
+   * @var \Drupal\cohesion\Services\RebuildInuseBatch
    */
   protected $rebuildInUseBatch;
 
   /**
-   * The instance of the update usage manager batch service
+   * The instance of the update usage manager batch service.
    *
-   * @var UsageUpdateManager
+   * @var \Drupal\cohesion\UsageUpdateManager
    */
   protected $usageUpdateManager;
 
   /**
    *
-   * @param RebuildInuseBatch $rebuild_inuse_batch
-   * @param UsageUpdateManager $usage_update_manager
+   * @param \Drupal\cohesion\Services\RebuildInuseBatch $rebuild_inuse_batch
+   * @param \Drupal\cohesion\UsageUpdateManager $usage_update_manager
    */
   public function __construct(RebuildInuseBatch $rebuild_inuse_batch, UsageUpdateManager $usage_update_manager) {
     $this->rebuildInUseBatch = $rebuild_inuse_batch;

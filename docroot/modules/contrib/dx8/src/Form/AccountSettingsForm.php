@@ -75,19 +75,19 @@ class AccountSettingsForm extends ConfigFormBase {
       ];
     }
 
-    $options = ['enable' => 'Enable', 'disable' => 'Disable',];
+    $options = ['enable' => 'Enable', 'disable' => 'Disable'];
     $index = $config->get('use_dx8');
     $form['use_dx8'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Use DX8'),
+      '#title' => $this->t('Use Acquia Cohesion'),
       '#required' => FALSE,
       '#default_value' => isset($options[$index]) ? $config->get('use_dx8') : 'enable',
       '#options' => $options,
-      '#wrapper_attributes' => ['class' => ['clearfix',]],
+      '#wrapper_attributes' => ['class' => ['clearfix']],
       '#attributes' => [
         'class' => [],
       ],
-      '#description' => $this->t('Disabling Cohesion will prevent Drupal from making requests to the Cohesion API. Your website will continue to work but you will not be able to access DX8 features, including the Layout canvas, Style builder and Component builder.'),
+      '#description' => $this->t('Disabling Cohesion will prevent Drupal from making requests to the Cohesion API. Your website will continue to work but you will not be able to access Acquia Cohesion features, including the Layout canvas, Style builder and Component builder.'),
     ];
 
     // The API URL should not be editable.
@@ -143,12 +143,13 @@ class AccountSettingsForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $api_url = $form_state->getValue('api_url');
-    if (!(UrlHelper::isExternal($api_url) && UrlHelper::isValid($api_url))) { // UrlHelper::isExternal($api_url)
+    // UrlHelper::isExternal($api_url)
+    if (!(UrlHelper::isExternal($api_url) && UrlHelper::isValid($api_url))) {
       $form_state->setErrorByName('api_url', $this->t('API server URL is not valid'));
     }
   }
@@ -160,7 +161,7 @@ class AccountSettingsForm extends ConfigFormBase {
    *
    * @param array $form
    *   The render array of the currently built form.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -184,8 +185,8 @@ class AccountSettingsForm extends ConfigFormBase {
       $form_state->setRedirect('cohesion.configuration.batch');
     }
     else {
-      drupal_set_message($this->t('Cohesion has been disabled. Your website will continue to work but you will not be able to access Cohesion features, including the Layout canvas, Style builder and Component builder.'), 'warning');
-      // Rebuild routes to deny access to DX8 menu items.
+      \Drupal::messenger()->addWarning($this->t('Cohesion has been disabled. Your website will continue to work but you will not be able to access Cohesion features, including the Layout canvas, Style builder and Component builder.'));
+      // Rebuild routes to deny access to Acquia Cohesion menu items.
       \Drupal::service('router.builder')->rebuild();
     }
   }

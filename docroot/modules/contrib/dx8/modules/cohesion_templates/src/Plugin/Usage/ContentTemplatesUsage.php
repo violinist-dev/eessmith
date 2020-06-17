@@ -4,10 +4,9 @@ namespace Drupal\cohesion_templates\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion_templates\Entity\ContentTemplates;
 
 /**
- * Class ContentTemplatesUsage
+ * Class ContentTemplatesUsage.
  *
  * @package Drupal\cohesion_templates\Plugin\Usage
  *
@@ -29,7 +28,7 @@ class ContentTemplatesUsage extends UsagePluginBase {
    * {@inheritdoc}
    */
   public function getScannableData(EntityInterface $entity) {
-    /** @var ContentTemplates $entity */
+    /** @var \Drupal\cohesion_templates\Entity\ContentTemplates $entity */
 
     // Get scannable variables from the entity.
     return [

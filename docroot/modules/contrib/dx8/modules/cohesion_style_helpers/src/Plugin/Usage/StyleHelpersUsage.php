@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class StyleHelpersUsage
+ * Class StyleHelpersUsage.
  *
  * @package Drupal\cohesion_style_helpers\Plugin\Usage
  *
@@ -38,13 +38,6 @@ class StyleHelpersUsage extends UsagePluginBase {
     ];
 
     return $scanable_data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function scanForInstancesOfThisType($data, EntityInterface $entity) {
-    return parent::scanForInstancesOfThisType($data, $entity);
   }
 
 }

@@ -7,18 +7,22 @@ namespace Drupal\cohesion\Plugin;
  */
 use Drupal\Core\Cache\CacheBackendInterface;
 
+/**
+ *
+ */
 class DX8JsonFormUtils {
 
   /**
    * ??????
    *
    * @param array $form_data
+   *
    * @return array
    */
   private function getElementFieldGroupSelectOptions($form_data = []) {
     $results = [];
     if ($form_data) {
-      foreach ($form_data as $key => $value) {
+      foreach ($form_data as $value) {
         if (isset($value['type']) && $value['type'] == 'cohSelect') {
           $id = isset($value['selectUuid']) ? trim($value['selectUuid']) : trim($value['key']);
           $results[$id] = $value;
@@ -36,6 +40,7 @@ class DX8JsonFormUtils {
    * ??????
    *
    * @param array $options
+   *
    * @return array
    */
   private function getElementFieldGroups($options = []) {
@@ -50,8 +55,10 @@ class DX8JsonFormUtils {
         unset($form['schema']);
         if (($results = $this->getElementFieldGroupSelectOptions($form['form']))) {
           $data[$key] = [
-            'title' => $option['title'], // Field groupd label
-            'options' => $results, // Select fields
+          // Field groupd label.
+            'title' => $option['title'],
+          // Select fields.
+            'options' => $results,
           ];
         }
       }
@@ -61,8 +68,8 @@ class DX8JsonFormUtils {
 
   /**
    * Generates list of Element, Styles and Context visibility group options
-   * for component select field from DX8's asset data. 
-   * Generated list is cached until the next DX8 asset import operation or 
+   * for component select field from DX8's asset data.
+   * Generated list is cached until the next DX8 asset import operation or
    * entire site cache is cleared.
    *
    * @return array
@@ -72,8 +79,9 @@ class DX8JsonFormUtils {
     $cid = 'dx8-select-options';
     if (($cache = \Drupal::cache('data')->get($cid))) {
       $data = $cache->data;
-    } else {
-      // Settings
+    }
+    else {
+      // Settings.
       if (($property_group_options = \Drupal::keyValue('cohesion.assets.property_group_options'))) {
         $element_info = $this->elementsGroupOptions();
         $data['settings']['title'] = t("Settings");
@@ -82,12 +90,12 @@ class DX8JsonFormUtils {
         foreach ($property_group_options->getAll() as $element_id => $values) {
           $options = [];
           foreach ($values as $value) {
-            // Ignore JS settings and Admin option
+            // Ignore JS settings and Admin option.
             if (($value['title'] == 'JS settings') && ($value['title'] == 'Admin')) {
               continue;
             }
 
-            // Set element field group options
+            // Set element field group options.
             if (($results = $this->getElementFieldGroups($value['options'])) &&
               isset($element_info[$element_id]['title'])) {
               $element_options[$element_id]['title'] = $element_info[$element_id]['title'];
@@ -102,7 +110,7 @@ class DX8JsonFormUtils {
         $data['settings']['options'] = $element_options;
       }
 
-      // Styles
+      // Styles.
       if (($style_builder = \Drupal::keyValue('cohesion.assets.style_builder'))) {
         $styles = [];
         foreach ($style_builder->getAll() as $element_id => $values) {
@@ -119,8 +127,10 @@ class DX8JsonFormUtils {
           foreach ($values['form'] as $value) {
             if (($field_groups = $this->stylesFieldGroups($value))) {
               $styles[$element_id] = [
-                'title' => $style_label, // style label
-                'options' => $field_groups // Load field groups
+              // Style label.
+                'title' => $style_label,
+              // Load field groups.
+                'options' => $field_groups,
               ];
             }
           }
@@ -130,7 +140,7 @@ class DX8JsonFormUtils {
         $data['styles']['options'] = $styles;
       }
 
-      // Context Visibilty
+      // Context Visibilty.
       $tab_context_visibility = [];
       if (($context_visibility = \Drupal::keyValue('cohesion.assets.element_properties'))) {
         foreach ($context_visibility->getAll() as $element_id => $values) {
@@ -147,8 +157,10 @@ class DX8JsonFormUtils {
           foreach ($values['form'] as $value) {
             if (($field_groups = $this->getCvFieldGroups($value))) {
               $tab_context_visibility[$element_id] = [
-                'title' => $label, // style label
-                'options' => $field_groups // Load field groups
+              // Style label.
+                'title' => $label,
+              // Load field groups.
+                'options' => $field_groups,
               ];
             }
           }
@@ -162,7 +174,6 @@ class DX8JsonFormUtils {
         $data['context_visibility']['options'] = $tab_context_visibility;
       }
 
-
       \Drupal::cache('data')
         ->set($cid, $data, CacheBackendInterface::CACHE_PERMANENT, ['dx8-form-data-tag']);
     }
@@ -171,9 +182,10 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Return only arrays with type => cohSelect
+   * Return only arrays with type => cohSelect.
    *
    * @param array $results
+   *
    * @return array
    */
   public function stylesFieldGroupSelectOptions($results = []) {
@@ -191,9 +203,10 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Return only style field groups with select options
+   * Return only style field groups with select options.
    *
    * @param array $values
+   *
    * @return array
    */
   public function stylesFieldGroups($values = []) {
@@ -206,16 +219,18 @@ class DX8JsonFormUtils {
         ($select_options = $this->stylesFieldGroupSelectOptions($values['items']))
       ) {
         $data[$id] = [
-          'title' => $values['title'], // field group title
+        // Field group title.
+          'title' => $values['title'],
           'options' => $select_options,
         ];
       }
-      // Process field groups with more multiple options
+      // Process field groups with more multiple options.
       if (isset($values['items']) && isset($values['items'][0])) {
         foreach ($values['items'] as $items) {
           if (isset($items['items']) && ($select_options = $this->stylesFieldGroupSelectOptions($items['items']))) {
             $data[$id] = [
-              'title' => $values['title'], // field group title
+            // Field group title.
+              'title' => $values['title'],
               'options' => $select_options,
             ];
           }
@@ -226,14 +241,14 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Generates context visibility field groups with select options
+   * Generates context visibility field groups with select options.
    *
    * @return array
    */
   public function getCvFieldGroups($values = []) {
     $data = [];
     if (isset($values['formKey']) && ($id = $values['formKey'])) {
-      // Process field groups with more multiple options
+      // Process field groups with more multiple options.
       if (isset($values['items']) && isset($values['items'][0])) {
         foreach ($values['items'] as $items) {
           if (
@@ -241,7 +256,8 @@ class DX8JsonFormUtils {
             ($select_options = $this->cvFieldGroupSelectOptions($items['items']))
           ) {
             $data[$id] = [
-              'title' => $values['title'], //field group title
+            // Field group title.
+              'title' => $values['title'],
               'options' => $select_options,
             ];
           }
@@ -252,9 +268,10 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Generates Context Visibility fields group select options
+   * Generates Context Visibility fields group select options.
    *
    * @param array $results
+   *
    * @return array
    */
   public function cvFieldGroupSelectOptions($results = []) {
@@ -275,20 +292,20 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Map element to element property
+   * Map element to element property.
    *
    * @return array
    */
   public function elementToElementPropertyMapper() {
     $static_assets = \Drupal::keyValue('cohesion.assets.static_assets');
 
-    $element_to_option_mapper = array_map(function($value) {
+    $element_to_option_mapper = array_map(function ($value) {
       $result = explode('.', $value);
       $element_id = end($result);
       return $element_id;
     }, $static_assets->get('api-urls')['property_group_options']);
 
-    $element_mapper_callback = function($element_id) {
+    $element_mapper_callback = function ($element_id) {
       $elements = \Drupal::keyValue('cohesion.assets.elements')->getAll();
       return $elements[$element_id]['title'];
     };
@@ -302,6 +319,7 @@ class DX8JsonFormUtils {
    * ??????
    *
    * @param array $data
+   *
    * @return array of element property option
    */
   public function elementPropertyOptions($data = []) {
@@ -322,7 +340,7 @@ class DX8JsonFormUtils {
   }
 
   /**
-   * Generates list of element group options
+   * Generates list of element group options.
    *
    * @return array
    */
@@ -333,7 +351,7 @@ class DX8JsonFormUtils {
     }
 
     $element_forms = \Drupal::keyValue('cohesion.assets.element_forms');
-    // Get element/options mapper form 'property_group_options'
+    // Get element/options mapper form 'property_group_options'.
     $property_group_options = array_map(function ($value) {
       $result = explode('.', $value);
       $element_id = end($result);
@@ -346,7 +364,7 @@ class DX8JsonFormUtils {
 
     $element_info = array_flip($option_to_element);
 
-    // List of non-applicable elements to be excluded from select list
+    // List of non-applicable elements to be excluded from select list.
     $excludes = \Drupal::keyValue('cohesion.assets.static_assets')
       ->get('component-select-exclude');
 

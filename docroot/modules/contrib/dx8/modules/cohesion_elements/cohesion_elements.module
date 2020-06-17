@@ -1,6 +1,11 @@
 <?php
 
-use Drupal\cohesion_elements\Plugin\Api\ElementsApi;
+/**
+ * @file
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Template\Attribute;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\Core\Render\Element;
@@ -8,8 +13,8 @@ use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\TranslatableRevisionableStorageInterface;
 
-define('COHESION_COMPONENT_SETTINGS_TRAY_WIDTH', 770);
-define('COHESION_COMPONENT_CATEGORY_COUNT', 12);
+define('COHESION_ELEMENTS_COHESION_COMPONENT_SETTINGS_TRAY_WIDTH', 770);
+define('COHESION_ELEMENTS_COHESION_COMPONENT_CATEGORY_COUNT', 15);
 
 /**
  * Implements hook_help().
@@ -20,15 +25,15 @@ function cohesion_elements_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.cohesion_elements':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This module defines the component and helper config entities for creating reusable design patterns within DX8.') . '</p>';
+      $output .= '<p>' . t('This module defines the component and helper config entities for creating reusable design patterns within Cohesion.') . '</p>';
       $output .= '<p><ul>';
       $output .= '  <li>Component configuration entity and supporting forms.</li>';
       $output .= '  <li>Template helper configuration entity and supporting forms.</li>';
-      $output .= '  <li>DX8 API integration.</li>';
+      $output .= '  <li>Cohesion API integration.</li>';
       $output .= '  <li>Custom Views query plugin for listing components and helpers.</li>';
-      $output .= '  <li>Layout field plugin for adding DX8 layouts to fieldable entities.</li>';
+      $output .= '  <li>Layout field plugin for adding Cohesion layouts to fieldable entities.</li>';
       $output .= '</ul></p>';
-      $output .= '<p><a href="https://support.cohesiondx.com/" target="_blank">https://support.cohesiondx.com/</a></p>';
+      $output .= '<p><a href="https://cohesiondocs.acquia.com/" target="_blank">https://cohesiondocs.acquia.com/</a></p>';
       return $output;
 
     default:
@@ -54,7 +59,7 @@ function cohesion_elements_library_info_alter(&$libraries, $extension) {
           foreach ($library_info['js'] as $library) {
             $url = file_create_url($library['asset_url']);
             $asset_url = (isset($url) && (strpos($url, $base_url) !== FALSE)) ? str_replace($base_url, '', $url) : $url;
-            // Replace StreamWrapper with its base path for translation. see _locale_parse_js_file in locale.module
+            // Replace StreamWrapper with its base path for translation. see _locale_parse_js_file in locale.module.
             $library['asset_url'] = $asset_url;
             $libraries[$library_key]['js'][$library['asset_url']] = [
               'weight' => (isset($library['weight']) && $library['weight'] < 0) ? $library['weight'] : 0,
@@ -81,7 +86,7 @@ function cohesion_elements_library_info_alter(&$libraries, $extension) {
           }
         }
 
-        // Check for incomplete definition
+        // Check for incomplete definition.
         if (is_array($libraries[$library_key]) && count($libraries[$library_key]) == 0) {
           unset($libraries[$library_key]);
         }
@@ -97,7 +102,7 @@ function cohesion_elements_library_info_alter(&$libraries, $extension) {
  */
 function preprocess_cohesion_elements_component(&$variables) {
   foreach ($variables['parentContext'] as $key => $value) {
-    if ($key !== 'componentFields' && !$value instanceof Drupal\Core\Template\Attribute) {
+    if ($key !== 'componentFields' && $key !== 'template' && !$value instanceof Attribute) {
       $variables[$key] = $value;
     }
   }
@@ -106,12 +111,12 @@ function preprocess_cohesion_elements_component(&$variables) {
 
 /**
  * Preprocess the component preview iframe page.html.twig
- * See: templates/page--cohesionapi--component--preview.html.twig
+ * See: templates/page--cohesionapi--component--preview.html.twig.
  *
  * @param $variables
  */
 function preprocess_cohesion_preview_page(&$variables) {
-  // Load the build created in CohesionComponentController::preview
+  // Load the build created in CohesionComponentController::preview.
   $variables['preview_build'] = &drupal_static('component_preview_build');
 }
 
@@ -163,27 +168,60 @@ function cohesion_elements_theme($existing, $type, $theme, $path) {
 /**
  * Process a batch to import the styles of all used elements.
  *
+ * @param bool $verbose
  * @param $context
  *
  * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+ * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
  */
-function cohesion_elements_get_elements_style_process_batch(&$context) {
+function cohesion_elements_get_elements_style_process_batch($verbose = FALSE, &$context = []) {
+  $time_start = microtime(TRUE);
+
   if (isset($context['results']['error'])) {
     return;
   }
-  $running_dx8_batch = &drupal_static('running_dx8_batch');
-  $running_dx8_batch = TRUE;  // Initial state.
 
-  /** @var ElementsApi $send_to_api */
-  $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('elements_api');
-  $send_to_api->send();
+  $running_dx8_batch = &drupal_static('running_dx8_batch');
+  // Initial state.
+  $running_dx8_batch = TRUE;
+
+  /** @var \Drupal\cohesion_elements\Plugin\Api\ElementsApi $send_to_api */
+  $send_to_api = cohesion_elements_get_elements_style_process($context);
 
   $data = $send_to_api->getData();
   if (isset($data['error'])) {
     $context['results']['error'] = $data['error'];
   }
 
-  $context['message'] = t('Importing style for elements');
+  // Set batch message.
+  if ($verbose) {
+    $context['message'] = t('Importing styles for elements (@time seconds, @memory MB)', [
+      '@time' => number_format((float) microtime(TRUE) - $time_start, 2, '.', ''),
+      '@memory' => number_format(memory_get_usage() / 1024768, 2, '.', ',')
+    ]);
+  }
+  else {
+    $context['message'] = t('Importing styles for elements');
+  }
+
+}
+
+/**
+ * Process to import the styles of all used elements.
+ *
+ * @param $context
+ *
+ * @return \Drupal\cohesion_elements\Plugin\Api\ElementsApi
+ * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+ * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+ */
+function cohesion_elements_get_elements_style_process(&$context = []) {
+
+  /** @var \Drupal\cohesion_elements\Plugin\Api\ElementsApi $send_to_api */
+  $send_to_api = \Drupal::service('plugin.manager.api.processor')->createInstance('elements_api');
+  $send_to_api->send();
+
+  return $send_to_api;
 }
 
 /**
@@ -278,7 +316,7 @@ function cohesion_elements_theme_registry_alter(&$theme_registry) {
  * Add a warning that paragraph fields can not be translated.
  * Switch to error if a paragraph field is marked as translatable.
  */
-function cohesion_elements_form_language_content_settings_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function cohesion_elements_form_language_content_settings_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Without it Paragraphs message are meaningless.
   if (!\Drupal::hasService('content_translation.manager')) {
     return;
@@ -351,7 +389,7 @@ function cohesion_elements_form_language_content_settings_form_alter(&$form, \Dr
  * Implements hook_form_FORM_ID_alter() for 'field_ui_field_storage_add_form'.
  */
 function cohesion_elements_form_field_ui_field_storage_add_form_alter(array &$form) {
-  unset($form['add']['new_storage_type']['#options'][(string) t('DX8')]['cohesion_entity_reference_revisions']);
+  unset($form['add']['new_storage_type']['#options'][(string) t('Acquia Cohesion')]['cohesion_entity_reference_revisions']);
   unset($form['add']['new_storage_type']['#options'][(string) t('Reference revisions')]['field_ui:entity_reference_revisions:cohesion_layout']);
 }
 
@@ -360,7 +398,7 @@ function cohesion_elements_form_field_ui_field_storage_add_form_alter(array &$fo
  *
  * Changes vertical tabs to container.
  */
-function cohesion_elements_form_component_content_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function cohesion_elements_form_component_content_edit_form_alter(&$form, FormStateInterface $form_state) {
 
   $theme = \Drupal::theme()->getActiveTheme()->getName();
 
@@ -433,16 +471,16 @@ function cohesion_elements_preprocess_image_widget(&$variables) {
   }
 
   $variables['data'] = [];
-  foreach (\Drupal\Core\Render\Element::children($element) as $child) {
+  foreach (Element::children($element) as $child) {
     $variables['data'][$child] = $element[$child];
   }
 }
 
 /**
  * Implements hook_menu_local_actions_alter().
- * Add class to component admin link actions
  */
 function cohesion_elements_menu_local_actions_alter(&$local_actions) {
+  // Add class to component admin link actions.
   if (isset($local_actions['entity.cohesion_component.toggle_components_groups'])) {
     $local_actions['entity.cohesion_component.toggle_components_groups']['options']['attributes']['class'][] = 'coh-toggle-accordion';
     $local_actions['entity.cohesion_component.toggle_components_groups']['options']['attributes']['class'][] = 'open';

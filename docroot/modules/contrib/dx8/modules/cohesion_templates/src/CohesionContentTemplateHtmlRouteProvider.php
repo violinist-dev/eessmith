@@ -14,6 +14,9 @@ use Symfony\Component\Routing\Route;
  */
 class CohesionContentTemplateHtmlRouteProvider extends CohesionHtmlRouteProvider {
 
+  /**
+   *
+   */
   protected function getCollectionRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('collection') && $entity_type->hasListBuilderClass() && ($admin_permission = $entity_type->getAdminPermission())) {
 

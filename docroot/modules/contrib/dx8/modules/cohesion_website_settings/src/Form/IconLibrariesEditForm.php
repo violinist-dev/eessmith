@@ -3,11 +3,9 @@
 namespace Drupal\cohesion_website_settings\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_website_settings\Entity\IconLibrary;
 
 /**
- * Class IconLibrariesEditForm
+ * Class IconLibrariesEditForm.
  *
  * A form that allows users to edit multiple icon libraries on a single page.
  *
@@ -17,7 +15,7 @@ class IconLibrariesEditForm extends WebsiteSettingsGroupFormBase {
 
   const ENTITY_TYPE = 'cohesion_icon_library';
 
-  const FORM_TITLE = 'Edit <i>icon libraries</i>';
+  const FORM_TITLE = 'icon libraries';
 
   const FORM_ID = 'website_settings_icon_libraries_form';
 
@@ -48,17 +46,17 @@ class IconLibrariesEditForm extends WebsiteSettingsGroupFormBase {
       }
       else {
         // No need to run the batch, so just save any entities and show message.
-        /** @var IconLibrary $icon_library_entity */
+        /** @var \Drupal\cohesion_website_settings\Entity\IconLibrary $icon_library_entity */
         foreach ($this->changed_entities as $icon_library_entity) {
           $icon_library_entity->save();
         }
 
-        drupal_set_message($this->t('The icon libraries have been updated.'));
+        \Drupal::messenger()->addMessage($this->t('The icon libraries have been updated.'));
       }
     }
     // Json data was corrupt.
     else {
-      drupal_set_message($this->t('There was an error saving the icon libraries. The form data was invalid or corrupt.'), 'error');
+      \Drupal::messenger()->addError($this->t('There was an error saving the icon libraries. The form data was invalid or corrupt.'));
     }
   }
 

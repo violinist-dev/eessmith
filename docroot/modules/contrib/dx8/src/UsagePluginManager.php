@@ -5,11 +5,10 @@ namespace Drupal\cohesion;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\cohesion\UsagePluginInterface;
 use Drupal\cohesion\Annotation\Usage;
 
 /**
- * Class UsagePluginManager
+ * Class UsagePluginManager.
  *
  * @package Drupal\cohesion
  */

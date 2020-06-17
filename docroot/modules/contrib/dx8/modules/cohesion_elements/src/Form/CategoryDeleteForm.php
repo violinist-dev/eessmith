@@ -6,7 +6,7 @@ use Drupal\cohesion\Form\CohesionDeleteForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CategoryDeleteForm
+ * Class CategoryDeleteForm.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -31,7 +31,7 @@ class CategoryDeleteForm extends CohesionDeleteForm {
     // First, delete the category.
     // Use reset instead of delete because some entities like BaseStyle or ContentTemplates
     // should never be deleted but we don't want to override the default delete behavior
-    // in case we do have to delete it
+    // in case we do have to delete it.
     $this->entity->reset();
 
     // Set all the components / helpers that use this category to "Uncategorized".
@@ -40,13 +40,12 @@ class CategoryDeleteForm extends CohesionDeleteForm {
     // Redirect and message.
     $form_state->setRedirectUrl($this->getCancelUrl());
 
-    drupal_set_message(
-      $this->t('%entity_name successfully deleted.', array(
-          '%entity_name' => $this->entity->label(),
-        )
+    \Drupal::messenger()->addMessage(
+      $this->t('%entity_name successfully deleted.', [
+        '%entity_name' => $this->entity->label(),
+      ]
       )
     );
   }
-
 
 }

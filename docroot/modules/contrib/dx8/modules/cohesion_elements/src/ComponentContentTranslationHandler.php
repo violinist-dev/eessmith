@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\content_translation\ContentTranslationHandler;
 
 /**
- * Class ComponentContentTranslationHandler
+ * Class ComponentContentTranslationHandler.
  *
  * Defines the translation handler for custom blocks.
  *

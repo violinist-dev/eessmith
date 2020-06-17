@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion\Controller;
 
+use Drupal\views\Views;
+use Drupal\views\Entity\View;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\views\Views;
-use Drupal\views\Entity\View;
 
 /**
  * Class CohesionDrupalViewEndpointController
@@ -24,6 +24,7 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
    * @return \Drupal\cohesion\CohesionJsonResponse
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getEntityViewModes(Request $request) {
@@ -51,7 +52,8 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
           'value' => explode('.', $view_mode)[1],
           'name' => $view_mode_entity->label(),
         ];
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
 
       }
     }
@@ -68,7 +70,9 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
    * Return a list of view modes for the given entity type.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
+   *
    * @return \Drupal\cohesion\CohesionJsonResponse
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getViewModes(Request $request) {
@@ -77,18 +81,18 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
 
     $restrict = $request->query->get('restrict', []);
 
-    $storage = \Drupal::service('entity.manager')
+    $storage = \Drupal::service('entity_type.manager')
       ->getStorage('entity_view_mode');
     $entity_ids = $storage->getQuery()->execute();
     $entities = $storage->loadMultiple($entity_ids);
-    $entity_types_definition = \Drupal::service('entity.manager')
+    $entity_types_definition = \Drupal::service('entity_type.manager')
       ->getDefinitions();
 
     $default_view_modes = [];
     foreach ($entities as $view_mode => $entity) {
       $entity_type = $entity_types_definition[$entity->getTargetType()];
 
-      if(empty($restrict) || in_array($entity->getTargetType(), $restrict)){
+      if (empty($restrict) || in_array($entity->getTargetType(), $restrict)) {
         $view_builder = $entity_type->hasHandlerClass('view_builder');
         if ($entity_type instanceof ContentEntityTypeInterface && $view_builder) {
           $view_modes_data[] = [
@@ -97,9 +101,9 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
             'group' => $entity_type->getLabel(),
           ];
 
-          if(!isset($default_view_modes[$entity_type->id()])){
+          if (!isset($default_view_modes[$entity_type->id()])) {
             $default_view_modes[$entity_type->id()] = [
-              'value' => $entity_type->id().'.default',
+              'value' => $entity_type->id() . '.default',
               'label' => t('Drupal view default'),
               'group' => $entity_type->getLabel(),
             ];
@@ -111,14 +115,13 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
 
     $view_modes_data = array_merge($view_modes_data, array_values($default_view_modes));
 
-    $error = !empty($view_modes_data) ? false : true;
+    $error = !empty($view_modes_data) ? FALSE : TRUE;
 
     return new CohesionJsonResponse([
       'status' => !$error ? 'success' : 'error',
       'data' => $view_modes_data,
     ]);
   }
-
 
   /**
    * Return a list of bundles for the given entity type.
@@ -145,7 +148,7 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
 
       $bundles_data[] = [
         'value' => $bundle_id,
-        'name' => t((string) $bundle['label']),
+        'name' => t("@label", ['@label' => $bundle['label']]),
       ];
     }
 
@@ -166,8 +169,8 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
 
     $views_data = [];
     // Get a list of views.
-    if (($views = \Drupal\views\Entity\View::loadMultiple())) {
-      foreach ($views as $key => $view) {
+    if (($views = View::loadMultiple())) {
+      foreach ($views as $view) {
         $views_data[] = [
           'value' => $view->id(),
           'name' => $view->label(),
@@ -196,7 +199,7 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
     $display_id = $request->attributes->get('display');
     $filter_id = $request->attributes->get('filter');
 
-    // Views data
+    // Views data.
     $views_data = $this->viewsData($view_id, $display_id, $filter_id);
     $error = !empty($views_data) ? FALSE : TRUE;
 
@@ -220,13 +223,13 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
     $view_name = $request->attributes->get('view');
     $view_display_name = $request->attributes->get('display');
 
-    if ($view = \Drupal\views\Entity\View::load($view_name)) {
+    if ($view = View::load($view_name)) {
 
       // Get the defined pager for this view display.
       $this_pager_type = isset($view->get('display')[$view_display_name]['display_options']['pager']['type']) ? $view->get('display')[$view_display_name]['display_options']['pager']['type'] : $view->get('display')['default']['display_options']['pager']['type'];
 
       // Get all the possible pagers.
-      if ($options = \Drupal\views\Views::fetchPluginNames('pager', !TRUE ? 'basic' : NULL, [])) {
+      if ($options = Views::fetchPluginNames('pager', !TRUE ? 'basic' : NULL, [])) {
         foreach ($options as $key => $pager) {
 
           // Only return the pager that is set in this view.
@@ -270,10 +273,10 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
       ];
     }
 
-    if (($view = \Drupal\views\Entity\View::load($view_id))) {
+    if (($view = View::load($view_id))) {
       $displays = $view->get('display');
 
-      //Views data
+      // Views data.
       foreach ($displays as $display_name => $display) {
 
         // Return the filters for a display.
@@ -317,7 +320,7 @@ class CohesionDrupalViewEndpointController extends ControllerBase {
                 // Only include if it's an exposed filter/sort.
                 if ($filter['exposed']) {
 
-                  // Return the filter
+                  // Return the filter.
                   if (!$filter_id) {
 
                     $filter_name = (isset($filter['entity_type']) && isset($filter['entity_field'])) ? ucwords($filter['entity_type']) . ' ' . ucwords($filter['entity_field']) . ' (' . $filter['entity_field'] . ')' : $filter['expose']['label'];

@@ -4,15 +4,13 @@ namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityJsonValuesTrait;
-use Drupal\Console\Bootstrap\Drupal;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\entity_reference_revisions\EntityNeedsSaveTrait;
-use Drupal\cohesion\Plugin\Api\TemplatesApi;
 use Drupal\Component\Serialization\Json;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\TypedData\TranslatableInterface;
@@ -21,7 +19,6 @@ use Drupal\cohesion\EntityUpdateInterface;
 
 /**
  * Defines the CohesionLayout entity.
- *
  *
  * @ContentEntityType(
  *   id = "cohesion_layout",
@@ -33,9 +30,6 @@ use Drupal\cohesion\EntityUpdateInterface;
  *       "default" = "Drupal\Core\Entity\ContentEntityForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "edit" = "Drupal\cohesion_elements\Form\CohesionLayoutForm"
- *     },
- *     "route_provider" = {
- *       "html" = "Drupal\cohesion_elements\Entity\CohesionLayoutRouteProvider",
  *     },
  *     "views_data" = "Drupal\views\EntityViewsData",
  *   },
@@ -75,19 +69,21 @@ use Drupal\cohesion\EntityUpdateInterface;
  *     }
  *   }
  * )
- *
  */
 class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterface, EntityJsonValuesInterface, EntityUpdateInterface {
 
   use EntityNeedsSaveTrait;
   use EntityJsonValuesTrait;
 
+  /**
+   * @var null
+   */
   protected $host = NULL;
 
   /**
    * Gets the theme manager.
    *
-   * @return ThemeManagerInterface
+   * @return \Drupal\Core\Theme\ThemeManagerInterface
    */
   protected function themeManager() {
     return \Drupal::theme();
@@ -102,9 +98,7 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   }
 
   /**
-   * Get the raw JSON.
-   *
-   * @return string
+   * {@inheritdoc}
    */
   public function getJsonValues() {
     return $this->get('json_values')->value ? $this->get('json_values')->value : '{}';
@@ -119,27 +113,27 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   }
 
   /**
-   * Get the raw mapper JSON.
-   *
-   * @return string
+   * {@inheritdoc}
    */
   public function getJsonMapper() {
     return $this->get('json_mapper')->value ? $this->get('json_mapper')->value : '{}';
   }
 
   /**
-   * @param $theme - The theme name to get the template from
+   * @param $theme
+   *   - The theme name to get the template from
+   *
    * @return mixed
    */
   public function getTwig($theme = 'current') {
 
-    if($theme == 'current'){
+    if ($theme == 'current') {
       $theme = \Drupal::theme()->getActiveTheme()->getName();
     }
 
     if ($this->get('template')->value && is_string($this->get('template')->value)) {
       $templates = JSON::decode($this->get('template')->value);
-      if(is_array($templates) && isset($templates[$theme])){
+      if (is_array($templates) && isset($templates[$theme])) {
         return Json::decode($templates[$theme])['twig'];
       }
     }
@@ -168,17 +162,18 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   }
 
   /**
-   * @param $theme - The theme name to get the styles from
+   * @param $theme
+   *   - The theme name to get the styles from
    *
    * @return mixed
    */
   public function getStyles($theme = 'current') {
-    if($theme == 'current'){
+    if ($theme == 'current') {
       $theme = \Drupal::theme()->getActiveTheme()->getName();
     }
     if ($this->get('styles')->value && is_string($this->get('styles')->value)) {
       $styles = JSON::decode($this->get('styles')->value);
-      if(is_array($styles) && isset($styles[$theme])){
+      if (is_array($styles) && isset($styles[$theme])) {
         return $styles[$theme];
       }
     }
@@ -195,7 +190,7 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   }
 
   /**
-   * @return ContentEntityInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    */
   public function getHost() {
     return $this->host;
@@ -216,6 +211,13 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
    */
   public function isLayoutCanvas() {
     return TRUE;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getApiPluginInstance() {
+    return $this->apiProcessorManager()->createInstance('templates_api');
   }
 
   /**
@@ -255,13 +257,14 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
       return $errors;
     }
 
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
-    if ($success === TRUE) {     // layout-field
+    // layout-field.
+    if ($success === TRUE) {
       return FALSE;
     }
     else {
@@ -290,13 +293,14 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   public function process() {
     $this->preProcessJsonValues();
 
-    /** @var TemplatesApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('templates_api');
+    /** @var \Drupal\cohesion\Plugin\Api\TemplatesApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
     $send_to_api->setEntity($this);
     $success = $send_to_api->send();
     $responseData = $send_to_api->getData();
 
-    if ($success === TRUE) {     // layout-field
+    // layout-field.
+    if ($success === TRUE) {
       $this->processApiResponse($responseData);
       return FALSE;
     }
@@ -316,19 +320,20 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
   public function processApiResponse($responseData) {
     $styles = [];
     $templates = [];
-    foreach ($responseData as $themeData){
-      if(isset($themeData['themeName'])){
-        if(isset($themeData['css']['theme'])) {
+    foreach ($responseData as $themeData) {
+      if (isset($themeData['themeName'])) {
+        if (isset($themeData['css']['theme'])) {
           $css_data = \Drupal::service('twig')->renderInline($themeData['css']['theme'])->__toString();
           $styles[$themeData['themeName']] = $css_data;
         }
 
-        if(isset($themeData['template'])) {
+        if (isset($themeData['template'])) {
           $templates[$themeData['themeName']] = $themeData['template'];
         }
       }
     }
 
+    Cache::invalidateTags(['theme_registry']);
     $this->set('styles', JSON::encode($styles));
     $this->set('template', JSON::encode($templates));
   }
@@ -407,7 +412,7 @@ class CohesionLayout extends ContentEntityBase implements CohesionLayoutInterfac
    */
   public function delete() {
     // Prevent CohesionLayout entities from being deleted changing the field type
-    // for layout canvas to cohesion_entity_reference_revisions in cohesion_elements_update_8308
+    // for layout canvas to cohesion_entity_reference_revisions in cohesion_elements_update_8308.
     if (!drupal_static('cohesion_elements_update_8308', FALSE)) {
       parent::delete();
     }

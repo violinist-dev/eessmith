@@ -5,10 +5,9 @@ namespace Drupal\cohesion_sync;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
 
 /**
- * Class PackageListBuilder
+ * Class PackageListBuilder.
  *
  * Defines a class to build a list of sync package entities.
  *
@@ -28,7 +27,7 @@ class PackageListBuilder extends ConfigEntityListBuilder {
     $header['export'] = [
       'data' => $this->t('Export'),
       'class' => [RESPONSIVE_PRIORITY_MEDIUM],
-      'width' => '35%'
+      'width' => '35%',
     ];
     $header += parent::buildHeader();
     return $header;
@@ -44,7 +43,7 @@ class PackageListBuilder extends ConfigEntityListBuilder {
     // Create the export to package download link.
     $url = Url::fromRoute('cohesion_sync.operation_export_single', [
       'entity_type' => $sync_package->getEntityTypeId(),
-      'entity_uuid' => $sync_package->uuid()
+      'entity_uuid' => $sync_package->uuid(),
     ]);
 
     $url->setOption('query', [
@@ -72,11 +71,11 @@ class PackageListBuilder extends ConfigEntityListBuilder {
     $operations = parent::getDefaultOperations($sync_package);
     /*
     $operations['duplicate'] = [
-      'title' => t('Duplicate'),
-      'weight' => 15,
-      'url' => $sync_package->toUrl('duplicate-form'),
+    'title' => t('Duplicate'),
+    'weight' => 15,
+    'url' => $sync_package->toUrl('duplicate-form'),
     ];
-    */
+     */
     return $operations;
   }
 

@@ -6,7 +6,7 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
- * Interface CustomElementPluginInterface
+ * Interface CustomElementPluginInterface.
  *
  * @package Drupal\cohesion_elements
  */

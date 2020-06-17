@@ -45,7 +45,7 @@ class CohesionHtmlResponseSubscriber implements EventSubscriberInterface {
 
       $scripts_bottom_placeholder = $attachments['html_response_attachment_placeholders']['cohesion'];
       // Set inline styles for dx8 and
-      // remove bigpipe token key from style output
+      // remove bigpipe token key from style output.
       $content = str_replace([$scripts_bottom_placeholder, 'big_pipe_nojs_placeholder_attribute_safe:'], [implode("\n", $css_on_page), ''], $response->getContent());
       $response->setContent($content);
     }

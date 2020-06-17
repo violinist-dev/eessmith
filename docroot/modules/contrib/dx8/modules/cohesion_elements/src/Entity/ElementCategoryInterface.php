@@ -3,7 +3,7 @@
 namespace Drupal\cohesion_elements\Entity;
 
 /**
- * Interface ElementCategoryInterface
+ * Interface ElementCategoryInterface.
  */
 interface ElementCategoryInterface {
 
@@ -26,4 +26,5 @@ interface ElementCategoryInterface {
    * @param $class
    */
   public function setClass($class);
+
 }

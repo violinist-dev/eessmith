@@ -4,7 +4,6 @@ namespace Drupal\cohesion_style_helpers;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\cohesion\CohesionHtmlRouteProvider;
-use Symfony\Component\Routing\Route;
 use Drupal\cohesion_style_helpers\Controller\StyleHelpersController;
 
 /**
@@ -15,6 +14,9 @@ use Drupal\cohesion_style_helpers\Controller\StyleHelpersController;
  */
 class StyleHelpersHtmlRouteProvider extends CohesionHtmlRouteProvider {
 
+  /**
+   *
+   */
   protected function getAddPageRoute(EntityTypeInterface $entity_type) {
     if ($route = parent::getAddPageRoute($entity_type)) {
       $route->setDefault('_controller', StyleHelpersController::class . '::addPage');

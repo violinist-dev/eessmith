@@ -6,7 +6,7 @@ use Drupal\cohesion\CohesionListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class TemplatesListBuilder
+ * Class TemplatesListBuilder.
  *
  * Provides a listing of Cohesion view templates.
  *

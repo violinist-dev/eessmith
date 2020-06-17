@@ -2,12 +2,10 @@
 
 namespace Drupal\cohesion_sync;
 
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 
 /**
- * Interface SyncPluginInterface
+ * Interface SyncPluginInterface.
  *
  * @package Drupal\cohesion_sync
  */
@@ -38,7 +36,7 @@ interface SyncPluginInterface extends PluginInspectionInterface {
   public function buildExport($entity);
 
   /**
-   * Get the entity dependencies. Content entity plugins should return [];
+   * Get the entity dependencies. Content entity plugins should return [];.
    *
    * @param $entity
    *

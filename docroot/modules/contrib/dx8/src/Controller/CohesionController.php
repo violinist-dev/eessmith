@@ -8,10 +8,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
- * Class CohesionController
+ * Class CohesionController.
  *
  * Controller routines for Cohesion admin index page.
  *
@@ -20,16 +19,12 @@ use Drupal\Core\Entity\EntityTypeInterface;
 class CohesionController extends ControllerBase {
 
   /**
-   * System Manager Service.
-   *
    * @var \Drupal\system\SystemManager
    */
   protected $systemManager;
 
   /**
-   * Constructs a new SystemController.
-   *
-   * @param \Drupal\system\SystemManager $systemManager
+   * @var mixed
    */
   protected $file_name;
 
@@ -66,13 +61,13 @@ class CohesionController extends ControllerBase {
   }
 
   /**
-   * Get an array of the available cohesion entity types
+   * Get an array of the available cohesion entity types.
    *
    * @return array
    */
   public static function getCohesionEnityTypes() {
     $results = [];
-    foreach (\Drupal::service('entity.manager')->getDefinitions() as $key => $value) {
+    foreach (\Drupal::service('entity_type.manager')->getDefinitions() as $value) {
       /** @var $value EntityTypeInterface */
       if ($value->entityClassImplements('\Drupal\cohesion\Entity\CohesionSettingsInterface')) {
         $results[$value->get('id')] = $value->getLabel()->render();
@@ -82,7 +77,7 @@ class CohesionController extends ControllerBase {
   }
 
   /**
-   * Log JS errors to Drupal DB logs
+   * Log JS errors to Drupal DB logs.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *

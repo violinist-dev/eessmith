@@ -9,7 +9,7 @@ use Drupal\entity_reference_revisions\Plugin\Field\FieldFormatter\EntityReferenc
  *
  * @FieldFormatter(
  *   id = "cohesion_entity_reference_revisions_entity_view",
- *   label = @Translation("DX8 rendered entity"),
+ *   label = @Translation("Acquia Cohesion rendered entity"),
  *   description = @Translation("Display the referenced entities rendered by entity_view()."),
  *   field_types = {
  *     "cohesion_entity_reference_revisions"

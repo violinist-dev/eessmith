@@ -4,7 +4,6 @@ namespace Drupal\cohesion_templates\Entity;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 
-
 /**
  * Defines the Cohesion view templates entity.
  *
@@ -44,7 +43,18 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
  *     "collection" = "/admin/cohesion/templates/view_templates",
  *     "duplicate-form" = "/admin/cohesion/templates/view_templates/{cohesion_view_templates}/duplicate",
  *     "in-use" = "/admin/cohesion/templates/view_templates/{cohesion_view_templates}/in_use",
- *
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "custom",
+ *     "twig_template"
  *   }
  * )
  */
@@ -53,7 +63,6 @@ class ViewTemplates extends CohesionTemplateBase implements CohesionSettingsInte
   const ASSET_GROUP_ID = 'view_template';
 
   const entity_machine_name_prefix = 'view_tpl_';
-
 
   /**
    * {@inheritdoc}

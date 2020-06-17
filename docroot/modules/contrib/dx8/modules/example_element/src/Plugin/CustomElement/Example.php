@@ -19,8 +19,7 @@ class Example extends CustomElementPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function getFields()
-  {
+  public function getFields() {
     return [
       'mytextfield' => [
         // This is the bootstrap class name that will be applied to the wrapping column.
@@ -31,37 +30,37 @@ class Example extends CustomElementPluginBase {
         'type' => 'textfield',
         // These fields are specific to this form field type.
         'placeholder' => 'Placeholder text.',
-        'required' => true,
-        'validationMessage' => 'This field is required.'
+        'required' => TRUE,
+        'validationMessage' => 'This field is required.',
       ],
       'myselectfield' => [
         'htmlClass' => 'col-xs-12',
         'type' => 'select',
         'title' => 'Title of my select field',
         // These fields are specific to this form field type.
-        'nullOption' => true,
+        'nullOption' => TRUE,
         'options' => [
           'option1' => 'Option 1',
           'option2' => 'Option 2',
           'option3' => 'Option 3',
         ],
-        'defaultValue' => 'option1'
+        'defaultValue' => 'option1',
       ],
       'mycheckboxfield' => [
         'htmlClass' => 'col-xs-6',
         'type' => 'checkbox',
         'title' => 'Title of my checkbox field',
         // These fields are specific to this form field type.
-        'notitle' => false,
-        'defaultValue' => true,
+        'notitle' => FALSE,
+        'defaultValue' => TRUE,
       ],
       'myothercheckboxfield' => [
         'htmlClass' => 'col-xs-6',
         'type' => 'checkbox',
         'title' => 'Title of my other checkbox field',
         // These fields are specific to this form field type.
-        'notitle' => false,
-        'defaultValue' => false,
+        'notitle' => FALSE,
+        'defaultValue' => FALSE,
       ],
       'myimagefield' => [
         'htmlClass' => 'col-xs-12',
@@ -81,8 +80,8 @@ class Example extends CustomElementPluginBase {
         'title' => 'Title of my WYSIWYG field.',
         'defaultValue' => [
           'text' => '<p>This is some example content.</p>',
-          'textFormat' => 'cohesion'
-        ]
+          'textFormat' => 'cohesion',
+        ],
       ],
     ];
   }
@@ -90,8 +89,7 @@ class Example extends CustomElementPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function render($element_settings, $element_markup, $element_class, $element_context = [])
-  {
+  public function render($element_settings, $element_markup, $element_class, $element_context = []) {
     // Render the element.
     return [
       '#theme' => 'example_element',

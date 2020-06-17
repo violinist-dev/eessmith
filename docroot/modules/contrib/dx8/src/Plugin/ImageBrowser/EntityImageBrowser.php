@@ -3,13 +3,11 @@
 namespace Drupal\cohesion\Plugin\ImageBrowser;
 
 use Drupal\cohesion\ImageBrowserPluginBase;
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class MediaImageBrowser
+ * Class MediaImageBrowser.
  *
  * @package Drupal\cohesion
  *
@@ -28,7 +26,8 @@ class EntityImageBrowser extends ImageBrowserPluginBase {
     // Load all entity browser entities.
     try {
       $browsers = \Drupal::entityTypeManager()->getStorage('entity_browser')->loadMultiple();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return [];
     }
 
@@ -109,4 +108,5 @@ class EntityImageBrowser extends ImageBrowserPluginBase {
       }
     }
   }
+
 }

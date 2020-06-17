@@ -8,7 +8,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Class EntityGroupsPluginBase
+ * Class EntityGroupsPluginBase.
  *
  * @package Drupal\cohesion
  */

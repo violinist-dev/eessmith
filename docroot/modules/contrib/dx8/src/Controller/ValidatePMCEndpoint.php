@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion\Controller;
 
+use GuzzleHttp\Exception\ClientException;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\cohesion\CohesionApiClient;
 use Drupal\Component\Serialization\Json;
 
 /**
- * Class ValidatePMCEndpoint
+ * Class ValidatePMCEndpoint.
  *
  * Makes a request to the API to validate a pseudo, modifier or class.
  *
@@ -17,12 +17,15 @@ use Drupal\Component\Serialization\Json;
  */
 class ValidatePMCEndpoint extends ControllerBase {
 
+  /**
+   *
+   */
   public function index(Request $request) {
 
     try {
       $results = JSON::decode($request->getContent());
 
-      $response = CohesionApiClient::valiatePMC($results);
+      $response = \Drupal::service('cohesion.api_client')->valiatePMC($results);
 
       if ($response && $response['code'] == 200) {
         $status = $response['code'];
@@ -35,7 +38,8 @@ class ValidatePMCEndpoint extends ControllerBase {
         ];
       }
 
-    } catch (\GuzzleHttp\Exception\ClientException $e) {
+    }
+    catch (ClientException $e) {
       $status = 500;
       $result = [
         'error' => t('Connection error'),

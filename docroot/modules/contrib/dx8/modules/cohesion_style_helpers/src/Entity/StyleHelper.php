@@ -4,9 +4,6 @@ namespace Drupal\cohesion_style_helpers\Entity;
 
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\cohesion\EntityHasResourceObjectTrait;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion\Plugin\Api\PreviewApi;
 
 /**
  * Defines the DX8 Style Helpers entity.
@@ -53,41 +50,38 @@ use Drupal\cohesion\Plugin\Api\PreviewApi;
  *     "duplicate-form" = "/admin/cohesion/styles/cohesion_style_helpers/{cohesion_style_helper}/duplicate",
  *     "enable-selection" = "/admin/cohesion/styles/cohesion_style_helpers/{cohesion_style_helper}/enable-selection",
  *     "disable-selection" = "/admin/cohesion/styles/cohesion_style_helpers/{cohesion_style_helper}/disable-selection",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "locked",
+ *     "modified",
+ *     "selectable",
+ *     "custom_style_type"
  *   }
  * )
  */
 class StyleHelper extends CohesionConfigEntityBase implements CohesionSettingsInterface {
-
-  use EntityHasResourceObjectTrait {
-    getResourceObject as protected getResourceObjectDefault;
-  }
 
   const ASSET_GROUP_ID = 'style_helpers';
 
   const entity_machine_name_prefix = 'style_hlp_';
 
   /**
-   * The CustomStyleType
+   * The CustomStyleType.
    *
    * @var string
    */
   protected $custom_style_type;
 
   /**
-   * style helper getter.
+   * Style helper getter.
    */
   public function getCustomStyleType() {
     return $this->custom_style_type;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getResourceObject() {
-    $entity_values = $this->getResourceObjectDefault();
-    $entity_values->custom_style_type = $this->get('custom_style_type');
-
-    return $entity_values;
   }
 
   /**
@@ -103,19 +97,18 @@ class StyleHelper extends CohesionConfigEntityBase implements CohesionSettingsIn
    * {@inheritdoc}
    */
   public function clearData() {
-    // Style helpers doesn't generate any data so leave this empty
+    // Style helpers doesn't generate any data so leave this empty.
   }
 
   /**
    * @return array|bool
    */
   public function jsonValuesErrors() {
-    /** @var PreviewApi $send_to_api */
-    $send_to_api = $this->apiProcessorManager()->createInstance('preview_api');
+    /** @var \Drupal\cohesion\Plugin\Api\PreviewApi $send_to_api */
+    $send_to_api = $this->getApiPluginInstance();
 
     // Use the style preview endpoint to validate the data.
-    $style_model = $this->getDecodedJsonValues();
-    $send_to_api->setupPreview($this->getEntityTypeId(), $style_model);
+    $send_to_api->setupPreview($this->getEntityTypeId(), $this->getDecodedJsonValues(), $this->getDecodedJsonMapper());
     $success = $send_to_api->sendWithoutSave();
     $responseData = $send_to_api->getData();
 
@@ -125,6 +118,13 @@ class StyleHelper extends CohesionConfigEntityBase implements CohesionSettingsIn
     else {
       return $responseData;
     }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getApiPluginInstance() {
+    return $this->apiProcessorManager()->createInstance('preview_api');
   }
 
   /**

@@ -3,12 +3,9 @@
 namespace Drupal\cohesion_website_settings\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\cohesion_website_settings\Entity\FontLibrary;
-use Drupal\cohesion_website_settings\Entity\FontStack;
 
 /**
- * Class FontLibrariesEditForm
+ * Class FontLibrariesEditForm.
  *
  * A form that allows users to edit multiple font libraries and font stacks on
  * a single page.
@@ -19,7 +16,7 @@ class FontLibrariesEditForm extends WebsiteSettingsGroupFormBase {
 
   const ENTITY_TYPE = 'cohesion_font_library';
 
-  const FORM_TITLE = 'Edit <i>font libraries</i>';
+  const FORM_TITLE = 'font libraries';
 
   const FORM_ID = 'website_settings_font_libraries_form';
 
@@ -60,12 +57,12 @@ class FontLibrariesEditForm extends WebsiteSettingsGroupFormBase {
           $font_entity->save();
         }
 
-        drupal_set_message($this->t('The font libraries have been updated.'));
+        \Drupal::messenger()->addMessage($this->t('The font libraries have been updated.'));
       }
     }
     // Json data was corrupt.
     else {
-      drupal_set_message($this->t('There was an error saving the font libraries. The form data was invalid or corrupt.'), 'error');
+      \Drupal::messenger()->addError($this->t('There was an error saving the font libraries. The form data was invalid or corrupt.'));
     }
   }
 

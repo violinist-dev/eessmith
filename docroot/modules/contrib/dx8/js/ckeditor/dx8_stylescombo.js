@@ -41,6 +41,10 @@
                         // Get the type (which will be used to assign style to one of 3 groups) from assignedTo if it's defined.
                         style._.type = styleType = style.assignedTo || style.type;
 
+                        if(style.element.match(/[hH][1-6]/gm)) {
+                            style._type = style.type = 3;
+                        }
+
                         // Let the sort fall naturally rather than by CKEditor's styleType grouping.
                         style._.weight = i;
 
@@ -157,7 +161,7 @@
 
                         // Set generic element tag on the fly based on active selected element
                         if ((style._.definition.displayGroup === 'Generic') && (typeof elementTagName !== 'undefined')){
-                             style._.definition.element[0] = elementTagName;
+                             style._.definition.element = elementTagName;
                         }
 
                         if (style.checkActive(elementPath, editor))

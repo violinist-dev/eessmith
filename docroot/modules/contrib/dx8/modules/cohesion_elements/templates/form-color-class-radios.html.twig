@@ -16,14 +16,17 @@
   set classes = [
   'js-form-color-classes',
   'form-color-classes',
-  'coh-color-field-element'
+  'coh-category-color-fieldset-inner'
 ]
 %}
-<div{{ attributes.addClass(classes) }}>
-  {% for item in element['#options'] %}
-    <div class="coh-color-field-item {{ item }}">
-        <input type="radio" id="coh-component-{{ item }}" name="{{ element['#name'] }}" value="{{ item }}" {% if element['#value'] == item %}checked{% endif %}/>
-        <label class="coh-color-field-label" for="coh-component-{{ item }}"><span class="visually-hidden">{{ item }}</span></label>
-    </div>
-  {% endfor %}
-</div>
+<fieldset class="coh-category-color-fieldset">
+  <div{{ attributes.addClass(classes) }}>
+    <legend class="coh-category-color-legend">{{ 'Color'|t }}</legend>
+    {% for item in element['#options'] %}
+      <div class="coh-category-color-item {{ item }}">
+          <input class="coh-category-color-input" id="coh-component-{{ item }}" name="{{ element['#name'] }}" type="radio" value="{{ item }}" {% if element['#value'] == item %}checked{% endif %}/>
+          <label class="coh-category-color-label" for="coh-component-{{ item }}"><span class="visually-hidden">{{ item }}</span></label>
+      </div>
+    {% endfor %}
+  </div>
+</fieldset>

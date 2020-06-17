@@ -15,9 +15,9 @@ class CohesionEnableSelectionForm extends EntityConfirmFormBase {
    */
   public function getQuestion() {
     return $this->t('Are you sure you want to enable selection of the @entity_type %entity_name?', [
-        '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
-        '%entity_name' => $this->entity->label(),
-      ]);
+      '@entity_type' => strtolower($this->entity->getEntityType()->get('label_singular')),
+      '%entity_name' => $this->entity->label(),
+    ]);
   }
 
   /**
@@ -32,8 +32,8 @@ class CohesionEnableSelectionForm extends EntityConfirmFormBase {
    */
   public function getDescription() {
     return $this->t('Enabling selection of your %entity_type will include it in the %entity_type select drop-down.', [
-        '%entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
-      ]);
+      '%entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
+    ]);
   }
 
   /**
@@ -50,9 +50,9 @@ class CohesionEnableSelectionForm extends EntityConfirmFormBase {
     $this->entity->set('selectable', TRUE);
     $this->entity->save();
 
-    drupal_set_message($this->t('Selection for %entity_name successfully enabled.', [
-        '%entity_name' => $this->entity->label(),
-      ]));
+    \Drupal::messenger()->addMessage($this->t('Selection for %entity_name successfully enabled.', [
+      '%entity_name' => $this->entity->label(),
+    ]));
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }

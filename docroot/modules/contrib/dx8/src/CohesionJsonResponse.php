@@ -11,11 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CohesionJsonResponse extends JsonResponse {
 
-  public function __construct($data = null, $status = 200, $headers = array()) {
+  /**
+   *
+   */
+  public function __construct($data = NULL, $status = 200, $headers = []) {
 
-    $headers = array(
-      // CORS.
-      'Access-Control-Allow-Origin' => '*',
+    $headers = [
       // OPTIONS allows js preflight check.
       'Access-Control-Allow-Methods' => 'POST, GET, PUT, DELETE, OPTIONS',
       // Send the cookies with response.
@@ -23,10 +24,10 @@ class CohesionJsonResponse extends JsonResponse {
       // Disable caching.
       'Cache-Control' => 'no-cache, no-store, must-revalidate',
       'Pragma' => 'no-cache',
-      'Expires' => 0
-    );
+      'Expires' => 0,
+    ];
 
-    if(is_array($data)){
+    if (is_array($data)) {
       // Optional HTTP code.
       if (isset($data['code'])) {
         $status = $data['code'];
@@ -36,7 +37,8 @@ class CohesionJsonResponse extends JsonResponse {
       if (isset($data['status'])) {
         $this->setStatusCode($status, $data['status']);
       }
-    }else{
+    }
+    else {
       $response_data = $data;
     }
 

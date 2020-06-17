@@ -30,9 +30,9 @@ class EntityGroups extends Plugin {
   public $name;
 
   /**
-   * The entity type that this plugin works for.
+   * The entity type name that this plugin works for.
    *
-   * @var
+   * @var string
    */
   public $entity_type;
 

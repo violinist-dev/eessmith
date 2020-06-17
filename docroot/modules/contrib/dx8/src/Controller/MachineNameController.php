@@ -12,18 +12,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * Class MachineNameController
+ * Class MachineNameController.
  *
- * This extends the core machine name controller to generate unique
+ * This extends the core machine name controller to generate unique.
  *
  * @package Drupal\cohesion\MachineNameController
  */
 class MachineNameController extends CoreMachineNameController {
 
-  /** @var \Drupal\Core\Entity\EntityTypeManagerInterface */
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface*/
   protected $entityTypeManager;
 
-  /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage */
+  /**
+   * @var \Drupal\Core\Config\Entity\ConfigEntityStorage*/
   protected $storage;
 
   /**
@@ -63,7 +65,8 @@ class MachineNameController extends CoreMachineNameController {
     // Attempt to get the storage for this entity type.
     try {
       $this->storage = $this->entityTypeManager->getStorage($entity_type_id);
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
       return new JsonResponse('');
     }
 

@@ -7,7 +7,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\cohesion_website_settings\Entity\Color;
 
 /**
- * Class ColorEntityGroups
+ * Class ColorEntityGroups.
  *
  * This handles loading and saving back combined Colors entities with single
  * JSON object.
@@ -24,8 +24,8 @@ class ColorEntityGroups extends EntityGroupsPluginBase {
 
   /**
    * {@inheritdoc}
-   * @testme
    *
+   * @testme
    */
   public function saveFromModel($colors) {
 
@@ -38,7 +38,7 @@ class ColorEntityGroups extends EntityGroupsPluginBase {
 
       // No? Then create and save it.
       if (!count($entity_ids) && isset($color->name)) {
-        /** @var Color $entity */
+        /** @var \Drupal\cohesion_website_settings\Entity\Color $entity */
         $entity = Color::create([
           'id' => $color->uid,
           'label' => $color->name,
@@ -121,7 +121,7 @@ class ColorEntityGroups extends EntityGroupsPluginBase {
     }
 
     // And re-order all the colors.
-    /** @var Color $entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\Color $entity */
     foreach ($this->storage->loadMultiple() as $entity) {
       if (isset($weights[$entity->id()])) {
         $entity->setWeight($weights[$entity->id()]);
@@ -138,7 +138,7 @@ class ColorEntityGroups extends EntityGroupsPluginBase {
 
     $color_entities = $this->storage->loadMultiple();
 
-    /** @var Color $color_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\Color $color_entity */
     foreach ($color_entities as $color_entity) {
       $json_values = $color_entity->getDecodedJsonValues();
 

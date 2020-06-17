@@ -2,17 +2,12 @@
 
 namespace Drupal\cohesion\Plugin\EntityUpdate;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\cohesion\EntityUpdatePluginInterface;
-use Drupal\cohesion\CohesionApiClient;
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
-use Drupal\cohesion\EntityUpdatePluginManager;
-use Drupal\cohesion_elements\Entity\Component;
 
 /**
- * Convert all /settings-endpoint/ strings to /cohesionapi/
+ * Convert all /settings-endpoint/ strings to /cohesionapi/.
  *
  * @package Drupal\cohesion
  *

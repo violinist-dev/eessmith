@@ -32,7 +32,7 @@ class ImageBrowser extends Plugin {
   /**
    * The machine name of the module this plugin requires.
    *
-   * @var
+   * @var string
    */
   public $module;
 

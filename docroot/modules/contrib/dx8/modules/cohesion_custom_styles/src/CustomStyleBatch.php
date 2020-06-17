@@ -6,7 +6,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 
 /**
- * Class CustomStyleBatch
+ * Class CustomStyleBatch.
  *
  * Re-saves all custom styles so they appear in their weight order in the
  * output .css.
@@ -27,20 +27,28 @@ class CustomStyleBatch {
 
     $batch['operations'][] = [
       '\Drupal\cohesion_custom_styles\CustomStyleBatch::startCallback',
-      []
+      [],
     ];
 
     $entity_list = \Drupal::entityTypeManager()
       ->getStorage('cohesion_custom_style')
       ->loadMultiple();
 
+    $forms = [];
+
     foreach ($entity_list as $entity) {
-      // Only rebuild entities that have been activated.
-      $batch['operations'][] = [
-        '_resave_entity',
-        ['entity' => $entity, 'realsave' => FALSE],
-      ];
+
+      $api_plugin = $entity->getApiPluginInstance();
+      if($api_plugin){
+        $api_plugin->setEntity($entity);
+        $forms = array_merge($forms, $api_plugin->getForms());
+      }
     }
+
+    $batch['operations'][] = [
+      '_cohesion_style_save',
+      ['forms' => $forms],
+    ];
 
     batch_set($batch);
     return batch_process(Url::fromRoute('entity.cohesion_custom_style.collection'));
@@ -53,7 +61,8 @@ class CustomStyleBatch {
    */
   public static function startCallback(&$context) {
     $running_dx8_batch = &drupal_static('running_dx8_batch');
-    $running_dx8_batch = TRUE;  // Initial state.
+    // Initial state.
+    $running_dx8_batch = TRUE;
 
     // Copy the live stylesheet.json to temporary:// so styles don't get wiped when  re-importing.
     \Drupal::service('cohesion.local_files_manager')->liveToTemp();

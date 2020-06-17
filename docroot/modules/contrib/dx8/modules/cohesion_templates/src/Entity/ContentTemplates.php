@@ -73,6 +73,22 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *   "/admin/cohesion/templates/content_templates/{content_entity_type}/{cohesion_content_templates}/set_default",
  *     "in-use" =
  *   "/admin/cohesion/templates/content_templates/{content_entity_type}/{cohesion_content_templates}/in_use",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "json_values",
+ *     "json_mapper",
+ *     "last_entity_update",
+ *     "modified",
+ *     "selectable",
+ *     "custom",
+ *     "twig_template",
+ *     "default",
+ *     "entity_type",
+ *     "bundle",
+ *     "view_mode",
+ *     "master_template"
  *   }
  * )
  */
@@ -97,8 +113,7 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
     if ($this->get('default') === TRUE && $this->get('view_mode') === 'full' && $this->get('bundle') !== '__any__') {
 
-      $default_templates_ids = \Drupal::service('entity.query')
-        ->get('cohesion_content_templates')
+      $default_templates_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
         ->condition('entity_type', $this->get('entity_type'))
         ->condition('bundle', $this->get('bundle'))
         ->condition('view_mode', $this->get('view_mode'))
@@ -142,9 +157,8 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
         foreach ($entity['view_modes'] as $entity_view_mode) {
           // Try to import entity.
           list($entity_type_id, $view_mode) = explode('.', $entity_view_mode['id']);
-          // Determine if has already been imported by finding some existing templates in DB
-          $already_imported_ids = \Drupal::service('entity.query')
-            ->get('cohesion_content_templates')
+          // Determine if has already been imported by finding some existing templates in DB.
+          $already_imported_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
             ->condition('entity_type', $entity_type)
             ->condition('bundle', $bundle_id)
             ->condition('view_mode', $view_mode)
@@ -162,8 +176,9 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
             $new_entity->setDefaultValues();
             $new_entity->save();
             $canonical_list[$entity_id] = $entity_id;
-          }else{
-            foreach ($already_imported_ids as $entity_id){
+          }
+          else {
+            foreach ($already_imported_ids as $entity_id) {
               $canonical_list[$entity_id] = $entity_id;
             }
           }
@@ -172,7 +187,7 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
       unset($entity_view_mode);
 
-      $entity_types = \Drupal::service('entity.manager')->getDefinitions();
+      $entity_types = \Drupal::service('entity_type.manager')->getDefinitions();
       $hasBundle = $entity_types[$entity_type]->hasKey('bundle');
 
       // Create global view mode template for entities with multiple bundles.
@@ -181,8 +196,7 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
           $bundle_id = '__any__';
           list($entity_type_id, $view_mode) = explode('.', $entity_view_mode['id']);
 
-          $already_imported_ids = \Drupal::service('entity.query')
-            ->get('cohesion_content_templates')
+          $already_imported_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
             ->condition('entity_type', $entity_type)
             ->condition('bundle', $bundle_id)
             ->condition('view_mode', $view_mode)
@@ -200,8 +214,9 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
             $entity->setDefaultValues();
             $entity->save();
             $canonical_list[$entity_id] = $entity_id;
-          }else{
-            foreach ($already_imported_ids as $entity_id){
+          }
+          else {
+            foreach ($already_imported_ids as $entity_id) {
               $canonical_list[$entity_id] = $entity_id;
             }
           }
@@ -257,7 +272,6 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
     $uri_route_parameters['content_entity_type'] = $this->entity_type;
 
-
     return $uri_route_parameters;
   }
 
@@ -268,9 +282,16 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
     return $this->get('master_template');
   }
 
+  /**
+   *
+   */
   public function canEditMachineName() {
-    if ($this->get('view_mode') !== 'full' && $this->get('modified') === TRUE || $this->get('bundle') === '__any__' || $this->get('view_mode') === 'full' && !$this->isNew()) {
+    if ($this->get('bundle') === '__any__') {
       return FALSE;
+    }
+
+    if($this->get('view_mode') !== 'full' && $this->get('modified') === FALSE){
+      return TRUE;
     }
 
     return parent::canEditMachineName();
@@ -278,7 +299,6 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
   /**
    * {@inheritdoc}
-   *
    */
   public function getInUseMarkup() {
     if ($this->get('bundle') == '__any__' || $this->get('view_mode') != 'full') {
@@ -311,10 +331,9 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
   public function reset() {
 
     $this->clearData();
-    // Only delete full view mode content template
+    // Only delete full view mode content template.
     if ($this->get('view_mode') == 'full') {
-      $candidate_template_ids = \Drupal::service('entity.query')
-        ->get('cohesion_content_templates')
+      $candidate_template_ids = \Drupal::service('entity_type.manager')->getStorage('cohesion_content_templates')->getQuery()
         ->condition('entity_type', $this->get('entity_type'))
         ->condition('bundle', $this->get('bundle'))
         ->condition('view_mode', $this->get('view_mode'))
@@ -327,7 +346,6 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
     $this->setDefaultValues();
     $this->save();
-    return;
   }
 
   /**
@@ -347,4 +365,5 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
 
     return $machine_name_prefix . '_';
   }
+
 }

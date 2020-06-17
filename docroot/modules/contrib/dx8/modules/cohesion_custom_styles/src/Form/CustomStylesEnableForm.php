@@ -13,7 +13,7 @@ class CustomStylesEnableForm extends CohesionEnableForm {
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Enabling a <em>Custom style</em> will apply its CSS to your DX8 style sheet.');
+    return $this->t('Enabling a <em>Custom style</em> will apply its CSS to your style sheet.');
   }
 
 }

@@ -4,10 +4,9 @@ namespace Drupal\cohesion_custom_styles\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\cohesion_custom_styles\Entity\CustomStyle;
 
 /**
- * Class CustomStylesUsage
+ * Class CustomStylesUsage.
  *
  * @package Drupal\cohesion_custom_styles\Plugin\Usage
  *
@@ -32,7 +31,7 @@ class CustomStylesUsage extends UsagePluginBase {
    * {@inheritdoc}
    */
   public function getScannableData(EntityInterface $entity) {
-    /** @var CustomStyle $entity */
+    /** @var \Drupal\cohesion_custom_styles\Entity\CustomStyle $entity */
     $scanable_data = [];
 
     // Always add the JSON model and form blobs.
@@ -66,7 +65,8 @@ class CustomStylesUsage extends UsagePluginBase {
     foreach ($data as $entry) {
       // Search cohesion_layout canvases and potentialy WYSIWYG content.
       if (in_array($entry['type'], ['json_string', 'string'])) {
-        $entry['value'] = str_replace('\\/', '/', $entry['value']);  // Cheaply patch the JSON.
+        // Cheaply patch the JSON.
+        $entry['value'] = str_replace('\\/', '/', $entry['value']);
 
         preg_match_all(self::CUSTOM_STYLE_MATCH_REGEX, $entry['value'], $matches, PREG_SET_ORDER, 0);
 
@@ -76,7 +76,7 @@ class CustomStylesUsage extends UsagePluginBase {
         }
       }
 
-      // See if this is referencing a custom style. 
+      // See if this is referencing a custom style.
       if ($entry['type'] == 'entity_id' && $entry['entity_type'] == 'cohesion_custom_style' && isset($entry['id']) && $entry['id'] !== NULL && $entry['id'] !== FALSE) {
         if ($custom_styles_entity = $this->storage->load($entry['id'])) {
           // Add directly to the list of entity dependencies.

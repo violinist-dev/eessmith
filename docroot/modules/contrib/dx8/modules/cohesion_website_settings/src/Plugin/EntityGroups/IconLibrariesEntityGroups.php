@@ -7,7 +7,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\cohesion_website_settings\Entity\IconLibrary;
 
 /**
- * Class IconLibrariesEntityGroups
+ * Class IconLibrariesEntityGroups.
  *
  * Handles loading and saving back groups of IconLibrary entities with a single
  * JSON object.
@@ -24,6 +24,7 @@ class IconLibrariesEntityGroups extends EntityGroupsPluginBase {
 
   /**
    * {@inheritdoc}
+   *
    * @testme
    */
   public function saveFromModel($libraries) {
@@ -35,7 +36,7 @@ class IconLibrariesEntityGroups extends EntityGroupsPluginBase {
     if (property_exists($libraries, 'iconLibraries') && is_array($libraries->iconLibraries)) {
       // Remove any unfilled entries from the libraries.
       foreach ($libraries->iconLibraries as $index => $library) {
-        // Icon library should have name,key and provider attributes
+        // Icon library should have name,key and provider attributes.
         if (!property_exists($library, 'library') || !property_exists($library->library, 'name') || !property_exists($library->library, 'key') || !property_exists($library->library, 'provider')) {
           unset($libraries->iconLibraries[$index]);
         }
@@ -49,11 +50,11 @@ class IconLibrariesEntityGroups extends EntityGroupsPluginBase {
         // No? Then create and save it.
         if ($entity_count === 0) {
 
-          // Make sure no other entity has the same name
+          // Make sure no other entity has the same name.
           $entity_by_name_count = $this->storage->getQuery()->condition('label', $library->library->name)->count()->execute();
 
           if ($entity_by_name_count === 0) {
-            /** @var IconLibrary $entity */
+            /** @var \Drupal\cohesion_website_settings\Entity\IconLibrary $entity */
             $entity = IconLibrary::create([
               'id' => $library->library->provider,
               'label' => $library->library->name,
@@ -62,15 +63,16 @@ class IconLibrariesEntityGroups extends EntityGroupsPluginBase {
             $entity->setJsonValue(Json::encode($library->library));
             try {
               $entity->save();
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
               // User added two entities of the same type to each section.
-              drupal_set_message(t('@error You cannot add two icons of the same type.', ['@error' => $e->getMessage()]), 'error');
+              \Drupal::messenger()->addError(t('@error You cannot add two icons of the same type.', ['@error' => $e->getMessage()]));
             }
 
           }
           else {
             // User added two entities of the same name.
-            drupal_set_message(t('You cannot add two icons with the same name.'), 'error');
+            \Drupal::messenger()->addError(t('You cannot add two icons with the same name.'));
           }
 
           // Store the id so we don't re-scan changes (it will fail because of temporary file paths).
@@ -129,7 +131,7 @@ class IconLibrariesEntityGroups extends EntityGroupsPluginBase {
 
     $merged_icon_libraries = [];
 
-    /** @var IconLibrary $icon_library_entity */
+    /** @var \Drupal\cohesion_website_settings\Entity\IconLibrary $icon_library_entity */
     $count = 0;
 
     foreach ($this->storage->loadMultiple() as $icon_library_entity) {

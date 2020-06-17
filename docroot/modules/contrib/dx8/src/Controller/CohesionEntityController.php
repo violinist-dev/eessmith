@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Component\Render\FormattableMarkup;
 
 /**
- * Class CohesionEntityController
+ * Class CohesionEntityController.
  *
  * Returns responses for cohesion entities routes.
  *
@@ -37,9 +37,9 @@ class CohesionEntityController extends EntityController {
         $rows_data[] = [
           [
             'data' => new FormattableMarkup('<a href=":link">@name</a>', [
-                ':link' => $entity['url'],
-                '@name' => $entity['name'],
-              ]),
+              ':link' => $entity['url'],
+              '@name' => $entity['name'],
+            ]),
           ],
         ];
       }

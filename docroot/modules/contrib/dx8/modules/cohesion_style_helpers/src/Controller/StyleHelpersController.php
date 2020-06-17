@@ -7,7 +7,7 @@ use Drupal\Core\Entity\Controller\EntityController;
 use Drupal\Core\Link;
 
 /**
- * Class StyleHelpersController
+ * Class StyleHelpersController.
  *
  * Returns responses for custom style type routes.
  *
@@ -35,24 +35,23 @@ class StyleHelpersController extends EntityController implements ContainerInject
    * Redirects to custom_style_types/add/{type} if only one custom style type is available.
    *
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
-   * A render array for a list of the custom style types that can be added however if there is
-   * only one custom style type defined for the site, the function will return a RedirectResponse
-   * to the custom style add page for that one custom style type
-   *
+   *   A render array for a list of the custom style types that can be added however if there is
+   *   only one custom style type defined for the site, the function will return a RedirectResponse
+   *   to the custom style add page for that one custom style type
    */
   public function addPage($entity_type_id) {
-    // Get complete list of custom style types
+    // Get complete list of custom style types.
     $types = [];
 
     foreach ($this->getCustomStyleTypes() as $id => $label) {
       $types[$id] = [
         'label' => $label,
         'description' => '',
-        'add_link' => Link::createFromRoute($id, 'entity.' . $entity_type_id . '.add_form', ['custom_style_type' => $id]),
+        'add_link' => Link::createFromRoute($label, 'entity.' . $entity_type_id . '.add_form', ['custom_style_type' => $id]),
       ];
     }
 
-    // Send this to entity-add-list.html.twig via system.module
+    // Send this to entity-add-list.html.twig via system.module.
     $build = [
       '#theme' => 'entity_add_list',
       '#bundles' => $types,

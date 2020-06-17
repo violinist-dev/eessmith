@@ -59,7 +59,7 @@ class Usage extends Plugin {
    * This can be a comma separated list if there are more than one (ie. for
    * content templates).
    *
-   * @var
+   * @var string
    */
   public $group_key;
 
@@ -70,7 +70,7 @@ class Usage extends Plugin {
    * This can be a comma separated list if there are more than one (ie. for
    * content templates).
    *
-   * @var
+   * @var string
    */
   public $group_key_entity_type;
 
@@ -82,9 +82,10 @@ class Usage extends Plugin {
   public $exclude_from_package_requirements;
 
   /**
-   * Can entities of this type be exported by DX8 sync?
+   * Can entities of this type be exported by sync?
    *
    * @var bool
    */
   public $exportable;
+
 }

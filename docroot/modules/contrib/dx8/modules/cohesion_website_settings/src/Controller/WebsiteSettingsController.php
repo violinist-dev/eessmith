@@ -11,10 +11,9 @@ use Drupal\Component\Serialization\Json;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\Core\Url;
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 
 /**
- * Class WebsiteSettingsController
+ * Class WebsiteSettingsController.
  *
  * Returns responses for WebsiteSettings routes.
  *
@@ -23,12 +22,12 @@ use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 class WebsiteSettingsController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
-   * POST: /admin/cohesion/upload/font_libraries
+   * POST: /admin/cohesion/upload/font_libraries.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return Response json response data
-   * Callback from angular form that responds what fonts are included in the
+   * @return \Symfony\Component\HttpFoundation\Response json response data
+   *   Callback from angular form that responds what fonts are included in the
    *   zip, and unzip it to a temporary directory, and return a response to
    *   angular to highlight which fonts are in there. Sets an "updated" flag in
    *   the json if the font has been updated so on entity save it knows to
@@ -48,7 +47,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     $accepted_extensions = ['eot', 'ttf', 'woff', 'woff2'];
     $temp_folder = \Drupal::service('cohesion.local_files_manager')->scratchDirectory();
     $file = $request->files->get("file");
-    // Move uploaded ZIP file to temp directory if valid
+    // Move uploaded ZIP file to temp directory if valid.
     if ($file && !$file->getError() && in_array($file->getMimeType(), $accepted_types) && pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == "zip") {
       $filename = $file->getClientOriginalName();
       $file->move($temp_folder, $filename);
@@ -68,15 +67,18 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
           }
           $fontname = preg_replace("/[^a-zA-Z0-9-_.]/", "+", basename($fontname));
           $ext = pathinfo($fontname, PATHINFO_EXTENSION);
-          // Save each font file in the temp directory
+          // Save each font file in the temp directory.
           if (in_array($ext, $accepted_extensions)) {
             $font = $zip->getFromIndex($i);
 
             $file_destination = $temp_folder . "/" . $fontname;
-            $res = file_unmanaged_save_data($font, $file_destination);
-            if ($res) {
+
+            try {
+              \Drupal::service('file_system')->saveData($font, $file_destination);
               $return[$ext]['uri'] = '"' . $file_destination . '"';
               unset($accepted_extensions[$ext]);
+            }
+            catch (\Throwable $e) {
             }
           }
         }
@@ -89,7 +91,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         $response->setStatusCode(400);
         $return = (object) [
           "message" => "Cohesion API",
-          "error" => t("Error occurred while uploading the file."),
+          "error" => $this->t("Error occurred while uploading the file."),
         ];
       }
     }
@@ -99,7 +101,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         $message = $file->getErrorMessage();
       }
       else {
-        $message = t("Error occurred while uploading the file.");
+        $message = $this->t("Error occurred while uploading the file.");
       }
 
       \Drupal::logger('api-call-error')->error($message);
@@ -109,96 +111,6 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         "error" => $message,
       ];
     }
-    $response->setContent(Json::encode($return));
-    return $response;
-  }
-
-  /**
-   * @return string
-   */
-  protected function getFileScheme() {
-    return COHESION_STREAM_WRAPPER_NAME;
-  }
-
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   */
-  public function fileUploadPostCallback(Request $request) {
-    $response = new Response();
-    $response->headers->set('Content-Type', 'application/json');
-
-    // Get the type of storage request (managed or unmanaged).
-    $storage_type_managed = ($request->get('managed')) ? TRUE : FALSE;
-
-    // Carry on.
-    $accepted_types = ['application/octet-stream'];
-    $accepted_extensions = ['jpg', 'jpeg', 'png', 'svg', 'gif'];
-    $file = $request->files->get("file");
-
-    // Check a file was uploaded.
-    if ($file && in_array($file->getMimeType(), $accepted_types) && in_array(strtolower($file->getClientOriginalExtension()), $accepted_extensions)) {
-      $filename = $file->getClientOriginalName();
-      $temp_folder = file_directory_temp();
-
-      $file->move($temp_folder, $filename);
-      $temp_path = $temp_folder . '/' . $filename;
-      if (file_exists($temp_path)) {
-        $contents = file_get_contents($temp_path);
-        try {
-          // Perform a managed save.
-          if ($storage_type_managed) {
-            if ($file_managed = file_save_data($contents, $this->getFileScheme() . "://" . $filename)) {
-
-              // And return the file ID and path.
-              $return = (object) [
-                "json" => $file_managed->id(),
-                "path" => file_create_url($file_managed->getFileUri()),
-              ];
-            }
-          } // Perform an unmanaged save.
-          else {
-            $file_unmanaged = file_unmanaged_save_data($contents, $this->getFileScheme() . "://" . $filename);
-
-            // Get the file path.
-            if (strpos($file_unmanaged, DRUPAL_ROOT) === 0) {
-              $file_path = substr($file_unmanaged, strlen(DRUPAL_ROOT));
-            }
-            else {
-              $file_path = $file_unmanaged;
-            }
-
-            // And return the data.
-            $return = (object) [
-              "json" => $file_path,
-            ];
-          }
-        } catch (FileException $e) {
-          $return = (object) [
-            "message" => "Cohesion API",
-            "error" => t("Error occured while uploading the file."),
-          ];
-          \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
-        }
-      }
-      else {
-        \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
-        $return = (object) [
-          "message" => "Cohesion API",
-          "error" => t("Error occured while uploading the file."),
-        ];
-      }
-      unlink($temp_folder . "/" . $filename);
-    }
-    else {
-      \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
-      $return = (object) [
-        "message" => "Cohesion API",
-        "error" => t("Error occured while uploading the file."),
-      ];
-    }
-
     $response->setContent(Json::encode($return));
     return $response;
   }
@@ -221,7 +133,6 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     // Check a file was uploaded.
     if ($file && in_array($file->getMimeType(), $accepted_types)) {
 
-
       $icons = \Drupal::service('cohesion.icon_interpreter')->sendToApi(file_get_contents($file->getPathname()));
 
       if ($icons['code'] == 200) {
@@ -230,7 +141,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       else {
         $return = [
           "message" => "Cohesion API",
-          "error" => t("Invalid icon library loaded"),
+          "error" => $this->t("Invalid icon library loaded"),
         ];
         \Drupal::logger('api-call-error')->error(t("Error: Invalid icon library loaded"));
         $response->setContent(Json::encode($return));
@@ -240,8 +151,13 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       if (is_array(Json::decode($contents))) {
         $filename = $file->getClientOriginalName();
         try {
-          // $file->move($destination_folder, $filename );
-          $file_unmanaged = file_unmanaged_save_data($contents, COHESION_FILESYSTEM_URI . $filename);
+          $file_unmanaged = FALSE;
+          try {
+            $file_unmanaged = \Drupal::service('file_system')->saveData($contents, COHESION_FILESYSTEM_URI . $filename);
+          }
+          catch (\Throwable $e) {
+          }
+
           if (strpos($file_unmanaged, DRUPAL_ROOT) === 0) {
             $file_path = substr($file_unmanaged, strlen(DRUPAL_ROOT));
           }
@@ -250,30 +166,30 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
           }
 
           $return = (object) [
-            // "json" => $this->getFileScheme() . "://" . basename($file_unmanaged),
             "json" => $file_path,
           ];
-        } catch (FileException $e) {
+        }
+        catch (FileException $e) {
           $return = (object) [
             "message" => "Cohesion API",
-            "error" => t("Error occured while uploading the file."),
+            "error" => $this->t("Error occured while uploading the file."),
           ];
           \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
         }
       }
       else {
-        \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
+        \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
         $return = (object) [
           "message" => "Cohesion API",
-          "error" => t("Error occured while uploading the file."),
+          "error" => $this->t("Error occured while uploading the file."),
         ];
       }
     }
     else {
-      \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
+      \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
       $return = (object) [
         "message" => "Cohesion API",
-        "error" => t("Error occured while uploading the file."),
+        "error" => $this->t("Error occured while uploading the file."),
       ];
     }
 
@@ -282,12 +198,12 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * GET: /cohesionapi/main/{type}
+   * GET: /cohesionapi/main/{type}.
    *
-   * @param Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return Response json response data
-   * Endpoint to return one of the website settings library, color - font - icon
+   * @return \Symfony\Component\HttpFoundation\Response json response data
+   *   Endpoint to return one of the website settings library, color - font - icon
    */
   public function libraryAction(Request $request) {
     // Get the type of website setting from the request.
@@ -331,7 +247,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * Filter the sidebar elements list by drupalSettings.cohesion.entityTypeId
+   * Filter the sidebar elements list by drupalSettings.cohesion.entityTypeId.
    *
    * @param $data
    * @param $entity_type_id
@@ -369,7 +285,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * Filter elments by permissions
+   * Filter elments by permissions.
    *
    * @param $data
    * @param $entity_type_id
@@ -409,7 +325,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function elementAction(Request $request) {
     $group = ($request->get('group')) ? $request->get('group') : NULL;
@@ -436,7 +352,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         $data = $this->filterByElementsPermissions($data);
       }
 
-      // Filter the elements list by drupalSettings.cohesion.entityTypeId
+      // Filter the elements list by drupalSettings.cohesion.entityTypeId.
       if ($entity_type_id) {
         $data['categories'] = $this->filterByEntityTypeId($data['categories'], $entity_type_id);
       }
@@ -467,7 +383,6 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       $data['categories'] = array_values($data['categories']);
     }
 
-
     // Return the (optionally) patched results.
     return new CohesionJsonResponse([
       'status' => !$error ? 'success' : 'error',
@@ -483,10 +398,9 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
-   * @return CohesionJsonResponse
+   * @return \Drupal\cohesion\CohesionJsonResponse
    */
   public function elementActionAll(Request $request) {
-
     $data = [];
 
     foreach ($this->elementCollection() as $collection) {
@@ -529,7 +443,8 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         $data[$base_name] = $group_data;
       }
       else {
-        $data = []; // Reset data if error found
+        // Reset data if error found.
+        $data = [];
         break;
       }
     }
@@ -542,14 +457,18 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
 
   /**
    * @param bool $cron
+   * @param bool $verbose
    *
-   * @return array|null|\Symfony\Component\HttpFoundation\RedirectResponse
+   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse|null
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function batch($cron = FALSE) {
-    // Reset temporary template list
+  public static function batch($cron = FALSE, $verbose = FALSE) {
+    // Reset temporary template list.
     \Drupal::keyValue('cohesion.temporary_template')->set('temporary_templates', []);
 
     // Clean the scratch directory.
+    // @fix - no error checking here?
     \Drupal::service('cohesion.local_files_manager')->resetScratchDirectory();
 
     // Set up the batch process array framework.
@@ -557,44 +476,69 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       'title' => t('Rebuilding'),
       'operations' => [],
       'finished' => 'entity_rebuild_finished_callback',
+      'error_message' => t('Cohesion rebuild has encountered an error.'),
       'file' => drupal_get_path('module', 'cohesion_website_settings') . '/cohesion_website_settings.batch.inc',
     ];
 
+    // Process default element styles.
+    $batch['operations'][] = [
+      'cohesion_elements_get_elements_style_process_batch',
+      ['verbose' => $verbose],
+    ];
+
+    $forms = [];
     $configs = \Drupal::entityTypeManager()->getDefinitions();
 
-    // Make sure website settings are processed first
-    $website_settings_configs = [
+    // Make sure website settings are processed first.
+    $style_configs = [
       'cohesion_scss_variable',
       'cohesion_color',
       'cohesion_icon_library',
       'cohesion_font_library',
       'cohesion_font_stack',
       'cohesion_website_settings',
+      'cohesion_base_styles',
+      'cohesion_custom_style',
     ];
 
-    foreach ($website_settings_configs as $website_settings_type) {
-      if (isset($configs[$website_settings_type])) {
+    $entity_update_manager = \Drupal::service('cohesion.entity_update_manager');
 
-        $entity_list = \Drupal::entityTypeManager()->getStorage($website_settings_type)->loadMultiple();
+    foreach ($style_configs as $style_config_type) {
+      if (isset($configs[$style_config_type])) {
+
+        /** @var \Drupal\cohesion_website_settings\Entity\WebsiteSettings[] $entity_list */
+        $entity_list = \Drupal::entityTypeManager()->getStorage($style_config_type)->loadMultiple();
 
         foreach ($entity_list as $entity) {
-          $batch['operations'][] = [
-            '_resave_entity',
-            ['entity' => $entity, 'realsave' => TRUE],
-          ];
+          if($entity->status()) {
+            if($entity_update_manager->entityNeedUpdate($entity)){
+              $batch['operations'][] = [
+                '_resave_entity', [
+                  'entity' => $entity,
+                  'realsave' => TRUE,
+                  'verbose' => $verbose
+                ],
+              ];
+            }else{
+              $api_plugin = $entity->getApiPluginInstance();
+              $api_plugin->setEntity($entity);
+              $forms = array_merge($api_plugin->getForms(), $forms);
+              unset($api_plugin);
+            }
+          }
         }
-        // Remove processed website setting from all configs
-        unset($configs[$website_settings_type]);
+        // Remove processed config type from all configs.
+        unset($configs[$style_config_type]);
+        unset($entity_list);
       }
     }
 
-    // Process default element styles
     $batch['operations'][] = [
-      'cohesion_elements_get_elements_style_process_batch',
-      [],
+      '_cohesion_style_save',
+      ['forms' => $forms, 'verbose' => $verbose],
     ];
 
-    // Process all remaining DX8 configuration entities.
+    // Process all remaining Acquia Cohesion configuration entities. (components, templates etc...)
     $search = 'cohesion_';
     foreach ($configs as $entity_type_name => $entity_type) {
       if (substr($entity_type_name, 0, strlen($search)) === $search) {
@@ -603,14 +547,20 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
 
           foreach ($entity_list as $entity) {
             // Only rebuild entities that have been activated/modified.
-            if ($entity->get('modified') || $entity_type_name === 'cohesion_website_settings' || $entity_type_name === 'cohesion_color' || $entity_type_name === 'cohesion_icon_library' || $entity_type_name === 'cohesion_font_stack') {
+            if ($entity->get('modified')) {
               $batch['operations'][] = [
-                '_resave_entity',
-                ['entity' => $entity, 'realsave' => TRUE],
+                '_resave_entity', [
+                  'entity' => $entity,
+                  'realsave' => $entity_update_manager->entityNeedUpdate($entity),
+                  'verbose' => $verbose
+                ],
               ];
             }
           }
-        } catch (\Exception $e) {
+
+          unset($entity_list);
+        }
+        catch (\Exception $e) {
 
         }
       }
@@ -624,7 +574,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       $ids = array_slice($entity_ids, $i, $increment);
       $batch['operations'][] = [
         '_resave_cohesion_layout_entity',
-        ['ids' => $ids],
+        ['ids' => $ids, 'verbose' => $verbose],
       ];
     }
 
@@ -636,6 +586,19 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
 
     // Add .htaccess to twig template directory.
     $batch['operations'][] = ['cohesion_templates_secure_directory', []];
+
+    // Move temp to live.
+    $batch['operations'][] = [
+      'entity_rebuild_temp_to_live', [
+        'verbose' => $verbose
+      ]
+    ];
+
+    $batch['operations'][] = [
+      'batch_drupal_flush_all_caches', [
+        'verbose' => $verbose
+      ]
+    ];
 
     // Carry on!
     if ($cron) {
@@ -649,12 +612,13 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * @return array collection of DX8 elements
+   * @return array collection of Acquia Cohesion elements
    */
   private function elementCollection() {
     try {
       return \Drupal::database()->select('key_value', 'chc')->fields('chc', ['collection'])->condition('chc.collection', 'cohesion.assets.%', 'LIKE')->groupBy('chc.collection')->execute()->fetchAll();
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       watchdog_exception('cohesion', $ex);
     }
 

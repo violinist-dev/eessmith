@@ -8,10 +8,9 @@ use Drupal\cohesion_website_settings\Entity\FontStack;
 use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\Entity\Entity;
 
 /**
- * Class DefaultEntitiesManager
+ * Class DefaultEntitiesManager.
  *
  * @package Drupal\cohesion_website_settings
  */
@@ -41,16 +40,16 @@ class DefaultEntitiesManager {
   public function importEntities($purge = TRUE) {
     $entities = \Drupal::service('cohesion.element.storage')->getByGroup(WebsiteSettings::getAssetGroupId());
 
-    // Import elements
+    // Import elements.
     if ($entities) {
       $canonical_list = [];
 
-      // Import each entity
+      // Import each entity.
       foreach ($entities as $e) {
 
         $entity_exists = WebsiteSettings::load($e['element_id']);
         if (!$entity_exists && !in_array($e['element_id'], ['color_palette', 'font_libraries', 'icon_libraries', 'scss_variables'])) {
-          // Try to import entity
+          // Try to import entity.
           $entity = WebsiteSettings::create([
             'id' => $e['element_id'],
             'label' => $e['element_label'],
@@ -82,6 +81,7 @@ class DefaultEntitiesManager {
    * @param $settings_type
    *
    * @return array|bool
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function createDefaultWebsiteSettings($settings_type) {
@@ -136,7 +136,7 @@ class DefaultEntitiesManager {
       default:
         $entity = $this->getCohesionEntity('cohesion_website_settings', $settings_type);
         if (isset($entity) && ($entity instanceof CohesionConfigEntityBase) && !$entity->isModified()) {
-          // Send default icon libraries to be processed on the API
+          // Send default icon libraries to be processed on the API.
           $entity->setJsonValue(Json::encode($form['model']));
           $entity->setJsonMapper('{}');
           $entity->enable();
@@ -173,7 +173,8 @@ class DefaultEntitiesManager {
           $entity = $storage->load(array_pop($id));
         }
       }
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       $entity = FALSE;
     }
 

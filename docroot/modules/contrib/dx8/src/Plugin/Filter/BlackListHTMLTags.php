@@ -2,7 +2,6 @@
 
 namespace Drupal\cohesion\Plugin\Filter;
 
-use Drupal\filter\Annotation\Filter;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 
@@ -35,7 +34,7 @@ class BlackListHTMLTags extends FilterBase {
    * @return mixed
    * @see https://stackoverflow.com/a/48362353/830680
    */
-  function removeTags($html, $tag) {
+  public function removeTags($html, $tag) {
     $dom = new \DOMDocument();
     $dom->loadHTML($html);
     foreach (iterator_to_array($dom->getElementsByTagName($tag)) as $item) {

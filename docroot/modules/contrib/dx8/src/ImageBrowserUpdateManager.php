@@ -7,10 +7,9 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\file\FileInterface;
 use Drupal\Core\Entity\EntityRepository;
-use Drupal\image\Entity\ImageStyle;
 
 /**
- * Class ImageBrowserUpdateManager
+ * Class ImageBrowserUpdateManager.
  *
  * @package Drupal\cohesion
  */
@@ -73,8 +72,9 @@ class ImageBrowserUpdateManager {
       if (!$this->moduleHandler->moduleExists($this->pluginInstanceConfig->getModule())) {
         $this->pluginInstanceConfig = NULL;
       }
-    } catch (\Exception $e) {
-      $pluginInstanceConfig = NULL;
+    }
+    catch (\Exception $e) {
+      $this->pluginInstanceConfig = NULL;
     }
 
     // Get an instance of the active image browser plugin.
@@ -85,8 +85,9 @@ class ImageBrowserUpdateManager {
       if (!$this->moduleHandler->moduleExists($this->pluginInstanceContent->getModule())) {
         $this->pluginInstanceContent = NULL;
       }
-    } catch (\Exception $e) {
-      $pluginInstanceContent = NULL;
+    }
+    catch (\Exception $e) {
+      $this->pluginInstanceContent = NULL;
     }
 
   }
@@ -110,7 +111,7 @@ class ImageBrowserUpdateManager {
   /**
    * Run onEntityInsertUpdate on both plugins.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    */
   public function onEntityInsertUpdate(EntityInterface $entity) {
     if ($this->pluginInstanceConfig) {
@@ -138,7 +139,8 @@ class ImageBrowserUpdateManager {
         if ($this->moduleHandler->moduleExists($instance->getModule())) {
           $plugins[$id] = $instance;
         }
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         continue;
       }
     }
@@ -160,7 +162,8 @@ class ImageBrowserUpdateManager {
       // Load the entity by UUID in the token.
       try {
         $entity = $this->entityRepository->loadEntityByUuid($token[1], $token[2]);
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         return FALSE;
       }
 

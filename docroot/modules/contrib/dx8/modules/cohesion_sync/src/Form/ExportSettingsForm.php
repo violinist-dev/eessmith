@@ -2,11 +2,10 @@
 
 namespace Drupal\cohesion_sync\Form;
 
-use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ExportSettingsForm
+ * Class ExportSettingsForm.
  *
  * @package Drupal\cohesion_sync\Form
  */
@@ -49,7 +48,8 @@ class ExportSettingsForm extends ExportFormBase {
           $options[$item['entity_type']] = [
             'name' => ucfirst($this->entityTypeManager->getDefinition($item['entity_type'])->getPluralLabel()->__toString()),
           ];
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
           continue;
         }
       }
@@ -63,7 +63,7 @@ class ExportSettingsForm extends ExportFormBase {
         'name' => 'Entity type',
       ],
       '#options' => $options,
-      '#empty' => t('No DX8 entity types found.'),
+      '#empty' => $this->t('No Acquia Cohesion entity types found.'),
       '#default_value' => $this->configSyncSettings->get('enabled_entity_types') ? $this->configSyncSettings->get('enabled_entity_types') : [],
       '#weight' => 2,
     ];
@@ -89,7 +89,7 @@ class ExportSettingsForm extends ExportFormBase {
     $this->configSyncSettings->set('enabled_entity_types', $form_state->getValue('enabled_entity_types'));
     $this->configSyncSettings->save();
 
-    drupal_set_message($this->t('Entity access has been updated.'));
+    \Drupal::messenger()->addMessage($this->t('Entity access has been updated.'));
   }
 
 }

@@ -49,6 +49,13 @@ entity.cohesion_helper.collection:
   parent: cohesion.settings.helpers
   weight: 0
 
+entity.cohesion_helper.collection.add_page:
+  title: 'Add helper'
+  description: 'Add a new helper'
+  route_name: entity.cohesion_helper.add_form
+  parent: entity.cohesion_helper.collection
+  weight: 0
+
 entity.cohesion_helper_category.collection:
   title: 'Categories'
   description: 'Manage your helper categories.'

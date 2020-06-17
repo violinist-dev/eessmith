@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
@@ -18,7 +19,7 @@ use Drupal\Core\Annotation\PluralTranslation;
 function cohesion_elements_install() {
   // Create preview images directory.
   $path = COHESION_FILESYSTEM_URI . '/preview';
-  if (file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
+  if (\Drupal::service('file_system')->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
     \Drupal::messenger()->addMessage(t('Cohesion preview directory created.'));
   }
 }
@@ -531,6 +532,22 @@ function cohesion_elements_update_8702() {
         }
       }
     }
+  }
+}
+
+/**
+ * Add Cohesion view mode to Component Content entity type
+ */
+function cohesion_elements_update_8800() {
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_view_mode');
+  // Add a Cohesion view mode if it does not already exist.
+  if (!$storage->load("component_content.cohesion")) {
+    $storage->create([
+      'targetEntityType' => 'component_content',
+      'id' => "component_content.cohesion",
+      'status' => TRUE,
+      'label' => t('Cohesion'),
+    ])->save();
   }
 }
 

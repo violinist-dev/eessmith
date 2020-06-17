@@ -6,7 +6,6 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\cohesion_elements\Entity\ElementCategoryInterface;
 
 /**
  * Class DynamicPermissions
@@ -19,7 +18,7 @@ class CategoryPermissions implements ContainerInjectionInterface {
   use StringTranslationTrait;
 
   /**
-   * @var EntityTypeManagerInterface $entityTypeManager .
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -27,7 +26,7 @@ class CategoryPermissions implements ContainerInjectionInterface {
    * Creates a ProductMenuLink instance.
    *
    * @param $base_plugin_id
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
@@ -46,7 +45,6 @@ class CategoryPermissions implements ContainerInjectionInterface {
    * @return array
    * @see \Drupal\user\PermissionHandlerInterface::getPermissions()
    */
-
   public function getPermissions() {
     $permissions = [];
 
@@ -59,7 +57,8 @@ class CategoryPermissions implements ContainerInjectionInterface {
       // Get the storage for this category entity type.
       try {
         $storage = $this->entityTypeManager->getStorage($entity_type_id);
-      } catch (\Throwable $e) {
+      }
+      catch (\Throwable $e) {
         continue;
       }
 
@@ -67,8 +66,8 @@ class CategoryPermissions implements ContainerInjectionInterface {
       foreach ($storage->loadMultiple() as $entity) {
         $permissions += [
           'access ' . $entity->id() . ' ' . $entity_type_id . ' group' => [
-            'title' => $this->t('DX8 Components - @label @type_label category group', ['@label' => $entity->label(), '@type_label' => $type_label]),
-            'description' => $this->t('Grant access to the DX8 @label @type_label category group.', ['@label' => $entity->label(), '@type_label' => $type_label]),
+            'title' => $this->t('Acquia Cohesion Components - @label @type_label category group', ['@label' => $entity->label(), '@type_label' => $type_label]),
+            'description' => $this->t('Grant access to the Acquia Cohesion @label @type_label category group.', ['@label' => $entity->label(), '@type_label' => $type_label]),
           ],
         ];
       }
@@ -76,4 +75,5 @@ class CategoryPermissions implements ContainerInjectionInterface {
 
     return $permissions;
   }
+
 }

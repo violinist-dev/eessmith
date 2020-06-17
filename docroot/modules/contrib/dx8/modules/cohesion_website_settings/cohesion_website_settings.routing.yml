@@ -53,24 +53,6 @@ cohesion_website_settings.icon_libraries.upload:
  requirements:
    _permission: 'administer website settings'
 
-cohesion_website_settings.file.upload:
- path: '/admin/cohesion/upload/file'
- defaults:
-   _controller: '\Drupal\cohesion_website_settings\Controller\WebsiteSettingsController::fileUploadPostCallback'
-   _title: 'File upload'
- method: [POST]
- requirements:
-   _user_is_logged_in: 'TRUE'
-
-cohesion_website_settings.file.upload.managed:
- path: '/admin/cohesion/upload/file/{managed}'
- defaults:
-   _controller: '\Drupal\cohesion_website_settings\Controller\WebsiteSettingsController::fileUploadPostCallback'
-   _title: 'File upload'
- method: [POST]
- requirements:
-   _user_is_logged_in: 'TRUE'
-
 cohesion_website_settings.libraries:
   path: '/cohesionapi/main/{type}'
   defaults:

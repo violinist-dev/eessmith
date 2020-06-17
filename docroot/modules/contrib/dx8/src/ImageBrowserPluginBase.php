@@ -9,7 +9,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 
 /**
- * Class ImageBrowserPluginBase
+ * Class ImageBrowserPluginBase.
  *
  * @package Drupal\cohesion
  */

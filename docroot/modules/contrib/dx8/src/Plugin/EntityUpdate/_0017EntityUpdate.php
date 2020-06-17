@@ -4,7 +4,6 @@ namespace Drupal\cohesion\Plugin\EntityUpdate;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\EntityUpdatePluginInterface;
-use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 use Drupal\Component\Plugin\PluginBase;
 
 /**
@@ -36,11 +35,11 @@ class _0017EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
       if ($entity->isLayoutCanvas()) {
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
-        // Update component field default values
+        // Update component field default values.
         foreach ($layoutCanvas->iterateModels('component_form') as $model) {
-          // If the component form element is a WYSIWYG and has a value update to the new model
+          // If the component form element is a WYSIWYG and has a value update to the new model.
           if ($model->getProperty(['settings', 'type']) == 'cohMediaEmbed') {
-              $json_values->model->{$model->getUUID()}->settings->options = ["noPlugin" => true];
+            $json_values->model->{$model->getUUID()}->settings->options = ["noPlugin" => TRUE];
           }
         }
       }

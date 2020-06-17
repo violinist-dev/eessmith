@@ -8,9 +8,8 @@ use Drupal\cohesion_elements\CustomElementPluginInterface;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Plugin\PluginBase;
 
-
 /**
- * Update WYSIWYG elements
+ * Update WYSIWYG elements.
  *
  * @package Drupal\cohesion
  *
@@ -38,9 +37,9 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
       if ($entity->isLayoutCanvas()) {
         $layoutCanvas = $entity->getLayoutCanvasInstance();
 
-        // Update component field default values
+        // Update component field default values.
         foreach ($layoutCanvas->iterateModels('component_form') as $model) {
-          // If the component form element is a WYSIWYG and has a value update to the new model
+          // If the component form element is a WYSIWYG and has a value update to the new model.
           if ($model->getProperty(['settings', 'type']) == 'cohWysiwyg') {
 
             if (is_string($model->getProperty(['model', 'value']))) {
@@ -57,16 +56,16 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
           }
         }
 
-        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values
+        // Update the canvas model for WYSIWYG elements, Google map marker elements and WYSIWYG component values.
         foreach ($layoutCanvas->iterateModels('canvas') as $model) {
           // If the element is a WYSIWYG element and the value exists and is not a token or field (start with [ and ends with ])
           if ($model->getElement()->getProperty('uid') == 'wysiwyg' && is_string($model->getProperty([
-              'settings',
-              'content',
-            ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
-              'settings',
-              'content',
-            ]))) {
+            'settings',
+            'content',
+          ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
+            'settings',
+            'content',
+          ]))) {
             $json_values->model->{$model->getUUID()}->settings->content = [
               'text' => $model->getProperty(['settings', 'content']),
               'textFormat' => 'cohesion',
@@ -75,12 +74,12 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
           // If the element is a Google map marker and the value exists and is not a token or field (start with [ and ends with ])
           if ($model->getElement()->getProperty('uid') == 'google-map-marker' && is_string($model->getProperty([
-              'settings',
-              'markerInfo',
-            ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
-              'settings',
-              'markerInfo',
-            ]))) {
+            'settings',
+            'markerInfo',
+          ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
+            'settings',
+            'markerInfo',
+          ]))) {
             $json_values->model->{$model->getUUID()}->settings->markerInfo = [
               'text' => $model->getProperty(['settings', 'markerInfo']),
               'textFormat' => 'cohesion',
@@ -94,9 +93,9 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
               $component_layout_canvas = $component->getLayoutCanvasInstance();
               foreach ($component_layout_canvas->iterateModels('component_form') as $form_model) {
                 if ($form_model->getProperty([
-                    'settings',
-                    'type',
-                  ]) == 'cohWysiwyg' && is_string($model->getProperty($form_model->getUUID())) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty($form_model->getUUID()))) {
+                  'settings',
+                  'type',
+                ]) == 'cohWysiwyg' && is_string($model->getProperty($form_model->getUUID())) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty($form_model->getUUID()))) {
                   $json_values->model->{$model->getUUID()}->{$form_model->getUUID()} = [
                     'text' => $model->getProperty($form_model->getUUID()),
                     'textFormat' => 'cohesion',
@@ -112,12 +111,12 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
             if ($fields = $this->getCustomElementFields($model->getElement()->getProperty('uid'))) {
               foreach ($fields as $field_id => $field) {
                 if (isset($field['type']) && $field['type'] == 'wysiwyg' && is_string($model->getProperty([
-                    'settings',
-                    $field_id,
-                  ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
-                    'settings',
-                    $field_id,
-                  ]))) {
+                  'settings',
+                  $field_id,
+                ])) && !preg_match('/^\[[\s\S]*?\]$/', $model->getProperty([
+                  'settings',
+                  $field_id,
+                ]))) {
                   $json_values->model->{$model->getUUID()}->settings->{$field_id} = [
                     'text' => $model->getProperty(['settings', $field_id]),
                     'textFormat' => 'cohesion',
@@ -143,16 +142,25 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
     return TRUE;
   }
 
+  /**
+   *
+   */
   public function loadComponent($componentId) {
     return Component::load($componentId);
   }
 
+  /**
+   *
+   */
   public function getCustomElementFields($uid) {
     $custom_element_plugin_manager = \Drupal::service('plugin.manager.custom_elements');
-    /** @var CustomElementPluginInterface $instance */
-    if ($instance = $custom_element_plugin_manager->createInstance($uid) && $instance instanceof CustomElementPluginInterface) {
-      return $instance->getFields();
+    /** @var \Drupal\cohesion_elements\CustomElementPluginInterface $instance */
+    if ($instance = $custom_element_plugin_manager->createInstance($uid)) {
+      if ($instance instanceof CustomElementPluginInterface) {
+        return $instance->getFields();
+      }
     }
     return FALSE;
   }
+
 }

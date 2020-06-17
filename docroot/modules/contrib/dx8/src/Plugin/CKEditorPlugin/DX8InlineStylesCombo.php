@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -29,7 +29,7 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -39,7 +39,7 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
   /**
    * Static create method.
    *
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
@@ -98,6 +98,7 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
    * style set.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   protected function getStyleSet() {
@@ -109,14 +110,14 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
 
         // Load the type data.
         $type_id = $custom_style->getCustomStyleType();
-        if ($custom_style->get('status') && $custom_style_type = \Drupal::service('entity.manager')->getStorage('custom_style_type')->load($type_id)) {
+        if ($custom_style->get('status') && $custom_style_type = \Drupal::service('entity_type.manager')->getStorage('custom_style_type')->load($type_id)) {
           if ($custom_style->get('available_in_wysiwyg')) {
 
             // Build the array.
             $list[] = [
               'name' => $custom_style->label(),
               'element' => 'span',
-              // span means this will applied as an inline style.
+              // Span means this will applied as an inline style.
               'attributes' => ['class' => str_replace('.', '', $custom_style->getClass())],
               'displayGroup' => $custom_style_type->get('label'),
             ];
@@ -127,7 +128,7 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
 
     if ($colors = \Drupal::service('settings.endpoint.utils')->getColorsList()) {
       foreach ($colors as $color) {
-        if (isset($color['wysiwyg']) && $color['wysiwyg'] == true) {
+        if (isset($color['wysiwyg']) && $color['wysiwyg'] == TRUE) {
           $list[] = [
             'name' => $color['name'],
             'element' => 'span',
@@ -138,7 +139,7 @@ class DX8InlineStylesCombo extends CKEditorPluginBase implements ContainerFactor
       }
     }
 
-
     return $list;
   }
+
 }

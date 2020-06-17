@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Form;
 use Drupal\cohesion\Form\CohesionEnableForm;
 
 /**
- * Class TemplateEnableForm
+ * Class TemplateEnableForm.
  *
  * Builds the form to delete Cohesion custom styles entities.
  *
@@ -18,7 +18,6 @@ class TemplateEnableForm extends CohesionEnableForm {
    */
   public function getDescription() {
 
-
     $description = $this->t('Enabling a @entity_type will make it available for use.', [
       '@entity_type' => ucfirst(strtolower($this->entity->getEntityType()->get('label_singular'))),
     ]);
@@ -29,6 +28,5 @@ class TemplateEnableForm extends CohesionEnableForm {
 
     return $description;
   }
-
 
 }
