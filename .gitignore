@@ -1,5 +1,9 @@
 # Ignore paths that contain user-generated content.
+.lando.yml
+
+*.sql.gz
+
 docroot/files
 docroot/sites/*/files
 docroot/sites/*/private
-
+docroot/sites/*/settings.local.php
