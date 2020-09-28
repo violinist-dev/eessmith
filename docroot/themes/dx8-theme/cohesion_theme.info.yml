@@ -1,6 +1,6 @@
-name: Acquia Cohesion minimal
+name: Site Studio minimal
 type: theme
-description: A minimal theme as a basis for Acquia Cohesion powered websites. It includes some basic styling for Drupal admin functions.
+description: A minimal theme as a basis for Site Studio powered websites. It includes some basic styling for Drupal admin functions.
 core_version_requirement: ^8.8.0 || ^9
 
 # Defines the base theme.
@@ -19,4 +19,4 @@ regions:
   sidebar_first: First sidebar
   sidebar_second: Second sidebar
   footer: Footer
-  dx8_hidden: Acquia Cohesion hidden region
+  dx8_hidden: Site Studio hidden region

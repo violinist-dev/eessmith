@@ -1,4 +1,4 @@
-# Acquia Cohesion minimal theme
+# Site Studio minimal theme
 
 Developer documentation. 
 
