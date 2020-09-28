@@ -1,6 +1,6 @@
 {
   "name": "cohesion/dx8-theme",
-  "description": "Acquia Cohesion minimal theme",
+  "description": "Site Studio minimal theme",
   "license": "GPL-2.0+",
   "authors": [
     {
@@ -10,5 +10,5 @@
     }
   ],
   "type": "drupal-theme",
-  "version": "6.1.2"
+  "version": "6.3.1"
 }

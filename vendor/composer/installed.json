@@ -122,20 +122,20 @@
     },
     {
         "name": "cohesion/dx8-theme",
-        "version": "6.1.2",
-        "version_normalized": "6.1.2.0",
+        "version": "6.3.1",
+        "version_normalized": "6.3.1.0",
         "source": {
             "type": "git",
             "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git",
-            "reference": "6de1c040d5c9a931ef301077115ee78698a4ba37"
+            "reference": "188277666a5ef4eda503bd208b2dda06222fa086"
         },
         "dist": {
             "type": "zip",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/6de1c040d5c9a931ef301077115ee78698a4ba37.zip",
-            "reference": "6de1c040d5c9a931ef301077115ee78698a4ba37",
+            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/188277666a5ef4eda503bd208b2dda06222fa086.zip",
+            "reference": "188277666a5ef4eda503bd208b2dda06222fa086",
             "shasum": ""
         },
-        "time": "2020-06-15T11:39:02+00:00",
+        "time": "2020-09-22T10:37:59+00:00",
         "type": "drupal-theme",
         "installation-source": "dist",
         "license": [
@@ -148,10 +148,10 @@
                 "role": "Maintainer"
             }
         ],
-        "description": "Acquia Cohesion minimal theme",
+        "description": "Site Studio minimal theme",
         "homepage": "https://bitbucket.org/cohesion_dev/dx8-theme",
         "support": {
-            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/6de1c040d5c9a931ef301077115ee78698a4ba37/?at=6.1.2"
+            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/188277666a5ef4eda503bd208b2dda06222fa086/?at=6.3.1"
         }
     },
     {
