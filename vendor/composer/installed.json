@@ -122,20 +122,20 @@
     },
     {
         "name": "cohesion/dx8-theme",
-        "version": "6.3.1",
-        "version_normalized": "6.3.1.0",
+        "version": "6.3.4",
+        "version_normalized": "6.3.4.0",
         "source": {
             "type": "git",
             "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git",
-            "reference": "188277666a5ef4eda503bd208b2dda06222fa086"
+            "reference": "d24d11f7c1eccf49e2b51b1d0c3518e5b3b8bad7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/188277666a5ef4eda503bd208b2dda06222fa086.zip",
-            "reference": "188277666a5ef4eda503bd208b2dda06222fa086",
+            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/d24d11f7c1eccf49e2b51b1d0c3518e5b3b8bad7.zip",
+            "reference": "d24d11f7c1eccf49e2b51b1d0c3518e5b3b8bad7",
             "shasum": ""
         },
-        "time": "2020-09-22T10:37:59+00:00",
+        "time": "2020-10-29T14:08:21+00:00",
         "type": "drupal-theme",
         "installation-source": "dist",
         "license": [
@@ -151,7 +151,7 @@
         "description": "Site Studio minimal theme",
         "homepage": "https://bitbucket.org/cohesion_dev/dx8-theme",
         "support": {
-            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/188277666a5ef4eda503bd208b2dda06222fa086/?at=6.3.1"
+            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/d24d11f7c1eccf49e2b51b1d0c3518e5b3b8bad7/?at=6.3.4"
         }
     },
     {
