@@ -16,7 +16,7 @@
     "drupal/youtube": "^1.0",
     "drupal/bootstrap": "^3.0",
         "cohesion/dx8": "6.1.2",
-        "cohesion/dx8-theme": "6.3.1",
+        "cohesion/dx8-theme": "6.3.4",
         "drupal/entity_reference_revisions": "^1.7",
         "drupal/imce": "^1.7",
         "drupal/token": "^1.6"
