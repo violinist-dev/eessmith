@@ -136,7 +136,7 @@ class FileSync extends SyncPluginBase {
 
     // File already exists (by UUID) - flag it.
     if ($entity = $this->entityRepository->loadEntityByUuid('file', $entry['uuid'])) {
-      if ($entity->get('uri')->getValue()[0]['value'] !== $entry['uri']) {
+      if ($entity->get('uri')->getValue()[0]['value'] !== $entry['uri'] && ( strpos($entry['uri'], 'cohesion://') === FALSE || $entity->get('uri')->getValue()[0]['value'] !== str_replace('cohesion://', 'public://cohesion/', $entry['uri']) )) {
         throw new \Exception('An entity with this UUID already exists but the URI does not match.');
       }
 

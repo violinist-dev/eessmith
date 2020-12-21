@@ -63,3 +63,6 @@ cohesion.settings:
     dx8_imce_stream_wrapper:
       type: string
       label: 'Use dx8'
+    stylesheet_json_storage_keyvalue:
+      type: boolean
+      label: 'Use key/value storage for stylesheet json'

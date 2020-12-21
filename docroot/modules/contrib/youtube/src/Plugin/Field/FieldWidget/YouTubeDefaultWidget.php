@@ -69,7 +69,7 @@ class YouTubeDefaultWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element['input'] = $element + [
       '#type' => 'textfield',
-      '#placeholder' => $this->getSetting('placearrayholder_url'),
+      '#placeholder' => $this->getSetting('placeholder_url'),
       '#default_value' => isset($items[$delta]->input) ? $items[$delta]->input : NULL,
       '#maxlength' => 255,
       '#element_validate' => [[$this, 'validateInput']],

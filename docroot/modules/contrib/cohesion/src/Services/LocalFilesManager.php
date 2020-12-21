@@ -3,10 +3,14 @@
 namespace Drupal\cohesion\Services;
 
 use Drupal\Component\FileSecurity\FileSecurity;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\File\Exception\FileException;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
 /**
  * Class LocalFilesManager.
@@ -21,12 +25,49 @@ class LocalFilesManager {
   use StringTranslationTrait;
 
   /**
+   * Wether the stylesheet json is stored in the key value storage or in files
+   *
+   * @var boolean
+   */
+  private $stylesheetJsonKeyvalue;
+
+  /**
+   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   *
+   * The key value store
+   */
+  private $keyValueStore;
+
+  /**
+   * The tempstore service.
+   *
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
+   */
+  protected $privateTempStore;
+
+  /**
+   * The cohesion utils helper.
+   *
+   * @var \Drupal\cohesion\Services\CohesionUtils
+   */
+  protected $cohesionUtils;
+
+  /**
    * LocalFilesManager constructor.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $stringTranslation
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $keyValueFactory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
+   *   The tempstore service.
+   * @param \Drupal\cohesion\Services\CohesionUtils $cohesion_utils
    */
-  public function __construct(TranslationInterface $stringTranslation) {
+  public function __construct(TranslationInterface $stringTranslation, ConfigFactoryInterface $configFactory, KeyValueFactoryInterface $keyValueFactory, PrivateTempStoreFactory $temp_store_factory, CohesionUtils $cohesion_utils) {
     $this->stringTranslation = $stringTranslation;
+    $this->stylesheetJsonKeyvalue = $configFactory->get('cohesion.settings')->get('stylesheet_json_storage_keyvalue');
+    $this->keyValueStore = $keyValueFactory->get('sitestudio');
+    $this->privateTempStore = $temp_store_factory->get('sitestudio');
+    $this->cohesionUtils = $cohesion_utils;
   }
 
   /**
@@ -46,14 +87,23 @@ class LocalFilesManager {
    * when re-importing.
    */
   public function liveToTemp() {
-    foreach (\Drupal::service('cohesion.utils')->getCohesionEnabledThemes() as $theme_info) {
-      $from = $this->getStyleSheetFilename('json', $theme_info->getName(), TRUE);
-      $to = $this->getStyleSheetFilename('json', $theme_info->getName());
-      if (file_exists($from)) {
-        try {
-          \Drupal::service('file_system')->move($from, $to, FileSystemInterface::EXISTS_REPLACE);
-        }
-        catch (FileException $e) {
+    if($this->stylesheetJsonKeyvalue === TRUE) {
+      // If the store is set to key value move the stylesheet jsons from the main key value to the private storage
+      $keyvalue_store_stylesheet_jsons = $this->keyValueStore->get('sitestudio_stylesheet_json');
+      if(!empty($keyvalue_store_stylesheet_jsons)) {
+        $this->privateTempStore->set('sitestudio_stylesheet_json', $keyvalue_store_stylesheet_jsons);
+      }
+    } else {
+      // If the store as been set to files, loop over each enabled theme and move the files to the main site studio folder
+      foreach ($this->cohesionUtils->getCohesionEnabledThemes() as $theme_info) {
+        $from = $this->getStyleSheetFilename('json', $theme_info->getName(), TRUE);
+        $to = $this->getStyleSheetFilename('json', $theme_info->getName());
+        if (file_exists($from)) {
+          try {
+            \Drupal::service('file_system')->move($from, $to, FileSystemInterface::EXISTS_REPLACE);
+          }
+          catch (FileException $e) {
+          }
         }
       }
     }
@@ -64,9 +114,30 @@ class LocalFilesManager {
    */
   public function tempToLive() {
 
-    foreach (\Drupal::service('cohesion.utils')->getCohesionEnabledThemes() as $theme_info) {
+    if($this->stylesheetJsonKeyvalue === TRUE) {
+      // If the store is set to key value move the stylesheet jsons from the private to the main key value storage
+      $private_stylesheet_jsons = $this->privateTempStore->get('sitestudio_stylesheet_json');
+      if(!empty($private_stylesheet_jsons)) {
+        $this->keyValueStore->set('sitestudio_stylesheet_json', $private_stylesheet_jsons);
+      }
+    } else {
+      // If the store as been set to files, loop over each enabled theme and move the files to the main site studio folder
+      foreach ($this->cohesionUtils->getCohesionEnabledThemes() as $theme_info) {
+        $from = $this->getStyleSheetFilename('json', $theme_info->getName());
+        $to = $this->getStyleSheetFilename('json', $theme_info->getName(), TRUE);
+        if (file_exists($from)) {
+          try {
+            \Drupal::service('file_system')->move($from, $to, FileSystemInterface::EXISTS_REPLACE);
+          }
+          catch (FileException $e) {
+          }
+        }
+      }
+    }
 
-      $styles = ['json', 'base', 'theme', 'grid', 'icons'];
+    foreach ($this->cohesionUtils->getCohesionEnabledThemes() as $theme_info) {
+
+      $styles = ['base', 'theme', 'grid', 'icons'];
 
       foreach ($styles as $style) {
         $from = $this->getStyleSheetFilename($style, $theme_info->getName());
@@ -295,6 +366,106 @@ class LocalFilesManager {
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Return the store that should be used depending on the batch running
+   *
+   * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface|\Drupal\Core\TempStore\PrivateTempStore|\Drupal\Core\TempStore\PrivateTempStoreFactory
+   */
+  private function getKeyValueStore() {
+    $running_dx8_batch = &drupal_static('running_dx8_batch');
+    if($running_dx8_batch) {
+      return $this->privateTempStore;
+    } else {
+      return $this->keyValueStore;
+    }
+  }
+
+  /**
+   * Get the stylesheet.json for a specific theme from the storage set in the config
+   *
+   * @param $theme_name
+   *
+   * @return false|mixed|string
+   */
+  public function getStyleSheetJson($theme_name) {
+    $original_css_contents = '';
+
+    // If site studio is set to store the stysheet json to the key value store only get it from it
+    // Otherwise get it from the file system
+    if($this->stylesheetJsonKeyvalue === TRUE) {
+      $stylesheet_json_value = $this->getKeyValueStore()->get('sitestudio_stylesheet_json');
+      if(isset($stylesheet_json_value[$theme_name]['json'])) {
+        // Return the stylesheet json for the theme
+        return $stylesheet_json_value[$theme_name]['json'];
+      }
+    } else {
+      $original_css_path = $this->getStyleSheetFilename('json', $theme_name);
+      if (file_exists($original_css_path)) {
+        $content = file_get_contents($original_css_path);
+        if (!$content) {
+          $this->cohesionUtils->errorHandler('File system reported that "' . $original_css_path . '" exists but was unable to load it.');
+        } else {
+          $original_css_contents = $content;
+        }
+
+      }
+    }
+
+    return $original_css_contents;
+  }
+
+  /**
+   * Set the stylesheet.json from the storage set in the config
+   *
+   * @param $stylesheet_json_content
+   * @param $theme_id
+   */
+  public function setStyleSheetJson($stylesheet_json_content, $theme_id) {
+    if($this->stylesheetJsonKeyvalue === TRUE) {
+      $stylesheet_json_value = $this->getKeyValueStore()->get('sitestudio_stylesheet_json');
+      $stylesheet_json_value[$theme_id] = [
+          'json' => $stylesheet_json_content,
+          'timestamp' => \Drupal::time()->getCurrentTime(),
+        ];
+      $this->getKeyValueStore()->set('sitestudio_stylesheet_json', $stylesheet_json_value);
+    } else {
+      $stylesheet_json_path = $this->getStyleSheetFilename('json', $theme_id);
+      \Drupal::service('file_system')->saveData($stylesheet_json_content, $stylesheet_json_path, FileSystemInterface::EXISTS_REPLACE);
+    }
+  }
+
+  /**
+   * Get the (sub second) timestamp of last theme stylesheet that has last been
+   * update.
+   *
+   * @return bool|int
+   */
+  public function getStylesheetTimestamp() {
+    $stylesheet_timestamp = 0;
+
+    if($this->stylesheetJsonKeyvalue === TRUE) {
+      $stylesheet_json_value = $this->getKeyValueStore()->get('sitestudio_stylesheet_json');
+      if(!empty($stylesheet_json_value)) {
+        foreach ($stylesheet_json_value as $json_values) {
+          if(isset($stylesheet_json_value['timestamp']) && $stylesheet_json_value['timestamp'] > $stylesheet_timestamp) {
+            $stylesheet_timestamp = $stylesheet_json_value['timestamp'];
+          }
+        }
+      }
+    } else {
+      foreach ($this->cohesionUtils->getCohesionEnabledThemes() as $theme_info) {
+        $originalCssPath = $this->getStyleSheetFilename('json', $theme_info->getName());
+
+        clearstatcache($originalCssPath);
+        if (file_exists($originalCssPath) && filemtime($originalCssPath) > $stylesheet_timestamp) {
+          $stylesheet_timestamp = filemtime($originalCssPath);
+        }
+      }
+    }
+
+    return $stylesheet_timestamp;
   }
 
 }

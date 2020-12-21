@@ -9,7 +9,7 @@
       "role": "Maintainer"
     }
   ],
-  "version": "6.1.2",
+  "version": "6.1.4",
   "type": "drupal-module",
   "minimum-stability": "dev",
   "extra": {

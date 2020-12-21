@@ -469,6 +469,7 @@ class CohesionEndpointController extends ControllerBase {
       'preview_image' => isset($content['preview_image']) ? $content['preview_image'] : FALSE,
       'json_values' => $content['json_values'],
       'selectable' => TRUE,
+      'modified' => TRUE
     ];
     // Save the element.
     list($error, $message) = $this->helper->saveElement($values, $content);

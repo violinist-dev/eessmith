@@ -315,22 +315,8 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
       // Attach the JSON representation of the stylesheet if Acquia Cohesion is enable and is the default theme or it has been set to build assets in the appearance of the theme.
       if ($this->themeHandler->getDefault() == $theme_info->getName() || theme_get_setting('features.cohesion_build_assets', $theme_info->getName())) {
         if ($attach_css == TRUE) {
-          $original_css_path = $this->localFilesManager->getStyleSheetFilename('json', $theme_info->getName());
-
-          if (file_exists($original_css_path)) {
-            $original_css_contents = file_get_contents($original_css_path);
-
-            if (!$original_css_contents) {
-              \Drupal::service('cohesion.utils')->errorHandler('File system reported that "' . $original_css_path . '" exists but was unable to load it.');
-            }
-          }
-          else {
-            $original_css_contents = '';
-          }
-
-          $this->data->css[$theme_info->getName()] = $original_css_contents;
-        }
-        else {
+          $this->data->css[$theme_info->getName()] = $this->localFilesManager->getStyleSheetJson($theme_info->getName());
+        } else {
           $this->data->css[$theme_info->getName()] = '';
         }
       }
@@ -505,7 +491,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
    */
   protected function processStyles($requestCSSTimestamp) {
     $running_dx8_batch = &drupal_static('running_dx8_batch');
-    $currentCssTimestamp = $this->getStylesheetTimestamp();
+    $currentCssTimestamp = $this->localFilesManager->getStylesheetTimestamp();
     foreach ($this->getData() as $styles) {
 
       if (isset($styles['css']) && $styles['themeName']) {
@@ -531,13 +517,15 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
 
           // Save the main/master stylesheet json.
           if ($stylesheet_json_content = $data['master']) {
-            $stylesheet_json_path = $this->localFilesManager->getStyleSheetFilename('json', $theme_id);
+
             try {
-              \Drupal::service('file_system')->saveData($stylesheet_json_content, $stylesheet_json_path, FileSystemInterface::EXISTS_REPLACE);
+              $this->localFilesManager->setStyleSheetJson($stylesheet_json_content, $theme_id);
             }
             catch (\Throwable $e) {
-              \Drupal::service('cohesion.utils')->errorHandler('The specified file: ' . $stylesheet_json_path . ' could not be saved for "' . $this->entity->getEntityTypeId() . '" entity "' . $this->entity->label() . '"');
+              $this->cohesionUtils->errorHandler('The specified file: ' . $stylesheet_json_path . ' could not be saved for "' . $this->entity->getEntityTypeId() . '" entity "' . $this->entity->label() . '"');
             }
+
+
           }
 
           // Smacss categories used by DX8.
@@ -597,29 +585,6 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
   }
 
   /**
-   * Get the (sub second) timestamp of last theme stylesheet that has last been
-   * update.
-   *
-   * @return bool|int
-   */
-  protected function getStylesheetTimestamp() {
-    $stylesheet_timestamp = 0;
-
-    foreach ($this->themeHandler->listInfo() as $theme_info) {
-      if ($this->cohesionUtils->themeHasCohesionEnabled($theme_info->getName())) {
-        $originalCssPath = $this->localFilesManager->getStyleSheetFilename('json', $theme_info->getName());
-
-        clearstatcache($originalCssPath);
-        if (file_exists($originalCssPath) && filemtime($originalCssPath) > $stylesheet_timestamp) {
-          $stylesheet_timestamp = filemtime($originalCssPath);
-        }
-      }
-    }
-
-    return $stylesheet_timestamp;
-  }
-
-  /**
    * Method performing the call to the cohesion API.
    *
    * @param $type
@@ -657,7 +622,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
     $this->moduleHandler->alter('dx8_api_outbound_data', $this->data, $this->entity, $this->isContent);
 
     // Save the last time the main stylesheet was updated.
-    $requestCSSTimestamp = $this->getStylesheetTimestamp();
+    $requestCSSTimestamp = $this->localFilesManager->getStylesheetTimestamp();
 
     // Perform the send (this function exists on the child classes).
     $this->callApi();
@@ -754,7 +719,7 @@ abstract class ApiPluginBase extends PluginBase implements ApiPluginInterface, C
     }
 
     // Save the last time the main stylesheet was updated.
-    $requestCSSTimestamp = $this->getStylesheetTimestamp();
+    $requestCSSTimestamp = $this->localFilesManager->getStylesheetTimestamp();
 
     // Call the API to delete the entry from the stylesheet.
     $this->response = \Drupal::service('cohesion.api_client')->buildDeleteStyle($this->data);

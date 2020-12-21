@@ -49,7 +49,7 @@ services:
 
   cohesion.local_files_manager:
     class: Drupal\cohesion\Services\LocalFilesManager
-    arguments: ['@string_translation']
+    arguments: ['@string_translation', '@config.factory', '@keyvalue', '@tempstore.private', '@cohesion.utils']
     tags:
       - { name: cohesion.local_files_manager, scheme: cohesion }
 
