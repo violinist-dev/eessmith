@@ -29,7 +29,7 @@ RUN chown -R application: /home/application/tools
 
 # Install drupal-lightning using composer create-project
 RUN COMPOSER_MEMORY_LIMIT=-1 composer create-project acquia/lightning-project:8.7.1 drupal --no-install && \
-    composer config -g github-oauth.github.com "d7e4768dba9f24dc4cb82afde6e2503b23416486" && \
+    composer config -g github-oauth.github.com "80a8158e286781a150143be76434c7231aff8383" && \
     cd /app/drupal && composer require acquia/lightning:4.1.0 && \
     composer require drush/drush && \
     mkdir -p /app/drupal/docroot/themes && \

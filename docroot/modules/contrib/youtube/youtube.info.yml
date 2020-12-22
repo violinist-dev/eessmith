@@ -11,7 +11,7 @@ dependencies:
   - drupal:file
 configure: youtube.settings
 
-# Information added by Drupal.org packaging script on 2019-11-12
-version: '8.x-1.0'
+# Information added by Drupal.org packaging script on 2020-06-10
+version: '8.x-1.2'
 project: 'youtube'
-datestamp: 1573591334
+datestamp: 1591803268

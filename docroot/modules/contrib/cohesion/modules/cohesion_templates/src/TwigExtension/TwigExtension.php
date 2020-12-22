@@ -1425,7 +1425,7 @@ class TwigExtension extends \Twig_Extension {
                 if($entity->hasTranslation($language)){
                   $entity = $entity->getTranslation($language);
                 }
-                return $entity->url();
+                return $entity->toUrl()->toString();
               }
             }
 

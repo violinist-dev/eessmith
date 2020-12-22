@@ -149,19 +149,25 @@ class FileUsage extends UsagePluginBase {
    */
   private function registerCoreFileUsage($files, EntityInterface $entity) {
 
-    // Remove 'cohesion' registered usage of all files for scanned entity.
-    try {
-      $this->connection->delete('file_usage')->condition('module', 'cohesion')->condition('type', $entity->getEntityTypeId())->condition('id', $entity->id())->execute();
-    }
-    catch (\Throwable $e) {
-      return;
-    }
+    if(strlen($entity->id()) < 32) {
+      // Remove 'cohesion' registered usage of all files for scanned entity.
+      try {
+        $this->connection->delete('file_usage')
+          ->condition('module', 'cohesion')
+          ->condition('type', $entity->getEntityTypeId())
+          ->condition('id', $entity->id())
+          ->execute();
+      } catch (\Throwable $e) {
+        return;
+      }
 
-    // Add file usages back in one by one, so we end up with the correct count
-    // for duplicates.
-    foreach ($files as $file) {
-      \Drupal::service('file.usage')->add($file, 'cohesion', $entity->getEntityTypeId(), $entity->id(), 1);
-      $this->refreshFileListCache($file);
+      // Add file usages back in one by one, so we end up with the correct count
+      // for duplicates.
+      foreach ($files as $file) {
+        \Drupal::service('file.usage')
+          ->add($file, 'cohesion', $entity->getEntityTypeId(), $entity->id(), 1);
+        $this->refreshFileListCache($file);
+      }
     }
 
   }

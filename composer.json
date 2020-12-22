@@ -1,88 +1,94 @@
 {
-    "name": "acquia/eessmith",
+    "name": "acquia\/eessmith",
     "description": "Composer build of my employee site.",
     "type": "project",
     "license": "GPL-2.0+",
     "require": {
-        "composer/installers": "^1.0.21",
-        "cweagans/composer-patches": "^1.6.0",
-        "wikimedia/composer-merge-plugin": "^1.3",
-        "drupal/core-recommended": "^8.8",
-        "drupal/stage_file_proxy": "^1.0",
-        "drupal-composer/drupal-scaffold":"^2.0.0",
-        "drupal/google_analytics": "^3.0",
-        "drupal/head2head": "^1.0",
-        "drupal/acquia_connector": "^1.19",
-        "drupal/youtube": "^1.0",
-        "drupal/bootstrap": "^3.0",
-        "acquia/cohesion": "6.1.2",
-        "acquia/cohesion-theme": "6.3.4",
-        "drupal/entity_reference_revisions": "^1.7",
-        "drupal/imce": "^1.7",
-        "drupal/token": "^1.6"
+        "composer\/installers": "^1.0.21",
+        "cweagans\/composer-patches": "^1.6.0",
+        "wikimedia\/composer-merge-plugin": "^1.3",
+        "drupal\/core-recommended": "^8.8",
+        "drupal/stage_file_proxy": "^1.1.0",
+        "drupal/google_analytics": "^3.1.0",
+        "drupal\/head2head": "^1.0",
+        "drupal/acquia_connector": "^1.23.0",
+        "drupal/youtube": "^1.2.0",
+        "drupal\/bootstrap": "^3.0",
+        "acquia/cohesion": "@stable",
+        "acquia\/cohesion-theme": "6.3.4",
+        "drupal\/entity_reference_revisions": "^1.7",
+        "drupal\/imce": "^1.7",
+        "drupal/token": "^1.9.0",
+        "cohesion/dx8-theme": "^6.4"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-    	"vendor-dir": "vendor"
-  	},
+        "vendor-dir": "vendor"
+    },
     "extra": {
         "_readme": [
-            "By default Drupal loads the autoloader from ./vendor/autoload.php.",
-            "To change the autoloader you can edit ./autoload.php."
+            "By default Drupal loads the autoloader from .\/vendor\/autoload.php.",
+            "To change the autoloader you can edit .\/autoload.php."
         ],
-
-		"installer-paths": {
-            "docroot/core": ["type:drupal-core"],
-			"docroot/modules/contrib/{$name}/": ["type:drupal-module"],
-			"docroot/themes/{$name}/": ["type:drupal-theme"],
-			"docroot/libraries/{$name}/": ["type:drupal-library"],
-			"docroot/profiles/contrib/{$name}/": ["type:drupal-profile"],
-			"docroot/modules/custom/{$name}/": ["type:drupal-module-custom"]
-		},
-        
+        "installer-paths": {
+            "docroot\/core": [
+                "type:drupal-core"
+            ],
+            "docroot\/modules\/contrib\/{$name}\/": [
+                "type:drupal-module"
+            ],
+            "docroot\/themes\/{$name}\/": [
+                "type:drupal-theme"
+            ],
+            "docroot\/libraries\/{$name}\/": [
+                "type:drupal-library"
+            ],
+            "docroot\/profiles\/contrib\/{$name}\/": [
+                "type:drupal-profile"
+            ],
+            "docroot\/modules\/custom\/{$name}\/": [
+                "type:drupal-module-custom"
+            ]
+        },
         "merge-plugin": {
             "recurse": false,
             "replace": false,
             "merge-extra": false
         },
         "drupal-scaffold": {
-      		"excludes": [
-        		".htaccess",
-        		"robots.txt",
-        		"themes/bootstrap_clean_blog"
-      		]
-    	}
+            "excludes": [
+                ".htaccess",
+                "robots.txt",
+                "themes\/bootstrap_clean_blog"
+            ]
+        }
     },
-    
     "scripts": {
         "post-install-cmd": [
             "@composer drupal-scaffold",
             "find docroot vendor -name '.git' | xargs rm -rf",
-            "find docroot vendor -name '.github' | xargs rm -rf" 
+            "find docroot vendor -name '.github' | xargs rm -rf"
         ],
         "post-update-cmd": [
             "@composer drupal-scaffold",
             "find docroot vendor -name '.git' | xargs rm -rf",
             "find docroot vendor -name '.github' | xargs rm -rf"
         ],
-        "drupal-scaffold": [
-            "DrupalComposer\\DrupalScaffold\\Plugin::scaffold"
-        ]
+        "drupal-scaffold": "echo 'Drupal Scaffold has been removed by Acquia RA. Please remove all references to it from your composer.json.'"
     },
-    
     "repositories": {
         "drupal": {
             "type": "composer",
-            "url": "https://packages.drupal.org/8"
+            "url": "https:\/\/packages.drupal.org\/8"
         },
         "dx8": {
             "type": "vcs",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-module.git"
+            "url": "https:\/\/bitbucket.org\/cohesion_dev\/dx8-module.git"
         },
         "dx8-theme": {
             "type": "vcs",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git"
+            "url": "https:\/\/bitbucket.org\/cohesion_dev\/dx8-theme.git"
         }
     }
 }

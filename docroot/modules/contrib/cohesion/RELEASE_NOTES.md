@@ -1,5 +1,106 @@
 # Release notes
 
+## 6.1.4
+
+### Bugfix: Component templates not always being generated
+
+#### What is is it?
+
+When saving as a component from the layout canvas, but not ever editing the component through the UI the components template wasn't generating as expected on rebuild.
+This resulted in error message like this appearing on the site: `Unable to find a template for suggestion matching component__cohesion_cpt_component_machine_name`.
+              
+#### What impact will there be?
+
+Saving a component in this way should now generate the component templates as expected.
+
+#### Are there any risks I should be aware of?
+
+None. 
+
+#### What actions do I need to take?
+
+Components that have been previously created this way and never edited through the UI, need to be saved through the UI. 
+
+### Bugfix: Error when saving a helper that contains files and has a long name
+
+#### What is is it?
+
+Fixed an issue where saving a helper with a long name from a layout canvas that contained files, caused a MYSQL error when trying to insert into the file usage table.
+If a helper already existed on the site, this also caused an error when running a site rebuild. 
+
+#### What impact will there be?
+
+Customers should no longer see the error if they were previously experiencing it. 
+If a helper is saved from the layout canvas with a long name, the machine name is created with a max length of 32 characters. 
+
+#### Are there any risks I should be aware of?
+
+None. 
+
+#### What actions do I need to take?
+
+None. 
+
+## 6.1.3
+
+### Bugfix: Style tree child or pseudo selector CSS values not saving after initial save and enabling extra breakpoints
+
+#### What is is it?
+
+There was an issue when adding additional Breakpoints to an existing style the values were not being saved correctly.
+
+#### What impact will there be?
+
+Users should now be able to add additional Breakpoints and the values saved correctly.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+### Bugfix: Incorrectly reporting import error after upgrading to 6.1.x
+
+#### What is is it?
+
+After upgrading to `6.1.2` some customers reported that they were seeing the following error when importing Sync packages containing files such as icon font files:
+
+> An entity with theh UUID already exists but the URI does not match.
+
+This error was incorrectly reported, blocking the import.
+
+#### What impact will there be?
+
+Customers will now be able to import packages that were previously throwing this error.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Error: Call to a member function toUrl() on null
+
+#### What is it?
+
+Fixes a bug where a URL tries to be generated in the in-use modal when an entity might not be available, stopping the in-use modal from opening.
+
+#### What impact will there be?
+
+You should no longer see the error "Call to a member function toUrl() on null" in your logs and the in-use modal should open as expected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
 ## 6.1.2
 
 ### Bugfix: Twig error when rendering a component with a link field
@@ -44,7 +145,7 @@ None.
 
 #### What is is it?
 
-When enabling a theme which is using Acquia Cohesion (ie: it has `cohesion: true` in its `info.yml` file or the theme it inherits from has), assets such as styles and templates for this theme will not be generated unless you check the checkbox labeled `Build Cohesion assets` in the appearance settings of the theme  
+When enabling a theme which is using Acquia Cohesion (ie: it has `cohesion: true` in its `info.yml` file or the theme it inherits from has), assets such as styles and templates for this theme will not be generated unless you check the checkbox labeled `Build Cohesion assets` in the appearance settings of the theme
 
 #### What impact will there be?
 
@@ -62,7 +163,7 @@ Your site might not render correctly unless you do what is describe in the `What
 
 #### What is is it?
 
-When attaching a component link field token to a field that is not a link field (ex: to the analytics data layer or a data attribute in the markup tab) the rendered output would be the internal reference (ex: node::1) rather then the link to the page 
+When attaching a component link field token to a field that is not a link field (ex: to the analytics data layer or a data attribute in the markup tab) the rendered output would be the internal reference (ex: node::1) rather then the link to the page
 
 #### What impact will there be?
 
@@ -83,7 +184,7 @@ The warning should not be thrown anymore
 
 None.
 
-### Acquia Cohesion now requires Drupal core 8.8.0 
+### Acquia Cohesion now requires Drupal core 8.8.0
 
 #### What is it?
 
@@ -93,7 +194,7 @@ Acquia Cohesion now requires Drupal core 8.8.0 as a minimum, due to some Drupal 
 
 This version of Acquia Cohesion and future versions can only be installed on Drupal core 8.8.0 and above.
 
-#### What actions do I need to take? 
+#### What actions do I need to take?
 
 If your website is running on an older version of Drupal core you will need to upgrade to 8.8.0 before upgrading to this version of Acquia Cohesion.
 
@@ -126,7 +227,7 @@ None.
 
 #### What is it?
 
-Fixes a regression introduced into 6.1.0 where a user could see an error like `Error: Unable to build styles. StatusCodeError: 400` when saving or rebuilding styles. This was blocking some Cohesion rebuilds from completing. 
+Fixes a regression introduced into 6.1.0 where a user could see an error like `Error: Unable to build styles. StatusCodeError: 400` when saving or rebuilding styles. This was blocking some Cohesion rebuilds from completing.
 
 #### What impact will there be?
 
@@ -187,15 +288,15 @@ None.
 
 #### What is it?
 
-Adds the ability to use all CSS selectors types in the style tree when adding a Prefix selector. 
+Adds the ability to use all CSS selectors types in the style tree when adding a Prefix selector.
 
 This includes Class, ID and Attribute CSS selectors.
 
-#### What impact will there be? 
+#### What impact will there be?
 
 Any prefix CSS Class selectors already added in the Style tree without the CSS class selector (`.`) will automatically be prefixed with a `.`
 
-#### What actions do I need to take? 
+#### What actions do I need to take?
 
 `drush cohesion:rebuild`
 
@@ -203,7 +304,7 @@ Any prefix CSS Class selectors already added in the Style tree without the CSS c
 
 None.
 
-### Drupal core media library compatibility 
+### Drupal core media library compatibility
 
 #### What is it?
 

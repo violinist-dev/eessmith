@@ -53,10 +53,10 @@ class YouTubeItem extends FieldItemBase {
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties['input'] = DataDefinition::create('string')
-      ->setLabel(t('Video url'));
+      ->setLabel(t('Video URL'));
 
     $properties['video_id'] = DataDefinition::create('string')
-      ->setLabel(t('Video id'));
+      ->setLabel(t('Video ID'));
 
     return $properties;
   }

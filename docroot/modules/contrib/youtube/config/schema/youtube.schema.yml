@@ -88,7 +88,7 @@ field.formatter.settings.youtube_url:
   type: mapping
   label: 'YouTube URL formatter settings'
   mapping:
-    image_style:
+    link:
       type: boolean
       label: 'Output this field as a link'
 

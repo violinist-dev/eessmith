@@ -307,24 +307,27 @@ class UsageUpdateManager {
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = $this->entityRepository->loadEntityByUuid($source_type, $source_uuid);
 
-      // Get the edit URL.
-      try {
-        $entity_edit_url = $entity->toUrl('edit-form')->toString();
-      }
-      catch (\Exception $e) {
-        $entity_edit_url = FALSE;
-      }
+      if ($entity) {
+        // Get the edit URL.
+        try {
+          $entity_edit_url = $entity->toUrl('edit-form')->toString();
+        } catch (\Exception $e) {
+          $entity_edit_url = FALSE;
+        }
 
-      // Get the group label (from entity type).
-      $group_label = $this->entityTypeManager->getDefinition($source_type)->getLabel()->render();
+        // Get the group label (from entity type).
+        $group_label = $this->entityTypeManager->getDefinition($source_type)
+          ->getLabel()
+          ->render();
 
-      // Update the grouped list.
-      $grouped[$group_label][] = [
-        'uuid' => $source_uuid,
-        'name' => $entity->label(),
-        'url' => $entity_edit_url,
-        'entity_type' => $entity->getEntityTypeId(),
-      ];
+        // Update the grouped list.
+        $grouped[$group_label][] = [
+          'uuid' => $source_uuid,
+          'name' => $entity->label(),
+          'url' => $entity_edit_url,
+          'entity_type' => $entity->getEntityTypeId(),
+        ];
+      }
     }
 
     return $grouped;

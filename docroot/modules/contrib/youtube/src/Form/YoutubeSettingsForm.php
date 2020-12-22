@@ -90,7 +90,7 @@ class YoutubeSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
       '#default_value' => $config->get('youtube_thumb_dir'),
     ];
-    $fom['youtube_thumbs']['youtube_thumb_hires'] = [
+    $form['youtube_thumbs']['youtube_thumb_hires'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Save higher resolution thumbnail images'),
       '#description' => $this->t('This will save thumbnails larger than the default size, 480x360, to the thumbnails directory specified above.'),
