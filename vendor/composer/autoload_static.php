@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
+class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -389,6 +389,7 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Asm89\\Stack\\Cors' => __DIR__ . '/..' . '/asm89/stack-cors/src/Asm89/Stack/Cors.php',
         'Asm89\\Stack\\CorsService' => __DIR__ . '/..' . '/asm89/stack-cors/src/Asm89/Stack/CorsService.php',
         'AssertionError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Composer\\Installers\\AglInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/AglInstaller.php',
         'Composer\\Installers\\AimeosInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/AimeosInstaller.php',
         'Composer\\Installers\\AnnotateCmsInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/AnnotateCmsInstaller.php',
@@ -457,6 +458,7 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Composer\\Installers\\Plugin' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/Plugin.php',
         'Composer\\Installers\\PortoInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/PortoInstaller.php',
         'Composer\\Installers\\PrestashopInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/PrestashopInstaller.php',
+        'Composer\\Installers\\ProcessWireInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/ProcessWireInstaller.php',
         'Composer\\Installers\\PuppetInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/PuppetInstaller.php',
         'Composer\\Installers\\PxcmsInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/PxcmsInstaller.php',
         'Composer\\Installers\\RadPHPInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/RadPHPInstaller.php',
@@ -468,6 +470,7 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Composer\\Installers\\ShopwareInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/ShopwareInstaller.php',
         'Composer\\Installers\\SilverStripeInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/SilverStripeInstaller.php',
         'Composer\\Installers\\SiteDirectInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/SiteDirectInstaller.php',
+        'Composer\\Installers\\StarbugInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/StarbugInstaller.php',
         'Composer\\Installers\\SyDESInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/SyDESInstaller.php',
         'Composer\\Installers\\SyliusInstaller' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/SyliusInstaller.php',
         'Composer\\Installers\\Symfony1Installer' => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers/Symfony1Installer.php',
@@ -2370,7 +2373,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'EasyRdf_Parser_Arc' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/Arc.php',
         'EasyRdf_Parser_Exception' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/Exception.php',
         'EasyRdf_Parser_Json' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/Json.php',
-        'EasyRdf_Parser_JsonLd' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/JsonLdImplementation.php',
         'EasyRdf_Parser_Ntriples' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/Ntriples.php',
         'EasyRdf_Parser_Rapper' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/Rapper.php',
         'EasyRdf_Parser_RdfPhp' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Parser/RdfPhp.php',
@@ -2383,7 +2385,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'EasyRdf_Serialiser_Arc' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/Arc.php',
         'EasyRdf_Serialiser_GraphViz' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/GraphViz.php',
         'EasyRdf_Serialiser_Json' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/Json.php',
-        'EasyRdf_Serialiser_JsonLd' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/JsonLd_real.php',
         'EasyRdf_Serialiser_Ntriples' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/Ntriples.php',
         'EasyRdf_Serialiser_Rapper' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/Rapper.php',
         'EasyRdf_Serialiser_RdfPhp' => __DIR__ . '/..' . '/easyrdf/easyrdf/lib/EasyRdf/Serialiser/RdfPhp.php',
@@ -2754,7 +2755,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Masterminds\\HTML5\\Serializer\\Traverser' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',
         'OS_Guess' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/OS/Guess.php',
         'PEAR' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',
-        'PEAR_Error' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR.php',
         'PEAR_ErrorStack' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/PEAR/ErrorStack.php',
         'PEAR_Exception' => __DIR__ . '/..' . '/pear/pear_exception/PEAR/Exception.php',
         'ParseError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/ParseError.php',
@@ -2808,13 +2808,11 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Cmf\\Component\\Routing\\Event\\RouterGenerateEvent' => __DIR__ . '/..' . '/symfony-cmf/routing/Event/RouterGenerateEvent.php',
         'Symfony\\Cmf\\Component\\Routing\\Event\\RouterMatchEvent' => __DIR__ . '/..' . '/symfony-cmf/routing/Event/RouterMatchEvent.php',
         'Symfony\\Cmf\\Component\\Routing\\LazyRouteCollection' => __DIR__ . '/..' . '/symfony-cmf/routing/LazyRouteCollection.php',
-        'Symfony\\Cmf\\Component\\Routing\\LazyRouteCollectionTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/LazyRouteCollectionTest.php',
         'Symfony\\Cmf\\Component\\Routing\\NestedMatcher\\FinalMatcherInterface' => __DIR__ . '/..' . '/symfony-cmf/routing/NestedMatcher/FinalMatcherInterface.php',
         'Symfony\\Cmf\\Component\\Routing\\NestedMatcher\\NestedMatcher' => __DIR__ . '/..' . '/symfony-cmf/routing/NestedMatcher/NestedMatcher.php',
         'Symfony\\Cmf\\Component\\Routing\\NestedMatcher\\RouteFilterInterface' => __DIR__ . '/..' . '/symfony-cmf/routing/NestedMatcher/RouteFilterInterface.php',
         'Symfony\\Cmf\\Component\\Routing\\NestedMatcher\\UrlMatcher' => __DIR__ . '/..' . '/symfony-cmf/routing/NestedMatcher/UrlMatcher.php',
         'Symfony\\Cmf\\Component\\Routing\\PagedRouteCollection' => __DIR__ . '/..' . '/symfony-cmf/routing/PagedRouteCollection.php',
-        'Symfony\\Cmf\\Component\\Routing\\PagedRouteCollectionTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/PagedRouteCollectionTest.php',
         'Symfony\\Cmf\\Component\\Routing\\PagedRouteProviderInterface' => __DIR__ . '/..' . '/symfony-cmf/routing/PagedRouteProviderInterface.php',
         'Symfony\\Cmf\\Component\\Routing\\ProviderBasedGenerator' => __DIR__ . '/..' . '/symfony-cmf/routing/ProviderBasedGenerator.php',
         'Symfony\\Cmf\\Component\\Routing\\RedirectRouteInterface' => __DIR__ . '/..' . '/symfony-cmf/routing/RedirectRouteInterface.php',
@@ -2830,23 +2828,13 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Enhancer\\FieldPresenceEnhancerTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/FieldPresenceEnhancerTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Enhancer\\RouteContentEnhancerTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/RouteContentEnhancerTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Enhancer\\RouteObject' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/RouteObject.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Enhancer\\TargetDocument' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/RouteContentEnhancerTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Enhancer\\UnknownDocument' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/RouteContentEnhancerTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Mapper\\FieldMapEnhancerTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Enhancer/FieldMapEnhancerTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\NestedMatcher\\NestedMatcherTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/NestedMatcher/NestedMatcherTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\NestedMatcher\\UrlMatcherTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/NestedMatcher/UrlMatcherTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\ChainRouterTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ChainRouterTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\ContentAwareGeneratorTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ContentAwareGeneratorTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\DynamicRouterTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/DynamicRouterTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\ProviderBasedGeneratorTest' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ProviderBasedGeneratorTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\RequestMatcher' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ChainRouterTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\RouteAware' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ContentAwareGeneratorTest.php',
         'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\RouteMock' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/RouteMock.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\RouteObject' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ProviderBasedGeneratorTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\TestableContentAwareGenerator' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ContentAwareGeneratorTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\TestableProviderBasedGenerator' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ProviderBasedGeneratorTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\VersatileRouter' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ChainRouterTest.php',
-        'Symfony\\Cmf\\Component\\Routing\\Tests\\Routing\\WarmableRouterMock' => __DIR__ . '/..' . '/symfony-cmf/routing/Tests/Routing/ChainRouterTest.php',
         'Symfony\\Cmf\\Component\\Routing\\VersatileGeneratorInterface' => __DIR__ . '/..' . '/symfony-cmf/routing/VersatileGeneratorInterface.php',
         'Symfony\\Component\\ClassLoader\\ApcClassLoader' => __DIR__ . '/..' . '/symfony/class-loader/ApcClassLoader.php',
         'Symfony\\Component\\ClassLoader\\ClassCollectionLoader' => __DIR__ . '/..' . '/symfony/class-loader/ClassCollectionLoader.php',
@@ -2978,8 +2966,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Component\\DependencyInjection\\Compiler\\FactoryReturnTypePass' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/FactoryReturnTypePass.php',
         'Symfony\\Component\\DependencyInjection\\Compiler\\InlineServiceDefinitionsPass' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/InlineServiceDefinitionsPass.php',
         'Symfony\\Component\\DependencyInjection\\Compiler\\LoggingFormatter' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/LoggingFormatter.php',
-        'Symfony\\Component\\DependencyInjection\\Compiler\\MergeExtensionConfigurationContainerBuilder' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/MergeExtensionConfigurationPass.php',
-        'Symfony\\Component\\DependencyInjection\\Compiler\\MergeExtensionConfigurationParameterBag' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/MergeExtensionConfigurationPass.php',
         'Symfony\\Component\\DependencyInjection\\Compiler\\MergeExtensionConfigurationPass' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/MergeExtensionConfigurationPass.php',
         'Symfony\\Component\\DependencyInjection\\Compiler\\PassConfig' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/PassConfig.php',
         'Symfony\\Component\\DependencyInjection\\Compiler\\PriorityTaggedServiceTrait' => __DIR__ . '/..' . '/symfony/dependency-injection/Compiler/PriorityTaggedServiceTrait.php',
@@ -3089,7 +3075,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Component\\DependencyInjection\\Loader\\GlobFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/GlobFileLoader.php',
         'Symfony\\Component\\DependencyInjection\\Loader\\IniFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/IniFileLoader.php',
         'Symfony\\Component\\DependencyInjection\\Loader\\PhpFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/PhpFileLoader.php',
-        'Symfony\\Component\\DependencyInjection\\Loader\\ProtectedPhpFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/PhpFileLoader.php',
         'Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/XmlFileLoader.php',
         'Symfony\\Component\\DependencyInjection\\Loader\\YamlFileLoader' => __DIR__ . '/..' . '/symfony/dependency-injection/Loader/YamlFileLoader.php',
         'Symfony\\Component\\DependencyInjection\\Parameter' => __DIR__ . '/..' . '/symfony/dependency-injection/Parameter.php',
@@ -3108,7 +3093,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Component\\EventDispatcher\\Debug\\TraceableEventDispatcher' => __DIR__ . '/..' . '/symfony/event-dispatcher/Debug/TraceableEventDispatcher.php',
         'Symfony\\Component\\EventDispatcher\\Debug\\TraceableEventDispatcherInterface' => __DIR__ . '/..' . '/symfony/event-dispatcher/Debug/TraceableEventDispatcherInterface.php',
         'Symfony\\Component\\EventDispatcher\\Debug\\WrappedListener' => __DIR__ . '/..' . '/symfony/event-dispatcher/Debug/WrappedListener.php',
-        'Symfony\\Component\\EventDispatcher\\DependencyInjection\\ExtractingEventDispatcher' => __DIR__ . '/..' . '/symfony/event-dispatcher/DependencyInjection/RegisterListenersPass.php',
         'Symfony\\Component\\EventDispatcher\\DependencyInjection\\RegisterListenersPass' => __DIR__ . '/..' . '/symfony/event-dispatcher/DependencyInjection/RegisterListenersPass.php',
         'Symfony\\Component\\EventDispatcher\\Event' => __DIR__ . '/..' . '/symfony/event-dispatcher/Event.php',
         'Symfony\\Component\\EventDispatcher\\EventDispatcher' => __DIR__ . '/..' . '/symfony/event-dispatcher/EventDispatcher.php',
@@ -3367,7 +3351,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Component\\Routing\\Loader\\GlobFileLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/GlobFileLoader.php',
         'Symfony\\Component\\Routing\\Loader\\ObjectRouteLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/ObjectRouteLoader.php',
         'Symfony\\Component\\Routing\\Loader\\PhpFileLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/PhpFileLoader.php',
-        'Symfony\\Component\\Routing\\Loader\\ProtectedPhpFileLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/PhpFileLoader.php',
         'Symfony\\Component\\Routing\\Loader\\XmlFileLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/XmlFileLoader.php',
         'Symfony\\Component\\Routing\\Loader\\YamlFileLoader' => __DIR__ . '/..' . '/symfony/routing/Loader/YamlFileLoader.php',
         'Symfony\\Component\\Routing\\Matcher\\Dumper\\DumperCollection' => __DIR__ . '/..' . '/symfony/routing/Matcher/Dumper/DumperCollection.php',
@@ -3687,7 +3670,6 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
         'Symfony\\Component\\Validator\\Mapping\\TraversalStrategy' => __DIR__ . '/..' . '/symfony/validator/Mapping/TraversalStrategy.php',
         'Symfony\\Component\\Validator\\ObjectInitializerInterface' => __DIR__ . '/..' . '/symfony/validator/ObjectInitializerInterface.php',
         'Symfony\\Component\\Validator\\Test\\ConstraintValidatorTestCase' => __DIR__ . '/..' . '/symfony/validator/Test/ConstraintValidatorTestCase.php',
-        'Symfony\\Component\\Validator\\Test\\ConstraintViolationAssertion' => __DIR__ . '/..' . '/symfony/validator/Test/ConstraintValidatorTestCase.php',
         'Symfony\\Component\\Validator\\Test\\ForwardCompatTestTrait' => __DIR__ . '/..' . '/symfony/validator/Test/ForwardCompatTestTrait.php',
         'Symfony\\Component\\Validator\\Util\\PropertyPath' => __DIR__ . '/..' . '/symfony/validator/Util/PropertyPath.php',
         'Symfony\\Component\\Validator\\Validation' => __DIR__ . '/..' . '/symfony/validator/Validation.php',
@@ -4142,11 +4124,11 @@ class ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6::$prefixesPsr0;
-            $loader->fallbackDirsPsr0 = ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6::$fallbackDirsPsr0;
-            $loader->classMap = ComposerStaticInit0a64497999e40b2f10a96231baa7fdf6::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit355962ff916b055657c7b3a80cd20fb3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit355962ff916b055657c7b3a80cd20fb3::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit355962ff916b055657c7b3a80cd20fb3::$prefixesPsr0;
+            $loader->fallbackDirsPsr0 = ComposerStaticInit355962ff916b055657c7b3a80cd20fb3::$fallbackDirsPsr0;
+            $loader->classMap = ComposerStaticInit355962ff916b055657c7b3a80cd20fb3::$classMap;
 
         }, null, ClassLoader::class);
     }
