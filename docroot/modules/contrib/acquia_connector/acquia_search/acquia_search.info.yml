@@ -12,7 +12,7 @@ dependencies:
  - drupal:views
  - drupal:node
 
-# Information added by Drupal.org packaging script on 2020-12-11
-version: '8.x-1.23'
+# Information added by Drupal.org packaging script on 2021-02-26
+version: '8.x-1.25'
 project: 'acquia_connector'
-datestamp: 1607714469
+datestamp: 1614365903

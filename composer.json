@@ -1,25 +1,26 @@
 {
-    "name": "acquia\/eessmith",
+    "name": "acquia/eessmith",
     "description": "Composer build of my employee site.",
     "type": "project",
     "license": "GPL-2.0+",
     "require": {
-        "composer\/installers": "^1.0.21",
-        "cweagans\/composer-patches": "^1.6.0",
-        "wikimedia\/composer-merge-plugin": "^1.3",
-        "drupal\/core-recommended": "^8.8",
+        "composer/installers": "^1.0.21",
+        "cweagans/composer-patches": "^1.6.0",
+        "wikimedia/composer-merge-plugin": "^1.3",
+        "drupal/core-recommended": "^8.8",
         "drupal/stage_file_proxy": "^1.1.0",
         "drupal/google_analytics": "^3.1.0",
-        "drupal\/head2head": "^1.0",
-        "drupal/acquia_connector": "^1.23.0",
+        "drupal/head2head": "^1.0",
+        "drupal/acquia_connector": "^1.25.0",
         "drupal/youtube": "^1.2.0",
-        "drupal\/bootstrap": "^3.0",
+        "drupal/bootstrap": "^3.0",
         "acquia/cohesion": "@stable",
-        "acquia\/cohesion-theme": "6.3.4",
-        "drupal\/entity_reference_revisions": "^1.7",
-        "drupal\/imce": "^1.7",
+        "acquia/cohesion-theme": "^6.5",
+        "drupal/entity_reference_revisions": "^1.9.0",
+        "drupal/imce": "^1.7",
         "drupal/token": "^1.9.0",
-        "cohesion/dx8-theme": "^6.4"
+        "cohesion/dx8-theme": "^6.5",
+        "drupal/core": "@stable"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -28,26 +29,26 @@
     },
     "extra": {
         "_readme": [
-            "By default Drupal loads the autoloader from .\/vendor\/autoload.php.",
-            "To change the autoloader you can edit .\/autoload.php."
+            "By default Drupal loads the autoloader from ./vendor/autoload.php.",
+            "To change the autoloader you can edit ./autoload.php."
         ],
         "installer-paths": {
-            "docroot\/core": [
+            "docroot/core": [
                 "type:drupal-core"
             ],
-            "docroot\/modules\/contrib\/{$name}\/": [
+            "docroot/modules/contrib/{$name}/": [
                 "type:drupal-module"
             ],
-            "docroot\/themes\/{$name}\/": [
+            "docroot/themes/{$name}/": [
                 "type:drupal-theme"
             ],
-            "docroot\/libraries\/{$name}\/": [
+            "docroot/libraries/{$name}/": [
                 "type:drupal-library"
             ],
-            "docroot\/profiles\/contrib\/{$name}\/": [
+            "docroot/profiles/contrib/{$name}/": [
                 "type:drupal-profile"
             ],
-            "docroot\/modules\/custom\/{$name}\/": [
+            "docroot/modules/custom/{$name}/": [
                 "type:drupal-module-custom"
             ]
         },
@@ -60,7 +61,7 @@
             "excludes": [
                 ".htaccess",
                 "robots.txt",
-                "themes\/bootstrap_clean_blog"
+                "themes/bootstrap_clean_blog"
             ]
         }
     },
@@ -80,15 +81,15 @@
     "repositories": {
         "drupal": {
             "type": "composer",
-            "url": "https:\/\/packages.drupal.org\/8"
+            "url": "https://packages.drupal.org/8"
         },
         "dx8": {
             "type": "vcs",
-            "url": "https:\/\/bitbucket.org\/cohesion_dev\/dx8-module.git"
+            "url": "https://bitbucket.org/cohesion_dev/dx8-module.git"
         },
         "dx8-theme": {
             "type": "vcs",
-            "url": "https:\/\/bitbucket.org\/cohesion_dev\/dx8-theme.git"
+            "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git"
         }
     }
 }
