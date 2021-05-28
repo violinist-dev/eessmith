@@ -71,20 +71,20 @@
         },
         {
             "name": "acquia/cohesion-theme",
-            "version": "6.5.0",
-            "version_normalized": "6.5.0.0",
+            "version": "6.5.1",
+            "version_normalized": "6.5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/cohesion-theme.git",
-                "reference": "21ac548e9ada843aebc6e52c4d7a114c924c0c08"
+                "reference": "9dd42c1b00df7f5c45d8807bff9661d2cfd0167e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/21ac548e9ada843aebc6e52c4d7a114c924c0c08",
-                "reference": "21ac548e9ada843aebc6e52c4d7a114c924c0c08",
+                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/9dd42c1b00df7f5c45d8807bff9661d2cfd0167e",
+                "reference": "9dd42c1b00df7f5c45d8807bff9661d2cfd0167e",
                 "shasum": ""
             },
-            "time": "2021-03-23T09:39:29+00:00",
+            "time": "2021-05-13T12:47:55+00:00",
             "type": "drupal-theme",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -101,7 +101,7 @@
             "description": "Site Studio minimal theme",
             "support": {
                 "issues": "https://github.com/acquia/cohesion-theme/issues",
-                "source": "https://github.com/acquia/cohesion-theme/tree/6.5.0"
+                "source": "https://github.com/acquia/cohesion-theme/tree/6.5.1"
             },
             "install-path": "../../docroot/themes/cohesion-theme"
         },
@@ -166,20 +166,20 @@
         },
         {
             "name": "cohesion/dx8-theme",
-            "version": "6.5.0",
-            "version_normalized": "6.5.0.0",
+            "version": "6.5.1",
+            "version_normalized": "6.5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git",
-                "reference": "dadb201afab6f767558d5d4f3e8853f235d53234"
+                "reference": "3bfcc524a4833e6af6c87655d33ff62878322bc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/dadb201afab6f767558d5d4f3e8853f235d53234.zip",
-                "reference": "dadb201afab6f767558d5d4f3e8853f235d53234",
+                "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/3bfcc524a4833e6af6c87655d33ff62878322bc6.zip",
+                "reference": "3bfcc524a4833e6af6c87655d33ff62878322bc6",
                 "shasum": ""
             },
-            "time": "2021-03-23T09:39:39+00:00",
+            "time": "2021-05-13T12:48:08+00:00",
             "type": "drupal-theme",
             "installation-source": "dist",
             "license": [
@@ -195,7 +195,7 @@
             "description": "Site Studio minimal theme",
             "homepage": "https://bitbucket.org/cohesion_dev/dx8-theme",
             "support": {
-                "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/dadb201afab6f767558d5d4f3e8853f235d53234/?at=6.5.0"
+                "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/3bfcc524a4833e6af6c87655d33ff62878322bc6/?at=6.5.1"
             },
             "install-path": "../../docroot/themes/dx8-theme"
         },
@@ -1093,17 +1093,17 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.9.15",
-            "version_normalized": "8.9.15.0",
+            "version": "8.9.16",
+            "version_normalized": "8.9.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "4804cb039c1e21f841dc4eccb24dc4a90c8280c6"
+                "reference": "498effa27ae5111f53f04fbe80fd05369a88c53d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/4804cb039c1e21f841dc4eccb24dc4a90c8280c6",
-                "reference": "4804cb039c1e21f841dc4eccb24dc4a90c8280c6",
+                "url": "https://api.github.com/repos/drupal/core/zipball/498effa27ae5111f53f04fbe80fd05369a88c53d",
+                "reference": "498effa27ae5111f53f04fbe80fd05369a88c53d",
                 "shasum": ""
             },
             "require": {
@@ -1270,7 +1270,7 @@
                 "drupal/workflows": "self.version",
                 "drupal/workspaces": "self.version"
             },
-            "time": "2021-05-05T11:28:48+00:00",
+            "time": "2021-05-25T09:17:58+00:00",
             "type": "drupal-core",
             "extra": {
                 "drupal-scaffold": {
@@ -1324,23 +1324,23 @@
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
             "support": {
-                "source": "https://github.com/drupal/core/tree/8.9.15"
+                "source": "https://github.com/drupal/core/tree/8.9.16"
             },
             "install-path": "../../docroot/core"
         },
         {
             "name": "drupal/core-recommended",
-            "version": "8.9.15",
-            "version_normalized": "8.9.15.0",
+            "version": "8.9.16",
+            "version_normalized": "8.9.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-recommended.git",
-                "reference": "eb09bb8097d63ef7fb44d8a464dc84eb9af5141f"
+                "reference": "ec38f5cb75ca1848f2247a645d4a4dee4abe4c28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core-recommended/zipball/eb09bb8097d63ef7fb44d8a464dc84eb9af5141f",
-                "reference": "eb09bb8097d63ef7fb44d8a464dc84eb9af5141f",
+                "url": "https://api.github.com/repos/drupal/core-recommended/zipball/ec38f5cb75ca1848f2247a645d4a4dee4abe4c28",
+                "reference": "ec38f5cb75ca1848f2247a645d4a4dee4abe4c28",
                 "shasum": ""
             },
             "require": {
@@ -1352,7 +1352,7 @@
                 "doctrine/common": "v2.7.3",
                 "doctrine/inflector": "v1.2.0",
                 "doctrine/lexer": "1.0.2",
-                "drupal/core": "8.9.15",
+                "drupal/core": "8.9.16",
                 "easyrdf/easyrdf": "0.9.1",
                 "egulias/email-validator": "2.1.17",
                 "guzzlehttp/guzzle": "6.5.4",
@@ -1403,7 +1403,7 @@
             "conflict": {
                 "webflo/drupal-core-strict": "*"
             },
-            "time": "2021-05-05T11:28:48+00:00",
+            "time": "2021-05-25T09:17:58+00:00",
             "type": "metapackage",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1411,7 +1411,7 @@
             ],
             "description": "Locked core dependencies; require this project INSTEAD OF drupal/core.",
             "support": {
-                "source": "https://github.com/drupal/core-recommended/tree/8.9.15"
+                "source": "https://github.com/drupal/core-recommended/tree/8.9.16"
             },
             "install-path": null
         },
