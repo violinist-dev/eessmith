@@ -5,7 +5,7 @@ dependencies:
     - editor
 _core:
   default_config_hash: '-B7eofOPg7bG6-7Mm9RCMXA9a5Lbi4DHnwHOPoGoPAQ'
-name: DX8
+name: Site Studio
 format: cohesion
 weight: 0
 filters:

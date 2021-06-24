@@ -88,7 +88,7 @@ class _0005EntityUpdate extends PluginBase implements EntityUpdatePluginInterfac
 
           // If the element is a component holding a wysiwyg field and the value exists and is not a token or field (start with [ and ends with ])
           if ($componentId = $model->getElement()->getComponentID()) {
-            /** @var $component Component */
+            /** @var \Drupal\cohesion_elements\Entity\Component $component */
             if ($component = $this->loadComponent($componentId)) {
               $component_layout_canvas = $component->getLayoutCanvasInstance();
               foreach ($component_layout_canvas->iterateModels('component_form') as $form_model) {

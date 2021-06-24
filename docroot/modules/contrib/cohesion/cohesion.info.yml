@@ -1,8 +1,8 @@
-name: Cohesion core
+name: Site Studio core
 type: module
-description: 'Defines the base Cohesion entities, import and administration controllers and drush commands.'
-version: 8.x-6.1.4
-package: cohesion
+description: 'Defines the base Site Studio entities, import and administration controllers and drush commands.'
+version: 8.x-6.6.0
+package: Site Studio
 core_version_requirement: ^8.8.0 || ^9
 dependencies:
   - contextual
@@ -11,3 +11,4 @@ dependencies:
   - entity_reference_revisions
   - settings_tray
   - rest
+  - ckeditor

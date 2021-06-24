@@ -6,7 +6,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
- * Defines the Cohesion helper entity.
+ * Defines the Site Studio helper entity.
  *
  * @ConfigEntityType(
  *   id = "cohesion_helper",
@@ -73,7 +73,7 @@ class Helper extends CohesionElementEntityBase implements CohesionSettingsInterf
 
   const CATEGORY_ENTITY_TYPE_ID = 'cohesion_helper_category';
 
-  const entity_machine_name_prefix = 'hlp_';
+  const ENTITY_MACHINE_NAME_PREFIX = 'hlp_';
 
   /**
    * {@inheritdoc}

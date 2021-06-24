@@ -18,7 +18,7 @@ use Drupal\Core\File\FileSystemInterface;
  */
 function cohesion_install() {
   // Remove/create cohesion base directory.
-  _cohesion_create_directory(COHESION_FILESYSTEM_URI, 'Cohesion directory created');
+  _cohesion_create_directory(COHESION_FILESYSTEM_URI, 'Site Studio directory created');
 }
 
 /**
@@ -46,7 +46,7 @@ function cohesion_update_8101(&$sandbox) {
 function cohesion_schema() {
   return [
     'coh_element_schema_info' => [
-      'description' => 'Definition and settings for Cohesion assets retrieved from the API.',
+      'description' => 'Definition and settings for Site Studio assets retrieved from the API.',
       'fields' => [
         'id' => [
           'type' => 'serial',
@@ -105,7 +105,7 @@ function cohesion_schema() {
       'unique_keys' => ['element_group', 'element_id'],
     ],
     'coh_usage' => [
-      'description' => 'Cohesion usage tracking.',
+      'description' => 'Site Studio usage tracking.',
       'fields' => [
         'source_uuid' => [
           'type' => 'varchar',
@@ -141,7 +141,7 @@ function cohesion_schema() {
 }
 
 /**
- * Alter Cohesion layout field schema 'type' property from 'varchar' to
+ * Alter Site Studio layout field schema 'type' property from 'varchar' to
  * 'Text'(Affected columns: 'json_schema', 'json_values', 'json_mapper') Update
  * the database.
  */
@@ -234,7 +234,7 @@ function cohesion_update_8104(&$variables) {
 }
 
 /**
- * Alter Cohesion layout field schema to add the 'styles' and 'template' fields.
+ * Alter Site Studio layout field schema to add the 'styles' and 'template' fields.
  * Update the database.
  */
 function cohesion_update_8113(&$sandbox) {
@@ -391,7 +391,7 @@ function cohesion_update_8125(&$variables) {
 }
 
 /**
- * Remove reference to unused custom style groups from keyValue storage and Cohesion
+ * Remove reference to unused custom style groups from keyValue storage and Site Studio
  * storage
  */
 function cohesion_update_8126(&$variables) {
@@ -407,7 +407,7 @@ function cohesion_update_8126(&$variables) {
   \Drupal::keyValue('cohesion.assets.custom_styles')
     ->deleteMultiple($legacy_headings);
 
-  // Remove from Cohesion storage
+  // Remove from Site Studio storage
   foreach ($legacy_headings as $legacy_heading) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_heading, 'custom_styles');
   }
@@ -489,7 +489,7 @@ function cohesion_update_8129(&$variables) {
 }
 
 /**
- * Remove reference to unused custom style groups from keyValue storage and Cohesion
+ * Remove reference to unused custom style groups from keyValue storage and Site Studio
  * storage
  */
 function cohesion_update_8130(&$variables) {
@@ -500,7 +500,7 @@ function cohesion_update_8130(&$variables) {
   \Drupal::keyValue('cohesion.assets.custom_styles')
     ->deleteMultiple($legacy_icons);
 
-  // Remove from Cohesion storage
+  // Remove from Site Studio storage
   foreach ($legacy_icons as $legacy_icon) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_icon, 'custom_styles');
   }
@@ -538,7 +538,7 @@ function cohesion_update_8501(&$variables) {
   \Drupal::keyValue('cohesion.assets.elements')
     ->deleteMultiple($legacy_element);
 
-  // Remove from Cohesion storage
+  // Remove from Site Studio storage
   foreach ($legacy_element as $legacy_icon) {
     \Drupal::service('cohesion.element.storage')->cohDelete($legacy_element, 'elements');
   }
@@ -888,7 +888,7 @@ function cohesion_update_8506(){
 }
 
 /**
- * Remove legacy hash key from Cohesion config entities.
+ * Remove legacy hash key from Site Studio config entities.
  */
 function cohesion_update_8507() {
   $config_factory = \Drupal::configFactory();
@@ -1838,12 +1838,12 @@ function _update_cohesion_admin_list_views() {
  * @param string $message
  */
 function _cohesion_create_directory($path, $message = '') {
-  // Clean the Acquia Cohesion  directory if this is a reinstall.
+  // Clean the Site Studio  directory if this is a reinstall.
   if (is_dir($path)) {
     \Drupal::service('file_system')->deleteRecursive($path);
   }
 
-  // Create the Acquia Cohesion  directory.
+  // Create the Site Studio  directory.
   if (\Drupal::service('file_system')->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY)) {
     \Drupal::messenger()->addMessage(t(":message", [':message' => $message,]));
   }

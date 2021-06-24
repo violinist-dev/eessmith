@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion_sync\Controller;
 
+use Drupal\cohesion_sync\PackagerManager;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\cohesion_sync\PackagerManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class ImportReportController.
+ * Import report controller.
  *
  * @package Drupal\cohesion_sync\Controller
  */

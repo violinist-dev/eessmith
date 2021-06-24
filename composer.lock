@@ -4,26 +4,26 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fdfdf8d8034b677f33727392571d66f1",
+    "content-hash": "9785167a3ba39b18c6d799d39ef3ac37",
     "packages": [
         {
             "name": "acquia/cohesion",
-            "version": "6.1.4",
+            "version": "6.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/cohesion.git",
-                "reference": "3bdd9ed79b3608355ca54c42fa4cac7c72a3170e"
+                "reference": "91bfaabc430de438070147be39333a734ea293c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/cohesion/zipball/3bdd9ed79b3608355ca54c42fa4cac7c72a3170e",
-                "reference": "3bdd9ed79b3608355ca54c42fa4cac7c72a3170e",
+                "url": "https://api.github.com/repos/acquia/cohesion/zipball/91bfaabc430de438070147be39333a734ea293c9",
+                "reference": "91bfaabc430de438070147be39333a734ea293c9",
                 "shasum": ""
             },
             "require": {
                 "cweagans/composer-patches": "^1.6",
                 "drupal/entity_reference_revisions": "^1.7",
-                "drupal/imce": "^1.7",
+                "drupal/imce": "^2.2",
                 "drupal/token": "^1.5",
                 "ext-json": "*"
             },
@@ -56,7 +56,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0+"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
@@ -65,12 +65,8 @@
                     "role": "Maintainer"
                 }
             ],
-            "description": "Acquia Cohesion",
-            "support": {
-                "issues": "https://github.com/acquia/cohesion/issues",
-                "source": "https://github.com/acquia/cohesion/tree/6.1.4"
-            },
-            "time": "2020-08-11T15:08:48+00:00"
+            "description": "Site Studio",
+            "time": "2021-06-23T13:05:37+00:00"
         },
         {
             "name": "acquia/cohesion-theme",
@@ -1655,26 +1651,26 @@
         },
         {
             "name": "drupal/imce",
-            "version": "1.8.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/imce.git",
-                "reference": "8.x-1.8"
+                "reference": "8.x-2.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/imce-8.x-1.8.zip",
-                "reference": "8.x-1.8",
-                "shasum": "32496efa05983dcdc5e6115272021fcea774c9b0"
+                "url": "https://ftp.drupal.org/files/projects/imce-8.x-2.4.zip",
+                "reference": "8.x-2.4",
+                "shasum": "2797d6a669b739490edd00c753303cd9263f8dc3"
             },
             "require": {
-                "drupal/core": "^8 || ^9"
+                "drupal/core": "^8.8 || ^9"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.8",
-                    "datestamp": "1586638244",
+                    "version": "8.x-2.4",
+                    "datestamp": "1618251147",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -1683,12 +1679,13 @@
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [
-                "GPL-2.0+"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
-                    "name": "thalles",
-                    "homepage": "https://www.drupal.org/user/3589086"
+                    "name": "See contributors",
+                    "homepage": "https://www.drupal.org/node/2841111/committers",
+                    "role": "Developer"
                 },
                 {
                     "name": "ufku",
@@ -1698,7 +1695,8 @@
             "description": "Provides a file manager supporting personal folders.",
             "homepage": "https://drupal.org/project/imce",
             "support": {
-                "source": "https://git.drupalcode.org/project/imce"
+                "source": "https://git.drupalcode.org/project/imce",
+                "issues": "https://www.drupal.org/project/issues/imce?version=8.x"
             }
         },
         {
@@ -5184,9 +5182,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "acquia/cohesion": 0
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

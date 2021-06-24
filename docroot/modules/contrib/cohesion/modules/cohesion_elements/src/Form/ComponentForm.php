@@ -6,7 +6,7 @@ use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ComponentForm.
+ * Component form.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -30,6 +30,9 @@ class ComponentForm extends ElementBaseForm {
     $form_state->setCached(FALSE);
     // Tell Angular that this is a component sidebar.
     $form['#attached']['drupalSettings']['cohesion']['isComponentForm'] = TRUE;
+    if ($this->moduleHandler->moduleExists('tmgmt')) {
+      $form['#attached']['drupalSettings']['cohesion']['tmgmt'] = TRUE;
+    }
     return $form;
   }
 

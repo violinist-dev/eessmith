@@ -2,15 +2,14 @@
 
 namespace Drupal\cohesion_website_settings;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\cohesion_website_settings\Entity\Color;
+use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion_website_settings\Entity\FontStack;
 use Drupal\cohesion_website_settings\Entity\WebsiteSettings;
-use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Class DefaultEntitiesManager.
+ * Default site studio entities manager.
  *
  * @package Drupal\cohesion_website_settings
  */
@@ -89,34 +88,6 @@ class DefaultEntitiesManager {
     $form = $ws_library->get($settings_type) ?: [];
 
     switch ($settings_type) {
-      case 'color_palette':
-        // Check to see if any color entities already exist.
-        if (!count($this->entityTypeManager->getStorage('cohesion_color')->loadMultiple())) {
-          // Create the entities.
-          $c = 0;
-          foreach ($form['model']['colors'] as $color) {
-            $running_dx8_batch = &drupal_static('running_dx8_batch');
-            $running_dx8_batch = TRUE;
-
-            $entity = Color::create([
-              'id' => $color['uid'],
-              'label' => $color['name'],
-            ]);
-            $entity->setDefaultValues();
-            $entity->setJsonValue(Json::encode($color));
-            $entity->setWeight($c++);
-            $errors = $entity->jsonValuesErrors();
-
-            if (!$errors) {
-              $entity->save();
-            }
-            else {
-              return $errors;
-            }
-          }
-        }
-        break;
-
       case 'font_libraries':
         // Check to see if any font_stack entities already exist.
         if (!count($this->entityTypeManager->getStorage('cohesion_font_stack')->loadMultiple())) {

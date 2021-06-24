@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class StyleHelpersUsage.
+ * Style helpers usage plugin.
  *
  * @package Drupal\cohesion_style_helpers\Plugin\Usage
  *
@@ -19,7 +19,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = "custom_style_type",
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"site_studio"}
  * )
  */
 class StyleHelpersUsage extends UsagePluginBase {

@@ -6,7 +6,7 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
- * Defines the Cohesion content templates entity.
+ * Defines the Site Studio content templates entity.
  *
  * @ConfigEntityType(
  *   id = "cohesion_content_templates",
@@ -290,7 +290,7 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
       return FALSE;
     }
 
-    if($this->get('view_mode') !== 'full' && $this->get('modified') === FALSE){
+    if ($this->get('view_mode') !== 'full' && $this->get('modified') === FALSE) {
       return TRUE;
     }
 
@@ -352,18 +352,7 @@ class ContentTemplates extends CohesionTemplateBase implements CohesionSettingsI
    * {@inheritdoc}
    */
   public function getEntityMachineNamePrefix() {
-
-    $entity_type = $this->get('entity_type');
-    $bundle = $this->get('bundle');
-    $view_mode = $this->get('view_mode');
-
-    $machine_name_prefix = implode('_', [
-      $entity_type,
-      $bundle,
-      $view_mode,
-    ]);
-
-    return $machine_name_prefix . '_';
+    return 'ctn_tpl_';
   }
 
 }

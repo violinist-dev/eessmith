@@ -2,11 +2,11 @@
 
 namespace Drupal\cohesion\Plugin\views\style;
 
-use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\style\StylePluginBase;
 
 /**
- * Acquia Cohesion layout style plugin to render views using Acquia Cohesion layouts.
+ * Site Studio layout style plugin to render views using Site Studio layouts.
  *
  * @ingroup views_style_plugins
  *

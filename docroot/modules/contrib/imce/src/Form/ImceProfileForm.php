@@ -2,7 +2,9 @@
 
 namespace Drupal\imce\Form;
 
+use Drupal\Component\Utility\Environment;
 use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\imce\Imce;
 use Drupal\imce\ImcePluginManager;
@@ -25,6 +27,7 @@ class ImceProfileForm extends EntityForm {
    *
    * @param \Drupal\imce\ImcePluginManager $plugin_manager_imce
    *   Plugin manager for Imce Plugins.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    */
   public function __construct(ImcePluginManager $plugin_manager_imce) {
     $this->pluginManagerImce = $plugin_manager_imce;
@@ -50,6 +53,9 @@ class ImceProfileForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
+    /**
+     * @var \Drupal\imce\Entity\ImceProfile
+     */
     $imce_profile = $this->getEntity();
     // Check duplication.
     if ($this->getOperation() === 'duplicate') {
@@ -99,7 +105,7 @@ class ImceProfileForm extends EntityForm {
       '#weight' => -9,
     ];
     // File size.
-    $maxsize = file_upload_max_size();
+    $maxsize = Environment::getUploadMaxSize();
     $conf['maxsize'] = [
       '#type' => 'number',
       '#min' => 0,
@@ -156,29 +162,51 @@ class ImceProfileForm extends EntityForm {
     $conf['dimensions']['description'] = [
       '#markup' => '<div class="description">' . $this->t('Images exceeding the limit will be scaled down.') . '</div>',
     ];
+    
+    // Advanced settings
+    $conf['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+      '#open' => FALSE,
+      '#parents' => ['conf'],
+      '#weight' => 9,
+    ];
     // Replace method.
-    $conf['replace'] = [
+    $conf['advanced']['replace'] = [
       '#type' => 'radios',
       '#title' => $this->t('Upload replace method'),
-      '#default_value' => $imce_profile->getConf('replace', FILE_EXISTS_RENAME),
+      '#default_value' => $imce_profile->getConf('replace', FileSystemInterface::EXISTS_RENAME),
       '#options' => [
-        FILE_EXISTS_RENAME => $this->t('Keep the existing file renaming the new one'),
-        FILE_EXISTS_REPLACE => $this->t('Replace the existing file with the new one'),
-        FILE_EXISTS_ERROR => $this->t('Keep the existing file rejecting the new one'),
+        FileSystemInterface::EXISTS_RENAME => $this->t('Keep the existing file renaming the new one'),
+        FileSystemInterface::EXISTS_REPLACE => $this->t('Replace the existing file with the new one'),
+        FileSystemInterface::EXISTS_ERROR => $this->t('Keep the existing file rejecting the new one'),
       ],
       '#description' => $this->t('Select the replace method for existing files during uploads.'),
       '#weight' => -5,
     ];
-    // Image thumbnails
+    // Image thumbnails.
     if (function_exists('image_style_options')) {
-      $conf['thumbnail_style'] = [
+      $conf['advanced']['thumbnail_style'] = [
         '#type' => 'select',
         '#title' => $this->t('Thumbnail style'),
         '#options' => image_style_options(),
         '#default_value' => $imce_profile->getConf('thumbnail_style'),
         '#description' => $this->t('Select a thumbnail style from the list to make the file browser display inline image previews. Note that this could reduce the performance of the file browser drastically.'),
       ];
+      $conf['advanced']['thumbnail_grid_style'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Thumbnail grid style'),
+        '#default_value' => $imce_profile->getConf('thumbnail_grid_style'),
+        '#description' => $this->t('Check it if you want to display the thumbnail in a grid. If not checked it will display the thumbnail in a list.'),
+      ];
     }
+    $conf['advanced']['ignore_usage'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Ignore file usage.'),
+      '#default_value' => $imce_profile->getConf('ignore_usage'),
+      '#description' => $this->t('IMCE avoids deletion or overwriting of files that are in use by other Drupal modules. Enabling this option skips the file usage check. Not recommended!'),
+    ];
+    
     // Folders.
     $conf['folders'] = [
       '#type' => 'fieldset',
@@ -186,6 +214,15 @@ class ImceProfileForm extends EntityForm {
       'description' => ['#markup' => '<div class="description">' . $this->t('You can use user tokens in folder paths, e.g. @tokens.', ['@tokens' => '[user:uid], [user:name]']) . ' ' . $this->t('Subfolders inherit parent permissions when subfolder browsing is enabled.') . '</div>'],
       '#weight' => 10,
     ];
+
+    if ($this->moduleHandler->moduleExists('token')) {
+      $conf['folders']['token_tree'] = [
+        '#theme' => 'token_tree_link',
+        '#token_types' => ['user'],
+        '#show_restricted' => TRUE,
+        '#global_types' => FALSE,
+      ];
+    }
     $folders = $imce_profile->getConf('folders', []);
     $index = 0;
     foreach ($folders as $folder) {
@@ -277,6 +314,9 @@ class ImceProfileForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    /**
+     * @var \Drupal\imce\Entity\ImceProfile
+     */
     $imce_profile = $this->getEntity();
     $status = $imce_profile->save();
     if ($status == SAVED_NEW) {

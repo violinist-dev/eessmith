@@ -7,7 +7,7 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\Plugin\ResourceInterface;
 
 /**
- * Cohesion base class for resource plugins.
+ * Site Studio base class for resource plugins.
  *
  * @see \Drupal\rest\Annotation\RestResource
  * @see \Drupal\rest\Plugin\Type\ResourcePluginManager

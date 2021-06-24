@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CategoryForm.
+ * Category form.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -80,7 +80,7 @@ class CategoryForm extends EntityForm {
     // Apply Angular styling to this form.
     $form['#attributes']['class'][] = 'coh-form';
 
-    // Include the Angualar css (which controls the cohesion_accordion and other form styling).
+    // Include the Angular css (which controls the cohesion_accordion and other form styling).
     $form['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
 
     return $form;

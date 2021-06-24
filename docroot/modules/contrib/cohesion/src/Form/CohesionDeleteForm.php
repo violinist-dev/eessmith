@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Class CohesionDeleteForm.
  *
- * Builds the form to delete Cohesion custom styles entities.
+ * Builds the form to delete Site Studio custom styles entities.
  *
  * @package Drupal\cohesion\Form
  */

@@ -1,7 +1,7 @@
 # handles relations between variables/components and entries with the var/component as the master lookup
 cohesion.cohesion_variables:
   type: config_entity
-  label: 'Cohesion variables'
+  label: 'Site Studio variables'
   mapping:
     variables:
       type: sequence

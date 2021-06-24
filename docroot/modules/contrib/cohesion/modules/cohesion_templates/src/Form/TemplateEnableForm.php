@@ -7,7 +7,7 @@ use Drupal\cohesion\Form\CohesionEnableForm;
 /**
  * Class TemplateEnableForm.
  *
- * Builds the form to delete Cohesion custom styles entities.
+ * Builds the form to delete Site Studio custom styles entities.
  *
  * @package Drupal\cohesion_templates\Form
  */

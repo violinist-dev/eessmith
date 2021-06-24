@@ -3,11 +3,11 @@
 namespace Drupal\cohesion;
 
 use Drupal\Component\Serialization\Json;
-use GuzzleHttp\Exception\RequestException;
 use Drupal\Core\Site\Settings;
+use GuzzleHttp\Exception\RequestException;
 
 /**
- * Client to perform API calls to Cohesion API.
+ * Client to perform API calls to Site Studio API.
  *
  * Class CohesionApiClient.
  *
@@ -65,6 +65,13 @@ class CohesionApiClient {
   }
 
   /**
+   * Merge component data with layout canvas
+   */
+  public function layoutCanvasDataMerge($payload) {
+    return $this->send('POST', '/components/update', $payload, TRUE);
+  }
+
+  /**
    *
    */
   public function parseJson($command, $payload) {
@@ -78,7 +85,7 @@ class CohesionApiClient {
     $cohesion_configs = \Drupal::config('cohesion.settings');
 
     return [
-      'dx8-env' => Settings::get('dx8_env', 'production'),
+      'dx8-env' => !empty($_ENV['AH_PRODUCTION']) && $_ENV['AH_PRODUCTION'] === 1 ? 'production' : Settings::get('dx8_env', 'non-production'),
       'dx8-site-id' => \Drupal::config('system.site')->get('uuid'),
       'dx8-api-key' => $cohesion_configs->get('api_key'),
       'dx8-drupal-path' => \Drupal::request()->getRequestUri(),
@@ -118,6 +125,8 @@ class CohesionApiClient {
    */
   protected function send($method, $uri, $data = [], $json_as_object = FALSE, $retry = TRUE) {
 
+    $body = Json::encode($data);
+
     // Build the headers for all requests.
     $options = [
       'headers' => array_merge([
@@ -126,9 +135,16 @@ class CohesionApiClient {
       ], $this->requestHeaders()),
       // Decompress inbound content.
       'decode_content' => TRUE,
-      // The body.
-      'body' => Json::encode($data),
     ];
+
+    $compress = \Drupal::configFactory()->get('cohesion.settings')->get('compress_outbound_request');
+    if ($compress !== FALSE) {
+      $options['headers']['Content-Encoding'] = 'gzip';
+      // Compression level set to 1 to get the network performance without affecting the client site performance
+      $options['body'] = gzencode($body, 1);
+    } else {
+      $options['body'] = $body;
+    }
 
     $code = NULL;
     $response_data = NULL;

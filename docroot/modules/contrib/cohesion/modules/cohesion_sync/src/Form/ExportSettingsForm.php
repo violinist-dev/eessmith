@@ -5,7 +5,7 @@ namespace Drupal\cohesion_sync\Form;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ExportSettingsForm.
+ * Export settings form.
  *
  * @package Drupal\cohesion_sync\Form
  */
@@ -63,7 +63,7 @@ class ExportSettingsForm extends ExportFormBase {
         'name' => 'Entity type',
       ],
       '#options' => $options,
-      '#empty' => $this->t('No Acquia Cohesion entity types found.'),
+      '#empty' => $this->t('No Site Studio entity types found.'),
       '#default_value' => $this->configSyncSettings->get('enabled_entity_types') ? $this->configSyncSettings->get('enabled_entity_types') : [],
       '#weight' => 2,
     ];

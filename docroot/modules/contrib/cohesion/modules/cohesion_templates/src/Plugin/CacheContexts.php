@@ -3,7 +3,7 @@
 namespace Drupal\cohesion_templates\Plugin;
 
 /**
- * Class CacheContexts.
+ * Cache contexts plugin.
  *
  * @package Drupal\cohesion_templates\Plugin
  */
@@ -14,10 +14,11 @@ class CacheContexts {
    * Needs context module to be enabled.
    *
    * @param array $machine_names
+   * @param array $componentFieldsValues
    *
    * @return array cache contexts
    */
-  public function getFromContextName($machine_names, $componentFields = []) {
+  public function getFromContextName($machine_names, $componentFieldsValues = []) {
     $cache_contexts = [];
 
     if (is_array($machine_names)) {
@@ -28,7 +29,7 @@ class CacheContexts {
       foreach ($machine_names as $machine_name) {
         $context_name = $machine_name;
         // If the context is driven by a component field, get the values from the components field values.
-        foreach ($componentFields as $componentFieldUUID => $componentField) {
+        foreach ($componentFieldsValues as $componentFieldUUID => $componentField) {
           if (strpos($machine_name, $componentFieldUUID) !== FALSE) {
             $context_name = $componentField;
           }
@@ -59,15 +60,16 @@ class CacheContexts {
    * Return cache contexts for a given template entity id.
    *
    * @param $candidate_template
+   * @param $componentFieldsValues
    *
    * @return array cache contexts
    */
-  public function getFromTemplateEntityId($candidate_template, $componentFields = []) {
+  public function getFromTemplateEntityId($candidate_template, $componentFieldsValues = []) {
     try {
       if ($candidate_template) {
         if ($metadata = \Drupal::keyValue('coh_template_metadata')->get($candidate_template->get('twig_template'))) {
           if (isset($metadata['contexts'])) {
-            return $this->getFromContextName($metadata['contexts'], $componentFields);
+            return $this->getFromContextName($metadata['contexts'], $componentFieldsValues);
           }
         }
       }

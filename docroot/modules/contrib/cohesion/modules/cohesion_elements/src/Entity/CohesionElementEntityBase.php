@@ -4,11 +4,12 @@ namespace Drupal\cohesion_elements\Entity;
 
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
+use Drupal\cohesion\TemplateStorage\TemplateStorageBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\file\Entity\File;
 
 /**
- * Defines the Cohesion component entity.
+ * Defines the Site Studio component entity.
  */
 abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implements CohesionSettingsInterface, CohesionElementSettingsInterface {
 
@@ -250,7 +251,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     }
 
     // Get the twig filename.
-    $filename_prefix = 'component--cohesion-';
+    $filename_prefix = 'component' . TemplateStorageBase::TEMPLATE_PREFIX;
     $filename = $filename_prefix . str_replace('_', '-', str_replace('cohesion-helper-', '', $this->get('id')));
     $this->set('twig_template', $filename);
   }
@@ -262,7 +263,7 @@ abstract class CohesionElementEntityBase extends CohesionConfigEntityBase implem
     $cohesion_sync_lock = &drupal_static('cohesion_sync_lock');
 
     // Don't attempt to convert to "Uncategorized" if we're importing or updating.
-    if (!$cohesion_sync_lock) {
+    if (!$cohesion_sync_lock && !is_null($cohesion_sync_lock)) {
       $category_class = \Drupal::entityTypeManager()->getStorage($this->getCategoryEntityTypeId())->getEntitytype()->getOriginalClass();
       \Drupal::service('cohesion_elements.category_relationships')->processCategory($this->getCategory(), $this->getCategoryEntityTypeId(), $category_class);
     }

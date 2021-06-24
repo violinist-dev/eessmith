@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion_custom_styles;
 
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\cohesion\CohesionHtmlRouteProvider;
 use Drupal\cohesion_custom_styles\Controller\CustomStylesController;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Class CustomStylesHtmlRouteProvider.
  *
- * Provides routes for Cohesion base styles entities.
+ * Provides routes for Site Studio base styles entities.
  *
  * @package Drupal\cohesion_custom_styles
  */

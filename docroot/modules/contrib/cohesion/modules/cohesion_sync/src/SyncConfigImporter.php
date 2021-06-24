@@ -2,11 +2,13 @@
 
 namespace Drupal\cohesion_sync;
 
+use Drupal\Core\Config\ConfigEvents;
 use Drupal\Core\Config\ConfigImporter;
+use Drupal\Core\Config\ConfigImporterEvent;
 use Drupal\Core\Config\ConfigImporterException;
 
 /**
- * Class SyncConfigImporter.
+ * Sync config importer.
  *
  * @package Drupal\cohesion_sync
  */
@@ -39,6 +41,7 @@ class SyncConfigImporter extends ConfigImporter {
           $this->logError($this->t('Rename operation for simple configuration. Existing configuration @old_name and staged configuration @new_name.', ['@old_name' => $names['old_name'], '@new_name' => $names['new_name']]));
         }
       }
+      $this->eventDispatcher->dispatch(ConfigEvents::IMPORT_VALIDATE, new ConfigImporterEvent($this));
       if (count($this->getErrors())) {
         $errors = array_merge(['There were errors validating the config synchronization.'], $this->getErrors());
         throw new ConfigImporterException(implode(PHP_EOL, $errors));

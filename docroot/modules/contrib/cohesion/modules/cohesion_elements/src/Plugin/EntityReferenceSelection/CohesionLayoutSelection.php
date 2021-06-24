@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @EntityReferenceSelection(
  *   id = "default:cohesion_layout",
- *   label = @Translation("Cohesion layout selection"),
+ *   label = @Translation("Site Studio layout selection"),
  *   entity_types = {"cohesion_layout"},
  *   group = "default",
  *   weight = 0

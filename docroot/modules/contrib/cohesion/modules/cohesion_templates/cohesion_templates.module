@@ -26,17 +26,17 @@ function cohesion_templates_help($route_name, RouteMatchInterface $route_match) 
     case 'help.page.cohesion_templates':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This module defines the template configuration entities for creating Cohesion templates.') . '</p>';
+      $output .= '<p>' . t('This module defines the template configuration entities for creating Site Studio templates.') . '</p>';
       $output .= '<p><ul>';
       $output .= '  <li>Master/global template configuration entity and supporting forms.</li>';
       $output .= '  <li>Content template view mode configuration entity and supporting forms.</li>';
       $output .= '  <li>Menu template configuration entity and supporting forms.</li>';
       $output .= '  <li>Views template configuration entity and supporting forms.</li>';
       $output .= '  <li>Content entity template selector field plugin.</li>';
-      $output .= '  <li>Twig extension containing twig functions and filters required for rendering Cohesion templates.</li>';
-      $output .= '  <li>Cohesion API integration.</li>';
+      $output .= '  <li>Twig extension containing twig functions and filters required for rendering Site Studio templates.</li>';
+      $output .= '  <li>Site Studio API integration.</li>';
       $output .= '</ul></p>';
-      $output .= '<p><a href="https://cohesiondocs.acquia.com/" target="_blank">https://cohesiondocs.acquia.com/</a></p>';
+      $output .= '<p><a href="https://sitestudiodocs.acquia.com/" target="_blank">https://sitestudiodocs.acquia.com/</a></p>';
       return $output;
 
     default:
@@ -133,7 +133,7 @@ function cohesion_templates_preprocess_page(&$variables) {
 }
 
 /**
- * Add Cohesion template cache tags to views that use them.
+ * Add Site Studio template cache tags to views that use them.
  *
  * @param \Drupal\views\ViewExecutable $view
  * @param $display_id
@@ -152,7 +152,7 @@ function cohesion_templates_views_pre_view(ViewExecutable $view, $display_id, ar
         $displays[$display_id]['display_options'] = array_merge($displays['default']['display_options'], $displays[$display_id]['display_options']);
       }
 
-      // Get the the Cohesion views template ID.
+      // Get the the Site Studio views template ID.
       if (isset($displays[$display_id]['display_options']['style']['options']['views_template'])) {
         $views_template_id = $displays[$view->current_display]['display_options']['style']['options']['views_template'];
 
@@ -218,7 +218,7 @@ function _cohesion_templates_get_template_candidate(ContentEntityInterface $enti
 
 /**
  * @inheritdoc
- * Suggest correct Cohesion entity template as appropriate.
+ * Suggest correct Site Studio entity template as appropriate.
  *
  * There are several different types of Content Templates, which have specific
  * requirements for their usage.
@@ -282,12 +282,12 @@ function cohesion_templates_theme() {
 /**
  * Implements hook_theme_suggestions_HOOK_alter().
  *
- * Suggest correct Cohesion page template as appropriate.
+ * Suggest correct Site Studio page template as appropriate.
  *
  * A page template is used when the active node template specifies one.
  */
 function cohesion_templates_theme_suggestions_page_alter(array &$suggestions, array $variables) {
-  // Only apply master templates if this theme is Cohesion enabled.
+  // Only apply master templates if this theme is Site Studio enabled.
   if (\Drupal::service('cohesion.utils')->currentThemeUseCohesion()) {
     $master_template_candidate = _cohesion_templates_get_master_template();
     $master_template = 'page__cohesion__' . $master_template_candidate;
@@ -306,7 +306,7 @@ function cohesion_templates_theme_suggestions_page_alter(array &$suggestions, ar
  */
 function cohesion_templates_module_implements_alter(&$implementations, $hook) {
   if ($hook == 'theme_suggestions_page_alter') {
-    // Only apply templates if this theme is Cohesion enabled.
+    // Only apply templates if this theme is Site Studio enabled.
     if (\Drupal::service('cohesion.utils')->currentThemeUseCohesion()) {
       if (isset($implementations['cohesion_templates'])) {
         unset($implementations['cohesion_templates']);
@@ -632,7 +632,7 @@ function cohesion_templates_entity_bundle_delete($entity_type_id, $bundle) {
  * @inheritdoc
  * Implements hook_form_BASE_FORM_ID_alter().
  *
- * Add the Cohesion template selector field to the advanced sidebar on node
+ * Add the Site Studio template selector field to the advanced sidebar on node
  *   edit.
  */
 function cohesion_templates_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
@@ -671,4 +671,11 @@ function cohesion_templates_has_cohesion_template_selector_field(EntityInterface
     }
   }
   return FALSE;
+}
+
+/**
+ * Implements hook_config_translation_info_alter().
+ */
+function cohesion_templates_config_translation_info_alter(&$info) {
+  $info['cohesion_content_templates']['class'] = 'Drupal\cohesion_templates\ConfigTranslation\CohesionTemplatesMapper';
 }

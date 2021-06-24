@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Class TemplatesListBuilder.
  *
- * Provides a listing of Cohesion view templates.
+ * Provides a listing of Site Studio view templates.
  *
  * @package Drupal\cohesion_templates
  */

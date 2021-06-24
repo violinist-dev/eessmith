@@ -2,13 +2,22 @@
 
 namespace Drupal\Tests\cohesion\Kernel;
 
-
 use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Tests\acquia_contenthub\Kernel\ImportExportTestBase;
 
-class CohesionContentHubImportExportTest extends ImportExportTestBase {
+/**
+ * Class CohesionContentHubImportExportTest.
+ *
+ * @group Cohesion
+ * @group orca_ignore
+ *
+ * @requires module cohesion
+ *
+ * @package Drupal\Tests\cohesion\Kernel
+ */
+abstract class CohesionContentHubImportExportTest extends ImportExportTestBase {
 
   const ENTITY_REFERENCE_TYPES = parent::ENTITY_REFERENCE_TYPES + ['cohesion_entity_reference_revisions'];
 
@@ -43,6 +52,7 @@ class CohesionContentHubImportExportTest extends ImportExportTestBase {
         $this->fixtures[$delta]['expectations']
       );
 
+      // phpcs:ignore
       return include $path_to_fixture;
     }
 
@@ -63,13 +73,14 @@ class CohesionContentHubImportExportTest extends ImportExportTestBase {
           $values[$item_delta]['target_id'] = $item->entity->uuid();
         }
       }
-    }elseif($field->getEntity() instanceof CohesionLayout && $field->getName() == 'json_values' && isset($values[0]['value'])) {
+    }
+    elseif ($field->getEntity() instanceof CohesionLayout && $field->getName() == 'json_values' && isset($values[0]['value'])) {
       $layout_canvas = new LayoutCanvas($values[0]['value']);
       $values[0]['value'] = json_encode($layout_canvas);
-    }else {
+    }
+    else {
       $values = parent::handleFieldValues($field);
     }
-
 
     return $values;
   }
@@ -101,7 +112,7 @@ class CohesionContentHubImportExportTest extends ImportExportTestBase {
       }
     }
 
-    if(isset($fixture['json_values']['value']['en']['value']) && isset($object['json_values']['value']['en']['value'])) {
+    if (isset($fixture['json_values']['value']['en']['value']) && isset($object['json_values']['value']['en']['value'])) {
       $fixture['json_values']['value']['en']['value'] = json_encode(new LayoutCanvas($fixture['json_values']['value']['en']['value']));
       $object['json_values']['value']['en']['value'] = json_encode(new LayoutCanvas($object['json_values']['value']['en']['value']));
     }

@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class StyleGuideForm.
+ * Style guide form.
  *
  * @package Drupal\cohesion_style_guide\Form
  */
@@ -128,7 +128,8 @@ class StyleGuideForm extends CohesionBaseForm {
       if ($current_entity) {
         $current_canvas = $current_entity->getLayoutCanvasInstance();
       }
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
     }
 
     parent::save($form, $form_state);

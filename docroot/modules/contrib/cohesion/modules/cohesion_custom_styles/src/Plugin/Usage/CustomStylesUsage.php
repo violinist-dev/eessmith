@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class CustomStylesUsage.
+ * Custom style usage plugin.
  *
  * @package Drupal\cohesion_custom_styles\Plugin\Usage
  *
@@ -19,7 +19,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = "custom_style_type",
  *   group_key_entity_type = "custom_style_type",
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"site_studio"}
  * )
  */
 class CustomStylesUsage extends UsagePluginBase {

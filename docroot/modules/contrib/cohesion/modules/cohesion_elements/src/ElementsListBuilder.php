@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class ElementsListBuilder.
  *
- * Provides a listing of Cohesion components and helpers.
+ * Provides a listing of Site Studio components and helpers.
  *
  * @package Drupal\cohesion_elements
  */

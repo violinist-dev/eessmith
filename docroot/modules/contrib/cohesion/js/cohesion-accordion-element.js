@@ -7,7 +7,7 @@
         $el.parent().toggleClass('panel-open');
       }
 
-      $('.cohesion-accordion .panel-heading').click(function () {
+      $('.cohesion-accordion .panel-heading').off().click(function () {
         openAccordion($(this));
       });
 

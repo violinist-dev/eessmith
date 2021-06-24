@@ -14,7 +14,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "cohesion_template_selector",
  *   label = @Translation("Template selector"),
  *   description = @Translation("Template selector"),
- *   category = @Translation("Acquia Cohesion"),
+ *   category = @Translation("Site Studio"),
  *   module = "cohesion",
  *   default_formatter = "basic_string",
  *   default_widget = "cohesion_template_selector_widget",

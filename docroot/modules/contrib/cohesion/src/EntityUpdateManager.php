@@ -46,6 +46,9 @@ class EntityUpdateManager {
     }
   }
 
+  /**
+   *
+   */
   public function entityNeedUpdate(EntityUpdateInterface &$entity) {
 
     $all_plugins = $this->getAllPluginDefinitions();
@@ -149,6 +152,13 @@ class EntityUpdateManager {
     catch (\Throwable $e) {
       return FALSE;
     }
+  }
+
+  /**
+   *
+   */
+  public function getLastPluginId() {
+    return $this->latestPluginId;
   }
 
 }

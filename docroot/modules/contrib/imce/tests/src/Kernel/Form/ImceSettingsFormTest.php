@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\imce\Kernel\Form;
 
-use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Form\FormInterface;
 use Drupal\imce\Form\ImceSettingsForm;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -35,7 +35,7 @@ class ImceSettingsFormTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'user',
     'imce',
@@ -44,21 +44,17 @@ class ImceSettingsFormTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp() : void {
     parent::setUp();
     $this->imceConfig = $this->container->get('config.factory')->get('imce.settings');
-    $this->imceSettingsForm = new ImceSettingsForm(
-      $this->container->get('config.factory'),
-      $this->container->get('entity_type.manager'),
-      $this->container->get('stream_wrapper_manager')
-    );
+    $this->imceSettingsForm = ImceSettingsForm::create($this->container);
   }
 
   /**
    * Test formId().
    */
   public function testFormId() {
-    $this->assertTrue(is_string($this->imceSettingsForm->getFormId()));
+    $this->assertIsString($this->imceSettingsForm->getFormId());
     $this->assertEquals('imce_settings_form', $this->imceSettingsForm->getFormId());
   }
 
@@ -67,8 +63,8 @@ class ImceSettingsFormTest extends KernelTestBase {
    */
   public function testProfileOptions() {
     $options = $this->imceSettingsForm->getProfileOptions();
-    $this->assertTrue(is_array($options));
-    $this->assertArraySubset($options, ['' => '-' . $this->t('None') . '-']);
+    $this->assertIsArray($options);
+    $this->assertTrue(in_array('-' . $this->t('None') . '-', $options));
   }
 
   /**
@@ -76,16 +72,34 @@ class ImceSettingsFormTest extends KernelTestBase {
    */
   public function testBuildHeaderProfilesTable() {
     $headerProfiles = $this->imceSettingsForm->buildHeaderProfilesTable();
-    $this->assertTrue(is_array($headerProfiles));
+    $this->assertIsArray($headerProfiles);
   }
 
   /**
    * Test method buildRolesProfilesTable().
    */
   public function testBuildRolesProfilesTable() {
-    $this->assertTrue(is_array(
+    $this->assertIsArray(
       $this->imceSettingsForm->buildRolesProfilesTable($this->imceConfig->get('roles_profiles')  ?: [])
-    ));
+    );
+  }
+
+  /**
+   * Test editable config name.
+   */
+  public function testEditableConfigName() {
+    $method = new \ReflectionMethod(ImceSettingsForm::class, 'getEditableConfigNames');
+    $method->setAccessible(TRUE);
+
+    $configName = $method->invoke($this->imceSettingsForm);
+    $this->assertEquals(['imce.settings'], $configName);
+  }
+
+  /**
+   * Test imce settings form.
+   */
+  public function testImceSettingsForm() {
+    $this->assertInstanceOf(FormInterface::class, $this->imceSettingsForm);
   }
 
 }

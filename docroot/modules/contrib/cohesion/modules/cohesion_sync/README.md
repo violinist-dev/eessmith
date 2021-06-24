@@ -1,42 +1,35 @@
 
-# DX8 Sync
+# Sync
 
 ## Using Sync for site deployment
 
-DX8 Sync allows you to export all of your DX8 configuration including styles, templates and components along with all file entity asset dependencies as a single package.
+Sync allows you to export all of your Site Studio configuration including styles, templates and components along with all file entity asset dependencies as a single package.
 You export this package to a directory you define in `settings.php`. You could set this directory to the config export directory `sync` and commit to your repository for later deployment in a similar way to performing a core config export/import.   
 
-It is designed to be used alongside core config export/import. A typical workflow would involve using core config export/import to move all configuration except for DX8 entities and using DX8 sync to move the rest.  
+It is designed to be used alongside core config export/import. A typical workflow would involve using core config export/import to move all configuration except for Site Studio entities and using Sync to move the rest.  
 
 **Configuring your sync directory**
 
-In `settings.php` you will need to enable the block of code as shown below. If you're using Drupal core config import/export, you will need to add `CONFIG_SYNC_DIRECTORY => '/directory/outside/webroot',` as an entry to the `$config_directories` array below.
+In `settings.php` you will need to add `$settings['site_studio_sync']` to set the sync directory.
 
-Example:
-```php
-  $config_directories = [
-    'dx8_sync' => 'sites/default/files',
-  ];
-```
-
-It's possible to set the `dx8_sync` directory to the sync directory as core (which is `/sync` by default) or you could export to the filesystem in `sites/default/files` for example. 
+It's possible to set the `site_studio_sync` directory to the sync directory as core (which is `/sync` by default) or you could export to the filesystem in `sites/default/files` for example. 
 
 **Configuring entity types to include in the export**
 
-With Cohesion installed and activated with your license key, you'll be able to access this page:
+With Site Studio installed and activated with your license key, you'll be able to access this page:
 `/admin/cohesion/sync/export_settings`
 
 You can use this page to select which entity types will be scanned for the export.
 
 **Export**
 
-To export all Cohesion packages and dependencies to your sync directory, use the following drush command:
+To export all Site Studio packages and dependencies to your sync directory, use the following drush command:
 
 ```
 drush sync:export
 ``` 
 
-This will create a file called: `[your-site--name].package.yml_` in your `dx8_sync` directory.
+This will create a file called: `[your-site--name].package.yml_` in your `site_studio_sync` directory.
 
 If you wish to specify the filename of the exported file instead of it using the site name as a prefix, you can use the following option:
 
@@ -49,7 +42,7 @@ which will output a file called: `something.package.yml_`
 
 **Import**
 
-To import all previously exported `*.package.yml_` files from your `dx8_sync` directory into the current site, use the following drush command: 
+To import all previously exported `*.package.yml_` files from your `site_studio_sync` directory into the current site, use the following drush command: 
 
 ```
 drush sync:import
@@ -82,7 +75,7 @@ You can also use the `--overwrite-all` and `--keep-all` options when specifying 
 
 ## Deploying a list of packages on module install 
 
-Module developers can export Cohesion Sync packages and include as part of their module. When set up correctly, the packages will automatically be deploy when the module is enabled. 
+Module developers can export Site Studio Sync packages and include as part of their module. When set up correctly, the packages will automatically be deploy when the module is enabled. 
 
 To set this up, create a new Yaml reference file inside your module: `config/dx8/packages.yml`
 

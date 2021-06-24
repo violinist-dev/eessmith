@@ -2,13 +2,11 @@
 
 namespace Drupal\Tests\cohesion\Unit\Plugin\EntityUpdate;
 
-use Drupal\Tests\UnitTestCase;
-use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\Plugin\EntityUpdate\_0009EntityUpdate;
 use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 
 /**
- * Class MockDropzoneElementUpdateEntity
+ * Class MockDropzoneElementUpdateEntity.
  *
  * @package Drupal\Tests\cohesion\Unit
  */
@@ -30,12 +28,13 @@ class MockDropzoneElementUpdateEntity extends CohesionElementEntityBase {
   public function getJsonValues() {
     return $this->json;
   }
+
 }
 
 /**
  * @group Cohesion
  */
-class _0009EntityUpdateUnitTest extends UnitTestCase {
+class _0009EntityUpdateUnitTest extends EntityUpdateUnitTestCase {
 
   protected $unit;
 
@@ -44,11 +43,10 @@ class _0009EntityUpdateUnitTest extends UnitTestCase {
    */
   public function setUp() {
     // Create a mock of the Php uuid generator service.
-    //$prophecy = $this->prophesize(Php::CLASS);
-    //$prophecy->generate()->willReturn('0000-0000-0000-0000');
-    //$uuid_service_mock = $prophecy->reveal();
-
-    $this->unit = new _0009EntityUpdate([], null, null);
+    // $prophecy = $this->prophesize(Php::CLASS);
+    // $prophecy->generate()->willReturn('0000-0000-0000-0000');
+    // $uuid_service_mock = $prophecy->reveal();
+    $this->unit = new _0009EntityUpdate([], NULL, NULL);
   }
 
   /**
@@ -78,4 +76,5 @@ class _0009EntityUpdateUnitTest extends UnitTestCase {
     $this->assertEquals('{"model":{"4624de4a-15da-43ba-b0f9-ab279567d59a":{"settings":{"dropzoneHideSelector":"","title":"This is my title."}},"1d34ea9c-15da-43ba-b0f9-ab279567d59a":{"settings":{"someotherelement":"","label":"This is my title."}}}}', $entity->getJsonValues());
 
   }
+
 }

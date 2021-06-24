@@ -3,7 +3,7 @@
 namespace Drupal\cohesion_elements\Plugin\Usage;
 
 /**
- * Class ComponentCategoryUsage.
+ * Component category usage plugin.
  *
  * @package Drupal\cohesion_elements\Plugin\Usage
  *
@@ -16,7 +16,9 @@ namespace Drupal\cohesion_elements\Plugin\Usage;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"site_studio"}
  * )
  */
 class ComponentCategoryUsage extends ElementCategoryUsageBase {

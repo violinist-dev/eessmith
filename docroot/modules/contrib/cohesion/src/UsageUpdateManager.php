@@ -2,11 +2,11 @@
 
 namespace Drupal\cohesion;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
  * Class UsageUpdateManager.
@@ -104,12 +104,14 @@ class UsageUpdateManager {
   private function getDependencies(EntityInterface $entity) {
     $scannable_data = [];
     $dependencies = [];
+    $scan_groups = [];
 
     // Find the plugin that controls this plugin type.
     try {
       if ($instance = $this->getPluginInstanceForEntity($entity)) {
         // Get the scannable data (usually JSON for entities).
         $scannable_data = $instance->getScannableData($entity);
+        $scan_groups = $instance->getPluginDefinition()['scan_groups'];
       }
     }
     catch (\Throwable $e) {
@@ -119,20 +121,21 @@ class UsageUpdateManager {
     // Now loop through all the plugins and find dependencies within this data.
     if (!empty($scannable_data)) {
       foreach ($this->usagePluginManager->getDefinitions() as $id => $definition) {
+        if (!empty(array_intersect($scan_groups, $definition['scan_groups']))) {
+          // Check to see if we can scan for nested types (components in
+          // components for example).
+          if ($entity->getEntityTypeId() == $definition['entity_type'] && !$definition['scan_same_type']) {
+            continue;
+          }
 
-        // Check to see if we can scan for nested types (components in
-        // components for example).
-        if ($entity->getEntityTypeId() == $definition['entity_type'] && !$definition['scan_same_type']) {
-          continue;
-        }
-
-        // Send the scannable data to this plugin and return entities.
-        if ($instance = $this->usagePluginManager->createInstance($id)) {
-          // Only process if the entity defined in the Usage plugin exists.
-          if ($instance->getStorage()) {
-            // Search for usages of this type of entity within the entity
-            // currently being saved.
-            $dependencies = array_merge($dependencies, $instance->scanForInstancesOfThisType($scannable_data, $entity));
+          // Send the scannable data to this plugin and return entities.
+          if ($instance = $this->usagePluginManager->createInstance($id)) {
+            // Only process if the entity defined in the Usage plugin exists.
+            if ($instance->getStorage()) {
+              // Search for usages of this type of entity within the entity
+              // currently being saved.
+              $dependencies = array_merge($dependencies, $instance->scanForInstancesOfThisType($scannable_data, $entity));
+            }
           }
         }
       }
@@ -311,7 +314,8 @@ class UsageUpdateManager {
         // Get the edit URL.
         try {
           $entity_edit_url = $entity->toUrl('edit-form')->toString();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           $entity_edit_url = FALSE;
         }
 
@@ -360,8 +364,12 @@ class UsageUpdateManager {
    */
   public function buildConfigEntityDependencies(ConfigEntityBase $entity) {
     $list = [];
+    // Request storage to hold dependencies already processed
+    // to avoid processing the same entities multiple times
+    $dep_list = &drupal_static(__FUNCTION__, []);
 
     if ($entity instanceof ConfigEntityBase) {
+
       // Get the dependencies from the Usage table (left to right lookup).
       try {
         $dependencies = $this->connection->select('coh_usage', 'c1')
@@ -375,21 +383,41 @@ class UsageUpdateManager {
         return $list;
       }
 
-      // Loop through the results and add them to the dependencies.
+      // Group uuids to be processed by entity type
+      // to use loadMultiple instead of loading by UUID one by one
+      // for more performance
+      $typed_uuids = [];
       foreach ($dependencies as $uuid => $type) {
-        try {
-          /** @var \Drupal\Core\Entity\EntityInterface $dependency_entity */
-          if ($dependency_entity = $this->entityRepository->loadEntityByUuid($type, $uuid)) {
-            $list[] = [
-              'key' => $dependency_entity->getConfigDependencyKey(),
-              'type' => $dependency_entity->getEntityTypeId(),
-              'id' => $dependency_entity->id(),
-              'uuid' => $dependency_entity->uuid(),
-            ];
-          }
-
+        // If the entity has already been processed by another
+        // dependency calculation add to the list and skip
+        if(isset($dep_list[$uuid])) {
+          $list[] = $dep_list[$uuid];
+          continue;
         }
-        catch (\Exception $e) {
+        $typed_uuids[$type][] = $uuid;
+      }
+
+      // Loop through the results and add them to the dependencies.
+      foreach ($typed_uuids as $type => $uuids) {
+
+        $entity_type = $this->entityTypeManager->getDefinition($type);
+        $ids = $this->entityTypeManager->getStorage($type)->getQuery()->condition($entity_type->getKey('uuid'), $uuids, 'IN')->execute();
+
+        $entities = $this->entityTypeManager->getStorage($type)->loadMultiple($ids);
+
+        foreach ($entities as $dependency_entity) {
+
+          $item = [
+            'key' => $dependency_entity->getConfigDependencyKey(),
+            'dependency_name' => $dependency_entity->getConfigDependencyName(),
+            'type' => $dependency_entity->getEntityTypeId(),
+            'id' => $dependency_entity->id(),
+            'uuid' => $dependency_entity->uuid(),
+          ];
+          $list[] = $item;
+          // Add to the processed list of entities so we don't do it again
+          // if it's a dependency of another entity
+          $dep_list[$dependency_entity->uuid()] = $item;
         }
       }
 

@@ -5,7 +5,7 @@ namespace Drupal\cohesion_elements\Plugin\Api;
 use Drupal\cohesion\ApiPluginBase;
 
 /**
- * Class ElementsApi.
+ * Elements Api plugin.
  *
  * @package Drupal\cohesion_elements
  *
@@ -16,6 +16,9 @@ use Drupal\cohesion\ApiPluginBase;
  */
 class ElementsApi extends ApiPluginBase {
 
+  /**
+   *
+   */
   public function getForms() {
     return [];
   }

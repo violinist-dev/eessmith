@@ -8,7 +8,7 @@ use Drupal\Core\Link;
 /**
  * Class WebsiteSettingsListBuilder.
  *
- * Provides a listing of Cohesion website settings entities.
+ * Provides a listing of Site Studio website settings entities.
  *
  * @package Drupal\cohesion_website_settings
  */

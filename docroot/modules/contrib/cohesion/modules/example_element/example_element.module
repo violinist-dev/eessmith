@@ -2,7 +2,7 @@
 
 /**
  * @file
- * An example of how to create custom Cohesion elements.
+ * An example of how to create custom Site Studio elements.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -19,10 +19,10 @@ function example_element_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<p>' . t('This module is an example of how a developer can create a custom element. The element will be available to use in the sidebar browser and will have a form and output defined by the developer.') . '</p>';
       $output .= '<p><ul>';
       $output .= '  <li>Sample implementation of CustomElementPluginBase plugin to define a element for an render function.</li>';
-      $output .= '  <li>Sample render function using form data defined in the plugin and returned by the Cohesion API.</li>';
+      $output .= '  <li>Sample render function using form data defined in the plugin and returned by the Site Studio API.</li>';
       $output .= '</ul></p>';
       $output .= "<p>For details on how ot create a custom element, see modules/example_element/README.md</p>";
-      $output .= '<p><a href="https://cohesiondocs.acquia.com/" target="_blank">https://cohesiondocs.acquia.com/</a></p>';
+      $output .= '<p><a href="https://sitestudiodocs.acquia.com/" target="_blank">https://sitestudiodocs.acquia.com/</a></p>';
       return $output;
 
     default:

@@ -43,7 +43,7 @@ class ExportAllForm extends ExportFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $config_type = NULL, $config_name = NULL) {
 
     $form['help'] = [
-      '#markup' => $this->t('Export and download the full Acquia Cohesion configuration of this site including all dependencies and assets.'),
+      '#markup' => $this->t('Export and download the full Site Studio configuration of this site including all dependencies and assets.'),
     ];
 
     if ($this->entityTypesAvailable()) {

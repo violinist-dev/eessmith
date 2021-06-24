@@ -2,13 +2,13 @@
 
 namespace Drupal\cohesion\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
 use Drupal\cohesion\ImageBrowserPluginManager;
 use Drupal\cohesion\ImageBrowserUpdateManager;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements the  form controller.
@@ -150,7 +150,7 @@ class SystemSettingsForm extends ConfigFormBase {
           '#title' => $this->t('Select the image browser to use for @browser_type on this site.', ['@browser_type' => $browser_type]),
           '#required' => TRUE,
           '#options' => array_merge([FALSE => 'No image browser'], $available_plugins),
-          '#default_value' => $this->image_browser_object[$browser_type]['type'] ? [$this->image_browser_object[$browser_type]['type']] : FALSE,
+          '#default_value' => $this->image_browser_object[$browser_type]['type'] ?? FALSE,
           '#ajax' => [
             'callback' => $browser_type === 'config' ? '::updateImageBrowserConfig' : '::updateImageBrowserContent',
             'wrapper' => 'edit-image-browser-' . $browser_type . '-wrapper',
@@ -240,7 +240,7 @@ class SystemSettingsForm extends ConfigFormBase {
    * @return mixed
    */
   private function updateImageBrowser($browser_type, $form, FormStateInterface $form_state) {
-    $plugin_id = $form_state->getValue('image_browser_' . $browser_type) !== NULL ? $form_state->getValue('image_browser_' . $browser_type) : $this->image_browser_object[$browser_type]['type'];
+    $plugin_id = $form_state->getValue('image_browser_' . $browser_type) !== NULL ? $form_state->getValue('image_browser_' . $browser_type) : $this->image_browser_object[$browser_type]['type'] ?? FALSE;
 
     // Return the form from the image browser plugin.
     if ($plugin_id) {
@@ -253,7 +253,8 @@ class SystemSettingsForm extends ConfigFormBase {
       try {
         $plugin_form = $this->imageBrowserPluginManager->createInstance($plugin_id)
           ->buildForm($form_state, $browser_type, $this->image_browser_object);
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         $plugin_form = [];
       }
 
@@ -325,7 +326,8 @@ class SystemSettingsForm extends ConfigFormBase {
     try {
       $this->imageBrowserPluginManager->createInstance($form_state->getValue('image_browser_config'))
         ->validateForm($form_state);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
     }
   }
 
@@ -347,10 +349,10 @@ class SystemSettingsForm extends ConfigFormBase {
     $this->cohesionSettings->set('log_dx8_error', $form_state->getValue('log_dx8_error'));
 
     if ($form_state->getValue('log_dx8_error') === 'enable') {
-      $this->messenger()->addStatus(t('Acquia Cohesion errors will be logged.'));
+      $this->messenger()->addStatus(t('Site Studio errors will be logged.'));
     }
     else {
-      $this->messenger()->addWarning(t('Acquia Cohesion errors will not be logged.'));
+      $this->messenger()->addWarning(t('Site Studio errors will not be logged.'));
     }
 
     // Animation settings.
@@ -366,7 +368,8 @@ class SystemSettingsForm extends ConfigFormBase {
         $instance = $this->imageBrowserPluginManager->createInstance($form_state->getValue('image_browser_config'));
         $instance->submitForm($form_state, 'config', $this->image_browser_object);
         $instance->onInit();
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         return;
       }
     }
@@ -381,7 +384,8 @@ class SystemSettingsForm extends ConfigFormBase {
         $instance = $this->imageBrowserPluginManager->createInstance($form_state->getValue('image_browser_content'));
         $instance->submitForm($form_state, 'content', $this->image_browser_object);
         $instance->onInit();
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         return;
       }
     }

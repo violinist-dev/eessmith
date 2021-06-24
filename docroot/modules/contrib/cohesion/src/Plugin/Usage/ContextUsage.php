@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ContextUsage.
+ * Plugin for context usage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -19,7 +19,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = TRUE,
- *   exportable = TRUE
+ *   exportable = FALSE,
+ *   config_type = "core",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class ContextUsage extends UsagePluginBase {

@@ -2,7 +2,7 @@ cohesion.settings:
   path: 'admin/cohesion'
   defaults:
     _controller: '\Drupal\cohesion\Controller\CohesionController::index'
-    _title: 'Acquia Cohesion'
+    _title: 'Site Studio'
   requirements:
     _permission: 'administer cohesion'
 
@@ -34,7 +34,7 @@ cohesion.configuration.batch:
   path: 'admin/cohesion/configuration/batch'
   defaults:
     _controller: '\Drupal\cohesion\Controller\AdministrationController::batchAction'
-    _title: 'Cohesion assets import and create entities'
+    _title: 'Site Studio assets import and create entities'
   requirements:
     _permission: 'administer cohesion settings'
 
@@ -371,7 +371,7 @@ drupal_data_endpoint.views_pager:
 
 
 #
-# Cohesion endpoints
+# Site Studio endpoints
 #
 ajax_machine_name.transliterate:
   path: '/ajax_machine_name/transliterate'
@@ -410,6 +410,9 @@ drupal_data_endpoint.element_group_info:
     entity_type: 'cohesion_helper'
     entity_type_access: 'all'
     bundle_access: 'all'
+    element_id: ''
+    componentPath: ''
+    access_elements: ''
   methods:  [GET]
   requirements:
     _user_is_logged_in: 'TRUE'
@@ -418,12 +421,24 @@ drupal_data_endpoint.element_group_info:
     bundle_access: ^[a-zA-Z0-9_]+
     _content_type_format: json
 
+
+
 #  Components model
 drupal_data_endpoint.component_model:
   path: '/cohesionapi/cohesion-component/{uid}'
   defaults:
     _controller: '\Drupal\cohesion\Controller\CohesionEndpointController::getComponent'
     _title: "Component model"
+  methods:  [GET]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+#  Helper model
+drupal_data_endpoint.helper_model:
+  path: '/cohesionapi/cohesion-helper-updated/{uid}'
+  defaults:
+    _controller: '\Drupal\cohesion\Controller\CohesionEndpointController::getCanvasUpdateHelper'
+    _title: "Helper model"
   methods:  [GET]
   requirements:
     _user_is_logged_in: 'TRUE'
@@ -458,12 +473,12 @@ drupal_data_endpoint.element_save:
     _permission: 'administer components+administer helpers'
     _content_type_format: json
 
-#  Cohesion style/layout builder select options
+#  Site Studio style/layout builder select options
 drupal_data_endpoint.select_options:
   path: '/cohesionapi/select-options'
   defaults:
     _controller: '\Drupal\cohesion\Controller\CohesionEndpointController::getSelectOptions'
-    _title: "Cohesion style/layout builder select options"
+    _title: "Site Studio style/layout builder select options"
   methods:  [GET,POST]
   requirements:
     _user_is_logged_in: 'TRUE'
@@ -512,4 +527,3 @@ cohesion_website_settings.color_tags:
   requirements:
     _user_is_logged_in: 'TRUE'
     _content_type_format: json
-

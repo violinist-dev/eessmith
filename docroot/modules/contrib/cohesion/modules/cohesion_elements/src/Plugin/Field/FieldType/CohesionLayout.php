@@ -8,8 +8,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 
 /**
- *
- * deprecated
+ * Deprecated.
  *
  * Plugin implementation of the 'cohesion_layout' field type.
  *
@@ -21,7 +20,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   default_widget = "cohesion_layout_builder_widget",
  *   no_ui = TRUE,
  *   default_formatter = "cohesion_layout_formatter",
- *   category = @Translation("Acquia Cohesion"),
+ *   category = @Translation("Site Studio"),
  *   module = "cohesion",
  * )
  */

@@ -2,13 +2,15 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
+use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\cohesion\LayoutCanvas\LayoutCanvas;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
+use Drupal\cohesion_elements\Entity\Component;
 use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\Request;
-use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\cohesion_elements\Entity\Component;
 
 /**
  * Class CohesionEndpointController.
@@ -26,20 +28,45 @@ class ComponentContentController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *
    * @return \Drupal\cohesion\CohesionJsonResponse
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function getComponentContents(Request $request) {
 
-    $storage = \Drupal::entityTypeManager()->getStorage('component_content');
+    $storage = $this->entityTypeManager()->getStorage('component_content');
     $query = $storage->getQuery()->condition('status', TRUE)->sort('title', 'asc');
+    $exclude_path = ($request->query->get('componentPath')) ?: FALSE;
+    $exclude_component_content = FALSE;
+
+    if ($exclude_path) {
+      /** @var \Drupal\Core\Url $url_object */
+      if ($url_object = \Drupal::service('path.validator')->getUrlIfValid($exclude_path)) {
+        $route_parameters = $url_object->getrouteParameters();
+
+        if (isset($route_parameters['component_content'])) {
+          $exclude_component_content = $route_parameters['component_content'];
+        }
+      }
+    }
 
     $ids = $query->execute();
+    /** @var \Drupal\cohesion_elements\Entity\ComponentContent[ $component_contents */
     $component_contents = $storage->loadMultiple($ids);
     $data = [];
 
     foreach ($component_contents as $component_content) {
+      if ($component_content->id() === $exclude_component_content) {
+        continue;
+      }
+
+      $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+      if ($component_content->hasTranslation($language)) {
+        $component_content = $component_content->getTranslation($language);
+      }
+
       /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $component_field */
       $component_field = $component_content->get('component')->first();
       if ($component_field) {
@@ -97,7 +124,6 @@ class ComponentContentController extends ControllerBase {
         }
 
         // Populate component content details.
-        // Populate component content details.
         /** @var \Drupal\cohesion_elements\Entity\ElementCategoryInterface $category_entity */
         $category_entity = $component->getCategoryEntity();
 
@@ -110,6 +136,7 @@ class ComponentContentController extends ControllerBase {
           'category' => $category_entity ? $category_entity->getClass() : FALSE,
           'componentType' => $top_type,
           'preview_image' => $preview_image,
+          'url' => $component_content->toUrl('edit-form')->toString(),
         ];
       }
     }
@@ -171,7 +198,8 @@ class ComponentContentController extends ControllerBase {
 
     if (property_exists($content, 'canvas') && property_exists($content, 'model')) {
       $layout_canvas = new LayoutCanvas($content_raw);
-      $elements = $layout_canvas->iterateCanvas();
+      $elements = $layout_canvas->getCanvasElements();
+      // Make sure the canvas contains only one top level element and this element is a component.
       if (count($elements) == 1 && $elements[0]->isComponent() && $elements[0]->getModel()) {
         $element = $elements[0];
         if ($componentEntity = Component::load($element->getComponentID())) {
@@ -211,6 +239,129 @@ class ComponentContentController extends ControllerBase {
       'status' => 'error',
       'data' => ['error' => t('Bad request')],
     ], 400);
+  }
+
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function addPage() {
+    $build['#attached']['library'][] = 'cohesion/cohesion-list-builder-sort';
+
+    // Get complete list of component content.
+    $entityType = $this->entityTypeManager()->getStorage('cohesion_component')->getEntityType();
+
+    $reflector = new \ReflectionClass($entityType->getClass());
+    $category_type_id = $reflector->getConstant('CATEGORY_ENTITY_TYPE_ID');
+
+    $categories_query = $this->entityTypeManager->getStorage($category_type_id)->getQuery()->sort('weight', 'asc');
+
+    if ($categories = $this->entityTypeManager->getStorage($category_type_id)->loadMultiple($categories_query->execute())) {
+      foreach ($categories as $category) {
+
+        $query = $this->entityTypeManager->getStorage($entityType->id())->getQuery()->condition('category', $category->id())->sort('weight', 'asc');
+
+        $entities = $this->entityTypeManager->getStorage($entityType->id())->loadMultiple($query->execute());
+
+        // Build the accordions.
+        $build[$entityType->id()][$category->id()]['accordion'] = [
+          '#type' => 'details',
+          '#open' => FALSE,
+          '#title' => $category->label() . ' (' . $query->count()->execute() . ')',
+        ];
+
+        // Build the accordion group tables.
+        $this->buildTable($build[$entityType->id()][$category->id()]['accordion'], $entityType, $category, $entities);
+      }
+    }
+
+    $build['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
+
+    return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildTable(&$build_data, $entityType, $category, $entities = []) {
+    $build_data['table'] = [
+      '#type' => 'table',
+      '#header' => ($entities) ? $this->buildHeader() : [],
+      '#title' => $category->label(),
+      '#rows' => [],
+      '#empty' => $this->t('There are no available @label that component content can be created from.', ['@label' => mb_strtolower($entityType->getLabel())]),
+      '#cache' => [
+        'contexts' => $entityType->getListCacheContexts(),
+        'tags' => $entityType->getListCacheTags(),
+      ],
+    ];
+
+    // Build rows.
+    foreach ($entities as $entity) {
+      $common_row = $this->buildRow($entity);
+
+      $id = $entity->id();
+
+      $build_data['table'][$id]['label'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'span',
+        '#value' => $common_row['label'],
+      ];
+
+      $build_data['table'][$id]['type'] = [
+        '#type' => 'markup',
+        '#markup' => $common_row['type'],
+      ];
+
+      $build_data['table'][$id]['create'] = [
+        '#type' => 'operations',
+        '#links' => [
+          [
+            'title' => $this->t('Create Component Content'),
+            'url' => $common_row['operations'],
+          ],
+        ],
+      ];
+
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   **/
+  public function buildHeader() {
+    $header = [];
+    $header['label'] = [
+      'data' => $this->t('Title'),
+      'width' => '25%',
+    ];
+
+    $header['type'] = [
+      'data' => $this->t('Category'),
+      'width' => '50%',
+    ];
+
+    $header['operations']['data'] = $this->t('Operations');
+
+    return $header;
+  }
+
+  /**
+   * {@inheritdoc}
+   **/
+  public function buildRow(EntityInterface $entity) {
+    $row['label'] = $entity->label();
+
+    if ($category_entity = $entity->getCategoryEntity()) {
+      $row['type'] = $category_entity->label();
+    }
+
+    $row['operations'] = Url::fromRoute('entity.component_content.add_form', ['cohesion_component' => $entity->id()]);
+
+    return $row;
   }
 
 }

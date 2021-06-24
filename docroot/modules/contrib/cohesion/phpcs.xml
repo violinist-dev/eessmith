@@ -17,7 +17,6 @@
     <exclude name="Generic.NamingConventions.UpperCaseConstantName"/>
     <exclude name="Drupal.Commenting.InlineComment"/>
     <exclude name="Drupal.ControlStructures.ControlSignature"/>
-    <exclude name="Security.BadFunctions.PregReplace"/>
     <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
     <exclude name="DrupalPractice.Objects.GlobalDrupal"/>
     <exclude name="DrupalPractice.Objects.GlobalFunction"/>

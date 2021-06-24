@@ -2,22 +2,24 @@
 
 namespace Drupal\cohesion_sync\Plugin\rest\resource;
 
-use Drupal\rest\Plugin\ResourceBase;
-use Drupal\rest\ResourceResponse;
+use Drupal\cohesion_sync\PackagerManager;
 use Drupal\Core\Cache\CacheableMetadata;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
-use Drupal\Core\Entity\EntityRepository;
-use Drupal\cohesion_sync\PackagerManager;
+use Drupal\rest\Plugin\ResourceBase;
+use Drupal\rest\ResourceResponse;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Deprecated.
+ *
  * REST endpoint to GET packages from this site and POST, PATCH packages to this site.
  *
  * @RestResource(
  *   id = "dx8_resource",
- *   label = @Translation("Cohesion package resource"),
+ *   label = @Translation("Site Studio package resource"),
  *   uri_paths = {
  *     "canonical" = "/sync/package/{entity_type}"
  *   }

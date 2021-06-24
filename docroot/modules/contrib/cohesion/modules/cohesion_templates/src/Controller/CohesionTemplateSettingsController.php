@@ -2,20 +2,20 @@
 
 namespace Drupal\cohesion_templates\Controller;
 
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Render\Markup;
+use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\cohesion_templates\Entity\MasterTemplates;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Class CohesionTemplateSettingsController.
  *
- * Controller routines for Cohesion admin index page.
+ * Controller routines for Site Studio admin index page.
  *
  * @package Drupal\cohesion_templates\Controller
  */

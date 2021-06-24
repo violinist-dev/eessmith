@@ -1,4 +1,4 @@
-# Cohesion website settings menu items definition
+# Site Studio website settings menu items definition
 entity.cohesion_website_settings.collection:
   title: 'Website settings'
   route_name: entity.cohesion_website_settings.collection

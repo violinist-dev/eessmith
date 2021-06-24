@@ -2,20 +2,20 @@
 
 namespace Drupal\cohesion_elements;
 
-use Symfony\Cmf\Component\Routing\RouteObjectInterface;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Serialization\Json;
 
 /**
  * Class ComponentContentListBuilder.
  *
- * Provides a listing of Cohesion custom styles entities.
+ * Provides a listing of Site Studio custom styles entities.
  *
  * @package Drupal\cohesion_elements
  */

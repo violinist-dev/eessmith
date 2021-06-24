@@ -20,7 +20,7 @@ function cohesion_elements_install() {
   // Create preview images directory.
   $path = COHESION_FILESYSTEM_URI . '/preview';
   if (\Drupal::service('file_system')->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
-    \Drupal::messenger()->addMessage(t('Cohesion preview directory created.'));
+    \Drupal::messenger()->addMessage(t('Site Studio preview directory created.'));
   }
 }
 
@@ -536,21 +536,96 @@ function cohesion_elements_update_8702() {
 }
 
 /**
- * Add Cohesion view mode to Component Content entity type
+ * Add Site Studio view mode to Component Content entity type
  */
 function cohesion_elements_update_8800() {
   $storage = \Drupal::entityTypeManager()->getStorage('entity_view_mode');
-  // Add a Cohesion view mode if it does not already exist.
+  // Add a Site Studio view mode if it does not already exist.
   if (!$storage->load("component_content.cohesion")) {
     $storage->create([
       'targetEntityType' => 'component_content',
       'id' => "component_content.cohesion",
       'status' => TRUE,
-      'label' => t('Cohesion'),
+      'label' => t('Site Studio'),
     ])->save();
   }
 }
 
+/**
+ * Update preview images on components,cohesion_component_category and cohesion_helper_category
+ */
+function cohesion_elements_update_8903() {
+  $component_ids = \Drupal::configFactory()->listAll('cohesion_elements.cohesion_component.');
+  foreach ($component_ids as $config_id) {
+    if(!is_string(\Drupal::config($config_id)->get('preview_image'))){
+      $editable = \Drupal::configFactory()->getEditable($config_id);
+      $editable->set('preview_image', '');
+      $editable->save();
+    }
+  }
+
+  $cohesion_helper_ids = \Drupal::configFactory()->listAll('cohesion_elements.cohesion_helper.');
+  foreach ($cohesion_helper_ids as $config_id) {
+    if(!is_string(\Drupal::config($config_id)->get('preview_image'))){
+      $editable = \Drupal::configFactory()->getEditable($config_id);
+      $editable->set('preview_image', '');
+      $editable->save();
+    }
+  }
+
+  $component_category_ids = \Drupal::configFactory()->listAll('cohesion_elements.cohesion_component_category.');
+  foreach ($component_category_ids as $config_id) {
+    $editable = \Drupal::configFactory()->getEditable($config_id);
+    $editable->clear('preview_image');
+    $editable->save();
+  }
+
+  $cohesion_helper_category_ids = \Drupal::configFactory()->listAll('cohesion_elements.cohesion_helper_category.');
+  foreach ($cohesion_helper_category_ids as $config_id) {
+    $editable = \Drupal::configFactory()->getEditable($config_id);
+    $editable->clear('preview_image');
+    $editable->save();
+  }
+}
+
+/**
+ * Update cohesion_component_contents missing references to the component it was created from
+ */
+  function cohesion_elements_update_8904() {
+
+    // Get component content ids where the component field is NULL or empty string.
+    $query_condition = \Drupal::entityTypeManager()->getStorage('component_content')->getQuery()
+      ->orConditionGroup()
+      ->condition('component', '')
+      ->condition('component', NULL , 'IS NULL');
+
+    $component_content_ids = \Drupal::entityTypeManager()->getStorage('component_content')->getQuery()
+      ->condition($query_condition)->execute();
+
+    // If we have any ids then load and update the component field to have the component id.
+    if($component_content_ids) {
+      $component_contents = \Drupal\cohesion_elements\Entity\ComponentContent::loadMultiple($component_content_ids);
+
+      foreach ($component_contents as $component_content) {
+        // Get the layout canvas target id
+        $cc_target_layout_canvas = $component_content->get('layout_canvas')->target_id;
+
+        $component_id_query = Database::getConnection()->select('cohesion_layout_field_data', 'n')
+          ->fields('n', ['id', 'json_values'])
+          ->condition('id', $cc_target_layout_canvas)->execute()->fetch();
+
+        // Decode the layout canvas so we can get the component id & update in the database.
+        $layout_canvas_values = json_decode($component_id_query->json_values);
+        if($layout_canvas_values->canvas[0]->componentId) {
+          Database::getConnection()->update('component_contents_field_data')->fields([
+            'component' => $layout_canvas_values->canvas[0]->componentId,
+          ])
+            ->condition('id', $component_content->id(), '=')
+            ->execute();
+        }
+      }
+    }
+  }
 
 /**
  *

@@ -2,13 +2,13 @@
 
 namespace Drupal\cohesion_sync;
 
-use Drupal\Core\Plugin\DefaultPluginManager;
+use Drupal\cohesion_sync\Annotation\Sync;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\cohesion_sync\Annotation\Sync;
+use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
- * Class SyncPluginManager.
+ * Sync plugin manager.
  *
  * @package Drupal\cohesion_sync
  */

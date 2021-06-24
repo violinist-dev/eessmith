@@ -14,7 +14,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 function cohesion_sync_entity_operation_alter(array &$operations, EntityInterface $entity) {
   if ($entity instanceof CohesionSettingsInterface) {
-    // Add "Export package to file." and "Lock entity" option to the actions dropdown on all Cohesion entity list builders.
+    // Add "Export package to file." and "Lock entity" option to the actions dropdown on all Site Studio entity list builders.
     if (Drupal::currentUser()->hasPermission('access cohesion sync') && $entity->get('status')) {
       $url = Url::fromRoute('cohesion_sync.operation_export_single', [
         'entity_type' => $entity->getEntityTypeId(),
@@ -65,10 +65,16 @@ function cohesion_sync_modules_installed($modules) {
 
           // Attempt to deploy the package.
           try {
-            $messages = \Drupal::service('cohesion_sync.drush_helpers')->import(TRUE, FALSE, $path);
+            $operations = \Drupal::service('cohesion_sync.drush_helpers')->import(TRUE, FALSE, $path);
 
-            // Tell dblog what happened.
-            Drupal::logger('cohesion')->notice($messages);
+            $batch = [
+              'title' => t('Importing configuration.'),
+              'operations' => $operations,
+              'progressive' => FALSE,
+            ];
+
+            batch_set($batch);
+
           }
           catch (\Exception $e) {
             // Tell dblog what happened.

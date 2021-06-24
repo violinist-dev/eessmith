@@ -2,10 +2,10 @@
 
 namespace Drupal\cohesion\Form;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
-use Drupal\Core\Access\AccessResult;
 
 /**
  * Implements the  form controller.
@@ -35,7 +35,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
     $config = $this->config('cohesion.settings');
 
     $form['google_map_api_key_description'] = [
-      '#markup' => t('<p>To use Google Maps on your site you must have a Google account and a Google Maps API key with the correct credentials. Acquia Cohesion uses the Maps JavaScript API and Maps Embed API.</p>
+      '#markup' => t('<p>To use Google Maps on your site you must have a Google account and a Google Maps API key with the correct credentials. Site Studio uses the Maps JavaScript API and Maps Embed API.</p>
                           <p>You can register your project and configure your API key in the <a href="https://console.developers.google.com/flows/enableapi?apiid=maps_backend,geocoding_backend,directions_backend,distance_matrix_backend,elevation_backend,places_backend&reusekey=true" target="_blank">Google API Console</a>.</p>'),
     ];
 
@@ -46,6 +46,25 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
       "#default_value" => $config ? $config->get("google_map_api_key") : "",
       '#attributes' => [
         'placeholder' => $this->t("API-KEY"),
+      ],
+    ];
+
+    $form["google_map_api_key_geo_accordion"] = [
+      '#type' => 'details',
+      '#collapsible' => TRUE,
+      '#title' => $this->t('Google Maps Geocoding API key'),
+      '#wrapper_attributes' => ['class' => ['clearfix']],
+      '#open' => FALSE,
+      '#description' => $this->t('If left blank the Google Maps API key will be used.'),
+    ];
+
+    $form["google_map_api_key_geo_accordion"]["google_map_api_key_geo"] = [
+      "#type" => "textfield",
+      "#title" => $this->t("Google Maps Geocoding API key"),
+      "#required" => FALSE,
+      "#default_value" => $config ? $config->get("google_map_api_key_geo") : "",
+      '#attributes' => [
+        'placeholder' => $this->t("GEOCODING-API-KEY"),
       ],
     ];
 
@@ -117,6 +136,7 @@ class GoogleMapApiKeyForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('cohesion.settings');
     $config->set("google_map_api_key", $form_state->getValue("google_map_api_key"));
+    $config->set("google_map_api_key_geo", $form_state->getValue("google_map_api_key_geo"));
     $config->save();
 
     $cohesion_module_libraries = \Drupal::keyValue('cohesion.elements.asset.libraries');

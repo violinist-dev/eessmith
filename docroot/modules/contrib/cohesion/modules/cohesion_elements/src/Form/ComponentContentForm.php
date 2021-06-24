@@ -2,14 +2,15 @@
 
 namespace Drupal\cohesion_elements\Form;
 
+use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Serialization\Json;
 
 /**
  * Class ComponentContentForm.
@@ -31,8 +32,8 @@ class ComponentContentForm extends ContentEntityForm {
    * ComponentContentForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|NULL $entity_type_bundle_info
-   * @param \Drupal\Component\Datetime\TimeInterface|NULL $time
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|null $entity_type_bundle_info
+   * @param \Drupal\Component\Datetime\TimeInterface|null $time
    * @param \Drupal\Core\Session\AccountInterface $current_user
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, AccountInterface $current_user) {
@@ -65,6 +66,37 @@ class ComponentContentForm extends ContentEntityForm {
         '@title' => $component_content->label(),
       ]);
     }
+
+    $component_id = NULL;
+    if ($this->operation == 'add') {
+      // If component content add form attach the component ID from the request for angular.
+      $request = \Drupal::request();
+      $component_id = $request->attributes->get('cohesion_component');
+
+      // Attach the component id to add if comming from the add page
+      $form['#attached']['drupalSettings']['cohesion']['component_content_add'] = $component_id;
+
+    }
+
+    // Case for translation (operation add but not component id request
+    if($component_id == NULL && $component_content->getComponent() instanceof Component) {
+      $component_id = $component_content->getComponent()->id();
+    }
+
+    $form['component_id'] = [
+      '#type' => 'hidden',
+      '#default_value' => $component_id,
+    ];
+
+    $form['changed'] = [
+      '#type' => 'hidden',
+      '#default_value' => $component_content->getChangedTime(),
+    ];
+
+    $form['changed'] = [
+      '#type' => 'hidden',
+      '#default_value' => $component_content->getChangedTime(),
+    ];
 
     // Changed must be sent to the client, for later overwrite error checking.
     $form['changed'] = [
@@ -165,6 +197,8 @@ class ComponentContentForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    $lsls = $form_state->getValue('component_id');
+    $this->entity->set('component', $form_state->getValue('component_id'));
     parent::save($form, $form_state);
     if ($this->entity->id() && $this->entity->access('view')) {
       $form_state->setRedirect(
@@ -173,7 +207,7 @@ class ComponentContentForm extends ContentEntityForm {
       );
     }
     $context = ['@type' => $this->entity->getEntityType()->getLabel(), '%title' => $this->entity->label()];
-    if ($this->entity->isNew()) {
+    if ($this->entity->isNew() || $this->operation == 'add') {
       $this->logger('content')->notice('@type: added %title.', $context);
       \Drupal::messenger()->addMessage(t('@type %title has been created.', $context));
     }

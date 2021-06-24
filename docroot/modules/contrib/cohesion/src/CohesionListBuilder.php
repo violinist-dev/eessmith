@@ -2,11 +2,11 @@
 
 namespace Drupal\cohesion;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\Entity\DraggableListBuilder;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Provides a listing of Cohesion custom styles entities.
+ * Provides a listing of Site Studio custom styles entities.
  */
 class CohesionListBuilder extends DraggableListBuilder {
 

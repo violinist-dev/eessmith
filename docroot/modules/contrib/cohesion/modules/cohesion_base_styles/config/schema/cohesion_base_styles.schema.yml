@@ -3,5 +3,5 @@ cohesion_base_styles.cohesion_base_styles.*:
   label: 'Base styles config'
   mapping:
     custom:
-      type: bool
+      type: boolean
       label: 'Custom'

@@ -12,7 +12,7 @@ use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class StyleGuideManagerUsage.
+ * Style guide manager usage plugin.
  *
  * @package Drupal\cohesion_style_guide\Plugin\Usage
  *
@@ -25,7 +25,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   group_key = "style_guide_manager_type",
  *   group_key_entity_type = "style_guide_manager_type",
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class StyleGuideManagerUsage extends UsagePluginBase {

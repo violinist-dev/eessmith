@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion_style_helpers;
 
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\cohesion\CohesionHtmlRouteProvider;
 use Drupal\cohesion_style_helpers\Controller\StyleHelpersController;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
- * Provides routes for Cohesion base styles entities.
+ * Provides routes for Site Studio base styles entities.
  *
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider

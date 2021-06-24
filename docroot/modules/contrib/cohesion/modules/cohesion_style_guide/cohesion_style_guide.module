@@ -43,6 +43,7 @@ function cohesion_style_guide_form_system_theme_settings_alter(&$form, FormState
         '#cohFormGroup' => 'style_guide',
         '#cohFormId' => 'style_guide_manager',
         '#weight' => 0,
+        '#isContentEntity' => FALSE,
       ];
 
       // Add the shared attachments.
@@ -92,10 +93,10 @@ function cohesion_style_guide_token_info() {
   $info = [];
   $info['types']['style-guide'] = [
     'name' => t('Style guide'),
-    'description' => t('Tokens for Cohesion style guide'),
+    'description' => t('Tokens for Site Studio style guide'),
   ];
 
-  /** @var $style_guides \Drupal\cohesion_style_guide\Entity\StyleGuide[] */
+  /** @var \Drupal\cohesion_style_guide\Entity\StyleGuide[] $style_guides */
   $style_guide_storage = \Drupal::entityTypeManager()
     ->getStorage('cohesion_style_guide');
   $style_guide_ids = $style_guide_storage->getQuery()
@@ -109,13 +110,13 @@ function cohesion_style_guide_token_info() {
 
     $info['types'][$style_guide->id()] = [
       'name' => $style_guide->label(),
-      'description' => t('Cohesion style guide tokens for %s', ['%s' => $style_guide->label()]),
+      'description' => t('Site Studio style guide tokens for %s', ['%s' => $style_guide->label()]),
       'nested' => TRUE,
     ];
 
     $info['tokens']['style-guide'][$style_guide->id()] = [
       'name' => $style_guide->label(),
-      'description' => t('Cohesion style guide tokens for %s', ['%s' => $style_guide->label()]),
+      'description' => t('Site Studio style guide tokens for %s', ['%s' => $style_guide->label()]),
       'type' => $style_guide->id(),
     ];
 
