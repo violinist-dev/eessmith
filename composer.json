@@ -4,10 +4,10 @@
     "type": "project",
     "license": "GPL-2.0+",
     "require": {
-        "composer/installers": "^1.0.21",
-        "cweagans/composer-patches": "^1.6.0",
+        "composer/installers": "^1.11",
+        "cweagans/composer-patches": "^1.7",
         "wikimedia/composer-merge-plugin": "^1.3",
-        "drupal/core-recommended": "^8.8",
+        "drupal/core-recommended": "^8.9.16",
         "drupal/stage_file_proxy": "^1.1.0",
         "drupal/google_analytics": "^3.1.0",
         "drupal/head2head": "^1.0",
@@ -20,7 +20,8 @@
         "drupal/imce": "^1.7",
         "drupal/token": "^1.9.0",
         "cohesion/dx8-theme": "^6.5",
-        "drupal/core": "@stable"
+        "drupal/core": "^8.9.16",
+        "drupal/core-composer-scaffold": "^8.9.16"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -62,7 +63,14 @@
                 ".htaccess",
                 "robots.txt",
                 "themes/bootstrap_clean_blog"
-            ]
+            ],
+            "locations": {
+                "web-root": "./docroot"
+            },
+            "file-mapping": {
+                "[web-root]/.htaccess": false,
+                "[web-root]/robots.txt": false
+            }
         }
     },
     "scripts": {
