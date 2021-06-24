@@ -3,6 +3,7 @@
 # Header
 # --------------
 bootstrap_clean_blog_header_image: ''
+bootstrap_clean_blog_header_default: ''
 
 # Social links
 # --------------

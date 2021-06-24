@@ -15,8 +15,8 @@ libraries:
   - bootstrap_clean_blog/global-styling
   - bootstrap_clean_blog/respond
 
-# Information added by Drupal.org packaging script on 2016-04-09
-version: '8.x-1.0-rc1'
+# Information added by Drupal.org packaging script on 2016-10-08
+version: '8.x-1.0-rc2'
 core: '8.x'
 project: 'bootstrap_clean_blog'
-datestamp: 1460209442
+datestamp: 1475907840
