@@ -19,7 +19,6 @@
         "drupal/entity_reference_revisions": "^1.9.0",
         "drupal/imce": "^1.7",
         "drupal/token": "^1.9.0",
-        "cohesion/dx8-theme": "^6.5",
         "drupal/core": "^8.9.16",
         "drupal/core-composer-scaffold": "^8.9.16",
         "drupal/bootstrap_clean_blog": "1.0-rc2"

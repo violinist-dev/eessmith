@@ -69,20 +69,20 @@
     },
     {
         "name": "acquia/cohesion-theme",
-        "version": "6.5.0",
-        "version_normalized": "6.5.0.0",
+        "version": "6.6.0",
+        "version_normalized": "6.6.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/acquia/cohesion-theme.git",
-            "reference": "21ac548e9ada843aebc6e52c4d7a114c924c0c08"
+            "reference": "364d380b550ca010931d36ff3e76b221597f3daf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/21ac548e9ada843aebc6e52c4d7a114c924c0c08",
-            "reference": "21ac548e9ada843aebc6e52c4d7a114c924c0c08",
+            "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/364d380b550ca010931d36ff3e76b221597f3daf",
+            "reference": "364d380b550ca010931d36ff3e76b221597f3daf",
             "shasum": ""
         },
-        "time": "2021-03-23T09:39:29+00:00",
+        "time": "2021-06-23T13:06:00+00:00",
         "type": "drupal-theme",
         "installation-source": "dist",
         "notification-url": "https://packagist.org/downloads/",
@@ -96,11 +96,7 @@
                 "role": "Maintainer"
             }
         ],
-        "description": "Site Studio minimal theme",
-        "support": {
-            "issues": "https://github.com/acquia/cohesion-theme/issues",
-            "source": "https://github.com/acquia/cohesion-theme/tree/6.5.0"
-        }
+        "description": "Site Studio minimal theme"
     },
     {
         "name": "asm89/stack-cors",
@@ -158,40 +154,6 @@
         "support": {
             "issues": "https://github.com/asm89/stack-cors/issues",
             "source": "https://github.com/asm89/stack-cors/tree/1.3.0"
-        }
-    },
-    {
-        "name": "cohesion/dx8-theme",
-        "version": "6.5.0",
-        "version_normalized": "6.5.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git",
-            "reference": "dadb201afab6f767558d5d4f3e8853f235d53234"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://bitbucket.org/cohesion_dev/dx8-theme/get/dadb201afab6f767558d5d4f3e8853f235d53234.zip",
-            "reference": "dadb201afab6f767558d5d4f3e8853f235d53234",
-            "shasum": ""
-        },
-        "time": "2021-03-23T09:39:39+00:00",
-        "type": "drupal-theme",
-        "installation-source": "dist",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Acquia Engineering",
-                "homepage": "https://www.acquia.com",
-                "role": "Maintainer"
-            }
-        ],
-        "description": "Site Studio minimal theme",
-        "homepage": "https://bitbucket.org/cohesion_dev/dx8-theme",
-        "support": {
-            "source": "https://bitbucket.org/cohesion_dev/dx8-theme/src/dadb201afab6f767558d5d4f3e8853f235d53234/?at=6.5.0"
         }
     },
     {
