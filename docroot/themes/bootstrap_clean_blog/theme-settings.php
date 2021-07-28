@@ -5,7 +5,6 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 
 /**
  * Implements hook_form_system_theme_settings_alter().
@@ -16,10 +15,15 @@ function bootstrap_clean_blog_form_system_theme_settings_alter(&$form, FormState
     return;
   }
 
+  $form['instant_vertical_tabs'] = array(
+    '#type' => 'vertical_tabs',
+    '#prefix' => '<h2><small>' . t('Bootstrap Clean Blog settings') . '</small></h2>',
+  );
+
   $form['header'] = array(
-    '#type' => 'details',
+    '#type' => 'fieldset',
     '#title' => t('Site header'),
-    '#group' => 'bootstrap',
+    '#group' => 'instant_vertical_tabs',
   );
 
   $article_fields = \Drupal::entityManager()->getFieldDefinitions('node', 'article');
@@ -47,19 +51,10 @@ function bootstrap_clean_blog_form_system_theme_settings_alter(&$form, FormState
     '#default_value' => theme_get_setting('bootstrap_clean_blog_header_image'),
   );
 
-  $default_url = Url::fromUri('base:' . drupal_get_path('theme', 'bootstrap_clean_blog') . '/images/home-bg.jpg')->setAbsolute()->toString();
-
-  $form['header']['bootstrap_clean_blog_header_default'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Default header image'),
-    '#description' => t('This is the default image.'),
-    '#default_value' => theme_get_setting('bootstrap_clean_blog_header_default') ?: $default_url,
-  );
-
   $form['social_buttons'] = array(
-    '#type' => 'details',
+    '#type' => 'fieldset',
     '#title' => t('Social buttons'),
-    '#group' => 'bootstrap',
+    '#group' => 'instant_vertical_tabs',
   );
 
   $social_networks = [

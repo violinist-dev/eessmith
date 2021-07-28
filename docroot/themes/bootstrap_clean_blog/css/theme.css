@@ -23,7 +23,6 @@ body {
 }
 
 .view .feed-icons {
-  /*clear: both;*/
-  /*margin-top: 50px;*/
-  display: none;
+  clear: both;
+  margin-top: 50px;
 }
