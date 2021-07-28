@@ -2,15 +2,17 @@
 
 namespace Drupal\cohesion_website_settings\Controller;
 
+use Drupal\cohesion\CohesionJsonResponse;
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Config\Entity\ConfigEntityTypeInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Session\AccountInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Drupal\Component\Serialization\Json;
-use Symfony\Component\HttpFoundation\Response;
-use Drupal\cohesion\CohesionJsonResponse;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class WebsiteSettingsController.
@@ -48,7 +50,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     $temp_folder = \Drupal::service('cohesion.local_files_manager')->scratchDirectory();
     $file = $request->files->get("file");
     // Move uploaded ZIP file to temp directory if valid.
-    if ($file && !$file->getError() && in_array($file->getMimeType(), $accepted_types) && pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == "zip") {
+    if ($file && !$file->getError() && in_array(\Drupal::service('file.mime_type.guesser')->guess($file), $accepted_types) && pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == "zip") {
       $filename = $file->getClientOriginalName();
       $file->move($temp_folder, $filename);
 
@@ -90,7 +92,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
         $response->setStatusCode(400);
         $return = (object) [
-          "message" => "Cohesion API",
+          "message" => "Site Studio API",
           "error" => $this->t("Error occurred while uploading the file."),
         ];
       }
@@ -107,7 +109,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       \Drupal::logger('api-call-error')->error($message);
       $response->setStatusCode(400);
       $return = (object) [
-        "message" => "Cohesion API",
+        "message" => "Site Studio API",
         "error" => $message,
       ];
     }
@@ -131,7 +133,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     $file = $request->files->get("file");
 
     // Check a file was uploaded.
-    if ($file && in_array($file->getMimeType(), $accepted_types)) {
+    if ($file && in_array(\Drupal::service('file.mime_type.guesser')->guess($file), $accepted_types)) {
 
       $icons = \Drupal::service('cohesion.icon_interpreter')->sendToApi(file_get_contents($file->getPathname()));
 
@@ -140,7 +142,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       }
       else {
         $return = [
-          "message" => "Cohesion API",
+          "message" => "Site Studio API",
           "error" => $this->t("Invalid icon library loaded"),
         ];
         \Drupal::logger('api-call-error')->error(t("Error: Invalid icon library loaded"));
@@ -171,16 +173,16 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         }
         catch (FileException $e) {
           $return = (object) [
-            "message" => "Cohesion API",
+            "message" => "Site Studio API",
             "error" => $this->t("Error occured while uploading the file."),
           ];
-          \Drupal::logger('api-call-error')->error(t("Error occured while uploading the file."));
+          \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
         }
       }
       else {
         \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
         $return = (object) [
-          "message" => "Cohesion API",
+          "message" => "Site Studio API",
           "error" => $this->t("Error occured while uploading the file."),
         ];
       }
@@ -188,8 +190,8 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     else {
       \Drupal::logger('api-call-error')->error(t("Error occurred while uploading the file."));
       $return = (object) [
-        "message" => "Cohesion API",
-        "error" => $this->t("Error occured while uploading the file."),
+        "message" => "Site Studio API",
+        "error" => $this->t("Error occurred while uploading the file."),
       ];
     }
 
@@ -227,10 +229,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
         $content = \Drupal::service('settings.endpoint.utils')->getColorsList($item);
 
         $content = $item ? array_pop($content) : array_values($content);
-        if (!$content) {
-          $status = 404;
-          $error = TRUE;
-        }
+
         break;
 
       default:
@@ -334,7 +333,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     $with_categories = $request->query->get('withcategories');
     $entity_type_id = $request->query->get('entityTypeId');
 
-    list($error, $data, $message) = \Drupal::service('settings.endpoint.utils')->getAssets($assetLibrary, $type, $group, $with_categories);
+    [$error, $data, $message] = \Drupal::service('settings.endpoint.utils')->getAssets($assetLibrary, $type, $group, $with_categories);
 
     if ($group == 'elements') {
       if ($with_categories) {
@@ -409,7 +408,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       // Using the status /Drupal:keyValue here instead of the one from the
       // collection so the base collection can be modified in the loop.
       $assetLibrary = \Drupal::keyValue($collection->collection);
-      list($error, $group_data, $message) = \Drupal::service('settings.endpoint.utils')->getAssets($assetLibrary, '__ALL__', $base_name, FALSE);
+      [$error, $group_data, $message] = \Drupal::service('settings.endpoint.utils')->getAssets($assetLibrary, '__ALL__', $base_name, FALSE);
 
       // Patch in any custom element data.
       switch ($base_name) {
@@ -463,7 +462,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function batch($cron = FALSE, $verbose = FALSE) {
+  public static function batch($cron = FALSE, $verbose = FALSE, $no_cache_clear = FALSE) {
     // Reset temporary template list.
     \Drupal::keyValue('cohesion.temporary_template')->set('temporary_templates', []);
 
@@ -476,7 +475,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       'title' => t('Rebuilding'),
       'operations' => [],
       'finished' => 'entity_rebuild_finished_callback',
-      'error_message' => t('Cohesion rebuild has encountered an error.'),
+      'error_message' => t('Site Studio rebuild has encountered an error.'),
       'file' => drupal_get_path('module', 'cohesion_website_settings') . '/cohesion_website_settings.batch.inc',
     ];
 
@@ -486,7 +485,6 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
       ['verbose' => $verbose],
     ];
 
-    $forms = [];
     $configs = \Drupal::entityTypeManager()->getDefinitions();
 
     // Make sure website settings are processed first.
@@ -502,63 +500,61 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     ];
 
     $entity_update_manager = \Drupal::service('cohesion.entity_update_manager');
+    // The number of entities processed by batch operation.
+    $entity_to_process = Settings::get('rebuild_max_entity', 10);
 
+    // A list of entity ids that can be processed at once.
     foreach ($style_configs as $style_config_type) {
       if (isset($configs[$style_config_type])) {
+        // Get entity ids needing an Site Studio update.
+        $entity_ids_needs_udpdate = \Drupal::entityTypeManager()
+          ->getStorage($style_config_type)->getQuery()
+          ->condition('status', TRUE)
+          ->condition('last_entity_update', $entity_update_manager->getLastPluginId(), '<>')
+          ->execute();
 
-        /** @var \Drupal\cohesion_website_settings\Entity\WebsiteSettings[] $entity_list */
-        $entity_list = \Drupal::entityTypeManager()->getStorage($style_config_type)->loadMultiple();
-
-        foreach ($entity_list as $entity) {
-          if($entity->status()) {
-            if($entity_update_manager->entityNeedUpdate($entity)){
-              $batch['operations'][] = [
-                '_resave_entity', [
-                  'entity' => $entity,
-                  'realsave' => TRUE,
-                  'verbose' => $verbose
-                ],
-              ];
-            }else{
-              $api_plugin = $entity->getApiPluginInstance();
-              $api_plugin->setEntity($entity);
-              $forms = array_merge($api_plugin->getForms(), $forms);
-              unset($api_plugin);
-            }
-          }
+        for ($i = 0; $i < count($entity_ids_needs_udpdate); $i += $entity_to_process) {
+          $ids = array_slice($entity_ids_needs_udpdate, $i, $entity_to_process);
+          $batch['operations'][] = [
+            '_resave_config_entity',
+            ['ids' => $ids, 'entity_type' => $style_config_type, 'verbose' => $verbose],
+          ];
         }
+
+        $entity_ids_no_udpdate = \Drupal::entityTypeManager()
+          ->getStorage($style_config_type)->getQuery()
+          ->condition('status', TRUE)
+          ->condition('id', $entity_ids_needs_udpdate, 'NOT IN')
+          ->execute();
+
+        $batch['operations'][] = [
+          '_cohesion_styles_bulk_save',
+          ['ids' => $entity_ids_no_udpdate, 'entity_type' => $style_config_type , 'verbose' => $verbose],
+        ];
+
         // Remove processed config type from all configs.
         unset($configs[$style_config_type]);
-        unset($entity_list);
       }
     }
 
-    $batch['operations'][] = [
-      '_cohesion_style_save',
-      ['forms' => $forms, 'verbose' => $verbose],
-    ];
-
-    // Process all remaining Acquia Cohesion configuration entities. (components, templates etc...)
+    // Process all remaining Site Studio configuration entities. (components, templates etc...)
     $search = 'cohesion_';
     foreach ($configs as $entity_type_name => $entity_type) {
-      if (substr($entity_type_name, 0, strlen($search)) === $search) {
+      if ($entity_type instanceof ConfigEntityTypeInterface && substr($entity_type_name, 0, strlen($search)) === $search) {
         try {
-          $entity_list = \Drupal::entityTypeManager()->getStorage($entity_type_name)->loadMultiple();
+          $entity_ids = \Drupal::entityTypeManager()
+            ->getStorage($entity_type_name)->getQuery()->condition('modified', TRUE)->execute();
 
-          foreach ($entity_list as $entity) {
-            // Only rebuild entities that have been activated/modified.
-            if ($entity->get('modified')) {
-              $batch['operations'][] = [
-                '_resave_entity', [
-                  'entity' => $entity,
-                  'realsave' => $entity_update_manager->entityNeedUpdate($entity),
-                  'verbose' => $verbose
-                ],
-              ];
-            }
+          for ($i = 0; $i < count($entity_ids); $i += $entity_to_process) {
+            $ids = array_slice($entity_ids, $i, $entity_to_process);
+            $batch['operations'][] = [
+              '_resave_config_entity',
+              ['ids' => $ids, 'entity_type' => $entity_type_name, 'verbose' => $verbose],
+            ];
           }
 
           unset($entity_list);
+
         }
         catch (\Exception $e) {
 
@@ -569,9 +565,8 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     // Save all "cohesion_layout" content entities.
     $query = \Drupal::entityQuery('cohesion_layout');
     $entity_ids = $query->execute();
-    $increment = 10;
-    for ($i = 0; $i < count($entity_ids); $i += $increment) {
-      $ids = array_slice($entity_ids, $i, $increment);
+    for ($i = 0; $i < count($entity_ids); $i += $entity_to_process) {
+      $ids = array_slice($entity_ids, $i, $entity_to_process);
       $batch['operations'][] = [
         '_resave_cohesion_layout_entity',
         ['ids' => $ids, 'verbose' => $verbose],
@@ -590,15 +585,17 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
     // Move temp to live.
     $batch['operations'][] = [
       'entity_rebuild_temp_to_live', [
-        'verbose' => $verbose
-      ]
+        'verbose' => $verbose,
+      ],
     ];
 
-    $batch['operations'][] = [
-      'batch_drupal_flush_all_caches', [
-        'verbose' => $verbose
-      ]
-    ];
+    if(!$no_cache_clear) {
+      $batch['operations'][] = [
+        'batch_drupal_flush_all_caches', [
+        'verbose' => $verbose,
+      ],
+      ];
+    }
 
     // Carry on!
     if ($cron) {
@@ -612,7 +609,7 @@ class WebsiteSettingsController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * @return array collection of Acquia Cohesion elements
+   * @return array collection of Site Studio elements
    */
   private function elementCollection() {
     try {

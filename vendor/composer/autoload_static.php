@@ -109,6 +109,7 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         array (
             'Drupal\\Driver\\' => 14,
             'Drupal\\Core\\' => 12,
+            'Drupal\\Composer\\Plugin\\Scaffold\\' => 32,
             'Drupal\\Component\\' => 17,
             'Doctrine\\Common\\Lexer\\' => 22,
             'Doctrine\\Common\\Inflector\\' => 26,
@@ -295,6 +296,10 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         'Drupal\\Core\\' => 
         array (
             0 => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Core',
+        ),
+        'Drupal\\Composer\\Plugin\\Scaffold\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/drupal/core-composer-scaffold',
         ),
         'Drupal\\Component\\' => 
         array (
@@ -777,6 +782,29 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         'Drupal\\Component\\Uuid\\Uuid' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Component/Uuid/Uuid.php',
         'Drupal\\Component\\Uuid\\UuidInterface' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Component/Uuid/UuidInterface.php',
         'Drupal\\Component\\Version\\Constraint' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Component/Version/Constraint.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\AllowedPackages' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/AllowedPackages.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\CommandProvider' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/CommandProvider.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ComposerScaffoldCommand' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ComposerScaffoldCommand.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\GenerateAutoloadReferenceFile' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/GenerateAutoloadReferenceFile.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Git' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Git.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Handler' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Handler.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Interpolator' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Interpolator.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ManageGitIgnore' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ManageGitIgnore.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ManageOptions' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ManageOptions.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\AbstractOperation' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/AbstractOperation.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\AppendOp' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/AppendOp.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\OperationData' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/OperationData.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\OperationFactory' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/OperationFactory.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\OperationInterface' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/OperationInterface.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\ReplaceOp' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/ReplaceOp.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\ScaffoldFileCollection' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/ScaffoldFileCollection.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\ScaffoldResult' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/ScaffoldResult.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Operations\\SkipOp' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Operations/SkipOp.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\Plugin' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/Plugin.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\PostPackageEventListenerInterface' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/PostPackageEventListenerInterface.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ScaffoldFileInfo' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ScaffoldFileInfo.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ScaffoldFilePath' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ScaffoldFilePath.php',
+        'Drupal\\Composer\\Plugin\\Scaffold\\ScaffoldOptions' => __DIR__ . '/..' . '/drupal/core-composer-scaffold/ScaffoldOptions.php',
         'Drupal\\Core\\Access\\AccessArgumentsResolverFactory' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Core/Access/AccessArgumentsResolverFactory.php',
         'Drupal\\Core\\Access\\AccessArgumentsResolverFactoryInterface' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Core/Access/AccessArgumentsResolverFactoryInterface.php',
         'Drupal\\Core\\Access\\AccessCheckInterface' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal/Core/Access/AccessCheckInterface.php',

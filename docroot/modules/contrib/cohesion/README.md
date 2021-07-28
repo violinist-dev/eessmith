@@ -1,4 +1,6 @@
-# Acquia Cohesion
+# Acquia Site Studio
+
+[![Coverage Status](https://coveralls.io/repos/github/acquia/cohesion-dev/badge.svg?branch=&t=UOU34W)](https://coveralls.io/github/acquia/cohesion-dev?branch=develop)
 
 ## Installation with composer
 
@@ -13,7 +15,7 @@ composer require acquia/cohesion
 composer require acquia/cohesion-theme
 ```
 
-Acquia Cohesion will install along with several module dependencies from drupal.org.
+Site Studio will install along with several module dependencies from drupal.org.
 
 You can now enable the modules via drush with the following commands: 
 
@@ -22,9 +24,9 @@ drush cr
 drush pm-enable cohesion cohesion_base_styles cohesion_custom_styles cohesion_elements cohesion_style_helpers cohesion_sync cohesion_templates cohesion_website_settings -y
 ```  
 
-## Upgrading Cohesion
+## Upgrading Site Studio
 
-When upgrading to a newer version of Cohesion, the following series of commands will need to be run in this order:
+When upgrading to a newer version of Site Studio, the following series of commands will need to be run in this order:
 
 ```
 drush cr 
@@ -39,7 +41,7 @@ The `cohesion` drush command has the following operations:
 
 ### cohesion:rebuild
 
-Resave and run pending updates on all Cohesion config entities.
+Re-save and run pending updates on all Site Studio config entities.
 
 Drush 9 format: 
 
@@ -115,6 +117,24 @@ Set the temporary stream wrapper that cohesion should use:
 $settings['coh_temporary_stream_wrapper'] = 'mytemp://';
 ```
 
+Set the sync directory that Site studio should use:
+
+```
+$settings['site_studio_sync'] = '../config/sync';
+```
+
+Set the max number of entities to import via sync in the batch process:
+
+```
+$settings['sync_max_entity'] = 10;
+```
+
+Set the max number of entities to rebuild at one time in the rebuild batch process:
+
+```
+$settings['rebuild_max_entity'] = 10;
+```
+
 ## Global $config options
 
 Set API key:
@@ -138,7 +158,7 @@ https://www.drupal.org/project/drupal/issues/2891603
 
 ## Using entity clone module
 
-In order to be able to clone Cohesion layout fields when cloning a content entity, you need to apply this `entity_clone` module patch 
+In order to be able to clone Site Studio layout fields when cloning a content entity, you need to apply this `entity_clone` module patch 
 
 https://www.drupal.org/project/entity_clone/issues/3013286
 

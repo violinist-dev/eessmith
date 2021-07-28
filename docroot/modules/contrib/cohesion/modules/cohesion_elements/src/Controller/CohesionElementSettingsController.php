@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class CohesionElementSettingsController.
  *
- * Controller routines for Cohesion admin index page.
+ * Controller routines for Site Studio admin index page.
  *
  * @package Drupal\cohesion_elements\Controller
  */

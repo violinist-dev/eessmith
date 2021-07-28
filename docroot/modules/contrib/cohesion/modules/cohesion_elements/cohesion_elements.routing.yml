@@ -13,6 +13,7 @@ cohesion_elements.endpoints.component_contents:
   defaults:
     _controller: '\Drupal\cohesion_elements\Controller\ComponentContentController::getComponentContents'
     _title: "List of custom block global components"
+    componentPath: ''
   methods:  [GET]
   requirements:
     _permission: 'access component content'
@@ -37,7 +38,7 @@ cohesion_elements.endpoints.component_content_save:
     _permission: 'administer component content'
     _content_type_format: json
 
-# In-contect component edit.
+# In-context component edit.
 cohesion_elements.components.settings_tray_iframe:
   path: '/admin/cohesion/cohesion_layout_modal/{entity_type_id}/{id}/{revision_id}/{uuid}/{component_id}/{randomizer}'
   defaults:
@@ -89,6 +90,16 @@ cohesion_elements.component.preview_full:
   options:
     no_cache: 'TRUE'
 
+# component content add page
+cohesion_elements.component_content.add_page:
+  path: '/admin/cohesion/components/component_contents/add'
+  defaults:
+    _controller: '\Drupal\cohesion_elements\Controller\ComponentContentController::addPage'
+    _title: 'Add component content'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer component content'
 
 # helpers index
 cohesion.settings.helpers:

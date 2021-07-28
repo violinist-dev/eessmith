@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion\Element;
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element\FormElement;
-use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\Core\Site\Settings;
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\Component\Utility\Environment;
+use Drupal\cohesion\Entity\EntityJsonValuesInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Render\Element\FormElement;
+use Drupal\Core\Site\Settings;
 
 /**
  * Provides a layout form element. This is used in the BaseForm and
@@ -46,7 +46,7 @@ class CohesionField extends FormElement {
     $entity = $element['#entity'];
     if ($entity instanceof CohesionSettingsInterface || $entity instanceof CohesionLayout) {
       $entity->setJsonValue($element['#json_values']);
-      if(!$entity->isLayoutCanvas()) {
+      if (!$entity->isLayoutCanvas()) {
         $entity->setJsonMapper($element['#json_mapper']);
       }
       $errors = $entity->jsonValuesErrors();
@@ -101,7 +101,7 @@ class CohesionField extends FormElement {
 
     // Prevent progress spinning wheel from loading if form is field config form.
     $is_loading = ($form_state->getFormObject()
-      ->getFormId() == 'field_config_edit_form') ? '' : 'is-loading';
+      ->getFormId() == 'field_config_edit_form') ? '' : 'coh-is-loading';
 
     // Add the entity style.
     $matches = [
@@ -124,12 +124,31 @@ class CohesionField extends FormElement {
       }
     }
 
+    $json_values = NULL;
     // Add the json values.
+    if($element['#entity'] instanceof EntityJsonValuesInterface && $element['#entity']->isLayoutCanvas()) {
+      if($payload = \Drupal::service('cohesion.utils')->getPayloadForLayoutCanvasDataMerge($element['#entity'])) {
+        $response = \Drupal::service('cohesion.api_client')->layoutCanvasDataMerge($payload);
+
+        if ($response && $response['code'] == 200) {
+          $json_values = $response['data']->layoutCanvas;
+          $element['#attached']['drupalSettings']['cohesion']['deletedComponents'] = $response['data']->deletedComponents;
+        }
+        else {
+          throw new \Exception('Unable to parse layout canvas: ' . $response['data']['error']);
+        }
+      }
+    }
+
+    if(is_null($json_values)) {
+      $json_values = json_decode($element['#json_values']);
+    }
+
     if (isset($element['#canvas_name'])) {
-      $drupal_settings_json_values = [$element['#canvas_name'] => json_decode($element['#json_values'])];
+      $drupal_settings_json_values = [$element['#canvas_name'] => $json_values];
     }
     else {
-      $drupal_settings_json_values = json_decode($element['#json_values']);
+      $drupal_settings_json_values = $json_values;
     }
 
     // Add the data.
@@ -143,7 +162,7 @@ class CohesionField extends FormElement {
 
     // Image browser page attachments.
     \Drupal::service('cohesion_image_browser.update_manager')
-      ->sharedPageAttachments($element['#attached'], $element['#entity'] instanceof ContentEntityInterface ? 'content' : 'config');
+      ->sharedPageAttachments($element['#attached'], $element['#isContentEntity'] ? 'content' : 'config');
 
     // Attach the editor.module text format settings.
     $pluginManager = \Drupal::service('plugin.manager.editor');
@@ -197,7 +216,7 @@ class CohesionField extends FormElement {
       '#parents' => [],
     ];
 
-    $classes = ['coh-form is-loading coh-preloader-large'];
+    $classes = ['coh-form-is-loading'];
     if (isset($element['#classes']) && is_array($element['#classes'])) {
       $classes = array_merge($classes, $element['#classes']);
     }
@@ -232,7 +251,7 @@ class CohesionField extends FormElement {
     }
 
     $element['react_app'] = [
-      '#markup' => '<div id="' . $class_name_canvas . '"></div>',
+      '#markup' => '<div class="coh-form coh-is-loading coh-preloader-large" id="' . $class_name_canvas . '"></div>',
       '#weight' => 1,
     ];
 
@@ -270,7 +289,7 @@ class CohesionField extends FormElement {
         '#type' => 'hidden',
         '#title' => t('Mapper'),
         '#default_value' => '{}',
-        '#description' => t("mapper for the Cohesion website settings."),
+        '#description' => t("mapper for the Site Studio website settings."),
         '#required' => FALSE,
         '#weight' => 5,
         '#attributes' => [

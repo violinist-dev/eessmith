@@ -2,13 +2,13 @@
 
 namespace Drupal\cohesion_base_styles;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Class BaseStylesListBuilder.
  *
- * Provides a listing of Cohesion base styles entities.
+ * Provides a listing of Site Studio base styles entities.
  *
  * @package Drupal\cohesion_base_styles
  */

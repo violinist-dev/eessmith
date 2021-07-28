@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\entity_reference_revisions\Plugin\Field\FieldFormatter\EntityReferenceRevisionsEntityFormatter;
 
 /**
@@ -9,7 +10,7 @@ use Drupal\entity_reference_revisions\Plugin\Field\FieldFormatter\EntityReferenc
  *
  * @FieldFormatter(
  *   id = "cohesion_entity_reference_revisions_entity_view",
- *   label = @Translation("Acquia Cohesion rendered entity"),
+ *   label = @Translation("Site Studio rendered entity"),
  *   description = @Translation("Display the referenced entities rendered by entity_view()."),
  *   field_types = {
  *     "cohesion_entity_reference_revisions"
@@ -18,5 +19,15 @@ use Drupal\entity_reference_revisions\Plugin\Field\FieldFormatter\EntityReferenc
  */
 class CohesionEntityReferenceRevisionsEntityFormatter extends EntityReferenceRevisionsEntityFormatter {
 
+  /**
+   * {@inheritdoc}
+   *
+   * @see ::prepareView()
+   * @see ::getEntitiestoView()
+   */
+  public function view(FieldItemListInterface $items, $langcode = NULL) {
+    $elements = parent::view($items, $langcode);
+    return $elements;
+  }
 
 }

@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Copy temporary stylesheets to live.
  * Copy temporary templates to live.
  * Notify the user.
@@ -21,10 +25,10 @@ function entity_rebuild_finished_callback($success, $results, $operations) {
     $running_dx8_batch = &drupal_static('running_dx8_batch');
     $running_dx8_batch = TRUE;
 
-    \Drupal::messenger()->addMessage(t('Cohesion entities have successfully been rebuilt. Your styles are now live.'));
+    \Drupal::messenger()->addMessage(t('Site Studio entities have successfully been rebuilt. Your styles are now live.'));
   }
   else {
-    \Drupal::messenger()->addError(t('Cohesion rebuild failed to complete. @error',
+    \Drupal::messenger()->addError(t('Site Studio rebuild failed to complete. @error',
       ['@error' => $results['error']]
     ));
 
@@ -44,7 +48,7 @@ function entity_rebuild_temp_to_live($verbose = FALSE, &$context = []) {
 
     try {
       \Drupal::service('cohesion.local_files_manager')->tempToLive();
-      \Drupal::service('cohesion.local_files_manager')->moveTemporaryTemplateToLive();
+      \Drupal::service('cohesion.template_storage')->commit();
     }
     catch (\Throwable $e) {
       $context['results']['error'] = $e->getMessage();
@@ -55,7 +59,7 @@ function entity_rebuild_temp_to_live($verbose = FALSE, &$context = []) {
       $context['message'] = t('Moving all templates and stylesheets into place. (@time seconds, @memory MB (total) @memory_peak MB (peak))', [
         '@time' => number_format((float) microtime(TRUE) - $time_start, 2, '.', ''),
         '@memory' => number_format(memory_get_usage() / 1024768, 2, '.', ','),
-        '@memory_peak' => number_format(memory_get_peak_usage() / 1024768, 2, '.', ',')
+        '@memory_peak' => number_format(memory_get_peak_usage() / 1024768, 2, '.', ','),
       ]);
     }
     else {
@@ -79,7 +83,7 @@ function batch_drupal_flush_all_caches($verbose = FALSE, &$context = []) {
       $context['message'] = t('Flushing caches. (@time seconds, @memory MB (total) @memory_peak MB (peak))', [
         '@time' => number_format((float) microtime(TRUE) - $time_start, 2, '.', ''),
         '@memory' => number_format(memory_get_usage() / 1024768, 2, '.', ','),
-        '@memory_peak' => number_format(memory_get_peak_usage() / 1024768, 2, '.', ',')
+        '@memory_peak' => number_format(memory_get_peak_usage() / 1024768, 2, '.', ','),
       ]);
     }
     else {

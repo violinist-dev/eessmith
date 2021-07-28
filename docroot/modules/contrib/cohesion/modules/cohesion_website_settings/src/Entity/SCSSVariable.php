@@ -2,11 +2,11 @@
 
 namespace Drupal\cohesion_website_settings\Entity;
 
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
- * Defines the Cohesion website settings entity.
+ * Defines the Site Studio website settings entity.
  *
  * @ConfigEntityType(
  *   id = "cohesion_scss_variable",

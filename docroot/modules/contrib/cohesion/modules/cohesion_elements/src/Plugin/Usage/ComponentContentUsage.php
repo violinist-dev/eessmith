@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion_elements\Plugin\Usage;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\UsagePluginBase;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ComponentContentUsage.
+ * Component content usage plugin.
  *
  * @package Drupal\cohesion_elements\Plugin\Usage
  *
@@ -20,7 +20,9 @@ use Drupal\Component\Serialization\Json;
  *   group_key = "category",
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = TRUE,
- *   exportable = FALSE
+ *   exportable = FALSE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class ComponentContentUsage extends UsagePluginBase {
@@ -33,7 +35,7 @@ class ComponentContentUsage extends UsagePluginBase {
 
     // Get the json values list.
     try {
-      $cohesion_layout_entity = $entity->get('layout_canvas')->entity;;
+      $cohesion_layout_entity = $entity->get('layout_canvas')->entity;
     }
     catch (\Exception $e) {
       return $scannable;

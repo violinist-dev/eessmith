@@ -1,9 +1,9 @@
 cohesion_template:
   type: cohesion_config_entity
-  label: 'Cohesion template base'
+  label: 'Site Studio template base'
   mapping:
     custom:
-      type: bool
+      type: boolean
       label: 'Custom'
     twig_template:
       type: path

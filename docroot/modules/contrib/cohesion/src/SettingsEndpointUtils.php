@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion;
 
+use Composer\Semver\Semver;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -127,7 +128,7 @@ class SettingsEndpointUtils {
 
         $data = $asset ?: [];
         $error = $data ? FALSE : TRUE;
-        $message = $data ? t('Acquia Cohesion asset library loaded.') : t('Empty Acquia Cohesion asset library.');
+        $message = $data ? t('Site Studio asset library loaded.') : t('Empty Site Studio asset library.');
       }
       else {
         $error = TRUE;
@@ -159,7 +160,7 @@ class SettingsEndpointUtils {
   public function getCohFormOnInit($group, $type) {
     $assetLibrary = \Drupal::keyValue('cohesion.assets.' . $group);
 
-    list($error, $data, $message) = $this->getAssets($assetLibrary, $type, $group, FALSE);
+    [$error, $data, $message] = $this->getAssets($assetLibrary, $type, $group, FALSE);
 
     // Return the (optionally) patched results.
     return $data;
@@ -311,7 +312,7 @@ class SettingsEndpointUtils {
    *
    * @return array|null
    *
-   * @todo - the hardcoded/switch logic should be moved into the corresponding entity class file.
+   * @todo the hardcoded/switch logic should be moved into the corresponding entity class file.
    */
   private function getWebsiteSettingsValuesById($id = NULL) {
     $result = [];
@@ -322,7 +323,8 @@ class SettingsEndpointUtils {
         try {
           $plugin = $this->entityGroupsManager->createInstance('font_libraries_entity_groups');
           $result[$id] = $plugin->getGroupJsonValues();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
         }
         break;
 
@@ -331,7 +333,8 @@ class SettingsEndpointUtils {
         try {
           $plugin = $this->entityGroupsManager->createInstance('icon_libraries_entity_groups');
           $result[$id] = $plugin->getGroupJsonValues();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
         }
         break;
 
@@ -349,7 +352,8 @@ class SettingsEndpointUtils {
                 $website_settings = $storage->load(reset($entityId));
               }
             }
-          } catch (\Exception $ex) {
+          }
+          catch (\Exception $ex) {
             return [];
           }
         }
@@ -391,7 +395,8 @@ class SettingsEndpointUtils {
             $website_settings_ids = $storage->loadMultiple($ids);
           }
         }
-      } catch (\Exception $ex) {
+      }
+      catch (\Exception $ex) {
         return [];
       }
     }
@@ -456,7 +461,7 @@ class SettingsEndpointUtils {
       }
     }
 
-    // Get Cohesion static values.
+    // Get Site Studio static values.
     switch ($bundle_type) {
       case 'system_font':
         $static_asset_library = \Drupal::keyValue('cohesion.assets.static_assets');
@@ -522,7 +527,8 @@ class SettingsEndpointUtils {
             try {
               // This is probably a JSON object, so try and decode it.
               $content = Json::decode($result['content']);
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
               // Failed to decode, so just store the content as its raw value.
               $content = $result['content'];
             }
@@ -567,26 +573,28 @@ class SettingsEndpointUtils {
   private function importLibraries($assets, $element_group) {
     $elements_asset_libraries = \Drupal::keyValue('cohesion.elements.asset.libraries');
     foreach ($assets as $k_asset => $asset) {
-      // Import any available js assets.
-      if (isset($asset['js'])) {
-        $this->_saveAssets('js', $asset);
-      }
+      if(!isset($asset['core_compatibility']) || Semver::satisfies(\Drupal::VERSION, $asset['core_compatibility'])){
+        // Import any available js assets.
+        if (isset($asset['js'])) {
+          $this->_saveAssets('js', $asset);
+        }
 
-      // Import any available css assets.
-      if (isset($asset['css'])) {
-        $this->_saveAssets('css', $asset);
-      }
+        // Import any available css assets.
+        if (isset($asset['css'])) {
+          $this->_saveAssets('css', $asset);
+        }
 
-      // Import any available generic assets.
-      if (isset($asset['assets'])) {
-        $this->_saveAssets('assets', $asset);
-      }
+        // Import any available generic assets.
+        if (isset($asset['assets'])) {
+          $this->_saveAssets('assets', $asset);
+        }
 
-      // Import available default json assets.
-      if (isset($asset['json'])) {
-        $this->_saveAssets('json', $asset);
+        // Import available default json assets.
+        if (isset($asset['json'])) {
+          $this->_saveAssets('json', $asset);
+        }
+        $elements_asset_libraries->set($element_group . '.' . $asset['id'], $asset);
       }
-      $elements_asset_libraries->set($element_group . '.' . $asset['id'], $asset);
     }
   }
 
@@ -633,7 +641,8 @@ class SettingsEndpointUtils {
         try {
           \Drupal::service('file_system')->saveData($asset_content, $asset_file_path, FileSystemInterface::EXISTS_REPLACE);
           $asset[$type][$key]['asset_url'] = $asset_file_path;
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
           $asset[$type][$key]['asset_url'] = '';
         }
       }

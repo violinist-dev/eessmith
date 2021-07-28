@@ -3,9 +3,9 @@
 namespace Drupal\cohesion_elements;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Class DynamicPermissions
@@ -66,8 +66,8 @@ class CategoryPermissions implements ContainerInjectionInterface {
       foreach ($storage->loadMultiple() as $entity) {
         $permissions += [
           'access ' . $entity->id() . ' ' . $entity_type_id . ' group' => [
-            'title' => $this->t('Acquia Cohesion Components - @label @type_label category group', ['@label' => $entity->label(), '@type_label' => $type_label]),
-            'description' => $this->t('Grant access to the Acquia Cohesion @label @type_label category group.', ['@label' => $entity->label(), '@type_label' => $type_label]),
+            'title' => $this->t('Site Studio Components - @label @type_label category group', ['@label' => $entity->label(), '@type_label' => $type_label]),
+            'description' => $this->t('Grant access to the Site Studio @label @type_label category group.', ['@label' => $entity->label(), '@type_label' => $type_label]),
           ],
         ];
       }

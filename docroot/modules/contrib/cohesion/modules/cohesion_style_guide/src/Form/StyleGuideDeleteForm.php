@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Builds the form to delete Cohesion custom styles entities.
+ * Builds the form to delete Site Studio custom styles entities.
  */
 class StyleGuideDeleteForm extends CohesionDeleteForm {
 

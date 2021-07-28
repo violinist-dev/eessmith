@@ -1,7 +1,7 @@
-name: Cohesion templates
+name: Site Studio templates
 type: module
-description: 'Defines the template configuration entities for creating Cohesion templates.'
+description: 'Defines the template configuration entities for creating Site Studio templates.'
 core_version_requirement: ^8.8.0 || ^9
-package: cohesion
+package: Site Studio
 dependencies:
   - cohesion

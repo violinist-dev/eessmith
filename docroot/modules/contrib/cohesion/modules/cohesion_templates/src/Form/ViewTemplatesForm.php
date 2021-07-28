@@ -2,10 +2,11 @@
 
 namespace Drupal\cohesion_templates\Form;
 
+use Drupal\cohesion\TemplateStorage\TemplateStorageBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ViewTemplatesForm.
+ * View templates form.
  *
  * @package Drupal\cohesion_templates\Form
  */
@@ -64,7 +65,7 @@ class ViewTemplatesForm extends TemplateForm {
 
     // Global template uses existing view mode template suggestion name, whereas
     // node_type specific templates use custom prefix and suggestion.
-    $filename_prefix = 'views-view--cohesion-';
+    $filename_prefix = 'views-view' . TemplateStorageBase::TEMPLATE_PREFIX;
     $filename = $filename_prefix . str_replace('_', '-', $entity->get('id'));
     $entity->set('twig_template', $filename);
     // Set custom.

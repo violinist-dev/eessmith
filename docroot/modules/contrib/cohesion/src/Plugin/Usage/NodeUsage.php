@@ -3,7 +3,7 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 /**
- * Class NodeUsage.
+ * Plugin for node usage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -16,7 +16,9 @@ namespace Drupal\cohesion\Plugin\Usage;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = TRUE,
- *   exportable = FALSE
+ *   exportable = FALSE,
+ *   config_type = "core",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class NodeUsage extends FieldableContentEntityUsageBase {

@@ -2,24 +2,21 @@
 
 namespace Drupal\cohesion_sync;
 
-use Drupal\config\StorageReplaceDataWrapper;
-use Drupal\Core\Config\ConfigException;
+use Drupal\cohesion\UsageUpdateManager;
+use Drupal\cohesion_sync\Entity\Package;
 use Drupal\Core\Config\Entity\ConfigEntityType;
-use Drupal\Core\Config\Importer\ConfigImporterBatch;
 use Drupal\Core\Config\StorageComparer;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Entity\EntityRepository;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\cohesion_sync\Entity\Package;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Serialization\Yaml;
-use Drupal\cohesion\UsageUpdateManager;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 define('ENTRY_NEW_IMPORTED', 1);
 define('ENTRY_EXISTING_ASK', 2);
@@ -30,6 +27,8 @@ define('ENTRY_EXISTING_NO_CHANGES', 6);
 
 /**
  * Class PackagerManager.
+ *
+ * Defines cohesion PackagerManager.
  *
  * @package Drupal\cohesion_sync
  */
@@ -165,95 +164,136 @@ class PackagerManager {
   }
 
   /**
+   * @param $uri
+   * @param $uuid
+   * @return mixed|null
+   */
+  public function getExportByUUID($uri, $uuid) {
+    if ($handle = @ fopen($uri, 'r')) {
+      $yaml = '';
+
+      $entry = NULL;
+      while (!feof($handle) && $entry == NULL) {
+        $line = fgets($handle);
+
+        // Hit the end of an array entry.
+        if ($yaml != '' && $line == "-\n") {
+          $entry_data = Yaml::decode($yaml)[0];
+          if($entry_data['export']['uuid'] == $uuid) {
+            $entry = $entry_data;
+          }
+          $yaml = $line;
+        }
+        // Building up an array entry.
+        else {
+          $yaml .= $line;
+        }
+      }
+
+      if($entry == NULL) {
+        $entry_data = Yaml::decode($yaml)[0];
+        if($entry_data['export']['uuid'] == $uuid) {
+          $entry = $entry_data;
+        }
+      }
+
+      fclose($handle);
+
+      return $entry;
+    }
+  }
+
+  public function getExportsByUUID($uri, $uuids) {
+    if ($handle = @ fopen($uri, 'r')) {
+      $yaml = '';
+
+      $entries = [];
+      while (!feof($handle) && count($entries) != count($uuids)) {
+        $line = fgets($handle);
+
+        // Hit the end of an array entry.
+        if ($yaml != '' && $line == "-\n") {
+          $entry_data = Yaml::decode($yaml)[0];
+          if(in_array($entry_data['export']['uuid'], $uuids)) {
+            $entries[] = $entry_data;
+          }
+          $yaml = $line;
+        }
+        // Building up an array entry.
+        else {
+          $yaml .= $line;
+        }
+      }
+
+      $entry_data = Yaml::decode($yaml)[0];
+      if(in_array($entry_data['export']['uuid'], $uuids)) {
+        $entries[] = $entry_data;
+      }
+
+      fclose($handle);
+
+      return $entries;
+    }
+  }
+
+  /**
    * Validate a package list via the plugin and return the actions.
    *
    * @param $entry
-   * @param $action_list
    *
    * @throws \Exception
    */
-  private function validatePackageEntry($entry, &$action_list) {
+  public function validatePackageEntry($entry) {
     // Get the Sync plugin for this entity type.
     try {
       $type_definition = $this->entityTypeManager->getDefinition($entry['type']);
       /** @var SyncPluginInterface $plugin */
       $plugin = $this->getPluginInstanceFromType($type_definition);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       throw new \Exception("Entity type {$entry['type']} not found.");
     }
 
     // Check to see if the entry can be applied without asking what to do.
     $action_state = $plugin->validatePackageEntryShouldApply($entry['export']);
 
-    $action_data = $plugin->getActionData($entry['export'], $action_state);
-
-    // Add the action object to the list if it will apply or requires user input.
-    $action_list[$entry['export']['uuid']] = $action_data;
+    return $plugin->getActionData($entry['export'], $action_state);
   }
 
   /**
-   * Given a URI, validate the stream.
+   * Sets the batch for validating a package.
    *
-   * @param $uri
+   * @param $file_uri string
+   * @param $store_key string
    *
-   * @return array
-   *
-   * @throws \Exception
+   * @return array - operations for the batch
    */
-  public function validateYamlPackageStream($uri) {
-    // Make sure the $uri is accessible.
-    if (@ !fopen($uri, 'r')) {
-      throw new \Exception("Cannot access {$uri}");
-    }
+  public function validatePackageBatch($file_uri, $store_key) {
 
-    // Process it.
-    $action_list = [];
+    $operations = [];
 
-    $this->logger->notice(t('Validating Cohesion sync import file'));
-    $this->parseYaml($uri, function ($entry) use (&$action_list) {
-      $this->validatePackageEntry($entry, $action_list);
+    $operations[] = [
+      '\Drupal\cohesion_sync\Controller\BatchImportController::batchValidatePackage',
+      [$file_uri],
+    ];
+
+    $entity_uuids_to_validate = [];
+    $this->parseYaml($file_uri, function ($entry) use (&$operations, $file_uri, $store_key, &$entity_uuids_to_validate) {
+      $entity_uuids_to_validate[] = $entry['export']['uuid'];
     });
 
-    return $action_list;
-  }
+    // Set a limit for the batch process or use a configured override of X.
+    $batch_limit = Settings::get('sync_max_entity', 10);
 
-  /**
-   * Given a URI, validate a package for removed component or style guide
-   * fields that would lead to data loss.
-   *
-   * @param $uri
-   *
-   * @return array
-   *
-   * @throws \Exception
-   */
-  public function validateYamlPackageContentIntegrity($uri) {
-    // Make sure the $uri is accessible.
-    if (@ !fopen($uri, 'r')) {
-      throw new \Exception("Cannot access {$uri}");
+    for ($i = 0; $i < count($entity_uuids_to_validate); $i += $batch_limit) {
+      $ids = array_slice($entity_uuids_to_validate, $i, $batch_limit);
+      $operations[] = [
+        '\Drupal\cohesion_sync\Controller\BatchImportController::batchValidateEntry',
+        [$file_uri, $ids, $store_key],
+      ];
     }
 
-    $broken_components = [];
-
-    $this->parseYaml($uri, function ($entry) use (&$broken_components) {
-      // Load existing entity.
-      try {
-        if ($entry['type'] == 'cohesion_component' || $entry['type'] == 'cohesion_style_guide') {
-          $entity = $this->entityRepository->loadEntityByUuid($entry['type'], $entry['export']['uuid']);
-          $broken_entities = $entity->checkContentIntegrity($entry['export']['json_values']);
-          if (!empty($broken_entities)) {
-            $broken_components[$entity->get('uuid')] = [
-              'entity' => $entity,
-              'entities' => $broken_entities,
-            ];
-          }
-        }
-
-      } catch (\Throwable $e) {
-      }
-    });
-
-    return $broken_components;
+    return $operations;
   }
 
   /**
@@ -269,7 +309,8 @@ class PackagerManager {
       $type_definition = $this->entityTypeManager->getDefinition($entry['type']);
       /** @var SyncPluginInterface $plugin */
       $plugin = $this->getPluginInstanceFromType($type_definition);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       throw new \Exception("Entity type {$entry['type']} not found.");
     }
 
@@ -278,7 +319,8 @@ class PackagerManager {
   }
 
   /**
-   * @param $entry
+   * @param array $entry
+   *   Package entry.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -295,125 +337,11 @@ class PackagerManager {
             $entity->process();
           }
         }
-
         $this->usageUpdateManager->buildRequires($entity);
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
       }
     }
-  }
-
-  /**
-   * Scan a Yaml package stream and only apply the entries in $action_data.
-   *
-   * @param $uri
-   * @param $action_data
-   *
-   * @return int
-   */
-  public function applyYamlPackageStream($uri, $action_data) {
-    $count = 0;
-
-    // Build the source and target stores.
-    $source_storage = new StorageReplaceDataWrapper($this->configStorage);
-
-    // Import the packages.
-    $this->parseYaml($uri, function ($entry) use ($action_data, &$count, &$source_storage) {
-      if (isset($action_data[$entry['export']['uuid']]) && in_array($action_data[$entry['export']['uuid']]['entry_action_state'], [
-          ENTRY_NEW_IMPORTED,
-          ENTRY_EXISTING_OVERWRITTEN,
-        ])) {
-        $this->logger->notice(t("Import: @type - @uuid", [
-          '@type' => $entry['type'],
-          '@uuid' => $entry['export']['uuid'],
-        ]));
-        $this->applyPackageEntry($entry);
-
-        $type_definition = $this->entityTypeManager->getDefinition($entry['type']);
-        if ($type_definition instanceof ConfigEntityType) {
-          $config_name = $type_definition->getConfigPrefix() . '.' . $entry['export'][$type_definition->getKey('id')];
-          $source_storage->replaceData($config_name, $entry['export']);
-        }
-
-        $count += 1;
-      }
-    });
-
-    $storage_comparer = new StorageComparer(
-      $source_storage,
-      $this->configStorage,
-      \Drupal::service('config.manager')
-    );
-
-    $storage_comparer->createChangelist();
-
-    // Get the config importer.
-    $config_importer = new SyncConfigImporter(
-      $storage_comparer,
-      \Drupal::service('event_dispatcher'),
-      \Drupal::service('config.manager'),
-      \Drupal::service('lock.persistent'),
-      \Drupal::service('config.typed'),
-      \Drupal::service('module_handler'),
-      \Drupal::service('module_installer'),
-      \Drupal::service('theme_handler'),
-      \Drupal::service('string_translation'),
-      \Drupal::service('extension.list.module')
-    );
-
-    try {
-      // This is the contents of \Drupal\Core\Config\ConfigImporter::import.
-      // Copied here so we can log progress.
-      if ($config_importer->hasUnprocessedConfigurationChanges()) {
-        $sync_steps = $config_importer->initialize();
-        foreach ($sync_steps as $step) {
-          $context = [];
-          do {
-            $config_importer->doSyncStep($step, $context);
-            if (isset($context['message'])) {
-              $this->logger->notice(str_replace('Synchronizing', 'Synchronized', (string) $context['message']));
-            }
-          } while ($context['finished'] < 1);
-        }
-        // Clear the cache of the active config storage.
-        \Drupal::service('cache.config')->deleteAll();
-      }
-      if ($config_importer->getErrors()) {
-        throw new ConfigException('Errors occurred during import');
-      }
-    } catch (ConfigException $e) {
-      // Return a negative result for UI purposes. We do not differentiate
-      // between an actual synchronization error and a failed lock, because
-      // concurrent synchronizations are an edge-case happening only when
-      // multiple developers or site builders attempt to do it without
-      // coordinating.
-      $message = 'The import failed due to the following reasons:' . "\n";
-      $message .= implode("\n", $config_importer->getErrors());
-
-      watchdog_exception('config_import', $e);
-      throw new \Exception($message);
-    }
-
-    // Post apply (all entities exist within the system at this point).
-    $this->parseYaml($uri, function ($entry) use ($action_data) {
-      if (isset($action_data[$entry['export']['uuid']]) && in_array($action_data[$entry['export']['uuid']]['entry_action_state'], [
-          ENTRY_NEW_IMPORTED,
-          ENTRY_EXISTING_OVERWRITTEN,
-        ])) {
-        $this->logger->notice(t("Building: @type - @uuid", [
-          '@type' => $entry['type'],
-          '@uuid' => $entry['export']['uuid'],
-        ]));
-        $this->postApplyPackageEntry($entry);
-      }
-    });
-
-    $context = [];
-    cohesion_elements_get_elements_style_process($context);
-    if (isset($context['message'])) {
-      $this->logger->notice((string) $context['message']);
-    }
-
-    return $count;
   }
 
   /**
@@ -422,47 +350,121 @@ class PackagerManager {
    *
    * @param $uri
    * @param $action_data
+   * @param bool $no_rebuild
+   *   True if no entity rebuilds required.
    *
-   * @throws \Exception
+   * @return array|bool
    */
-  public function applyBatchYamlPackageStream($uri, $action_data) {
+  public function applyBatchYamlPackageStream($uri, $action_data, $no_rebuild = FALSE) {
 
-    $batch = [
-      'title' => t('Importing configuration.'),
-      'operations' => [],
-    ];
+    $operations = [];
 
-    \Drupal::service('tempstore.private')
-      ->get('sync_report')
-      ->delete('report');
+    $uuids = [];
+    foreach ($action_data as $uuid => $action) {
+      if(in_array($action['entry_action_state'], [
+        ENTRY_NEW_IMPORTED,
+        ENTRY_EXISTING_OVERWRITTEN,
+      ])) {
+        $uuids[] = $uuid;
+      }
+    }
 
-    // Build the source and target stores.
-    $source_storage = new StorageReplaceDataWrapper($this->configStorage);
+    // Set a limit for the batch process or use a configured override of X.
+    $batch_limit = Settings::get('sync_max_entity', 10);
 
-    // Apply the entitites to the site.
-    $this->parseYaml($uri, function ($entry) use ($action_data, &$source_storage, &$batch) {
-      if (isset($action_data[$entry['export']['uuid']]) && in_array($action_data[$entry['export']['uuid']]['entry_action_state'], [
+    $uuids_batch = [];
+    for ($i = 0; $i < count($uuids); $i += $batch_limit) {
+      $uuids_batch[] = array_slice($uuids, $i, $batch_limit);
+    }
+
+    foreach ($uuids_batch as $uuids) {
+      $operations[] = [
+        '\Drupal\cohesion_sync\Controller\BatchImportController::batchAction',
+        [$uri, $uuids],
+      ];
+    }
+
+    foreach ($uuids_batch as $uuids) {
+      $operations[] = [
+        '\Drupal\cohesion_sync\Controller\BatchImportController::batchConfigImport',
+        [$uri, $uuids, $action_data],
+      ];
+    }
+
+    if ($no_rebuild !== TRUE) {
+      foreach ($action_data as $uuid => $action) {
+        if(in_array($action['entry_action_state'], [
           ENTRY_NEW_IMPORTED,
           ENTRY_EXISTING_OVERWRITTEN,
         ])) {
-
-        // Add  item to the batch.
-        $batch['operations'][] = [
-          '\Drupal\cohesion_sync\Controller\BatchImportController::batchAction',
-          [$entry],
-        ];
-
-        $type_definition = $this->entityTypeManager->getDefinition($entry['type']);
-        if ($type_definition instanceof ConfigEntityType) {
-          $config_name = $type_definition->getConfigPrefix() . '.' . $entry['export'][$type_definition->getKey('id')];
-          $source_storage->replaceData($config_name, $entry['export']);
+          // Add  item to the batch.
+          $operations[] = [
+            '\Drupal\cohesion_sync\Controller\BatchImportController::batchPostAction',
+            [$uri, $uuid, $action_data],
+          ];
         }
-
       }
-    });
 
-    batch_set($batch);
+      $operations[] = [
+        '\Drupal\cohesion_sync\Controller\BatchImportController::inUseRebuild',
+        [],
+      ];
+    }
 
+    // Apllies only if there has been some imports
+    if(!empty($uuids_batch)) {
+      $operations[] = [
+        'cohesion_elements_get_elements_style_process_batch',
+        [],
+      ];
+
+      // Generate content template entities for any new entity type / bundle / view mode.
+      $operations[] = [
+        '_cohesion_templates_generate_content_template_entities',
+        [],
+      ];
+    }
+
+    return $operations;
+  }
+
+  /**
+   * Set the data to be replaced int the storage replace.
+   *
+   * @param \Drupal\config\StorageReplaceDataWrapper $source_storage
+   * @param array $entry
+   * @param array $action_data
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function replaceData(&$source_storage, $entry, $action_data) {
+    $type_definition = $this->entityTypeManager->getDefinition($entry['type']);
+    // Only applies to config entities (ie: excludes files)
+    if ($type_definition instanceof ConfigEntityType) {
+
+      $config_id = $entry['export'][$type_definition->getKey('id')];
+      if($type_definition->id() == 'cohesion_custom_style') {
+        $custom_style_ids = \Drupal::entityQuery('cohesion_custom_style')
+          ->condition('class_name', $entry['export']['class_name'])
+          ->execute();
+
+        if($custom_style_ids && !in_array($config_id, $custom_style_ids)) {
+          $config_id = end($custom_style_ids);
+        }
+      }
+
+      $config_name = $type_definition->getConfigPrefix() . '.' . $config_id;
+      $entry['export'] = $this->matchUUIDS($action_data, $entry['export']);
+      $source_storage->replaceData($config_name, $entry['export']);
+    }
+  }
+
+  /**
+   * @param $source_storage
+   *
+   * @return \Drupal\cohesion_sync\SyncConfigImporter
+   */
+  public function getConfigImporter($source_storage) {
     $storage_comparer = new StorageComparer(
       $source_storage,
       $this->configStorage,
@@ -472,7 +474,7 @@ class PackagerManager {
     $storage_comparer->createChangelist();
 
     // Get the config importer.
-    $config_importer = new SyncConfigImporter(
+    return new SyncConfigImporter(
       $storage_comparer,
       \Drupal::service('event_dispatcher'),
       \Drupal::service('config.manager'),
@@ -484,52 +486,30 @@ class PackagerManager {
       \Drupal::service('string_translation'),
       \Drupal::service('extension.list.module')
     );
+  }
 
-    $batch = [
-      'title' => t('Synchronizing configuration.'),
-      'operations' => [],
-    ];
-    $sync_steps = $config_importer->initialize();
-    foreach ($sync_steps as $sync_step) {
-      $batch['operations'][] = [
-        [ConfigImporterBatch::class, 'process'],
-        [$config_importer, $sync_step],
-      ];
+  /**
+   * Replace uuids in an entry with the ones on the current site.
+   *
+   * @param array $action_data
+   * @param array $entry
+   *
+   * @return array
+   */
+  public function matchUUIDS($action_data, $entry) {
+    $replace_uuid = [];
+    foreach ($action_data as $uuid => $data) {
+      if (in_array($data['entry_action_state'], [ENTRY_NEW_IMPORTED, ENTRY_EXISTING_OVERWRITTEN]) && isset($data['replace_uuid'])) {
+        $replace_uuid[$uuid] = $data['replace_uuid'];
+      }
     }
 
-    batch_set($batch);
+    if (!empty($replace_uuid)) {
+      $replaced_entry = str_replace(array_keys($replace_uuid), $replace_uuid, Yaml::encode($entry));
+      $entry = Yaml::decode($replaced_entry);
+    }
 
-    $batch = [
-      'title' => t('Building entities.'),
-      'finished' => '\Drupal\cohesion_sync\Controller\BatchImportController::batchFinishedCallback',
-      'operations' => [],
-    ];
-
-    // Post apply the entities to the site.
-    $this->parseYaml($uri, function ($entry) use ($action_data, &$batch) {
-      if (isset($action_data[$entry['export']['uuid']]) && in_array($action_data[$entry['export']['uuid']]['entry_action_state'], [
-          ENTRY_NEW_IMPORTED,
-          ENTRY_EXISTING_OVERWRITTEN,
-        ])) {
-        // Add  item to the batch.
-        $batch['operations'][] = [
-          '\Drupal\cohesion_sync\Controller\BatchImportController::batchPostAction',
-          [$entry],
-        ];
-      }
-    });
-
-    $batch['operations'][] = [
-      'cohesion_elements_get_elements_style_process',
-      [],
-    ];
-
-    $batch['operations'][] = [
-      '\Drupal\cohesion_sync\Controller\BatchImportController::batchCompleteAction',
-      [$action_data],
-    ];
-
-    batch_set($batch);
+    return $entry;
   }
 
   /**
@@ -607,7 +587,8 @@ class PackagerManager {
           }
         }
 
-      } catch (\Throwable $e) {
+      }
+      catch (\Throwable $e) {
         fclose($temp_file);
         \Drupal::messenger()->addError(t('Package %path failed to build. There was a problem exporting the package. %e', [
           '%path' => $filename,
@@ -648,8 +629,6 @@ class PackagerManager {
    */
   public function buildPackageEntityList($entities, $excluded_entity_type_ids = [], &$list = [], $recurse = TRUE) {
     foreach ($entities as $entity) {
-      // Re-calculate the usage for this entity.
-      $this->usageUpdateManager->buildRequires($entity);
 
       // Get the Sync plugin for this entity.
       if ($plugin = $this->getPluginInstanceFromType($entity->getEntityType())) {
@@ -658,7 +637,6 @@ class PackagerManager {
         if (!isset($list[$dependency_name]) && !in_array($entity->getEntityTypeId(), $excluded_entity_type_ids)) {
           // Add this entity to the list so we don't yield something already sent.
           $list[$entity->getConfigDependencyName()] = TRUE;
-
           // And yield it.
           yield [
             'dependency_name' => $entity->getConfigDependencyName(),
@@ -666,49 +644,31 @@ class PackagerManager {
             'entity' => $entity,
           ];
 
-          // Loop through it's dependencies.
-          /** @var SyncPluginInterface $plugin */
-          foreach ($plugin->getDependencies($entity) as $key => $items) {
-            foreach ($items as $item) {
-              if (is_array($item)) {
-                $id = NULL;
-                $uuid = NULL;
-                $type = NULL;
+          $dependencies = $plugin->getDependencies($entity);
 
-                if ($key == 'config') {
-                  $type = $item['type'];
-                  $id = $item['id'];
-                }
-                else {
-                  if ($key == 'content') {
-                    $type = $item['type'];
-                    $uuid = $item['uuid'];
-                  }
-                }
+          // Group uuids to be processed by entity type
+          // to use loadMultiple instead of loading by UUID one by one
+          // for better performance
+          $typed_uuids = [];
+          foreach ($dependencies as $items) {
+            foreach ($items as $dependency) {
+              if(is_array($dependency)){
+                $typed_uuids[$dependency['type']][] = $dependency['uuid'];
+              }
+            }
+          }
 
-                // Try and load the entity.
-                try {
-                  // Config entity by id.
-                  $tentity = NULL;
-                  if ($id) {
-                    $tentity = $this->entityTypeManager->getStorage($type)
-                      ->load($id);
-                  }
+          // Loop through the results and add them to the dependencies.
+          foreach ($typed_uuids as $type => $uuids) {
+            $entity_type = $this->entityTypeManager->getDefinition($type);
+            $ids = $this->entityTypeManager->getStorage($type)->getQuery()->condition($entity_type->getKey('uuid'), $uuids, 'IN')->execute();
 
-                  if (!$tentity) {
-                    // Content entity id uuid.
-                    if (!$tentity = $this->entityRepository->loadEntityByUuid($type, $uuid)) {
-                      continue;
-                    }
-                  }
-                } catch (\Exception $e) {
-                  continue;
-                }
+            $entities = $this->entityTypeManager->getStorage($type)->loadMultiple($ids);
 
-                if ($recurse) {
-                  // Don't recurse te next entry if exporting a package entity.
-                  yield from $this->buildPackageEntityList([$tentity], $excluded_entity_type_ids, $list, $entity instanceof Package ? FALSE : $recurse);
-                }
+            foreach ($entities as $dependency_entity) {
+              if ($recurse) {
+                // Don't recurse te next entry if exporting a package entity.
+                yield from $this->buildPackageEntityList([$dependency_entity], $excluded_entity_type_ids, $list, $entity instanceof Package ? FALSE : $recurse);
               }
             }
           }

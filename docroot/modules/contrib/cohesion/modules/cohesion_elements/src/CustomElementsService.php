@@ -6,7 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
- * Class CustomElementsService.
+ * Custom elements service.
  *
  * @package Drupal\cohesion_elements
  */
@@ -372,7 +372,10 @@ class CustomElementsService {
           'nullOption' => isset($field['nullOption']) && $field['nullOption'],
           'options' => $options,
           'schema' => [
-            'type' => 'string',
+            'type' => [
+              'string',
+              'number',
+            ],
           ],
         ],
       ],

@@ -1,4 +1,4 @@
-# Cohesion entity styles menu items definition
+# Site Studio entity styles menu items definition
 entity.cohesion_style_helpers:
   title: 'Style helpers'
   route_name: entity.cohesion_style_helper.collection

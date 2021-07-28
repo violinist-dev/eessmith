@@ -5,7 +5,7 @@ namespace Drupal\cohesion;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * JSON response object for Cohesion AJAX requests.
+ * JSON response object for Site Studio AJAX requests.
  * Use this for all JSON responses to Angular so headers are defined in
  * a single place.
  */

@@ -7,14 +7,14 @@ use Drupal\cohesion\Entity\CohesionSettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
- * Class WebsiteSettingsEntityBase.
+ * Website settings entity base.
  *
  * @package Drupal\cohesion_website_settings\Entity
  */
 abstract class WebsiteSettingsEntityBase extends CohesionConfigEntityBase implements CohesionSettingsInterface {
 
   /**
-   * @inheritDoc
+   * {@inheritdoc}
    */
   public function getApiPluginInstance() {
     return $this->apiProcessorManager()->createInstance('website_settings_api');

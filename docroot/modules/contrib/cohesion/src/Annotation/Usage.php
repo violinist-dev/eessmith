@@ -82,10 +82,25 @@ class Usage extends Plugin {
   public $exclude_from_package_requirements;
 
   /**
-   * Can entities of this type be exported by sync?
+   * Should entities of this type be included in the full site export using sync?
    *
    * @var bool
    */
   public $exportable;
+
+  /**
+   * Is this a Cohesion or Core sync plugin?
+   * This is used to group Cohesion and core entities together in the package requirements on the sync package page.
+   *
+   * @var string
+   */
+  public $config_type;
+
+  /**
+   * Groups plugins to decide if they should be scanned for dependencies.
+   *
+   * @var array
+   */
+  public $scan_groups = [];
 
 }

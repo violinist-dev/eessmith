@@ -2,11 +2,11 @@
 
 namespace Drupal\cohesion_elements\Plugin\Usage;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\UsagePluginBase;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ElementUsageBase.
+ * Element usage base plugin.
  *
  * @package Drupal\cohesion_elements\Plugin\Usage
  */

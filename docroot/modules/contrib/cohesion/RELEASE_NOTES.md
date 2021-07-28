@@ -1,6 +1,1954 @@
 # Release notes
 
-## 6.1.4
+## 6.6.0
+
+## Slider - accessibility improvements
+
+### What is it?
+Accessibility of the Site Studio Slider has been enhanced to include features from Accessible360's Slick replacement.
+These include:
+- Users can define an `aria-label` for the Slider container, which also has a `role="region"` attribute/value.
+- Instructions can be provided for screen reader users on the Slider container. This is added as a visually-hidden paragraph within the Slider container but before the slides.
+- Each Slide item has a `role="group"` attribute/value with an `aria-label` value of `slide x`, where x is the numerical index in total number of slides.
+- When `Autoplay` is enabled the user can add a play/pause button to the Slider, add visually-hidden state labels and customise its appearance and position.
+- When `Center mode` is enabled, the `aria-label` of the centered slide will be appended with the text `(centered)`.
+- The ARIA roles `tablist`, `tab`, `presentation` and `tabpanel` have been removed from pagination HTML and slide items.
+- Keyboard navigation (using left and right arrow keys to traverse slides) was originally enabled programmatically. Whilst on by default for backwards compatibility, there is now a toggle option in the Slider container settings form to disable this option.
+
+#### What impact will there be?
+Customers using screen reader technology on your websites should have a better experience, providing configurable options are completed by site builder. 
+
+#### What actions do I need to take?
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+Pagination or Slide item styles could be be broken if a site builder has used the now-removed tab roles as attribute css selectors.
+
+### Components that rely on entity IDs not rendering after upgrade  
+
+#### What is it?
+
+Fixes a bug where components that rely on entity IDs where not rendering the referenced content as expected. 
+
+#### What impact will there be?
+
+Components can rely on either entity UUIDs or IDs for rendering referenced content. 
+If your components rely on entity IDs, upgrading will resolve referenced content not rendering.
+
+#### What actions do i need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## Wire mode is now available for the Visual page builder.
+
+#### What is it?
+
+Adds the ability to toggle on borders for components and borders for component drop zones.
+
+#### What impact will there be?
+
+Users will now be able to view borders on their components and drop zones. They can use the visual page builder menu, or toggle with (Alt + b).
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Content titles with brackets not appearing in Link typeahead  
+
+#### What is is?
+
+Fixes a bug where content titles that contained brackets weren't appearing in the link typeahead.
+
+#### What impact will there be?
+
+When using the link typeahead content titles now appear as expected if they have brackets or not.
+
+#### What actions do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### KeyValue template storage fails on Drupal 9
+
+#### What is is?
+
+Fixes a bug where KeyValue storage would fail to locate templates with specific filenames.
+
+#### What impact will there be?
+
+KeyValue template storage will work correctly on Drupal 9.
+
+#### What actions do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Pattern Repeater and Hide if No data results in data "bleeding" between repeated elements
+
+#### What is is?
+
+Fixes a bug where by having a component with multiple element having no data on different component field token, the data would "bleed" between elements
+
+#### What impact will there be?
+
+Hide if not data will now be respected on all elements within pattern repeaters
+
+#### What actions do i need to take?
+
+If affected by this issue, do a cache clear
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.5.1
+
+### Media library modal not always closing upon creating new media
+
+#### What is is?
+
+Fixes a bug where when creating a new piece of image media through the media library modal in Site Studio the modal failed to close when attempting to insert.
+
+#### What impact will there be?
+
+Media can be created through the media library modal and it closes as expected when clicking insert.
+
+#### What actions do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unable to import multiple files from the site_studio_sync folder
+
+#### What is is?
+
+Fixes an error where the drush sync:import command would not import all packages in the site_studio_sync folder but only one
+
+#### What impact will there be?
+
+All packages will be imported from the site_studio_sync folder
+
+#### What actions do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Error being thrown in the console when accessing Base and Custom styles.
+
+#### What is it?
+
+Some Site Studio assets were being loaded from `/site/default/files` when this directory may not exist.
+
+#### What impact will there be?
+
+The horizontal and vertical rulers in Base and Custom styles have now been removed from the style preview.
+
+#### What actions do i need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### When using a Field repeater the default minimum number of fields not working as expected
+
+#### What is it?
+
+When setting the minimum number of repeatable fields this was not being set as a default when first using the form.
+
+#### What impact will there be?
+
+When setting a minimum number of repeatable fields this will now be used as the default number of fields shown.
+
+#### What actions do i need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Error when enabling custom module containing default_content and Site Studio components
+
+#### What is is?
+
+Fixes an error thrown when installing a custom module that includes Site Studio components exported with the default_content module.
+
+#### What impact will there be?
+
+The custom module will install successfully.
+
+#### What actions do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Default colors are no longer included by default on new installs
+
+#### What is it?
+
+Removes the default gray, white and black colors from the color palette on a clean install of Site Studio.
+
+#### What impact will there be?
+
+When installing Site Studio on a site there will be no colors in the color palette. Existing sites won't be effected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Default component and helper categories no longer included by default on new installs
+
+#### What is it?
+
+Removes the default component and helper categories on a clean install of Site Studio.
+
+#### What impact will there be?
+
+When installing Site Studio on a site there will be no helper or component categories by default. Existing sites won't be effected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Using newly created media in Site Studio Media library not always selecting correct media item
+
+#### What is it?
+
+Fixes a bug where selecting newly created media in Site Studio media library was not always selecting the media item the user selected.
+
+#### What impact will there be?
+
+When selecting newly created media the correct item is now selected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Accordion tab items are not linkable
+
+#### What is it?
+
+Fixes a bug when creating a Hash URL for an Accordion item the page would not scroll to the open Accordion.
+
+#### What impact will there be?
+
+When creating a Hash URL for an Accordion item the page will automatically scroll to the open Accordion when the page first loads.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Untrusted callback exception on Drupal 9 sites
+
+#### What is it?
+
+Fixes a bug where viewing content in the view mode "search result" resulted in an untrusted callback exception on Drupal 9.
+
+``Drupal\Core\Security\UntrustedCallbackException: Render #post_render callbacks must be methods of a class that implements \Drupal\Core\Security\TrustedCallbackInterface or be an anonymous function. The callback was _cohesion_entity_clean_css. See https://www.drupal.org/node/2966725 in Drupal\Core\Render\Renderer->doTrustedCallback()``
+
+#### What impact will there be?
+
+This error should no longer occur.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Fatal error when clicking "translate" on a content template
+
+#### What is it?
+
+Fixes a bug where if you have the Configuration translation module enabled and clicked the "translate" link a fatal error occurred.
+
+#### What impact will there be?
+
+The fatal error should no longer happen.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+The fatal error has been resolved, but further research is required to make Site Studio and Configuration translation modules fully compatible.
+
+### Improving speed building package from the UI
+
+#### What is it?
+
+When building a package from manage package, it would take a significant amount of time to return the list of entities. This has now been improved.
+
+#### What impact will there be?
+None.
+
+#### What actions do I need to take?
+None.
+
+#### Are there any risks I should be aware of?
+None.
+
+### Drupal preview on existing nodes looses unsaved changes
+
+#### What is it?
+
+Fixes a bug when adding new components to a node layout canvas, then using the preview and going back to the node edit the most recent changes/additions were lost.
+
+#### What impact will there be?
+
+When using the Drupal preview on a node unsaved changes to the layout canvas are no longer lost.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Drupal block cache issue in Site Studio
+
+#### What is it?
+
+Fixes a bug when a non-accessible version of Drupal block used via Site Studio Block Element would be cached and cache would not refresh if block settings were updated making it accessible.
+
+#### What impact will there be?
+
+When updating block visibility settings, Block Element in Site Studio will have identical caching behaviour to a regular Drupal block.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.5.0
+
+### Site Studio Visual Page Builder Module
+
+#### What is it?
+
+A new module available as part of Site Studio that provides a front-end page building and content authoring experience using Site Studio drag and drop components. The visual page builder is a companion to the Layout canvas that is used in the back-end Drupal user interface.
+
+#### What impact will there be?
+
+When installed, the module will add a new ‘Page builder’ button to pages that have a Site Studio layout canvas. When the button is clicked, users enter the new page builder mode.
+
+#### What actions do I need to take?
+
+To use the Page Builder you will need to install the Visual Page Builder module.
+
+#### Are there any risks I should be aware of?
+
+There are no known risks.
+
+### Bugfix: Sync package entity dependencies not being removed if no longer used on the entity
+
+#### What is it?
+
+Fixes a bug where a sync package contains entities that then have their dependencies updated, but the sync package contained both the original and new dependency.
+For example your component exists in a package, you then update that components default image, both images files were included in the sync package rather than the latest one.
+
+#### What impact will there be?
+
+Old entity dependencies should no longer appear in your sync package. Sync package files may also be smaller in size if there were multiple "old" dependencies.
+
+#### What actions do I need to take?
+
+You may need to re-save your sync package.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Provide an override for sync:import batch limit
+
+#### What is it?
+
+By default the sync:import process will handle 10 items at a time to reduce the memory required to run this operation.
+This feature exposes a method for increasing that number via Drupal settings.
+
+#### What impact will there be?
+
+Where more memory is available the `sync_max_entity` can be set to a number greater than 10 to process the import faster.
+
+#### What actions do I need to take?
+
+Add a settings value such as:
+
+    `$settings['sync_max_entity'] = 20;`
+
+#### Are there any risks I should be aware of?
+
+Increasing the `sync_max_entity` value will require more memory to process each sync:import batch.
+
+### Link elements - support for `rel` attribute
+
+#### What is it?
+
+The `rel` attribute defines the relationship between a linked resource and the current document. Support has been added for three of the most important values:
+
+- `nofollow` - prevents backlink endorsement, so that search engines don't pass page rank to the linked resource.
+- `noopener` - prevents linked resource getting partial access to linking page, something that is otherwise exploitable by malicious websites.
+- `noreferrer` - similar to `noopener` (especially for older browsers), but also prevents the browser sending the referring webpage's address.
+
+#### What impact will there be?
+
+For each of the following Site Studio elements:
+
+- `Link`
+- `Container`
+- `Slide item`
+- `Column`
+
+Checkbox toggles for `No follow`, `No opener` and `No referrer` will appear when the following conditions are met:
+
+- Link `Type` is set to `URL`
+- Link `Target` is set to `New window`
+
+When checked, they will be added to the created link HTML in the format `rel="nofollow noopener noreferrer"` (if all are enabled).
+
+#### What actions do I need to take?
+
+Existing components that you would like to use this feature on need to be updated, as these toggles are `OFF` by default.
+
+#### Are there any risks I should be aware of?
+
+- Use of the `No follow` toggle will have an impact on SEO, given that it stops search engines passing page rank endorsement to the linked resource.
+This is often used in blog comments or forums, as these can be a source of spam or low-quality links.
+Google and other search engines require `nofollow` to be added to sponsored links and advertisements.
+
+- Use of the `No referrer` toggle will affect analytics, as it will report traffic as direct instead of referred.
+
+### Menu templates - support for Drupal `<nolink>` token
+
+#### What is it?
+
+When creating Drupal menus, it's possible to use a `<nolink>` token to render the link text only, which outputs as a `span` instead of an `a` tag.
+
+This can be useful for creating headings for menu sub-levels.
+
+#### What impact will there be?
+
+Previously Site Studio menu templates would ignore the `<nolink>` token and still render an `a` tag with an empty `href` attribute.
+
+Now as per Drupal behaviour, these are rendered as `span` tags.
+
+If a different HTML element has been specified in the Site Studio menu template (`Menu link` settings), this setting will take priority.
+
+This is recommended if you are using `<nolink>` for creating menu sub-level headings.
+
+#### What actions do I need to take?
+
+1. Update your Drupal menu with the `<nolink>` token where needed.
+2. Re-save the relevant Site Studio menu template, or run a site rebuild. Both of these actions will refresh the menu template code.
+
+#### Are there any risks I should be aware of?
+
+You many need to create additional menu template styles to account for the tag change from `a` to `span`, depending on how current styles are being applied.
+
+### Accordion accessibility enhancements
+
+#### What is it?
+
+The accessibility of `Accordion tabs` elements has been improved, when in the accordion display mode.
+
+#### What impact will there be?
+
+- Accordion header links now have the `aria-expanded` attribute, which toggles between `true` and `false` when expanded and collapsed, respectively.
+- Accordion header links now have `aria-disabled="true"` set if the parent `Accordion tabs container` has the `Collapsible` setting toggled `OFF`. This is only applied when the item is expanded, to indicate to a screen reader that the panel cannot be collapsed manually.
+
+  When the panel is collapsed because a sibling accordion item is expanded, the `aria-disabled` attribute is removed.
+- Accordion header links now have `aria-disabled="true"` permanently set if the accordion item has been disabled through `Navigation link` settings.
+
+### Option to add `font-display` on Font libraries settings page
+
+#### What is it?
+
+Adds the ability to set the `font-display` CSS property when uploading a new web font.
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.4.3
+
+### Bugfix: Child elements not rendering in layout canvas
+
+#### What is it?
+
+Fixes bug where children of elements would not render in the layout canvas
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.4.2
+
+### Bugfix: Custom element has no context of what element it belongs to
+
+#### What is it?
+
+Fixes bug where custon elements had no context of what element it belongs to
+
+#### What impact will there be?
+
+None
+
+#### What actions do I need to take?
+
+Re-save component using custom elements. It can also be done as part of a `cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Typo/Incorrect permission for 'Add component content' route
+
+#### What is it?
+
+Fixes a permissions issue limiting access to the `add component content` page.
+
+#### What impact will there be?
+
+Users with `administer component content` can access Site Studio > Components > Component content > Add component content
+as expected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unable to create a translation of component content
+
+#### What is it?
+
+Fixes an issue where creating a translation of component content could result an error and it was not appearing the sidebar browser.
+
+``Error: Call to a member function getCategoryEntity() on null in Drupal\cohesion\Services\CohesionUtils->getPayloadForLayoutCanvasDataMerge()``
+
+#### What impact will there be?
+
+No further error messages should occur when creating a translation of component content, they should also now appear as expected within the sidebar browser.
+
+#### What actions do I need to take?
+
+As part of the upgrade make sure to run `drush updb`.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Can't tokenize styles in the style builder on a component when TMGMT module is enabled
+
+#### What is it?
+When the TMGMT module is enabled users are unable to tokenize Styles in Style builder.
+
+#### What impact will there be?
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+None
+
+### Compatibility with the Webprofiler module
+
+#### What is it?
+
+Fixes an issue where enabling the webprofiler module prevents some actions (eg. drush commands) from completing properly.
+
+#### What impact will there be?
+
+No code related issues will be observed relating to the webprofiler module being enabled.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Empty styles in the head
+
+#### What is it?
+
+Fixes an issue where if you have a component which applies styles to an element but the editor does not specify any value when using the component, an empty style in the head would be generated
+
+#### What impact will there be?
+
+No empty css selector will be printed on the page
+
+#### What actions do I need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Component content edit links containing two language prefixes
+
+#### What is it?
+
+Fixes an issue where if you have a default language prefix, the component content edit link from the layout canvas contained two language prefixes and therefore resulted in an invalid link.
+
+#### What impact will there be?
+
+If the default language has a prefix, the component content edit links from the layout canvas are now correct.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unpublished content entities appearing in typeaheads
+
+#### What is it?
+
+Fixes an issue where unpublished content entities were appearing in typeaheads when searching for content.
+This meant that site editors could link to content that was not yet published and could lead to 404s.
+
+#### What impact will there be?
+
+Unpublished content entities no longer appear in typeaheads when searching for content in the Entity browser, Entity reference and link elements.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Can't insert media from media library after using the filters
+
+#### What is it?
+
+Fixes an issue where after using the filters in the Media Library you were not able to insert media, this resulted in an ajax error.
+
+#### What impact will there be?
+
+You will now be able to use the media library filters and insert media without error.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.4.1
+
+### Provide optional flag for sync:import to prevent calls to the API
+
+#### What is it?
+
+Adds new optional argument `--no-rebuild` to the `sync:import` drush command. When using the command with the argument, no entity rebuilds are triggered
+reducing calls to the API. This is useful when a rebuild is likely to be run in a subsequent script during a deployment for example.
+
+#### What impact will there be?
+
+Reduce the time and memory required to run the `sync:import` process.
+
+#### What actions do I need to take?
+
+Usage:
+
+  `drush sync:import --no-rebuild`
+
+#### Are there any risks I should be aware of?
+
+Ensure a rebuild step is included as part of your scripts when employing this flag.
+
+### Option to add `font-display` on Font libraries settings page
+
+#### What is it?
+
+Adds the ability to set the `font-display` CSS property when uploading a new web font.
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Entity browser element error appearing unexpectedly
+
+#### What is it?
+
+Fixes an issue where "This element requires the Entity browser or Media library modules enabled" error appeared even though users has either installed.
+Also resolves another issue where you could not select "Typeahead" without "Entity browser" module being installed.
+
+When adding a new Entity browser element to a Layout canvas the default option is now set to Typeahead as this is not module dependent.
+
+#### What impact will there be?
+
+The Typeahead option in the Entity browser element can be used without Entity browser or Media library modules installed and users should no longer experience the any error messages appearing unexpected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Compatibility with Link attributes module
+
+#### What is it?
+
+Fixes an issue when using the Link attributes module with Site studio.
+This error would appear in the logs: `User error: "0" is an invalid render array key in Drupal\Core\Render\Element::children() (line 97 of /var/www/drupal/standard/web/core/lib/Drupal/Core/Render/Element.php)`
+
+#### What impact will there be?
+
+If using the Link attributes module and Site studio you should no longer see any errors on your site.
+
+#### What actions do I need to take?
+
+When upgrading an Site Studio import and rebuild should be run.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Provide optional flag for sync:import to prevent the site going in maintenance mode
+
+#### What is it?
+
+By default the `sync:import` cli command will put the site into maintenance mode, this feature provides a `--no-maintenance` flag to optionally disable this action.
+This is useful on platforms such as ACSF where this behaviour is handled by the internal update hooks.
+
+#### What impact will there be?
+
+More granular control on how/when a site enters and leaves maintenance mode.
+
+#### What actions do I need to take?
+
+Usage:
+
+  `drush sync:import --no-maintenance`
+
+#### Are there any risks I should be aware of?
+
+A site *should* be in maintenance mode during the sync:import procedure to avoid cache issues, ensure this is handled by either the platform or additional scripts
+when employing the `--no-maintenance` option.
+
+### Compressing data to the Site studio API
+
+#### What is it?
+
+By default Site Studio will send data to its API using gzencode to reduce the traffic. It can be turned off by settings the config `cohesion.settings compress_outbound_request` to 0
+
+#### What impact will there be?
+
+If enabled, when saving an entity through the UI or via drush cohesion:rebuild, the process will be faster as less traffic will be necessary.
+
+#### What actions do I need to take?
+
+If your server does not have zlib you might want to turn this off by doing `drush config-set cohesion.settings compress_outbound_request 0` or install zlib.
+
+#### Are there any risks I should be aware of?
+
+This is now turned on by default, make sure zlib is installed on your server or you might see some failures. See `What actions do I need to take?`
+
+### Bugfix: IMCE & Media library not loading on sub-directory multi-site setups
+
+#### What is it?
+
+Fixes a bug when using IMCE and Media library integration with Site studio used relative URLS, where in a sub-directory multi-site setup, the URL returned was incorrect.
+
+#### What impact will there be?
+
+IMCE and Media library will now work for multi-sites that are configured in a sub-directory setup.
+For example: www.domain.com/site1 www.domain.com/site2
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Deleting a component removes it's styles from stylesheet
+
+#### What is it?
+
+Deleting Components with inline styles in Drupal now removes the styles for such components from the stylesheet. Previously this would be done only during rebuilds.
+
+#### What impact will there be?
+
+Deleting Components with inline styles will reduce size of stylesheets immediately, without having to run rebuild.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Limiting the number of twig cache file created when using inline styles
+
+#### What is it?
+
+A large number of twig cache file were created when rendering inline styles, causing the twig cache folder to grow overtime very quickly
+
+#### What impact will there be?
+
+The number of twig cache file will stop growing when using inline styles
+
+#### What actions do I need to take?
+
+If you want to clear the twig cache folder you should clear the cache
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Added the ability to not run a cache clear on drush cohesion:rebuild
+
+#### What is it?
+
+The drush command for rebuild now has a new option `--no-cache-clear` which removes the cache clear from the batch it performs.
+
+#### What impact will there be?
+
+If the option is specified the rebuild will take less memory to run.
+
+#### What actions do I need to take?
+
+Usage
+
+`drush cohesion:rebuild --no-cache-clear`
+
+#### Are there any risks I should be aware of?
+
+You will still need to run a `drush cr` after the rebuild
+
+### Reducing new lines within the inline CSS
+
+#### What is it?
+
+Reducing new lines within inline CSS style blocks that are generated by Site Studio.
+
+#### What impact will there be?
+
+Websites that use inline CSS styles generated by Site Studio, will now take up less space within the head of the page.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Inline editing pencil not always appearing
+
+#### What is it?
+
+Fixed a bug where in certain situations where the browser was zoomed in and specific widths, the Site Studio inline editing pencil did not always appear.
+
+#### What impact will there be?
+
+The inline editing pencils should now always show.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Translating with TMGMT, translated content sometimes resulting in "null"
+
+#### What is it?
+
+Fixes a bug where an error appeared when attempting to translate content, that had a Layout canvas field and other Drupal fields through TMGMT.
+This resulted in some translated content values being returned as "null".
+
+#### What impact will there be?
+
+Translating content using TMGMT in this scenario will no longer return an error and return the translated content.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Saving translated nodes could result in stream wrapper exceptions in Drupal logs
+
+#### What is it?
+
+Fixes a bug where the `translated://` stream wrapper and other hidden stream wrappers were being incorrectly passed into a Twig extensions function.
+
+#### What impact will there be?
+
+When saving a translated node you should no longer see these errors and it has been handled correctly.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Sync import batch to consume less memory
+
+#### What is it?
+
+The batch process has been reworked to hold less in memory
+
+#### What impact will there be?
+
+Large sync package will use less memory when imported via the UI and therefore will be less prone to out of memory errors
+
+#### What actions do I need to take?
+
+You might be able to decrease the memory limit needed to run a sync import via the UI if you had to increase it to overcome this issue
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.4.0
+
+### Provide an override for rebuild batch limit
+
+#### What is it?
+
+By default the rebuild process will handle 10 items at a time to reduce the memory required to run this operation. This feature exposes a method for increasing that number via Drupal settings.
+
+#### What impact will there be?
+
+Where more memory is available the `rebuild_max_entity` can be set to a number greater than 10 to process the rebuild faster.
+
+#### What actions do I need to take?
+
+Add a settings value such as:
+
+`$settings['rebuild_max_entity'] = 20;`
+
+#### Are there any risks I should be aware of?
+
+Increasing the `rebuild_max_entity` value will require more memory to process each rebuild batch.
+
+### Style builder - field tokenization
+
+#### What is it?
+
+The ability to expose style properties as component form options.
+
+#### What impact will there be?
+
+The following style properties are no longer flagged and can now be tokenized:
+
+- `Text shadow > Horizontal`
+- `Text shadow > Vertical`
+- `Text shadow > Blur`
+- `Text shadow > Color`
+- `Position > Position`
+- `Display > Display`
+- `Box shadow > Horizontal`
+- `Box shadow > Vertical`
+- `Box shadow > Blur`
+- `Box shadow > Spread`
+- `Box shadow > Color`
+- `Transition > Duration`
+- `Transition > Delay`
+
+#### What actions do I need to take?
+
+Create component fields that are connected to relevant style properties in your layout canvas elements, which will enable configurable styles in your component forms.
+
+#### Are there any risks I should be aware of?
+
+`text-shadow` and `box-shadow` are both shorthand properties and support multiple values.
+
+This means values for all fields should be entered, to ensure styles are built correctly. You can do this in a number of ways:
+
+1. Make all relevant component fields required.
+2. Use component fields that provide set options that can't be cleared (eg `Range` and `Select`).
+3. Hardcode values for style properties that have a fixed value and don't need to be configurable in your component form.
+
+### Button element - layout canvas child support
+
+#### What is it?
+
+You can now add child elements to the `Button` element.
+
+#### What impact will there be?
+
+It will enable more advanced button styles, such as:
+- Animated menu buttons
+- Buttons that look like on/off toggle switches
+
+#### What actions do I need to take?
+
+To update existing link elements, you will need to do a rebuild.
+
+Both new and existing `Button` elements on the layout canvas will be collapsed by default.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Component content with Dropzones
+
+#### What is it?
+
+Adds the ability to save Component content with a Dropzone.
+
+#### What impact will there be?
+
+This will expose the Layout canvas when editing a Component content.
+Editors will not be able to edit / add to the top level Layout canvas only the Dropzone.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Component content can be created directly
+
+#### What is it?
+
+Component content can now be created directly through the Site Studio menu `Site Studio > Components > Component content > Add component content` rather than having to save a component from a node.
+
+#### What impact will there be?
+
+Component content doesn't have to be created from a node and can now be created separately just like you would with other content entities.
+The ability to create a component content from a node is still available
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Two Google Map API keys can be defined to follow Google's best practices
+
+#### What is it?
+
+Two Google Map API keys can now be defined through the Site studio UI. One for the Google Maps Javascript API which is used for rendering maps and previews, another for the Geocoding API which is used to fetch the coordinates.
+
+#### What impact will there be?
+
+This allows for restrictions to be applied to API keys as explained by in Google's best practice document: https://developers.google.com/maps/api-key-best-practices#best_practice_list
+If a second API key for the Geocoding is not defined, it will continue to use the first one.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Entity browser element can be used used for content entities
+
+#### What is it?
+
+The Entity browser element now has the ability for more entity types to be used with the element.
+This allows more flexibility for site builders to create their own Entity browsers for other entities, and for contributed modules, such as content browser to be used with the Entity browser element.
+
+Note that when using the contributed module content browser the browser modal uses the active front-end theme for styling.
+
+#### What impact will there be?
+
+The ability for the content or other entities to be selected within the Entity browser element.
+
+---
+
+## 6.3.5
+
+### Bugfix: Unable to upload icon and font library files on Drupal 9
+
+#### What is it?
+
+Fixes a bug where attempting to upload an icon or font library file through the UI resulted in the error: `Error occurred while uploading the file.` and the file not being saved.
+
+#### What impact will there be?
+
+Icon and font library files can now be uploaded through the UI on Drupal 9 sites without error.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Ability to execute javascript into the link element url
+
+#### What is it?
+
+Fixes a bug where site editors could inject javascript and potentially other harmful markup, into the link to page field on the link element and link to page component form field.
+
+#### What impact will there be?
+
+A user without the `Bypass XSS validation in element forms` permission will not be able to inject Javascript or HTML into the link to page field on a link element.
+If the value is not a valid link it will go through the XSS filter.
+
+Where a link to page field on a component has been used and the value input is not a valid link the value will not render out.
+
+Valid links values include: Using the autocomplete (node::1), /my-page, external links and mailto:.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+Any value that is not a valid link and been input into a component link field will no longer render out that value in the href.
+
+### Feature: Save template in the database
+
+#### What is it?
+
+Adds the ability to switch a template storage from the file system to the key value storage
+
+#### What impact will there be?
+
+If enabled Site Studio will be using the database more often as it will save all config templates in the database
+
+#### What actions do I need to take?
+
+To enable this feature you need to change the alias of the `cohesion.template_storage` services to point to `cohesion.template_storage.key_value`
+
+You can do so by providing a site specific services.yml and provide the path to it in your settings.php
+
+Ex:
+
+`env.services.yml`
+
+> services:
+  cohesion.template_storage:
+     alias: cohesion.template_storage.key_value
+
+
+`settings.php`
+
+`$settings['container_yamls'][] = '/path/to/env.services.yml'`
+
+#### Are there any risks I should be aware of?
+
+Database utilisation will increase especially during rebuild and sync operations, be aware that this will also increase the size of your database.
+
+### Bugfix: IMCE & Media library not loading on sub-directory multi-site setups
+
+#### What is it?
+
+Fixes a bug when using IMCE and Media library integration with Site studio used relative URLS, where in a sub-directory multi-site setup, the URL returned was incorrect.
+
+#### What impact will there be?
+
+IMCE and Media library will now work for multi-sites that are configured in a sub-directory setup.
+For example: www.domain.com/site1 www.domain.com/site2
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Cache context on menu items preventing inline style from rendering
+
+#### What is it?
+
+Fixes a bug where adding cache context to link inside a menu would prevent inline style on components living alonside the menu to render
+
+#### What impact will there be?
+
+Adding cache context should not impact the rendering of styles
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.3.4
+
+### Bugfix: Views and image styles can't be excluded from full sync export
+
+#### What is it?
+
+Fixes a bug where Views and Image styles were not available to be excluded from the full sync package export.
+
+#### What impact will there be?
+
+Views and Image styles can be excluded from the full sync export, through the export settings page: `admin/cohesion/sync/export_settings`.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Styles only on a pseudo elements do not apply
+
+#### What is it?
+
+When adding a style with only a pseudo element the styles would not apply.
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Google Analytics events not firing and resulting in a JS error
+
+#### What is it?
+
+Fixes a bug where the Google Analytics events integration only supported the classic analytics and didn't support universal analytics.
+
+#### What impact will there be?
+
+Both classic and universal analytics are now supported by the element analytics tab.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Accordions in UI when clicking open/closing multiple times when clicked once
+
+#### What is it?
+
+Fixes a bug where in some cases clicking an accordion in the Site studio UI open/closes multiple times before applying the correct state.
+
+#### What impact will there be?
+
+None
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.3.3
+
+### Bugfix: Repeater fields not updating in Component content instances
+
+#### What is it?
+
+Fixes a bug when using Repeater fields in a Component content the content was not updating.
+
+#### What impact will there be?
+
+None
+
+#### What actions do I need to take?
+
+A Site studio import should be run after upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Component gets stuck in "loading" state when created from the layout canvas
+
+#### What is it?
+
+Fixed a bug where components created from a layout canvas would fail to work when added to another layout canvas before their component form had been configured.
+
+#### What impact will there be?
+
+None
+
+#### What actions do I need to take?
+
+A Site studio import should be run after upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Conditional Fields not working on Style Guide Forms
+
+#### What is it?
+
+Fixed a bug where Conditional Fields were always set to hidden on Style Guide Forms.
+
+#### What impact will there be?
+
+You can now use Conditional Fields on Style Guide Forms and they will show/hide correctly.
+
+#### What actions do I need to take?
+
+When implementing Conditional Fields on Style Guide Forms the syntax should be the same as on Components. E.g. use `[field.select]` and not `[style-guide:style-guide-name:select]`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Setting a custom sync directory in settings.php was ignored
+
+#### What is it?
+
+Fixed a bug where configuring the sync directory in the settings.php was using `$config_directories` which is now deprecated in Drupal 8.8 and above.
+This has now been updated inline with Drupal core.
+
+#### What impact will there be?
+
+You can now set a custom sync directory by setting `$settings['site_studio_sync']` in your settings.php.
+For example `$settings["site_studio_sync"] = "../config"`
+
+#### What actions do I need to take?
+
+We recommend that you update your site to use `$settings["site_studio_sync"]` rather than `$config_directories`, if you don't update the fallback of `sites/default/files/sync` will be used.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.3.2
+
+### Bugfix: Tokenised Drupal fields in view are displaying incorrect translation
+
+#### What is it?
+
+Fixed a bug where using tokens in content template and rendered in a view would retrun the default language instead of the current content language.
+
+#### What impact will there be?
+
+If a token is used in a content template and this content dipplayed in a view the correct translation will be displayed
+
+#### What actions do I need to take?
+
+Clear the cache of the affected templates for the tokens to be processed. You can do it by saving each individual template or a global `drush cr`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Translating multiple of the same Component on a node using TMGMT resulted in incorrect translations
+
+#### What is it?
+
+Fixed a bug where translating a node using TMGMT that had multiple of the same Component resulted in incorrect translations being applied to components.
+
+#### What impact will there be?
+
+Translating a node with multiple of the same component using TMGMT will now apply the correct translation to the component.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Toggle values on a component within a template return a number even if the toggle is set to string
+
+#### What is it?
+
+Fixes a bug whereby a toggle value added to a template is not rendered correctly in a child node.
+
+#### What impact will there be?
+
+Toggle values will now be rendered correctly in all use cases.
+
+#### What action do i need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.3.1
+
+### Bugfix: Inputting an incorrect token in a component causing twig errors
+
+#### What is it?
+
+Fixed a bug where inputting an incorrect token within a nested component with a dropzone caused twig errors.
+
+#### What impact will there be?
+
+If a token is input incorrectly it will be output as a string rather than displaying twig errors and stopping the page from rendering.
+
+#### What actions do I need to take?
+
+A Site studio import and rebuild should be run after upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.3.0
+
+### Update to content template machine name prefix
+
+#### What is it?
+
+The content template machine name prefix has been shorten to `ctn_tpl`, so when creating additional full content templates the site builder has more flexibility.
+Previously if your content bundle had a long name this could produce an error when attempting to create multiple full templates as the maximum characters for a machine name is 32 as enforced by Drupal core.
+
+#### What impact will there be?
+
+The ability to create content templates for bundles with long names and no get any errors about the length of the machine name.
+Existing templates will not be affected and continue to work as expected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Feature: Component field repeater
+
+#### What is it?
+
+Components can now include repeating sets of fields within the component form. A new form element called a Field repeater allows the form builder to wrap one or multiple fields within a repeatable group. The field repeater includes a button which allows the content author to add another group of fields as an array. The field repeater can be limited to maximum number of repeats.
+
+The field repeater form element is used with another new component layout element called a Pattern repeater. This allows a section of layout on the layout canvas to be repeated. When linked together, the field repeater will repeat the layout within the pattern repeater. The result is a component that can include a repeating set of fields that automatically repeats a corresponding layout.
+
+There are many use cases for this functionality. Some examples include:
+- A gallery component where the content author can add multiple images to a single component.
+- A map component where the content author can add multiple map pins to a single component.
+- A slider where the content author can add multiple slides to a single component.
+- A list where the content author can add multiple list items to a single component.
+- A table where the content author can add multiple rows to the table..
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### TMGMT compatible
+
+#### What is it?
+
+You can now use Site Studio with TMGMT and translate content for each field of your components. By default all text based field in your components will be translatable, you can exclude fields from being translatable in a new section on the component form page named `Translation settings`. Suggestions have also been implemented, if you add a component content or have a component with a entity reference field or a entity browser field, TMGMT will suggest to translate the referenced entity if relevant
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### File Sync error message updated
+
+#### What is it?
+
+When importing a file through Site Studio Sync where the UUID already exists, but the URI doesn't match an error message is displayed. The error message now displays more information to help debug which file is causing the error.
+
+#### What impact will there be?
+
+The error message will display some more useful information to help debug the file causing the error to display.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: WYSIWYG element textarea width
+
+#### What is it?
+
+Fixes a bug where sites on Drupal 8.9.3 and 9.0.3 the WYSIWYG elements textarea width was incorrect.
+
+#### What impact will there be?
+
+The WYSIWYG elements textarea is now the correct width.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Using inline editing to edit components loaded the incorrect translation
+
+#### What is it?
+
+Fixes a bug where on a multilingual site, using the inline edit functionality to edit components on the frontend of a website was loading the incorrect translation.
+
+#### What impact will there be?
+
+Using the inline edit functionality now loads the correct translation.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Components not always being correctly categorized
+
+#### What is it?
+
+Fixed a bug where importing a sync package containing components would not always categorize them correctly.
+
+#### What impact will there be?
+
+Importing components should now be categorized correctly.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Using Drupal preview to preview a node that not yet been saved produced an error
+
+#### What is it?
+
+Fixes a bug where an unsaved node containing components on a layout canvas, then previewing using Drupal preview caused the below error.
+
+`Symfony\Component\Routing\Exception\InvalidParameterException: Parameter "revision_id" for route "cohesion_elements.components.settings_tray_iframe" must match "[^/]++" ("" given) to generate a corresponding URL. in Drupal\Core\Routing\UrlGenerator->doGenerate()`
+
+#### What impact will there be?
+
+When previewing an unsaved node containing a layout canvas, you should no longer get this error.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Custom block usage plugin
+
+#### What is it?
+
+If a component is used on a custom block layout canvas field, the component will now show as in-use by the custom block.
+
+#### What impact will there be?
+
+Allows for components in-use on a custom block to be tracked.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Error when cloning a node using quick clone module
+
+#### What is it?
+
+Fixes an issue where attempting to clone a node with a Layout canvas field and component containing a file produced an error.
+
+#### What impact will there be?
+
+You can now use the quick clone module to clone nodes with components containing files without error.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Support for focal point module
+
+#### What is it?
+
+Fixes an issue where the focal point module image widget did not load as expected on Drupal image fields.
+
+#### What impact will there be?
+
+You can now use the focal image widget on Drupal fields.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+---
+
+## 6.2.0
+
+### Bugfix: Using a Range slider on a component the default value unit is not applied correctly
+
+#### What is it?
+
+Fixes a bug when adding a Component to the Layout canvas which has a Range slider with a default value, the values were not being applied correctly with the correct unit.
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Bugfix: Nodes with parentheses in titles do not work in entity reference elements
+
+#### What is it?
+
+Fixes a bug where linking an entity with parentheses in the title to an entity reference element did not render in the frontend.
+
+#### What impact will there be?
+
+You can now link an entity that has parentheses in its title in an entity reference element and it will render.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Updated IMCE module dependency to version 2.2 or higher.
+
+#### What is it?
+
+We changed the IMCE module version dependency from `^1.x` to `^2.2` to solve a Drupal 9 incompatibility issues within IMCE.
+
+#### What impact will there be?
+
+Sites running Drupal 9 and Site Studio will use the latest version of IMCE which is fully Drupal 9 compatible.
+
+#### What actions do I need to take?
+
+While Site Studio will continue to work with the `1.x` branch of IMCE, it's worth upgrading existing sites.
+
+`composer update drupal/imce:^2.2`
+
+From your `docroot` you can run the following to upgrade existing sites. New installations will install `^2.2` of IMCE automatically as part of the Site Studio dependencies.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Improved RTL language support - Slider and style builder
+
+#### What is it?
+
+The `Slider` interactive element now works correctly when a RTL language is active. If enabled, the `Previous` and `Next` button positions will be reversed.
+
+Logical CSS properties make directional styles easier to maintain, such as right-to-left (RTL) content.
+
+To support this, some style builder properties now have extra options or values:
+
+- **Text-align:** Two new values (`Start` and `End`)
+- **Padding:** Four new options that can be enabled through the `Padding` ellipsis menu (`Padding block-start`, `Padding block-end`, `Padding inline-start`, `Padding inline-end`)
+- **Margin:** Four new options that can be enabled through the `Margin` ellipsis menu (`Margin block-start`, `Margin block-end`, `Margin inline-start`, `Margin inline-end`)
+- **Border width:** Four new options that can be enabled through the `Border width` ellipsis menu (`Block-start`, `Block-end`, `Inline-start`, `Inline-end`)
+- **Border style:** Four new options that can be enabled through the `Border style` ellipsis menu (`Block-start`, `Block-end`, `Inline-start`, `Inline-end`)
+- **Border color:** Four new options that can be enabled through the `Border color` ellipsis menu (`Block-start`, `Block-end`, `Inline-start`, `Inline-end`)
+
+#### What impact will there be?
+
+**Slider:** When an RTL language is active it will show the first slide as expected, instead of an empty slide.
+
+**Style builder:** None, as existing styles will not be effected.
+
+#### What actions do I need to take?
+
+**Slider:** If you are using icons for your `Previous` and `Next` buttons, you will need to add styles to mirror these when RTL is active. You can do this by using a `[dir="rtl"]` prefix in your style.
+
+**Style builder:** To access the new options for the `Padding`, `Margin` and `Border` properties, you will need to enable them through the respective properties' ellipsis menu on the right-hand side of the property group in the style builder.
+
+#### Are there any risks I should be aware of?
+
+The new style builder options and values are not supported in Internet Explorer 11 and below.
+
+### Drupal core config entities can now be included in Site Studio Sync packages
+
+#### What is it?
+
+The following Drupal core config entities can now be included in your Site Studio Sync package. On the Sync package editor page, there is a new set of tabs in the package requirements accordion called “Site Studio entities” and “Drupal entities”.
+
+- Content types including fields, field form display and field display.
+- Media types including fields, field form display and field display.
+- Taxonomy vocabularies including fields, field form display and field display.
+- Menu definitions.
+- Module dependencies.
+
+Drupal core entities have been separated in the UI as they do not have any dependencies calculated for Site Studio entities. For example, if you export a content template for a content type, the Drupal content type is not included in the export automatically. This is a change to the way Drupal views will be included with Site Studio view templates. Views now need to be selected separately as they are now no longer a dependency of the view template.
+
+When exporting a Drupal core entity using Site Studio sync, the associated fields with that entity can also be exported. For example, exporting a content type will also export all the fields attached to that entity. If the content type has an entity reference field referencing either media types or taxonomy vocabularies, the allowed types set on the field can also be exported.
+
+This new functionality allows for "features" to be created as a Sync packages that contain both Drupal core and Site Studio configuration entities.
+
+#### What impact will there be?
+
+Site Studio sync packages can now include both Drupal and Site Studio configuration entities.
+
+### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Themes that are not Site Studio enabled can now be set to generate Site Studio templates
+
+#### What is it?
+
+If you have a theme not set to use Site Studio (ie: the theme does not specify `cohesion:true` in its info.yml) you can now generate templates for it.
+
+This is useful for AMP themes where there is the requirement to render the Layout Canvas field and supporting components.
+
+#### What impact will there be?
+
+You can now render Site Studio templates and layout canvas with any theme, making it compatible with AMP themes.
+
+### What actions do I need to take?
+
+If you want a theme not using Site Studio like an AMP theme to generate and render the templates only, you need to enable it by going to the appearance page of the theme and check `Generate templates only` under the `Site Studio` section and perfom a rebuild to generate the templates for this theme.
+
+#### Are there any risks I should be aware of?
+
+You should be aware that this functionality will only build templates for Site Studio entities and Layout Canvas field, no styles will be generated and rendered. You should define your own stylesheet for these themes
+
+### Conditional Component Form Fields
+
+#### What is it?
+
+Form elements on Site Studio Components can now be conditionally displayed based on user specified logic.  The new "Show field if" field in the sidebar editor allows the user to enter custom conditional logic.
+
+Conditional logic is evaluated in real time as users fill in the form which allows for fields to be shown or hidden based on the values of other fields within the form.
+
+Conditional fields that are not shown by default will only have any default values assigned to them set when they are show (because the condition required to show them is met). Further to this, conditional fields can be set to be shown by default based on default values of other fields in the form.
+
+In addition, to further leverage this new functionality, a new Hidden Input field has been added that allows users to enter static values that are only set when the field is conditionally shown.
+
+#### What impact will there be?
+
+Component Form Fields now have an addition setting in the sidebar editor that is used to set the conditional logic described above.
+
+#### What actions do I need to take?
+
+None
+
+#### Are there any risks I should be aware of?
+
+None
+
+### Site Studio UI accessibility improvements
+
+#### What is it?
+
+Keyboard accessibility has been significantly improved in several areas:
+
+- When a layout canvas/form builder item that can have children is focused, the sidebar browser can be opened with keypress of `enter` or `space` to add child elements.
+- When a layout canvas/form builder item that cannot have children is focused, the elements settings can be opened with keypress of `enter` or `space`.
+- When a layout canvas/form builder item toolbar is focused, the elements settings can be opened with keypress of `enter` or `space`.
+- On focus, the color picker can now be opened with keypress of `enter` or `space`.
+- The style tree is now fully navigable with `tab` key
+- Style tree levels can be expanded, collapsed and selected with `enter` or `space` key
+- When a blade menu is open the `escape` key will close the current blade menu.
+- When a blade menu is launched, the back button is focused. This also happens when navigating between blade levels so that focus stays within the blade.
+- When the sidebar editor is launched, the close button is focused.
+- All focusable elements have a consistent yellow outline applied when focused.
+
+#### What impact will there be?
+
+Visual cue improvements when using keyboard to navigate through the Site Studio UI.
+
+### Bugfix: Removing an image from a style guide results in broken image in component
+
+#### What is it?
+
+When creating components with `Picture` and `Image`elements, but without specifying images, the HTML for these elements were still being generated on the front end.
+
+If the `Title` and `Alt text` element settings were completed, this resulted in a broken image being displayed on the front end, alongside the image alt text.
+
+If either `Title` or `Alt text` were left blank, there would be no visual indication of the `<picture>` or `<img>` HTML being generated.
+
+#### What impact will there be?
+
+`Picture` and `Image` elements will only generate HTML if an image is specified and therefore a `src` generated.
+
+#### What actions do I need to take?
+
+A rebuild will update the relevant twig templates and apply these conditions.
+
+#### Are there any risks I should be aware of?
+
+Whilst images that have no `src` specified usually have no size on the page, there is a chance that base styles that you've created for your site could generate whitespace for these empty elements.
+
+Now that the elements will no longer be generated, this could cause some reflow of content.
+
+### Bugfix: Using integers as values for select options in custom element throwing an error
+
+#### What is it?
+
+Fixed a bug where select option values for a custom element could only be a string.
+
+#### What impact will there be?
+
+When creating a select list in a custom element you can now use both strings or numbers as values.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
 
 ### Bugfix: Component templates not always being generated
 
@@ -8,38 +1956,40 @@
 
 When saving as a component from the layout canvas, but not ever editing the component through the UI the components template wasn't generating as expected on rebuild.
 This resulted in error message like this appearing on the site: `Unable to find a template for suggestion matching component__cohesion_cpt_component_machine_name`.
-              
+
 #### What impact will there be?
 
 Saving a component in this way should now generate the component templates as expected.
 
 #### Are there any risks I should be aware of?
 
-None. 
+None.
 
 #### What actions do I need to take?
 
-Components that have been previously created this way and never edited through the UI, need to be saved through the UI. 
+Components that have been previously created this way and never edited through the UI, need to be saved through the UI.
 
 ### Bugfix: Error when saving a helper that contains files and has a long name
 
 #### What is is it?
 
 Fixed an issue where saving a helper with a long name from a layout canvas that contained files, caused a MYSQL error when trying to insert into the file usage table.
-If a helper already existed on the site, this also caused an error when running a site rebuild. 
+If a helper already existed on the site, this also caused an error when running a site rebuild.
 
 #### What impact will there be?
 
-Customers should no longer see the error if they were previously experiencing it. 
-If a helper is saved from the layout canvas with a long name, the machine name is created with a max length of 32 characters. 
+Customers should no longer see the error if they were previously experiencing it.
+If a helper is saved from the layout canvas with a long name, the machine name is created with a max length of 32 characters.
 
 #### Are there any risks I should be aware of?
 
-None. 
+None.
 
 #### What actions do I need to take?
 
-None. 
+None.
+
+---
 
 ## 6.1.3
 
@@ -101,6 +2051,8 @@ None.
 
 None.
 
+---
+
 ## 6.1.2
 
 ### Bugfix: Twig error when rendering a component with a link field
@@ -120,6 +2072,8 @@ None.
 #### What actions do I need to take?
 
 None.
+
+---
 
 ## 6.1.1
 
@@ -141,23 +2095,23 @@ None.
 
 None.
 
-### Themes with Acquia Cohesion enabled and not set as default will no longer generate assets automatically
+### Themes with Site Studio enabled and not set as default will no longer generate assets automatically
 
 #### What is is it?
 
-When enabling a theme which is using Acquia Cohesion (ie: it has `cohesion: true` in its `info.yml` file or the theme it inherits from has), assets such as styles and templates for this theme will not be generated unless you check the checkbox labeled `Build Cohesion assets` in the appearance settings of the theme
+When enabling a theme which is using Site Studio (ie: it has `cohesion: true` in its `info.yml` file or the theme it inherits from has), assets such as styles and templates for this theme will not be generated unless you check the checkbox labeled `Build Site Studio assets` in the appearance settings of the theme
 
 #### What impact will there be?
 
-If you have any enabled themes using Acquia Cohesion that are not set as default, it will cease to generate the assets for these themes unless you explicitly check the `Build Cohesion assets` in the appearance settings of the theme under the `Cohesion Acquia` section
+If you have any enabled themes using Site Studio that are not set as default, it will cease to generate the assets for these themes unless you explicitly check the `Build Site Studio assets` in the appearance settings of the theme under the `Site Studio` section
 
 #### What actions do I need to take?
 
-If you want Acquia Cohesion to generate assets such as styles and templates for any non default theme you might already have enabled, you need to check the the checkbox labeled `Build Cohesion assets` in the appearance settings of the theme under the `Cohesion Acquia` section
+If you want Site Studio to generate assets such as styles and templates for any non default theme you might already have enabled, you need to check the the checkbox labeled `Build Site Studio assets` in the appearance settings of the theme under the `Site Studio` section
 
 #### Are there any risks I should be aware of?
 
-Your site might not render correctly unless you do what is describe in the `What actions do I need to take?` section above for any non default theme you might have enabled that is using Acquia Cohesion
+Your site might not render correctly unless you do what is describe in the `What actions do I need to take?` section above for any non default theme you might have enabled that is using Site Studio
 
 ### Bugfix: When tokenising a link to anything other than a link field in a component, the link is the internal reference
 
@@ -169,7 +2123,7 @@ When attaching a component link field token to a field that is not a link field 
 
 Tokenising a link field to any type of field in a component will now render the link rather than the internal reference
 
-### Bugfix: Warning when doing a cohesion rebuild when updating to 6.1
+### Bugfix: Warning when doing a rebuild when updating to 6.1
 
 #### What is is it?
 
@@ -184,24 +2138,23 @@ The warning should not be thrown anymore
 
 None.
 
-### Acquia Cohesion now requires Drupal core 8.8.0
+### Site Studio now requires Drupal core 8.8.0
 
 #### What is it?
 
-Acquia Cohesion now requires Drupal core 8.8.0 as a minimum, due to some Drupal 8.8 specific functions being used.
+Site Studio now requires Drupal core 8.8.0 as a minimum, due to some Drupal 8.8 specific functions being used.
 
 #### What impact will there be?
 
-This version of Acquia Cohesion and future versions can only be installed on Drupal core 8.8.0 and above.
+This version of Site Studio and future versions can only be installed on Drupal core 8.8.0 and above.
 
 #### What actions do I need to take?
 
-If your website is running on an older version of Drupal core you will need to upgrade to 8.8.0 before upgrading to this version of Acquia Cohesion.
+If your website is running on an older version of Drupal core you will need to upgrade to 8.8.0 before upgrading to this version of Site Studio.
 
 #### Are there any risks I should be aware of?
 
 None.
-
 
 ### Bugfix: When the lazy-loading setting is set on the picture element, images are not loaded
 
@@ -227,7 +2180,7 @@ None.
 
 #### What is it?
 
-Fixes a regression introduced into 6.1.0 where a user could see an error like `Error: Unable to build styles. StatusCodeError: 400` when saving or rebuilding styles. This was blocking some Cohesion rebuilds from completing.
+Fixes a regression introduced into 6.1.0 where a user could see an error like `Error: Unable to build styles. StatusCodeError: 400` when saving or rebuilding styles. This was blocking some Site Studio rebuilds from completing.
 
 #### What impact will there be?
 
@@ -240,6 +2193,8 @@ Users will be able to save styles and rebuild successfully without this error.
 #### Are there any risks I should be aware of?
 
 None.
+
+---
 
 ## 6.1.0
 
@@ -257,11 +2212,11 @@ Tab items will stay in place if responsive mode is disabled.
 
 **Note: Tabs will not stack if responsive mode is disabled.**
 
-### Cohesion Component machine name support
+### Component machine name support
 
 #### What is it?
 
-When adding form fields to Cohesion Components you will now be required to specify a machine name for them. When entering a title/label for your field, the machine name will be auto-generated but can be edited manually if you prefer.
+When adding form fields to Components you will now be required to specify a machine name for them. When entering a title/label for your field, the machine name will be auto-generated but can be edited manually if you prefer.
 
 This machine name will then be used to link the field to elements in your component.
 
@@ -314,25 +2269,25 @@ A new option for media library is available in the image browser system settings
 
 #### What impact will there be?
 
-You can now use the core media library within supported Cohesion elements.
+You can now use the core media library within supported Site Studio elements.
 
 #### What actions do I need to take?
 
-The media library module will need to be installed to use within Cohesion.
+The media library module will need to be installed to use within Site Studio.
 
 #### Are there any risks I should be aware of?
 
 None.
 
-### Cohesion Import batch failing when used inside hook_update
+### Site Studio Import batch failing when used inside hook_update
 
 #### What is it?
 
-Fixes a bug where cohesion_base_styles_process_batch $context param was typed as array which prevented using Object extending ArrayObject, more specifically DrushBatchContext
+Fixes a bug where `cohesion_base_styles_process_batch` $context param was typed as array which prevented using Object extending ArrayObject, more specifically DrushBatchContext
 
 #### What impact will there be?
 
-You can now use the Cohesion import batch process inside an hook_update
+You can now use the Site Studio import batch process inside an hook_update
 
 #### What actions do I need to take?
 
@@ -360,17 +2315,17 @@ None
 
 None
 
-### Cohesion "Component content" entity now implements a view mode
+### Site Studio "Component content" entity now implements a view mode
 
 #### What is it?
 
-Previously, the Cohesion component content entity did not implement a Drupal core view mode. This caused some issues with modules attempting to render this entity programmatically.
+Previously, the Site Studio component content entity did not implement a Drupal core view mode. This caused some issues with modules attempting to render this entity programmatically.
 
 This issue has been resolved by implementing a default view mode for this entity.
 
 #### What impact will there be?
 
-Third party modules that attempt to render the Cohesion component content entity programmatically will be able to do so via its default view mode.
+Third party modules that attempt to render the Site Studio component content entity programmatically will be able to do so via its default view mode.
 This includes Acquia Lift via Acquia Content Hub 2+
 
 The display settings for this entity have not been enabled, so it will not be possible to access the display settings or add additional view modes for this entity. This fix is hidden from the point of view of the site administrator.
@@ -379,7 +2334,7 @@ The display settings for this entity have not been enabled, so it will not be po
 
 Performing a `drush updb` as part of the standard upgrade will deploy this fix.
 
-The fix ID `8800` and will appear as "Add Cohesion view mode to Component Content entity type"
+The fix ID `8800` and will appear as "Add Site Studio view mode to Component Content entity type"
 
 #### Are there any risks I should be aware of?
 
@@ -445,12 +2400,12 @@ Existing tab items will not be responsive until a rebuild is completed.
 
 #### What is it?
 
-We have deprecated the use of the cohesion:// stream wrapper in all Cohesion modules
+We have deprecated the use of the cohesion:// stream wrapper in all Site Studio modules
 
 #### What impact will there be?
 
-There will be no part of Cohesion using the cohesion:// stream wrapper and it will now use the public:// one, storing everything in public://cohesion
-There is no impact on existing site or sync package from previous version on Cohesion
+There will be no part of Site Studio using the cohesion:// stream wrapper and it will now use the public:// one, storing everything in public://cohesion
+There is no impact on existing site or sync package from previous version on Site Studio
 
 #### What actions do I need to take?
 
@@ -498,15 +2453,15 @@ None
 
 No
 
-### Bugfix: Content moderation for Cohesion component in-context editing
+### Bugfix: Content moderation for Site Studio component in-context editing
 
 #### What is it?
 
-Previously, when editing a component on a content entity via the front end in-context editor, Cohesion was applying changes to the component to the latest revision regardless of which entity was being viewed and edited.
+Previously, when editing a component on a content entity via the front end in-context editor, Site Studio was applying changes to the component to the latest revision regardless of which entity was being viewed and edited.
 
 #### What impact will there be?
 
-It's now possible to switch between moderation states on the front end (using moderation toolbar for example) and edit Cohesion component field data for that specific revision.
+It's now possible to switch between moderation states on the front end (using moderation toolbar for example) and edit Site Studio component field data for that specific revision.
 
 #### What actions do I need to take?
 
@@ -520,7 +2475,7 @@ None.
 
 #### What is it?
 
-In the Cohesion content templates list only view modes that have been enabled for that bundle in the "manage display" will appear in the list.
+In the Site Studio content templates list only view modes that have been enabled for that bundle in the "manage display" will appear in the list.
 
 #### What impact will there be?
 
@@ -626,23 +2581,25 @@ New elements added will have the setting in the form by default.
 
 No, as a new option existing settings will be unaffected.
 
-### Cohesion no longer supports Drush 8
+### Site Studio no longer supports Drush 8
 
 #### What is is?
 
-To support the upcoming release of Drupal 9, Cohesion has dropped support from Drush version 8.
+To support the upcoming release of Drupal 9, Site Studio has dropped support from Drush version 8.
 
 #### What impact will there be?
 
-If you use Drush 8 and Cohesion together, the Cohesion drush commands will no longer work.
+If you use Drush 8 and Site Studio together, the Site Studio drush commands will no longer work.
 
 #### What actions do I need to take?
 
-Upgrade to Drush version 9 or higher wherever you use Cohesion Drush commands including `cohesion:import` `cohesion:rebuild` and `sync:import`
+Upgrade to Drush version 9 or higher wherever you use Site Studio Drush commands including `cohesion:import` `cohesion:rebuild` and `sync:import`
 
 #### Are there any risks I should be aware of?
 
 Failing to upgrade could result in your deployments or CI failing.
+
+---
 
 ## 6.0.3
 
@@ -664,7 +2621,6 @@ None
 
 None.
 
-
 ### Improve caching of endpoint when using a component with existing selects
 
 #### What is is it?
@@ -677,12 +2633,13 @@ In-browser performance and server load will be improved when placing and editing
 
 #### What actions do I need to take?
 
-A Cohesion import via the UI or `drush cohesion:import` is required on existing websites.
+A Site Studio import via the UI or `drush cohesion:import` is required on existing websites.
 
 #### Are there any risks I should be aware of?
 
 None.
 
+---
 
 ## 6.0.2
 
@@ -694,7 +2651,7 @@ Resolved issue with drop-zones on layout canvas which was preventing them displa
 
 #### What actions do I need to take?
 
-A Cohesion import via the UI or `drush cohesion:import` is required on existing websites.
+A Site Studio import via the UI or `drush cohesion:import` is required on existing websites.
 
 #### Are there any risks I should be aware of?
 
@@ -714,11 +2671,11 @@ Clear Drupal caches
 
 No.
 
-### Cohesion Sync package doesn't find file entity
+### Sync package doesn't find file entity
 
 #### What is it?
 
-In some rare cases, a file entity's ID may contain a space at the start. When importing a Cohesion Sync package containing this file, no changes were detected as the file could not be found.
+In some rare cases, a file entity's ID may contain a space at the start. When importing a Sync package containing this file, no changes were detected as the file could not be found.
 
 #### What impact will there be?
 
@@ -732,9 +2689,11 @@ None.
 
 None.
 
+---
+
 ## 6.0.1
 
-### Cohesion no longer switches the site into and out of maintenance mode when rebuilding via drush
+### Site Studio no longer switches the site into and out of maintenance mode when rebuilding via drush
 
 #### What is it?
 
@@ -744,7 +2703,7 @@ This was caused by a combination of MySQL configuration and/or a long running CR
 
 More information: https://www.drupal.org/node/259580
 
-It was decided that developers working with Cohesion should be responsible for bringing the site into and out of maintenance mode if required and that Cohesion should not enforce this.
+It was decided that developers working with Site Studio should be responsible for bringing the site into and out of maintenance mode if required and that Site Studio should not enforce this.
 
 #### What impact will there be?
 
@@ -772,7 +2731,7 @@ Users that reported this issue will see it has been resolved.
 
 #### What actions do I need to take?
 
-A Cohesion import and rebuild is required after upgrading to the latest version of the module.
+A Site Studio import and rebuild is required after upgrading to the latest version of the module.
 
 #### Are there any risks I should be aware of?
 
@@ -782,11 +2741,11 @@ No
 
 #### What is it?
 
-We've improved the time to build Cohesion layout canvas enabled pages for the first paint (before the cache has been built).
+We've improved the time to build Site Studio layout canvas enabled pages for the first paint (before the cache has been built).
 
 #### What impact will there be?
 
-Users making changes to Cohesion powered content entities will see their page rendering more quickly.
+Users making changes to Site Studio powered content entities will see their page rendering more quickly.
 
 #### What actions do I need to take?
 
@@ -795,31 +2754,16 @@ No actions are required.
 #### Are there any risks I should be aware of?
 
 No
+
+---
 
 ## 6.0.0
-
-### Rebrand from Cohesion DX8 to Acquia Cohesion
-
-#### What is it?
-
-As of version 6.0.0, Cohesion DX8 has rebranded to Acquia Cohesion. Note that the main menu item in the Drupal admin menu is now “Acquia Cohesion” and all references to “DX8" in the user interface have changed to “Acquia Cohesion” or “Cohesion”.
-
-#### What impact will there be?
-This is a UX/content change only so there is no functional impact however users will see interface changes
-
-#### What actions do I need to take?
-
-No actions are required.
-
-#### Are there any risks I should be aware of?
-
-No
 
 ### Import and Rebuild drush commands are now prefixed with "cohesion" instead of "dx8"
 
 #### What is it?
 
-As part of the rebrand to "Acquia Cohesion", the existing drush commands have also been renamed.
+As part of the rebrand to "Site Studio", the existing drush commands have also been renamed.
 
 `drush dx8:import` becomes `drush cohesion:import`
 
@@ -884,7 +2828,7 @@ Now the modal will instantly appear when triggered, if `jQuery animation` is set
 
 #### What is it?
 
-Machine name of Cohesion entities will now be not editable after you save even if they are not in use.
+Machine name of Site Studio entities will now be not editable after you save even if they are not in use.
 
 #### What impact will there be?
 
@@ -904,7 +2848,7 @@ You can choose to ignore it by using the `--force` option, which will ignore the
 
 #### What impact will there be?
 
-Reduces the opportunity to accidentally overwrite existing fields containing content. This prevents the loss of content on sites using a distributed design system and Cohesion style guide manager.
+Reduces the opportunity to accidentally overwrite existing fields containing content. This prevents the loss of content on sites using a distributed design system and Site Studio style guide manager.
 
 ### Style guide manager real-time preview
 
@@ -924,7 +2868,7 @@ Teams using SGM can now see the changes being in realtime. This allows for faste
 
 #### What is it?
 
-The Acquia Cohesion API has been significantly refactored for this release to fix some legacy issues related to deploying and rebuilding sites at scale.
+The Site Studio API has been significantly refactored for this release to fix some legacy issues related to deploying and rebuilding sites at scale.
 
 Network fault tolerance is improved, and error reporting back to the client is also now more descriptive and useful.
 
@@ -1012,6 +2956,8 @@ If the component is in-use on component content and the site builder deletes it,
 
 It will be easier to detect potential data loss issues with package imports.
 
+---
+
 ## 5.7.11
 
 ### Multiple contexts on single element not applying correctly
@@ -1022,11 +2968,15 @@ Fixed an issue if multiple contexts are set on an element and the pass condition
 
 Fixed an issue where in some cases having aggregation turned on would result in some missing styles.
 
+---
+
 ## 5.7.10
 
 ### Colors in the color palette could not be selected in certain circumstances
 
 Fixed an issue where if you had 2 or more colors only differentiated by their alpha transparency value then clicking any of them in the colour picker would always just select the first one.
+
+---
 
 ## 5.7.9
 
@@ -1060,11 +3010,15 @@ Fixes a bug where duplicating a component with a component inside would not reta
 
 Fixes an issue that prevented using `0` as a value for a style guide field.
 
+---
+
 ## 5.7.8
 
 ### PHP out of memory on drush dx8:rebuild
 
 Improves memory usage when executing `drush dx8:rebuild` so that less memory is used to run the process.
+
+---
 
 ## 5.7.7
 
@@ -1084,6 +3038,8 @@ Fixes a bug where ordering custom styles with similar weights were not retained.
 
 Fixed a few `dblog` warnings and code style issues related to Drupal `8.8.0`.
 
+---
+
 ## 5.7.6
 
 ### Nested components not rendering with multiple Cohesion enabled themes enabled
@@ -1098,6 +3054,8 @@ Example:
 ```
 The validation failed with the following message: Custom style with UUID 00000000-0000-0000-0000-0000000000000 already exists but the machine name "coh_existing_machine_name" of the existing entity does not match the machine name "coh_mismatched_machine_name" of the entity being imported.`
 ```
+
+---
 
 ## 5.7.5
 
@@ -1120,6 +3078,8 @@ Fixed an issue where theme settings that are not included in a style guide form 
 ### The numerical value of the range slider not always displayed correctly
 
 Fixed an issue where the numerical value of the range slider was not always rendering correctly.
+
+---
 
 ## 5.7.4
 
@@ -1170,11 +3130,15 @@ This fixes an issue that prevented the re-ordering of the custom styles.
 
 Added code to ensure the text in the Help Text element is loaded on the SGM forms.
 
+---
+
 ## 5.7.3
 
 ### Fix an issue where the master template was not rendering
 
 This fixes an issue where when using style guide manager tokens in master template it would not render the master template.
+
+---
 
 ## 5.7.2
 
@@ -1188,6 +3152,8 @@ Warning: Illegal string offset 'template' in Drupal\cohesion\Plugin\Api\Template
 Warning: Illegal string offset 'themeName' in Drupal\cohesion\Plugin\Api\TemplatesApi->send()
 ```
 
+---
+
 ## 5.7.1
 
 ### Fixed function declaration warning.
@@ -1197,6 +3163,8 @@ Fixed a function declaration that was incompatible with the interface. It was ca
 ```
 Declaration of Drupal\cohesion\StreamWrapper\CohesionStream::basePath($site_path = NULL) should be compatible with Drupal\Core\StreamWrapper\PublicStream::basePath(?SplString $site_path = NULL)
 ```
+
+---
 
 ## 5.7.0
 
@@ -1312,6 +3280,8 @@ Fixed an issue where after creating a helper from an element, it would have the 
 
 This would clash if you placed that helper back onto the same layout canvas it was saved from, resulting in form data being overwritten with blank values.
 
+---
+
 ## 5.6.2
 
 ### Bugfix: Elements inside dropzones being lost when importing templates and components.
@@ -1346,6 +3316,8 @@ The `RESTful Web Services` module is now enabled as part of an update script.
 
 This only affects websites being upgraded from versions prior to `5.6.0` and the rest module does not need to be enabled manually before upgrading.
 
+---
+
 ## 5.6.1
 
 ### Bugfix: composer issue
@@ -1355,6 +3327,8 @@ Removed `Entity reference revisions` patch from Cohesion `composer.json` as vers
 ### Custom element fields can now be required
 
 When developing custom elements for Cohesion, developers can now make text inputs, text areas, selects and file browsers required and set a custom validation message.
+
+---
 
 ## 5.6.0
 

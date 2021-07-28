@@ -3,13 +3,15 @@
 namespace Drupal\cohesion_elements\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Language\LanguageInterface;
 
 /**
- * Class CohesionLayoutForm.
+ * Cohesion layout form.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -62,11 +64,12 @@ class CohesionLayoutForm extends EntityForm {
     $this->component_instance_uuid = \Drupal::request()->attributes->get('component_instance_uuid');
     $this->component_id = \Drupal::request()->attributes->get('component_id');
     $this->cohesion_layout_revision_id = \Drupal::request()->attributes->get('cohesion_layout_revision');
+    $langcode = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
 
     // Load the entity.
     if ($this->cohesion_layout_revision_id && (!$this->entity = \Drupal::service('entity_type.manager')
       ->getStorage('cohesion_layout')
-      ->loadRevision($this->cohesion_layout_revision_id))) {
+      ->loadRevision($this->cohesion_layout_revision_id)->getTranslation($langcode))) {
       return FALSE;
     }
 
@@ -108,6 +111,7 @@ class CohesionLayoutForm extends EntityForm {
       '#entity' => $this->entity,
       '#cohFormGroup' => 'in_context',
       '#cohFormId' => 'component',
+      '#isContentEntity' => $this->entity instanceof ContentEntityInterface,
     ];
 
     $form['cohesion']['#token_browser'] = 'all';

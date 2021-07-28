@@ -5,7 +5,7 @@ namespace Drupal\cohesion_templates\Entity;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
 
 /**
- * Defines the Cohesion menu templates entity.
+ * Defines the Site Studio menu templates entity.
  *
  * @ConfigEntityType(
  *   id = "cohesion_menu_templates",
@@ -67,7 +67,7 @@ class MenuTemplates extends CohesionTemplateBase implements CohesionSettingsInte
 
   const ASSET_GROUP_ID = 'menu_template';
 
-  const entity_machine_name_prefix = 'menu_tpl_';
+  const ENTITY_MACHINE_NAME_PREFIX = 'menu_tpl_';
 
   /**
    * {@inheritdoc}

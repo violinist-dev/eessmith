@@ -1,6 +1,6 @@
 cohesion.settings:
-  title: 'Acquia Cohesion'
-  description: 'All Cohesion related settings.'
+  title: 'Site Studio'
+  description: 'All Site Studio related settings.'
   route_name: cohesion.settings
   parent: system.admin
   weight: -7
@@ -21,21 +21,21 @@ cohesion.configuration.account_settings:
 
 cohesion.settings.styles:
   title: 'Styles'
-  description: 'Manage your Cohesion styles'
+  description: 'Manage your Site Studio styles'
   route_name: cohesion.settings.styles
   parent: cohesion.settings
   weight: 40
 
 cohesion.developer:
   title: 'Developer tools'
-  description: 'Manage Cohesion developer configuration'
+  description: 'Manage Site Studio developer configuration'
   route_name: cohesion.developer
   parent: cohesion.settings
   weight: 20
 
 cohesion.configuration.system_settings:
   title: 'System settings'
-  description: 'Configure Cohesion system settings'
+  description: 'Configure Site Studio system settings'
   route_name: cohesion.configuration.system_settings
   parent: cohesion.configuration
   weight: 0

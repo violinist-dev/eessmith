@@ -6,7 +6,7 @@ use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 
 /**
- * Class ElementsController.
+ * Elements controller.
  *
  * @package Drupal\cohesion_elements\Controller
  */
@@ -37,7 +37,7 @@ class ElementsController {
     $categories = [];
 
     if ($category_entities = $storage->loadMultiple($category_entities)) {
-      /** @var $entity ElementCategoryBase */
+      /** @var ElementCategoryBase $entity */
       foreach ($category_entities as $entity) {
         if ($entity->hasGroupAccess() || $bypass_permission_check) {
           // Add to the array.

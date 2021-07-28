@@ -21,9 +21,9 @@ function cohesion_custom_styles_help($route_name, RouteMatchInterface $route_mat
       $output .= '<p>' . t('This module defines the custom style config entities for creating custom CSS class styles.') . '</p>';
       $output .= '<p><ul>';
       $output .= '  <li>Custom style configuration entity and supporting forms.</li>';
-      $output .= '  <li>Cohesion API integration.</li>';
+      $output .= '  <li>Site Studio API integration.</li>';
       $output .= '</ul></p>';
-      $output .= '<p><a href="https://cohesiondocs.acquia.com/" target="_blank">https://cohesiondocs.acquia.com/</a></p>';
+      $output .= '<p><a href="https://sitestudiodocs.acquia.com/" target="_blank">https://sitestudiodocs.acquia.com/</a></p>';
       return $output;
 
     default:

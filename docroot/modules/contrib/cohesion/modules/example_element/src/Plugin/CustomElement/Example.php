@@ -46,6 +46,19 @@ class Example extends CustomElementPluginBase {
         ],
         'defaultValue' => 'option1',
       ],
+      'mynumberselectfield' => [
+        'htmlClass' => 'col-xs-12',
+        'type' => 'select',
+        'title' => 'Title of my number select field',
+        // These fields are specific to this form field type.
+        'nullOption' => FALSE,
+        'options' => [
+          '100' => '100',
+          '200' => '200',
+          '300' => '300',
+        ],
+        'defaultValue' => 200,
+      ],
       'mycheckboxfield' => [
         'htmlClass' => 'col-xs-6',
         'type' => 'checkbox',

@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion\Plugin\ImageBrowser;
 
-use Drupal\imce\Entity\ImceProfile;
 use Drupal\cohesion\ImageBrowserPluginBase;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\imce\Entity\ImceProfile;
 
 /**
- * Class ImceImageBrowser.
+ * Plugin for imce image browser element.
  *
  * @package Drupal\cohesion
  *
@@ -35,12 +35,12 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
       }
       $options[$path_key] = t('@path', ['@path' => $path_key . '://']);
     }
-    $index = $config_object[$browser_type]['dx8_imce_stream_wrapper'];
+    $index = $config_object[$browser_type]['dx8_imce_stream_wrapper'] ?? '';
 
     $form['dx8_imce_stream_wrapper_' . $browser_type] = [
       '#type' => 'radios',
       '#title' => t('Stream wrapper'),
-      '#description' => t('Select a stream wrapper (base directory) for the IMCE file manager when used within Cohesion.'),
+      '#description' => t('Select a stream wrapper (base directory) for the IMCE file manager when used within Site Studio.'),
       '#required' => TRUE,
       '#default_value' => isset($options[$index]) ? $index : 'public',
       '#options' => $options,
@@ -80,7 +80,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
         $found = FALSE;
         foreach ($profile['conf']['folders'] as $folder) {
           if (isset($folder['path']) && $folder['path'] == 'cohesion') {
-            // Cohesion is already in the profile.
+            // Site Studio is already in the profile.
             $found = TRUE;
           }
         }
@@ -147,6 +147,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
       // Add the stream wrapper array.
       $stream_wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::ALL);
       $wrapper_keys = array_keys($stream_wrappers);
+      $base_path = \Drupal::request()->getBasePath();
 
       // Set default stream wrapper.
       $stream_wrapper = [
@@ -168,7 +169,7 @@ class ImceImageBrowser extends ImageBrowserPluginBase {
       $attachments['drupalSettings']['cohesion']['imageBrowser'] = [
         'streamWrapper' => $stream_wrapper,
         // Add the image browser iFrame URL.
-        'url' => '/imce/' . $stream_wrapper['name'] . '?sendto=imceFileBrowserCallback',
+        'url' => $base_path . '/imce/' . $stream_wrapper['name'] . '?sendto=imceFileBrowserCallback',
         'title' => $this->getName(),
       ];
     }

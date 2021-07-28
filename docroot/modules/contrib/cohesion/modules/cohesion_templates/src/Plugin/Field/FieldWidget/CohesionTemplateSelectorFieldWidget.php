@@ -2,18 +2,18 @@
 
 namespace Drupal\cohesion_templates\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
  * Plugin implementation of the 'cohesion_template_selector_widget' widget.
  *
  * @FieldWidget(
  *   id = "cohesion_template_selector_widget",
- *   label = @Translation("Cohesion template selector widget"),
- *   description = @Translation("Cohesion template selector widget."),
+ *   label = @Translation("Site Studio template selector widget"),
+ *   description = @Translation("Site Studio template selector widget."),
  *   field_types = {
  *     "cohesion_template_selector"
  *   }

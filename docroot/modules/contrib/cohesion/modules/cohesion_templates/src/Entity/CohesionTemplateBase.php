@@ -3,13 +3,12 @@
 namespace Drupal\cohesion_templates\Entity;
 
 use Drupal\cohesion\Entity\CohesionConfigEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
-use Drupal\Core\File\Exception\FileException;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Class CohesionTemplateBase
- * Defines the Cohesion template base entity type.
+ * Defines the Site Studio template base entity type.
  *
  * @package Drupal\cohesion_templates\Entity
  */
@@ -121,15 +120,14 @@ abstract class CohesionTemplateBase extends CohesionConfigEntityBase implements 
     $send_to_api->setEntity($this);
     $send_to_api->delete();
 
-    // Delete the twig template generated from the API.
-    if ($template_file = $this->getTwigPath()) {
-      if (file_exists($template_file)) {
-        try {
-          \Drupal::service('file_system')->delete($template_file);
-        }
-        catch (FileException $e) {
-        }
-      }
+    // Clear the global template entry if it exists
+    $theme_filename = $this->getTwigFilename() . '.html.twig';
+    \Drupal::service('cohesion.template_storage')->delete($theme_filename);
+
+    // Clear any theme specific themes
+    foreach (\Drupal::service('cohesion.utils')->getCohesionEnabledThemes() as $theme_info) {
+      $theme_filename = $this->getTwigFilename($theme_info->getName()) . '.html.twig';
+      \Drupal::service('cohesion.template_storage')->delete($theme_filename);
     }
   }
 

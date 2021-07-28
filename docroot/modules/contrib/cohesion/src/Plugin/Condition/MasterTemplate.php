@@ -48,7 +48,7 @@ class MasterTemplate extends ConditionPluginBase implements ContainerFactoryPlug
    * {@inheritdoc}
    */
   public function summary() {
-    return $this->t('The page is using Acquia Cohesion master Template');
+    return $this->t('The page is using Site Studio master Template');
   }
 
   /**

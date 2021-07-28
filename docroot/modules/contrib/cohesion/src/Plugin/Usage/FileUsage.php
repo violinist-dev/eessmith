@@ -3,14 +3,14 @@
 namespace Drupal\cohesion\Plugin\Usage;
 
 use Drupal\cohesion\UsagePluginBase;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 
 /**
- * Class FileUsage.
+ * Plugin for file usage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -23,7 +23,9 @@ use Drupal\Core\File\FileSystemInterface;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = TRUE,
- *   exportable = TRUE
+ *   exportable = FALSE,
+ *   config_type = "core",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class FileUsage extends UsagePluginBase {
@@ -80,7 +82,7 @@ class FileUsage extends UsagePluginBase {
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritdoc}jso.
    */
   public function getScannableData(EntityInterface $entity) {
     return FALSE;
@@ -99,7 +101,7 @@ class FileUsage extends UsagePluginBase {
     }
     else {
       if (empty($files) && file_exists($uri)) {
-        // Make file selected within Acquia Cohesion managed and permanent.
+        // Make file selected within Site Studio managed and permanent.
         $contents = file_get_contents($uri);
         $file = file_save_data($contents, $uri, FileSystemInterface::EXISTS_REPLACE);
         $file->setPermanent();
@@ -149,7 +151,7 @@ class FileUsage extends UsagePluginBase {
    */
   private function registerCoreFileUsage($files, EntityInterface $entity) {
 
-    if(strlen($entity->id()) < 32) {
+    if ($entity->id() && strlen($entity->id()) < 32) {
       // Remove 'cohesion' registered usage of all files for scanned entity.
       try {
         $this->connection->delete('file_usage')
@@ -157,7 +159,8 @@ class FileUsage extends UsagePluginBase {
           ->condition('type', $entity->getEntityTypeId())
           ->condition('id', $entity->id())
           ->execute();
-      } catch (\Throwable $e) {
+      }
+      catch (\Throwable $e) {
         return;
       }
 
@@ -169,7 +172,6 @@ class FileUsage extends UsagePluginBase {
         $this->refreshFileListCache($file);
       }
     }
-
   }
 
   /**
@@ -255,7 +257,7 @@ class FileUsage extends UsagePluginBase {
           // Tell core 'file.usage' that this file is in use by this entity.
           $files[] = $file;
 
-          // Save the Acquia Cohesion in-use.
+          // Save the Site Studio in-use.
           $entities[] = [
             'type' => $this->getEntityType(),
             'uuid' => $file->uuid(),
@@ -272,7 +274,7 @@ class FileUsage extends UsagePluginBase {
           // Tell core 'file.usage' that this file is in use by this entity.
           $files[] = $file;
 
-          // Save the Acquia Cohesion in-use.
+          // Save the Site Studio in-use.
           $entities[] = [
             'type' => $this->getEntityType(),
             'uuid' => $file->uuid(),

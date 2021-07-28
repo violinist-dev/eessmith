@@ -5,7 +5,7 @@ namespace Drupal\cohesion_elements\Form;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 
 /**
- * Builds the form to delete Cohesion custom styles entities.
+ * Builds the form to delete Site Studio custom styles entities.
  */
 class ComponentContentDeleteForm extends ContentEntityDeleteForm {
 

@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ImageStyleUsage.
+ * Plugin for image style usage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -19,7 +19,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = TRUE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "core",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class ImageStyleUsage extends UsagePluginBase {

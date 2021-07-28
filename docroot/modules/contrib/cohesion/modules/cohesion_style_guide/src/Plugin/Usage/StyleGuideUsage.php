@@ -6,7 +6,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class StyleGuideUsage.
+ * Style guide usage plugin.
  *
  * @package Drupal\cohesion_style_guide\Plugin\Usage
  *
@@ -19,7 +19,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = "style_guide_type",
  *   group_key_entity_type = "style_guide_type",
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "site_studio",
+ *   scan_groups = {"site_studio"}
  * )
  */
 class StyleGuideUsage extends UsagePluginBase {

@@ -2,29 +2,29 @@
 
 namespace Drupal\cohesion_sync\Plugin\Sync;
 
+use Drupal\cohesion\EntityUpdateManager;
+use Drupal\cohesion\UsageUpdateManager;
+use Drupal\cohesion_sync\SyncConfigImporter;
 use Drupal\cohesion_sync\SyncPluginBase;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\EntityRepository;
-use Drupal\Core\Config\StorageInterface;
-use Drupal\Core\Extension\ModuleExtensionList;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\config\StorageReplaceDataWrapper;
-use Drupal\Core\Config\StorageComparer;
-use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\ConfigImporterException;
+use Drupal\Core\Config\ConfigManagerInterface;
+use Drupal\Core\Config\StorageComparer;
+use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\Entity\EntityRepository;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Drupal\cohesion_sync\SyncConfigImporter;
-use Drupal\cohesion\UsageUpdateManager;
-use Drupal\cohesion\EntityUpdateManager;
 
 /**
- * Class ConfigEntitySync.
+ * Config entity sync plugin.
  *
  * @package Drupal\cohesion_sync
  *
@@ -203,7 +203,7 @@ class ConfigEntitySync extends SyncPluginBase {
     if (isset($entry['last_entity_update'])) {
       // Has the imported entity run a higher entityupdate_xxxx script that is available on this site (is newer)?
       if (!$this->entityUpdateManager->pluginIdInRange($entry['last_entity_update'])) {
-        throw new ConfigImporterException('This package contains entities created with a later version of Cohesion. Upgrade this site to the latest version of Cohesion before attempting to import this package.');
+        throw new ConfigImporterException('This package contains entities created with a later version of Site Studio. Upgrade this site to the latest version of Site Studio before attempting to import this package.');
       }
     }
 
@@ -244,6 +244,7 @@ class ConfigEntitySync extends SyncPluginBase {
     );
 
     // If it's a custom style, ask the user what they want to do.
+    // Special case as it needs to be loaded by class name
     if ($this->entityTypeStorage->getEntityTypeId() === 'cohesion_custom_style') {
       // Load any entities that contain the same class name.
       $custom_style_ids = \Drupal::entityQuery('cohesion_custom_style')
@@ -268,7 +269,8 @@ class ConfigEntitySync extends SyncPluginBase {
           // Make sure this will apply.
           try {
             $config_importer->validate();
-          } catch (ConfigImporterException $e) {
+          }
+          catch (ConfigImporterException $e) {
             throw new \Exception(strip_tags($e->getMessage()));
           }
 
@@ -309,7 +311,8 @@ class ConfigEntitySync extends SyncPluginBase {
         // Make sure this will apply.
         try {
           $this->validate($entry, $config_importer);
-        } catch (ConfigImporterException $e) {
+        }
+        catch (ConfigImporterException $e) {
           throw new \Exception(strip_tags($e->getMessage()));
         }
 
@@ -337,7 +340,8 @@ class ConfigEntitySync extends SyncPluginBase {
       // Make sure it will apply.
       try {
         $this->validate($entry, $config_importer);
-      } catch (ConfigImporterException $e) {
+      }
+      catch (ConfigImporterException $e) {
         throw new \Exception(strip_tags($e->getMessage()));
       }
 
@@ -365,7 +369,8 @@ class ConfigEntitySync extends SyncPluginBase {
             $existing_entity->delete();
           }
         }
-      } catch (\Throwable $e) {
+      }
+      catch (\Throwable $e) {
         return;
       }
     }
@@ -375,13 +380,21 @@ class ConfigEntitySync extends SyncPluginBase {
    * {@inheritdoc}
    */
   public function getActionData($entry, $action_state) {
-    return [
+    $action_data = [
       'entity_type_label' => $this->entityTypeDefinition->getLabel()
         ->__toString(),
-      'entity_label' => $entry['label'],
+      'entity_label' => $entry['label'] ?? $entry['name'] ?? $entry['id'],
       'entry_uuid' => $entry['uuid'],
       'entry_action_state' => $action_state,
     ];
+
+    $config_name = $this->entityTypeDefinition->getConfigPrefix() . '.' . $entry[$this->id_key];
+    $config = $this->configStorage->read($config_name);
+    if ($config && $config['uuid'] != $entry['uuid']) {
+      $action_data['replace_uuid'] = $config['uuid'];
+    }
+
+    return $action_data;
   }
 
 }

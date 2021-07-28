@@ -2,6 +2,6 @@ cohesion_templates.cohesion_master_templates.*:
   type: cohesion_template
   label: 'Master templates configuration'
   mapping:
-      default:
-        type: bool
-        label: 'Default'
+    default:
+      type: boolean
+      label: 'Default'

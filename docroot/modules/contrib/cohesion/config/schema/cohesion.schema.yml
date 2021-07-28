@@ -1,6 +1,6 @@
 cohesion_config_entity:
   type: config_entity
-  label: 'Cohesion configuration entity base'
+  label: 'Site Studio configuration entity base'
   mapping:
     label:
       type: label
@@ -9,13 +9,13 @@ cohesion_config_entity:
       type: string
       label: 'Machine-readable name'
     json_values:
-      type: text
+      type: string
       label: 'Values Data'
     json_mapper:
-      type: text
+      type: string
       label: 'Mapper'
     last_entity_update:
-      type: text
+      type: string
       label: 'Last entity update'
     locked:
       type: boolean
@@ -28,7 +28,7 @@ cohesion_config_entity:
       label: 'Selectable'
 cohesion.settings:
   type: config_entity
-  label: 'Global settings for Cohesion'
+  label: 'Global settings for Site Studio'
   mapping:
     api_build_status:
       type: string
@@ -47,22 +47,55 @@ cohesion.settings:
       label: 'Site id'
     use_dx8:
       type: string
-      label: 'Use dx8'
+      label: 'Use site studio'
     upload_max_filesize:
       type: string
-      label: 'Use dx8'
+      label: 'Max upload file size'
     google_map_api_key:
       type: string
-      label: 'Use dx8'
+      label: 'Google map key'
+    google_map_api_key_geo:
+      type: string
+      label: 'Google map Geocoding key'
     asset_is_imported:
       type: string
-      label: 'Use dx8'
+      label: 'Assets imported'
     animate_on_view_mobile:
       type: string
-      label: 'Use dx8'
+      label: 'Animate on view mobile'
     dx8_imce_stream_wrapper:
       type: string
-      label: 'Use dx8'
+      label: 'Imce stream wrapper'
+    elements_permissions:
+      type: string
+      label: 'Permissions on elements'
+    sidebar_view_style:
+      type: string
+      label: 'Sidebar view style'
+    log_dx8_error:
+      type: string
+      label: 'Log site studio errors'
+    add_animation_classes:
+      type: string
+      label: 'Animation classes'
+    image_browser:
+      type: mapping
+      mapping:
+        config:
+          type: mapping
+          mapping:
+            type:
+              type: string
+            dx8_imce_stream_wrapper:
+              type: string
+        content:
+          type: mapping
+          mapping:
+            type:
+              type: string
     stylesheet_json_storage_keyvalue:
       type: boolean
       label: 'Use key/value storage for stylesheet json'
+    compress_outbound_request:
+      type: boolean
+      label: 'Send call to the Site studio API gzipped or not, default TRUE'

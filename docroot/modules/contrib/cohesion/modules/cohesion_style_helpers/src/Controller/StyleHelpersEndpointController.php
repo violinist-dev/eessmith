@@ -2,9 +2,9 @@
 
 namespace Drupal\cohesion_style_helpers\Controller;
 
+use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\cohesion\CohesionJsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -66,7 +66,7 @@ class StyleHelpersEndpointController extends ControllerBase {
   public function getOne($style_helper_id) {
     $data = [];
     if (($style_helper = $this->styleHelperEntity($style_helper_id))) {
-      /* @var \Drupal\cohesion_style_helpers\Entity\StyleHelper $style_helper */
+      /** @var \Drupal\cohesion_style_helpers\Entity\StyleHelper $style_helper */
       $data['styles'] = $style_helper->getDecodedJsonValues(TRUE);
       $data['mapper'] = $style_helper->getDecodedJsonMapper();
     }

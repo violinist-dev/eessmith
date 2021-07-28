@@ -25,6 +25,7 @@ use Drupal\user\UserInterface;
  *     },
  *     "form" = {
  *       "default" = "Drupal\cohesion_elements\Form\ComponentContentForm",
+ *       "add" = "Drupal\cohesion_elements\Form\ComponentContentForm",
  *       "edit" = "Drupal\cohesion_elements\Form\ComponentContentForm",
  *       "delete" = "Drupal\cohesion_elements\Form\ComponentContentDeleteForm",
  *     },
@@ -55,7 +56,8 @@ use Drupal\user\UserInterface;
  *   },
  *   links = {
  *     "canonical" = "/admin/cohesion/components/component_contents/{component_content}",
- *     "add-form" = "/admin/cohesion/components/component_contents/add",
+ *     "add-form" = "/admin/cohesion/components/component_contents/add/{cohesion_component}",
+ *     "add-page" = "/admin/cohesion/components/component_contents/add",
  *     "edit-form" = "/admin/cohesion/components/component_contents/{component_content}",
  *     "delete-form" = "/admin/cohesion/components/component_contents/{component_content}/delete",
  *     "collection" = "/admin/cohesion/components/component_contents",
@@ -250,7 +252,7 @@ class ComponentContent extends EditorialContentEntityBase implements ComponentCo
       ->setCardinality(1)
       ->setSetting('target_type', 'cohesion_layout')
       ->setRevisionable(TRUE)
-      ->setDescription(t("The Acquia Cohesion layout canvas associated to this content"))
+      ->setDescription(t("The Site Studio layout canvas associated to this content"))
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',

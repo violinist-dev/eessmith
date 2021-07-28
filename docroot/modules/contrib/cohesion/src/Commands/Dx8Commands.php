@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion\Commands;
 
-use Drupal\cohesion\Drush\DX8CommandHelpers;
-use Drush\Commands\DrushCommands;
-use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Consolidation\AnnotatedCommand\CommandResult;
+use Drupal\cohesion\Drush\DX8CommandHelpers;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drush\Commands\DrushCommands;
 
 /**
- * Class Dx8Commands.
+ * Drush command for import and rebuild.
  *
  * @package Drupal\cohesion\Commands
  */
@@ -41,19 +41,20 @@ class Dx8Commands extends DrushCommands {
       return CommandResult::exitCode(self::EXIT_FAILURE);
     }
     else {
-      $this->yell($this->t('Congratulations. Cohesion is installed and up to date. You can now build your website.'));
+      $this->yell($this->t('Congratulations. Site Studio is installed and up to date. You can now build your website.'));
       return CommandResult::exitCode(self::EXIT_SUCCESS);
     }
   }
 
   /**
-   * Resave all Cohesion config entities.
+   * Resave all Site Studio config entities.
    *
    * @command cohesion:rebuild
    * @aliases dx8:rebuild
+   * @option no-cache-clear
    * @usage drush cohesion:rebuild
    */
-  public function rebuild($options = []) {
+  public function rebuild($options = ['no-cache-clear' => FALSE]) {
     $time_start = microtime(TRUE);
 
     $this->say($this->t('Rebuilding all entities.'));

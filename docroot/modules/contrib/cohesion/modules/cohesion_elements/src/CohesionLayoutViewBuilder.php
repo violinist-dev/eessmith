@@ -2,8 +2,9 @@
 
 namespace Drupal\cohesion_elements;
 
-use Drupal\Core\Entity\EntityViewBuilder;
+use Drupal\cohesion_elements\Event\CohesionLayoutViewBuilderEvent;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityViewBuilder;
 
 /**
  * Class CohesionLayoutViewBuilder.
@@ -18,6 +19,7 @@ class CohesionLayoutViewBuilder extends EntityViewBuilder {
    * {@inheritdoc}
    */
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
+    /** @var \Drupal\Core\Entity\EntityInterface $host */
     $host = $entity->getParentEntity();
     $entities = [];
     $cache_tags = [];
@@ -25,11 +27,7 @@ class CohesionLayoutViewBuilder extends EntityViewBuilder {
       $token_type = \Drupal::service('token.entity_mapper')->getTokenTypeForEntityType($host->getEntityTypeId(), $host->getEntityTypeId());
       $entities[$token_type] = $host;
 
-      $placeholder_name = 'cohesion_inline_css_' . $host->uuid() . '_' . $entity->get('parent_field_name')->value;
       $cache_tags[] = 'layout_formatter.' . $host->uuid();
-    }
-    else {
-      $placeholder_name = 'cohesion_inline_css_' . $entity->uuid();
     }
 
     $cacheContexts = \Drupal::service('cohesion_templates.cache_contexts');
@@ -52,15 +50,16 @@ class CohesionLayoutViewBuilder extends EntityViewBuilder {
         'contexts' => $cacheContexts->getFromContextName($entity->getTwigContexts()),
         'tags' => $cache_tags,
       ],
-      '#attached' => [
-        'placeholders' => [
-          $placeholder_name => [
-            '#type' => 'inline_template',
-            '#template' => '<style>' . $entity->getStyles() . '</style>',
-          ],
-        ],
-      ],
     ];
+
+    $content = '<style>' . $entity->getStyles() . '</style>';
+    $build['#attached'] = ['cohesion' => [$content]];
+
+    // Let other module alter the view build
+    $event = new CohesionLayoutViewBuilderEvent($build, $entity);
+    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher->dispatch($event::ALTER, $event);
+    $build = $event->getBuild();
 
     return $build;
   }

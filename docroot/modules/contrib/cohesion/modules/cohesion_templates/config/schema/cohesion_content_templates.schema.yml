@@ -3,7 +3,7 @@ cohesion_templates.cohesion_content_templates.*:
   label: 'Content templates configuration'
   mapping:
     default:
-      type: bool
+      type: boolean
       label: 'Default'
     entity_type:
       type: string

@@ -3,12 +3,13 @@
 namespace Drupal\cohesion\Plugin\ImageBrowser;
 
 use Drupal\cohesion\ImageBrowserPluginBase;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\media_library\MediaLibraryState;
+use Drupal\views\Views;
 
 /**
- * Class MediaLibraryImageBrowser.
+ * Plugin for media library image browser element.
  *
  * @package Drupal\cohesion
  *
@@ -33,7 +34,7 @@ class MediaLibraryImageBrowser extends ImageBrowserPluginBase {
       $options[$key] = $bundle['label'];
     }
 
-    $index = $config_object[$browser_type]['cohesion_media_lib_types'];
+    $index = $config_object[$browser_type]['cohesion_media_lib_types'] ?? [];
 
     $form['cohesion_media_lib_types_' . $browser_type] = [
       '#type' => 'checkboxes',
@@ -86,11 +87,15 @@ class MediaLibraryImageBrowser extends ImageBrowserPluginBase {
   public function sharedPageAttachments($type, &$attachments) {
     if ($image_browser_object = $this->config->get('image_browser')) {
 
+      // clear media library view caches.
+      $view = Views::getView('media_library');
+      $view->storage->invalidateCaches();
+
       $allowed_types = array_filter($image_browser_object[$type]['cohesion_media_lib_types']);
       $selected_type = array_shift($image_browser_object[$type]['cohesion_media_lib_types']);
 
       // If no media types have been set, allow all.
-      if(empty($allowed_types)) {
+      if (empty($allowed_types)) {
 
         $media_types = \Drupal::service('entity_type.bundle.info')
           ->getBundleInfo('media');
@@ -106,10 +111,11 @@ class MediaLibraryImageBrowser extends ImageBrowserPluginBase {
 
       $allowed_media_types_query = http_build_query(['media_library_allowed_types' => $allowed_types]);
       $media_lib_state = MediaLibraryState::create('media_library.opener.cohesion', $allowed_types, $selected_type, 1);
+      $base_path = \Drupal::request()->getBasePath();
 
       $attachments['drupalSettings']['cohesion']['imageBrowser'] = [
         // Add the image browser iFrame URL.
-        'url' => '/cohesion-media-library?coh_clean_page=true&media_library_opener_id=media_library.opener.cohesion&' . $allowed_media_types_query . '&media_library_selected_type=' . $media_lib_state->getSelectedTypeId() . '&media_library_remaining=1&hash=' . $media_lib_state->getHash() . '',
+        'url' => $base_path . '/cohesion-media-library?coh_clean_page=true&media_library_opener_id=media_library.opener.cohesion&' . $allowed_media_types_query . '&media_library_selected_type=' . $media_lib_state->getSelectedTypeId() . '&media_library_remaining=1&hash=' . $media_lib_state->getHash() . '',
         'title' => $this->getName(),
       ];
     }

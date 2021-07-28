@@ -2,13 +2,13 @@
 
 namespace Drupal\cohesion;
 
+use Drupal\cohesion\Controller\CohesionEntityController;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 use Symfony\Component\Routing\Route;
-use Drupal\cohesion\Controller\CohesionEntityController;
 
 /**
- * Provides routes for Cohesion base styles entities.
+ * Provides routes for Site Studio base styles entities.
  *
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider

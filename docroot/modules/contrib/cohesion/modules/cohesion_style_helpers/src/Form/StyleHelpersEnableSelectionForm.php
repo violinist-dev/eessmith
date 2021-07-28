@@ -7,7 +7,7 @@ use Drupal\cohesion\Form\CohesionEnableSelectionForm;
 /**
  * Class StyleHelpersEnableSelectionForm.
  *
- * Builds the form to delete Cohesion custom styles entities.
+ * Builds the form to delete Site Studio custom styles entities.
  *
  * @package Drupal\cohesion_style_helpers\Form
  */

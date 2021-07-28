@@ -2,15 +2,15 @@
 
 namespace Drupal\cohesion_style_guide\Services;
 
+use Drupal\cohesion\Services\CohesionUtils;
 use Drupal\cohesion\UsageUpdateManager;
-use Drupal\Component\Utility\Html;
+use Drupal\cohesion_style_guide\Entity\StyleGuideManager;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\cohesion_style_guide\Entity\StyleGuideManager;
 use Drupal\Core\Extension\ThemeHandlerInterface;
 
 /**
- * Class StyleGuideManagerHandler.
+ * The style guide manager handler service.
  *
  * @package Drupal\cohesion_style_guide
  */
@@ -37,18 +37,27 @@ class StyleGuideManagerHandler {
   protected $themeHandler;
 
   /**
+   * The cohesion utils helper.
+   *
+   * @var \Drupal\cohesion\Services\CohesionUtils
+   */
+  protected $cohesionUtils;
+
+  /**
    * StyleGuideManagerHandler constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    * @param \Drupal\cohesion\UsageUpdateManager $usage_update_manager
    * @param \Drupal\Core\Extension\ThemeHandlerInterface $theme_handler
+   * @param \Drupal\cohesion\Services\CohesionUtils $cohesion_utils
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityRepositoryInterface $entity_repository, UsageUpdateManager $usage_update_manager, ThemeHandlerInterface $theme_handler) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityRepositoryInterface $entity_repository, UsageUpdateManager $usage_update_manager, ThemeHandlerInterface $theme_handler, CohesionUtils $cohesion_utils) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityRepository = $entity_repository;
     $this->usageUpdateManager = $usage_update_manager;
     $this->themeHandler = $theme_handler;
+    $this->cohesionUtils = $cohesion_utils;
   }
 
   /**
@@ -175,7 +184,7 @@ class StyleGuideManagerHandler {
    */
   public function getJsonDefinition() {
     $style_guide_manager_form = [];
-    /** @var $style_guides \Drupal\cohesion_style_guide\Entity\StyleGuide[] */
+    /** @var \Drupal\cohesion_style_guide\Entity\StyleGuide[] $style_guides */
     $style_guide_storage = $this->entityTypeManager
       ->getStorage('cohesion_style_guide');
 
@@ -231,7 +240,7 @@ class StyleGuideManagerHandler {
 
           if ($style_guide = $this->entityRepository
             ->loadEntityByUuid('cohesion_style_guide', $style_guide_uuid)) {
-            // Add the list of entities that will need to be re-saved
+            // Add the list of entities that will need to be re-saved.
             $in_use_entities = array_merge($in_use_entities, $this->usageUpdateManager->getInUseEntitiesList($style_guide));
             $style_guide_manager_id = $style_guide_uuid . $theme_id;
 
@@ -249,10 +258,10 @@ class StyleGuideManagerHandler {
               }
             }
 
-            // Only save or update a style guide if is has changed values
+            // Only save or update a style guide if is has changed values.
             if (!empty($style_guide_changed_fields)) {
 
-              // Build the json for the style guide manager
+              // Build the json for the style guide manager.
               $style_guide_manager_values = [
                 'model' => [
                   $style_guide_uuid => $style_guide_values,
@@ -262,20 +271,20 @@ class StyleGuideManagerHandler {
 
               $style_json_values = json_encode($style_guide_manager_values);
 
-              // Style guide manager instance already exists -> update
+              // Style guide manager instance already exists -> update.
               if (isset($style_guide_managers[$style_guide_manager_id])) {
                 $style_guide_manager = $style_guide_managers[$style_guide_manager_id];
-                // Unset it after it's been save so any style guide manager instance left are to be deleted
+                // Unset it after it's been save so any style guide manager instance left are to be deleted.
                 unset($style_guide_managers[$style_guide_manager_id]);
 
-                // Do not update if nothing has changed
+                // Do not update if nothing has changed.
                 if ($style_guide_manager->getDecodedJsonValues(TRUE) == json_decode($style_json_values)) {
                   continue;
                 }
 
               }
               else {
-                // Style guide manager instance does not exists -> create new one
+                // Style guide manager instance does not exists -> create new one.
                 /** @var \Drupal\cohesion_style_guide\Entity\StyleGuideManager $style_guide_manager */
                 $style_guide_manager = StyleGuideManager::create([
                   'id' => $style_guide_uuid . $theme_id,
@@ -285,11 +294,11 @@ class StyleGuideManagerHandler {
                 ]);
               }
 
-              // Set the json values to the style guide manager instance and save
+              // Set the json values to the style guide manager instance and save.
               $style_guide_manager->setJsonValue($style_json_values);
               $style_guide_manager->save();
 
-            $in_use_entities = array_merge($in_use_entities, $this->usageUpdateManager->getInUseEntitiesList($style_guide));
+              $in_use_entities = array_merge($in_use_entities, $this->usageUpdateManager->getInUseEntitiesList($style_guide));
             }
           }
 
@@ -313,7 +322,7 @@ class StyleGuideManagerHandler {
    */
   public function getTokenValues($theme_info) {
 
-    // Is there a style guide manager preview
+    // Is there a style guide manager preview.
     $preview_sgm_values = &drupal_static('coh_preview_tokens_sgm_' . $theme_info->getName());
     if ($preview_sgm_values) {
       $json_values = $preview_sgm_values;
@@ -328,7 +337,7 @@ class StyleGuideManagerHandler {
       $style_guide_manager = json_decode($json_values, TRUE);
 
       // Load all style enabled guides and extract token names.
-      /** @var $style_guides \Drupal\cohesion_style_guide\Entity\StyleGuide[] */
+      /** @var \Drupal\cohesion_style_guide\Entity\StyleGuide[] $style_guides */
       $style_guide_storage = \Drupal::entityTypeManager()
         ->getStorage('cohesion_style_guide');
       $style_guide_ids = $style_guide_storage->getQuery()
@@ -354,37 +363,7 @@ class StyleGuideManagerHandler {
             if (isset($style_guide_manager_model[$token_uuid])) {
               $token = "{$style_guide->id()}:{$token_name}";
 
-              $style_guide_tokens[$token] = $style_guide_manager_model[$token_uuid];
-              if ($form_element->getModel()->getProperty([
-                  'settings',
-                  'type',
-                ]) == 'checkboxToggle') {
-                if ($form_element->getModel()->getProperty([
-                    'settings',
-                    'toggleType',
-                  ]) == 'string' || $form_element->getModel()
-                  ->getProperty(['settings', 'toggleType']) == 'number') {
-                  if ($style_guide_manager_model[$token_uuid] == TRUE && $form_element->getModel()
-                    ->getProperty(['settings', 'trueValue'])) {
-                    $style_guide_tokens[$token] = $form_element->getModel()
-                      ->getProperty(['settings', 'trueValue']);
-                  }
-                  elseif ($style_guide_manager_model[$token_uuid] == FALSE && $form_element->getModel()
-                    ->getProperty(['settings', 'falseValue'])) {
-                    $style_guide_tokens[$token] = $form_element->getModel()
-                      ->getProperty(['settings', 'falseValue']);
-                  }
-                  else {
-                    $style_guide_tokens[$token] = '';
-                  }
-                }
-              }
-
-              // Make sure the values are safe.
-              if (is_string($style_guide_tokens[$token])) {
-                $style_guide_tokens[$token] = Html::escape($style_guide_tokens[$token]);
-              }
-
+              $style_guide_tokens[$token] = $this->cohesionUtils->processFieldValues($style_guide_manager_model[$token_uuid], $form_element->getModel());
             }
           }
         }
@@ -395,9 +374,10 @@ class StyleGuideManagerHandler {
   }
 
   /**
-   * Return a list of all style guide fields with whether they can be previewed
+   * Return a list of all style guide fields with whether they can be previewed.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
@@ -414,16 +394,16 @@ class StyleGuideManagerHandler {
         ->loadEntityByUuid('cohesion_style_guide', $style_guide_uuid)) {
 
         $usage = $this->usageUpdateManager->getInUseEntitiesList($style_guide);
-        // Set each field of the style guide to can be previewed by default
+        // Set each field of the style guide to can be previewed by default.
         if (property_exists($style_guide_values['json_values'], 'model')) {
           foreach ($style_guide_values['json_values']->model as $style_guide_value_uuid => $style_guide_value) {
             $preview_model[$style_guide_value_uuid] = FALSE;
           }
         }
 
-        // Loop through all in use entities
+        // Loop through all in use entities.
         foreach ($usage as $source_uuid => $source_type) {
-          // Only base style and custom style can be previewed
+          // Only base style and custom style can be previewed.
           if ($source_type == 'cohesion_custom_style' || $source_type == 'cohesion_base_styles') {
             /** @var \Drupal\cohesion\Entity\CohesionConfigEntityBase $entity */
             $entity = $this->entityRepository->loadEntityByUuid($source_type, $source_uuid);
@@ -434,12 +414,12 @@ class StyleGuideManagerHandler {
 
               foreach ($scannable_data as $scannable) {
                 if (in_array($scannable['type'], ['json_string', 'string']) && property_exists($style_guide_values['json_values'], 'model')) {
-                  // Loop through each field of the style guide
+                  // Loop through each field of the style guide.
                   foreach ($style_guide_values['json_values']->model as $style_guide_value_uuid => $style_guide_value) {
-                    // If the style guide field has not yet be marked has previewable && has a machine name check if there is at least one occurrence of it's token in the entity
-                    if($preview_model[$style_guide_value_uuid] == FALSE && property_exists($style_guide_value, 'settings') && property_exists($style_guide_value->settings, 'machineName') &&
+                    // If the style guide field has not yet be marked has previewable && has a machine name check if there is at least one occurrence of it's token in the entity.
+                    if ($preview_model[$style_guide_value_uuid] == FALSE && property_exists($style_guide_value, 'settings') && property_exists($style_guide_value->settings, 'machineName') &&
                             strpos($scannable['value'], "[style-guide:{$style_guide->id()}:{$style_guide_value->settings->machineName}]") > 0) {
-                        $preview_model[$style_guide_value_uuid] = TRUE;
+                      $preview_model[$style_guide_value_uuid] = TRUE;
                     }
                   }
                 }

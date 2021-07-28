@@ -4,11 +4,9 @@ namespace Drupal\Tests\cohesion\Unit\Plugin\EntityUpdate;
 
 use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\Plugin\EntityUpdate\_0023EntityUpdate;
-use Drupal\Tests\UnitTestCase;
-
 
 /**
- * Class MockUpdateEntity
+ * Class MockUpdateEntity.
  *
  * @package Drupal\Tests\cohesion\Unit
  */
@@ -18,9 +16,10 @@ class _0023MockUpdateEntity extends EntityMockBase implements EntityJsonValuesIn
 /**
  * @group Cohesion
  */
-class _0023EntityUpdateUnitTest extends UnitTestCase {
+class _0023EntityUpdateUnitTest extends EntityUpdateUnitTestCase {
 
-  /** @var $unit _0023MockUpdateEntity  */
+  /**
+   * @var unit_0023MockUpdateEntity*/
   protected $unit;
 
   private $fixture_form = '{
@@ -152,7 +151,7 @@ class _0023EntityUpdateUnitTest extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp() {
-    $this->unit = new _0023EntityUpdate([], null, null);
+    $this->unit = new _0023EntityUpdate([], NULL, NULL);
   }
 
   /**
@@ -160,7 +159,7 @@ class _0023EntityUpdateUnitTest extends UnitTestCase {
    */
   public function testRunUpdate() {
 
-    // WYSIWYG in layout canvas
+    // WYSIWYG in layout canvas.
     $layout = new _0023MockUpdateEntity($this->fixture_form, TRUE);
     $this->assertionsLayoutCanvasBefore($layout->getDecodedJsonValues());
     $this->unit->runUpdate($layout);
@@ -169,7 +168,7 @@ class _0023EntityUpdateUnitTest extends UnitTestCase {
     $this->assertionsLayoutCanvasAfter($layout->getDecodedJsonValues());
   }
 
-  private function assertionsLayoutCanvasBefore($layout_array_before){
+  private function assertionsLayoutCanvasBefore($layout_array_before) {
     $this->assertArrayNotHasKey('responsiveMode', $layout_array_before['model']['93a97ccc-a7a0-48cf-b2f9-dc4a2d5050d8']['settings']);
     $this->assertArrayNotHasKey('breakpointIcon', $layout_array_before['model']['93a97ccc-a7a0-48cf-b2f9-dc4a2d5050d8']['settings']);
 
@@ -178,7 +177,7 @@ class _0023EntityUpdateUnitTest extends UnitTestCase {
     $this->assertArrayNotHasKey('breakpointIcon', $layout_array_before['model']['9fb38262-abc4-40d5-a714-2f9be08420c6']['settings']);
   }
 
-  private function assertionsLayoutCanvasAfter($layout_array_after){
+  private function assertionsLayoutCanvasAfter($layout_array_after) {
     $this->assertArrayNotHasKey('responsiveMode', $layout_array_after['model']['93a97ccc-a7a0-48cf-b2f9-dc4a2d5050d8']['settings']);
     $this->assertArrayNotHasKey('breakpointIcon', $layout_array_after['model']['93a97ccc-a7a0-48cf-b2f9-dc4a2d5050d8']['settings']);
 
@@ -186,8 +185,9 @@ class _0023EntityUpdateUnitTest extends UnitTestCase {
     $this->assertArrayHasKey('breakpointIcon', $layout_array_after['model']['581ca7e6-93b1-4ea9-8110-cdc62f8c5120']['settings']);
     $this->assertArrayHasKey('breakpointIcon', $layout_array_after['model']['9fb38262-abc4-40d5-a714-2f9be08420c6']['settings']);
 
-    $this->assertEquals(true, $layout_array_after['model']['6c675468-60fc-4881-b3f7-1d0201c02140']['settings']['responsiveMode']);
+    $this->assertEquals(TRUE, $layout_array_after['model']['6c675468-60fc-4881-b3f7-1d0201c02140']['settings']['responsiveMode']);
     $this->assertEquals("", $layout_array_after['model']['581ca7e6-93b1-4ea9-8110-cdc62f8c5120']['settings']['breakpointIcon']);
     $this->assertEquals("", $layout_array_after['model']['9fb38262-abc4-40d5-a714-2f9be08420c6']['settings']['breakpointIcon']);
   }
+
 }

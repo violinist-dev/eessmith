@@ -1,7 +1,7 @@
-name: Cohesion style helpers
+name: Site Studio style helpers
 type: module
-description: 'Defines the style helper configuration entities for creating reusable style configurations in Cohesion.'
+description: 'Defines the style helper configuration entities for creating reusable style configurations in Site Studio.'
 core_version_requirement: ^8.8.0 || ^9
-package: cohesion
+package: Site Studio
 dependencies:
   - cohesion

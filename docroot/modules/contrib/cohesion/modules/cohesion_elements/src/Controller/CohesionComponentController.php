@@ -2,36 +2,39 @@
 
 namespace Drupal\cohesion_elements\Controller;
 
-use GuzzleHttp\Exception\ClientException;
 use Drupal\cohesion\CohesionJsonResponse;
 use Drupal\cohesion_elements\Entity\Component;
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\Request;
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Uuid\UuidInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class CohesionComponentController.
  *
- * Controller routines for Cohesion component.
+ * Controller routines for Site Studio component.
  *
  * @package Drupal\cohesion_elements\Controller
  */
 class CohesionComponentController extends ControllerBase {
 
   /**
-   * @var \Drupal\Core\TempStore\PrivateTempStore*/
+   * @var \Drupal\Core\TempStore\PrivateTempStore
+   */
   protected $tempStore;
 
   /**
-   * @var \Drupal\Component\Uuid\UuidInterface*/
+   * @var \Drupal\Component\Uuid\UuidInterface
+   */
   protected $uuid;
 
   /**
-   * @var \Drupal\Core\Extension\ThemeHandlerInterface*/
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface
+   */
   protected $themeHandler;
 
   /**
@@ -91,7 +94,7 @@ class CohesionComponentController extends ControllerBase {
       $send_to_api->sendWithoutSave();
 
       $uuid = $this->tempStore->get(__FUNCTION__);
-      if(!$uuid){
+      if (!$uuid) {
         $uuid = $this->uuid->generate();
         $this->tempStore->set(__FUNCTION__, $uuid);
       }
@@ -99,7 +102,6 @@ class CohesionComponentController extends ControllerBase {
       // If the APi call was successful, then merge the arrays.
       if (($data = $send_to_api->getData()) && \Drupal::service('cohesion.utils')->usedx8Status()) {
         $this->tempStore->set($uuid, $data);
-
       }
 
       $result['iframe_url'] = Url::fromRoute('cohesion_elements.component.preview', [
@@ -154,18 +156,15 @@ class CohesionComponentController extends ControllerBase {
             'library' => [
               'cohesion_elements/canvas-preview',
             ],
-            'placeholders' => [
-              'cohesion_inline_css_' . $component_uuid => [
-                '#type' => 'inline_template',
-                '#template' => '<style>' . (isset($data['css']['theme']) ? $data['css']['theme'] : '') . '</style>',
-              ],
-            ],
           ],
           '#context' => [
             'componentUuid' => $component_uuid,
             'isPreview' => TRUE,
           ],
         ];
+
+        $content = '<style>' . (isset($data['css']['theme']) ? $data['css']['theme'] : '') . '</style>';
+        $build['#attached']['cohesion'][] = $content;
 
         return $build;
       }

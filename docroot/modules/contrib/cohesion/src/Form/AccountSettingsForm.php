@@ -79,7 +79,7 @@ class AccountSettingsForm extends ConfigFormBase {
     $index = $config->get('use_dx8');
     $form['use_dx8'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Use Acquia Cohesion'),
+      '#title' => $this->t('Use Site Studio'),
       '#required' => FALSE,
       '#default_value' => isset($options[$index]) ? $config->get('use_dx8') : 'enable',
       '#options' => $options,
@@ -87,7 +87,7 @@ class AccountSettingsForm extends ConfigFormBase {
       '#attributes' => [
         'class' => [],
       ],
-      '#description' => $this->t('Disabling Cohesion will prevent Drupal from making requests to the Cohesion API. Your website will continue to work but you will not be able to access Acquia Cohesion features, including the Layout canvas, Style builder and Component builder.'),
+      '#description' => $this->t('Disabling Site Studio will prevent Drupal from making requests to the Site Studio API. Your website will continue to work but you will not be able to access Site Studio features, including the Layout canvas, Style builder and Component builder.'),
     ];
 
     // The API URL should not be editable.
@@ -185,8 +185,8 @@ class AccountSettingsForm extends ConfigFormBase {
       $form_state->setRedirect('cohesion.configuration.batch');
     }
     else {
-      \Drupal::messenger()->addWarning($this->t('Cohesion has been disabled. Your website will continue to work but you will not be able to access Cohesion features, including the Layout canvas, Style builder and Component builder.'));
-      // Rebuild routes to deny access to Acquia Cohesion menu items.
+      \Drupal::messenger()->addWarning($this->t('Site Studio has been disabled. Your website will continue to work but you will not be able to access Site Studio features, including the Layout canvas, Style builder and Component builder.'));
+      // Rebuild routes to deny access to Site Studio menu items.
       \Drupal::service('router.builder')->rebuild();
     }
   }

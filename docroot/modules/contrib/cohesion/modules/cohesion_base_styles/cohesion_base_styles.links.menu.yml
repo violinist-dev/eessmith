@@ -1,4 +1,4 @@
-# Cohesion base styles menu items definition
+# Site Studio base styles menu items definition
 entity.cohesion_base_styles.collection:
   title: 'Base styles'
   route_name: entity.cohesion_base_styles.collection

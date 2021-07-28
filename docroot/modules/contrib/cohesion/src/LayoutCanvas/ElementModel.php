@@ -125,12 +125,15 @@ class ElementModel implements \JsonSerializable {
 
     $current_pointer = $this->model;
     foreach ($property_names as $index => $property_name) {
-      if ($index + 1 === count($path_to_property)) {
+      if ($index + 1 === count($property_names)) {
         $current_pointer->{$property_name} = $value;
       }
       else {
         if (is_object($current_pointer) && property_exists($current_pointer, $property_name)) {
           $current_pointer = $current_pointer->{$property_name};
+        }
+        elseif (is_array($current_pointer) && isset($current_pointer[$property_name])) {
+          $current_pointer = $current_pointer[$property_name];
         }
         else {
           $current_pointer->{$property_name} = new \StdClass();
@@ -258,26 +261,16 @@ class ElementModel implements \JsonSerializable {
                       }
                     }
                     elseif ($this->getProperty($uuid)) {
-
-                      // If the model value is an object or array loop over it to hash each value
-                      // If in the outer most component and the key in the model exists in a child component, get the path from the child
-                      // Otherwise get the field path from the element.
-                      if (is_object($this->model->{$uuid}) || is_array($this->model->{$uuid})) {
-                        foreach ($this->model->{$uuid} as $key => $sub_value) {
-                          if ($element->isComponent() && isset($inner_component_model_values[$component_model_value['key']])) {
-                            $this->hashContent($this->model->{$uuid}->{$key}, array_merge($inner_component_model_values[$component_model_value['key']]['path'], [$key]));
+                      $this->processValue($this->model->{$uuid}, $element, $component_model_value, $inner_component_model_values);
+                    }
+                    else {
+                      foreach ($this->model as $uuid_key => $multifield) {
+                        if (is_array($multifield)) {
+                          foreach ($multifield as $key => $val) {
+                            if(is_object($val) && property_exists($val, $uuid)) {
+                              $this->processValue($this->model->{$uuid_key}[$key]->{$uuid}, $element, $component_model_value, $inner_component_model_values);
+                            }
                           }
-                          else {
-                            $this->hashContent($this->model->{$uuid}->{$key}, array_merge($component_model_value['path'], [$key]));
-                          }
-                        }
-                      }
-                      else {
-                        if ($element->isComponent() && isset($inner_component_model_values[$component_model_value['key']])) {
-                          $this->hashContent($this->model->{$uuid}, $inner_component_model_values[$component_model_value['key']]['path']);
-                        }
-                        else {
-                          $this->hashContent($this->model->{$uuid}, $component_model_value['path']);
                         }
                       }
                     }
@@ -291,6 +284,33 @@ class ElementModel implements \JsonSerializable {
     }
 
     return $vars;
+  }
+
+  /**
+   *
+   */
+  private function processValue(&$value, $element, $component_model_value, $inner_component_model_values) {
+    // If the model value is an object or array loop over it to hash each value
+    // If in the outer most component and the key in the model exists in a child component, get the path from the child
+    // Otherwise get the field path from the element.
+    if (is_object($value)) {
+      foreach ($value as $key => $sub_value) {
+        if ($element->isComponent() && isset($inner_component_model_values[$component_model_value['key']])) {
+          $this->hashContent($value->{$key}, array_merge($inner_component_model_values[$component_model_value['key']]['path'], [$key]));
+        }
+        else {
+          $this->hashContent($value->{$key}, array_merge($component_model_value['path'], [$key]));
+        }
+      }
+    }
+    else {
+      if ($element->isComponent() && isset($inner_component_model_values[$component_model_value['key']])) {
+        $this->hashContent($value, $inner_component_model_values[$component_model_value['key']]['path']);
+      }
+      else {
+        $this->hashContent($value, $component_model_value['path']);
+      }
+    }
   }
 
   /**
@@ -334,7 +354,6 @@ class ElementModel implements \JsonSerializable {
   private function hashContent(&$value, $path) {
     // Hash only string content and if value has not already been hashed.
     if (is_string($value) && !preg_match(self::MATCH_UUID, $value)) {
-      // Import the content paths.
       $dx8_content_paths = \Drupal::keyValue('cohesion.assets.static_assets')->get('dx8_content_paths');
 
       // Hash if the path is registered as content.

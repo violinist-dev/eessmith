@@ -2,13 +2,11 @@
 
 namespace Drupal\Tests\cohesion\Unit\Plugin\EntityUpdate;
 
-use Drupal\Tests\UnitTestCase;
-use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\Plugin\EntityUpdate\_0008EntityUpdate;
 use Drupal\cohesion_elements\Entity\CohesionElementEntityBase;
 
 /**
- * Class MockUpdateEntity
+ * Class MockUpdateEntity.
  *
  * @package Drupal\Tests\cohesion\Unit
  */
@@ -26,20 +24,23 @@ class MockCategoryUpdateEntity extends CohesionElementEntityBase {
   public function setCategory($category) {
     $this->category = $category;
   }
+
 }
 
 class MockComponentCategoryUpdateEntity extends MockCategoryUpdateEntity {
   const ASSET_GROUP_ID = 'component';
+
 }
 
 class MockHelperCategoryUpdateEntity extends MockCategoryUpdateEntity {
   const ASSET_GROUP_ID = 'helper';
+
 }
 
 /**
  * @group Cohesion
  */
-class _0008EntityUpdateUnitTest extends UnitTestCase {
+class _0008EntityUpdateUnitTest extends EntityUpdateUnitTestCase {
 
   protected $unit;
 
@@ -48,11 +49,10 @@ class _0008EntityUpdateUnitTest extends UnitTestCase {
    */
   public function setUp() {
     // Create a mock of the Php uuid generator service.
-    //$prophecy = $this->prophesize(Php::CLASS);
-    //$prophecy->generate()->willReturn('0000-0000-0000-0000');
-    //$uuid_service_mock = $prophecy->reveal();
-
-    $this->unit = new _0008EntityUpdate([], null, null);
+    // $prophecy = $this->prophesize(Php::CLASS);
+    // $prophecy->generate()->willReturn('0000-0000-0000-0000');
+    // $uuid_service_mock = $prophecy->reveal();
+    $this->unit = new _0008EntityUpdate([], NULL, NULL);
   }
 
   /**
@@ -95,4 +95,5 @@ class _0008EntityUpdateUnitTest extends UnitTestCase {
 
     $this->assertEquals($expected_category, $entity->getCategory());
   }
+
 }

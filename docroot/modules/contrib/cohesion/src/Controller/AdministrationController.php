@@ -3,10 +3,10 @@
 namespace Drupal\cohesion\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Drupal\Core\Url;
 
 /**
  * Class AdministrationController.
@@ -54,7 +54,7 @@ class AdministrationController extends ControllerBase {
   }
 
   /**
-   * Import Acquia Cohesion assets for the API and create entities.
+   * Import Site Studio assets for the API and create entities.
    *
    * @param bool $cron
    *

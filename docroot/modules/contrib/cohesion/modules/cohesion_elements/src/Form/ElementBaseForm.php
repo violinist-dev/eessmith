@@ -2,15 +2,15 @@
 
 namespace Drupal\cohesion_elements\Form;
 
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\cohesion\Form\CohesionBaseForm;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\cohesion_elements\Controller\ElementsController;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
 
 /**
- * Class ElementBaseForm.
+ * Element base form.
  *
  * @package Drupal\cohesion_elements\Form
  */
@@ -134,7 +134,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
         }
       }
     }
-    $entity_type_options['dx8_templates'] = $this->t('Acquia Cohesion templates');
+    $entity_type_options['dx8_templates'] = $this->t('Site Studio templates');
 
     $active_index = [];
     $entity = $this->entity;
@@ -426,6 +426,8 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     if (is_array($preview_image) && isset($preview_image[0])) {
       $file_entity = File::load($preview_image[0]);
       $entity->setPreviewImage($file_entity->getFileUri());
+    }else{
+      $entity->setPreviewImage('');
     }
 
     parent::save($form, $form_state);

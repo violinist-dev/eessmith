@@ -59,3 +59,19 @@ function cohesion_sync_update_8501() {
   }
 
 }
+
+/**
+ * Update cohesion.sync.settings schema
+ */
+function cohesion_sync_update_8900() {
+  if($editable = \Drupal::configFactory()->getEditable('cohesion.sync.settings')){
+    if($editable->get('enabled_entity_types')) {
+      foreach ($editable->get('enabled_entity_types') as $key => $value) {
+        if(!is_string($value)) {
+          $editable->clear("enabled_entity_types.{$key}");
+        }
+      }
+      $editable->save();
+    }
+  }
+}

@@ -6,7 +6,7 @@ cohesion_elements.cohesion_helper.*:
       type: string
       label: 'Helper category'
     preview_image:
-      type: sequence
+      type: string
       label: 'Preview image'
     entity_type_access:
       type: sequence

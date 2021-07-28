@@ -2,17 +2,17 @@
 
 namespace Drupal\cohesion_sync\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Config\StorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cohesion\UsagePluginManager;
 use Drupal\cohesion_sync\PackagerManager;
-use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Entity\EntityRepository;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\ConfigFormBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ExportFormBase.
+ * Sync Export form base.
  *
  * @package Drupal\cohesion_sync\Form
  */

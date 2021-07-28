@@ -3,7 +3,7 @@
 namespace Drupal\cohesion\LayoutCanvas;
 
 /**
- * Class LayoutCanvas.
+ * Parser for Layout canvas to hold data in a structured way.
  *
  * @package Drupal\cohesion
  *
@@ -13,6 +13,20 @@ namespace Drupal\cohesion\LayoutCanvas;
  * )
  */
 class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
+
+  /**
+   * The raw canvas
+   *
+   * @var object
+   */
+  protected $raw_decoded_canvas = NULL;
+
+  /**
+   * The json canvas as stored in database
+   *
+   * @var string
+   */
+  protected $json_values;
 
   /**
    * The top elements in the canvas.
@@ -76,7 +90,7 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
   protected $is_api_ready = FALSE;
 
   /**
-   * Meta information
+   * Meta information.
    *
    * @var null
    */
@@ -88,6 +102,7 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
    * @param $json_values
    */
   public function __construct($json_values) {
+    $this->json_values = $json_values;
     $decoded_json_values = json_decode($json_values);
 
     $model = property_exists($decoded_json_values, 'model') && is_object($decoded_json_values->model) ? $decoded_json_values->model : FALSE;
@@ -135,6 +150,13 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
     if (property_exists($decoded_json_values, 'meta')) {
       $this->meta = $decoded_json_values->meta;
     }
+  }
+
+  /**
+   *
+   */
+  public function getCanvasElements() {
+    return $this->canvasElements;
   }
 
   /**
@@ -262,6 +284,48 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
   }
 
   /**
+   * Get references to entities on components and component content.
+   *
+   * @return array
+   */
+  public function getEntityReferences() {
+    $references = [];
+
+    foreach ($this->iterateCanvas() as $element) {
+      if ($element->isComponentContent()) {
+        $references[] = [
+          'entity_type' => 'component_content',
+          'entity_id' => $element->getComponentContentId(),
+        ];
+      }
+
+      if ($element->getModel()) {
+        foreach ($element->getModel()->getValues() as $key => $value) {
+          if (preg_match(ElementModel::MATCH_UUID, $key) && is_object($value)) {
+            if (property_exists($value, 'entity') && property_exists($value, 'entity_type')) {
+              // Entity reference.
+              $references[] = [
+                'entity_type' => $value->entity_type,
+                'entity_id' => $value->entity,
+              ];
+            }
+            elseif (property_exists($value, 'entity') && property_exists($value->entity, 'entityId') && property_exists($value->entity, 'entityType')) {
+              // Entity browser.
+              $references[] = [
+                'entity_type' => $value->entity->entityType,
+                'entity_id' => $value->entity->entityId,
+              ];
+            }
+          }
+        }
+      }
+
+    }
+
+    return $references;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function prepareDataForApi($is_preview) {
@@ -276,6 +340,14 @@ class LayoutCanvas implements LayoutCanvasElementInterface, \JsonSerializable {
     }
 
     $this->is_api_ready = TRUE;
+  }
+
+  public function getRawDecodedJsonValues() {
+    if($this->raw_decoded_canvas == NULL) {
+      $this->raw_decoded_canvas = json_decode($this->json_values);
+    }
+
+    return $this->raw_decoded_canvas;
   }
 
   /**

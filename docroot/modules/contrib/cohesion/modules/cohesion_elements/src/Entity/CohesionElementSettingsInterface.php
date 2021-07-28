@@ -6,7 +6,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
  * Interface CohesionElementSettingsInterface
- * Provides an interface for defining Cohesion element configuration entities.
+ * Provides an interface for defining Site Studio element configuration entities.
  *
  * @package Drupal\cohesion_elements\Entity
  */

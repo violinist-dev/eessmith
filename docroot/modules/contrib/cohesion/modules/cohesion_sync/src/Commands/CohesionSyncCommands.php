@@ -2,6 +2,7 @@
 
 namespace Drupal\cohesion_sync\Commands;
 
+use Drupal\cohesion_sync\Drush\CommandHelpers;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -16,6 +17,22 @@ use Drush\Commands\DrushCommands;
  *   - http://cgit.drupalcode.org/devel/tree/drush.services.yml
  */
 class CohesionSyncCommands extends DrushCommands {
+
+  /**
+   * Drush sync command helper.
+   *
+   * @var \Drupal\cohesion_sync\Drush\CommandHelpers
+   */
+  private $commandHelpers;
+
+  /**
+   * CohesionSyncCommands constructor.
+   *
+   * @param \Drupal\cohesion_sync\Drush\CommandHelpers $command_helpers
+   */
+  public function __construct(CommandHelpers $command_helpers) {
+    $this->commandHelpers = $command_helpers;
+  }
 
   /**
    * Export DX8 packages to sync.
@@ -36,11 +53,11 @@ class CohesionSyncCommands extends DrushCommands {
     $filename_prefix = $options['filename-prefix'];
 
     try {
-      if ($result = \Drupal::service('cohesion_sync.drush_helpers')->exportAll($filename_prefix)) {
+      if ($result = $this->commandHelpers->exportAll($filename_prefix)) {
         $this->say($result);
       }
       else {
-        $this->say(t('Acquia Cohesion', 'Unable to export Acquia Cohesion packages. Check the dblog for more information.'));
+        $this->say(t('Site Studio', 'Unable to export Site Studio packages. Check the dblog for more information.'));
       }
     }
     catch (\Exception $e) {
@@ -62,24 +79,38 @@ class CohesionSyncCommands extends DrushCommands {
    *   Specify a local or remote path to a *.package.yml file
    * @option force
    *   Force importing entities even if this will break content
+   * @option no-rebuild
+   *   Prevent rebuilding imported entities
+   * @option no-maintenance
+   *   Optionally skip maintenance mode step
+   *
    * @validate-module-enabled cohesion_sync
    *
    * @command sync:import
    * @aliases sync-import
    */
-  public function import(array $options = ['overwrite-all' => NULL, 'keep-all' => NULL, 'path' => NULL, 'force' => NULL]) {
+  public function import(array $options = ['overwrite-all' => NULL, 'keep-all' => NULL, 'path' => NULL, 'force' => NULL, 'no-rebuild' => NULL, 'no-maintenance' => NULL]) {
     // Get options.
     $overwrite_all = $options['overwrite-all'];
     $keep_all = $options['keep-all'];
     $path = $options['path'];
     $force = $options['force'];
+    $no_rebuild = $options['no-rebuild'];
+    $no_maintenance = $options['no-maintenance'];
 
     // One must be set.
     try {
       if ($overwrite_all || $keep_all) {
-        $results = \Drupal::service('cohesion_sync.drush_helpers')->import($overwrite_all == 1, $keep_all == 1, $path, $force == 1);
+        $operations = $this->commandHelpers->import($overwrite_all == 1, $keep_all == 1, $path, $force == 1, $no_rebuild, $no_maintenance == 1);
 
-        $this->say($results);
+        $batch = [
+          'title' => t('Validating configuration.'),
+          'operations' => $operations,
+          'progressive' => FALSE,
+        ];
+
+        batch_set($batch);
+        return drush_backend_batch_process();
       }
       // None of the options set.
       else {

@@ -30,7 +30,6 @@ interface ApiPluginInterface extends PluginInspectionInterface {
    * object.
    *
    * @param bool $attach_css
-   *
    */
   public function prepareData($attach_css = TRUE);
 
@@ -40,7 +39,7 @@ interface ApiPluginInterface extends PluginInspectionInterface {
   public function setEntity(EntityJsonValuesInterface $entity);
 
   /**
-   * Get the forms to be processed by the API
+   * Get the forms to be processed by the API.
    *
    * @return array
    */

@@ -12,6 +12,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Deprecated.
+ *
  * Provides a Custom styles Resource.
  *
  * @RestResource(

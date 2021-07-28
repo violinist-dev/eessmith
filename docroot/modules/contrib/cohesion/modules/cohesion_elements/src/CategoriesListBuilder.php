@@ -2,12 +2,12 @@
 
 namespace Drupal\cohesion_elements;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\cohesion\CohesionListBuilder;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class CategoriesListBuilder.
+ * Categories list builder.
  *
  * @package Drupal\cohesion_elements
  */
@@ -43,7 +43,6 @@ class CategoriesListBuilder extends CohesionListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row = parent::buildRow($entity);
     unset($row['type']);
-    $row['label'] = '<span>' . $row['label'] . '</span>';
 
     $row['class']['#markup'] = '<div class="coh-category-color-item ' . $row['class']['#markup'] . '"></div>';
 

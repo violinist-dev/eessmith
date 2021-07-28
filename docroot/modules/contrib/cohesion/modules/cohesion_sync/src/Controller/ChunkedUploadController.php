@@ -2,14 +2,14 @@
 
 namespace Drupal\cohesion_sync\Controller;
 
-use Drupal\Core\Site\Settings;
-use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Controller\ControllerBase;
-use Symfony\Component\HttpFoundation\Response;
+use Drupal\Core\Site\Settings;
 use Drupal\file\Entity\File;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class ChunkedUploadController.
+ * Chunked upload controller.
  *
  * @package Drupal\cohesion_sync\Controller
  */

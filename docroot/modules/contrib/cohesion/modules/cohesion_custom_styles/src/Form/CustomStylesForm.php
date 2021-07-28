@@ -2,9 +2,9 @@
 
 namespace Drupal\cohesion_custom_styles\Form;
 
+use Drupal\cohesion\Form\CohesionStyleBuilderForm;
 use Drupal\cohesion_custom_styles\Entity\CustomStyleType;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\cohesion\Form\CohesionStyleBuilderForm;
 use Drupal\Core\Url;
 
 /**
@@ -28,7 +28,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
     else {
       $custom_style_type_id = $this->entity->get('custom_style_type');
     }
-    /* @var CustomStyleType $custom_style_type */
+    /** @var \Drupal\cohesion_custom_styles\Entity\CustomStyleType $custom_style_type */
     $custom_style_type = $this->entityTypeManager->getStorage('custom_style_type')->load($custom_style_type_id);
 
     if ($operation == 'extend') {

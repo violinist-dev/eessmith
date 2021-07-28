@@ -2,17 +2,17 @@
 
 namespace Drupal\cohesion\Controller;
 
+use Drupal\cohesion\CohesionJsonResponse;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\system\SystemManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Drupal\cohesion\CohesionJsonResponse;
-use Drupal\Component\Serialization\Json;
 
 /**
  * Class CohesionController.
  *
- * Controller routines for Cohesion admin index page.
+ * Controller routines for Site Studio admin index page.
  *
  * @package Drupal\cohesion\Controller
  */
@@ -32,6 +32,7 @@ class CohesionController extends ControllerBase {
    * CohesionController constructor.
    *
    * @param \Drupal\system\SystemManager $systemManager
+   *
    */
   public function __construct(SystemManager $systemManager) {
     $this->systemManager = $systemManager;
@@ -68,7 +69,7 @@ class CohesionController extends ControllerBase {
   public static function getCohesionEnityTypes() {
     $results = [];
     foreach (\Drupal::service('entity_type.manager')->getDefinitions() as $value) {
-      /** @var $value EntityTypeInterface */
+      /** @var EntityTypeInterface $value */
       if ($value->entityClassImplements('\Drupal\cohesion\Entity\CohesionSettingsInterface')) {
         $results[$value->get('id')] = $value->getLabel()->render();
       }

@@ -1,19 +1,19 @@
 administer components:
-  title: Cohesion components
-  description: 'Grant access to create, edit and manage Cohesion components.'
+  title: Site Studio components
+  description: 'Grant access to create, edit and manage Site Studio components.'
 administer component content:
-  title: Cohesion component content
-  description: 'Grant access to create, edit and manage Cohesion component content.'
+  title: Site Studio component content
+  description: 'Grant access to create, edit and manage Site Studio component content.'
 administer component categories:
-  title: Cohesion component categories
-  description: 'Grant access to create, edit and manage Cohesion component categories.'
+  title: Site Studio component categories
+  description: 'Grant access to create, edit and manage Site Studio component categories.'
 
 administer helpers:
-  title: Cohesion helpers
-  description: 'Grant access to create, edit and manage Cohesion helpers.'
+  title: Site Studio helpers
+  description: 'Grant access to create, edit and manage Site Studio helpers.'
 administer helper categories:
-  title: Cohesion helpers categories
-  description: 'Grant access to create, edit and manage Cohesion helper categories.'
+  title: Site Studio helpers categories
+  description: 'Grant access to create, edit and manage Site Studio helper categories.'
 
 permission_callbacks:
   - \Drupal\cohesion_elements\CategoryPermissions::getPermissions

@@ -74,22 +74,16 @@ function cohesion_custom_styles_update_8402(&$variables) {
 }
 
 /**
- * Add rest endpoint for custom styles
+ * Removing rest endpoints for custom styles
  */
-function cohesion_custom_styles_update_8500(){
-  // Overwrite the existing entity config.
-  $config_path = drupal_get_path('module', 'cohesion_custom_styles') . '/config/install';
-  $source = new FileStorage($config_path);
+function cohesion_custom_styles_update_8501() {
 
-  // Install restful web services module
-  \Drupal::service('module_installer')->install(['rest']);
+  $resources_to_delete = ['rest.resource.cohesion_custom_styles', 'rest.resource.cohesion_custom_style_type', 'rest.resource.dx8_resource'];
 
-  foreach ($source->listAll('rest.resource') as $config_item_name) {
-    // Load the config in.
-    $config = $source->read($config_item_name);
-
-    RestResourceConfig::create($config)->save();
-
+  foreach($resources_to_delete as $resource) {
+    if(\Drupal::configFactory()->getEditable($resource)) {
+      \Drupal::configFactory()->getEditable($resource)->delete();
+    }
   }
 }
 

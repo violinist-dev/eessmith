@@ -2,9 +2,9 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldType;
 
+use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem;
-use Drupal\cohesion_elements\Entity\CohesionLayout;
 
 /**
  * Defines the 'cohesion_entity_reference_revisions' entity field type.
@@ -17,10 +17,10 @@ use Drupal\cohesion_elements\Entity\CohesionLayout;
  *
  * @FieldType(
  *   id = "cohesion_entity_reference_revisions",
- *   label = @Translation("Cohesion Entity reference revisions"),
+ *   label = @Translation("Site Studio Entity reference revisions"),
  *   description = @Translation("An entity field containing a CohesionLayout
  *   entity reference to a specific revision."), category =
- * @Translation("Acquia Cohesion"), no_ui = FALSE, class =
+ * @Translation("Site Studio"), no_ui = FALSE, class =
  *   "\Drupal\cohesion_elements\Plugin\Field\FieldType\CohesionEntityReferenceRevisionsItem",
  *   list_class =
  *   "\Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList",
@@ -110,7 +110,7 @@ class CohesionEntityReferenceRevisionsItem extends EntityReferenceRevisionsItem 
    */
   public function preSave() {
     if ($this->entity && $this->entity instanceof CohesionLayout) {
-      /* @var CohesionLayout $this ->entity */
+      /** @var \Drupal\cohesion_elements\Entity\CohesionLayout $this ->entity */
       $this->entity->setHost($this->getEntity());
       $this->entity->isDefaultRevision($this->entity->getHost()
         ->isDefaultRevision());

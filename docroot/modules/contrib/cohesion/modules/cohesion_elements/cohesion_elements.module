@@ -25,15 +25,15 @@ function cohesion_elements_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.cohesion_elements':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This module defines the component and helper config entities for creating reusable design patterns within Cohesion.') . '</p>';
+      $output .= '<p>' . t('This module defines the component and helper config entities for creating reusable design patterns within Site Studio.') . '</p>';
       $output .= '<p><ul>';
       $output .= '  <li>Component configuration entity and supporting forms.</li>';
       $output .= '  <li>Template helper configuration entity and supporting forms.</li>';
-      $output .= '  <li>Cohesion API integration.</li>';
+      $output .= '  <li>Site Studio API integration.</li>';
       $output .= '  <li>Custom Views query plugin for listing components and helpers.</li>';
-      $output .= '  <li>Layout field plugin for adding Cohesion layouts to fieldable entities.</li>';
+      $output .= '  <li>Layout field plugin for adding Site Studio layouts to fieldable entities.</li>';
       $output .= '</ul></p>';
-      $output .= '<p><a href="https://cohesiondocs.acquia.com/" target="_blank">https://cohesiondocs.acquia.com/</a></p>';
+      $output .= '<p><a href="https://sitestudiodocs.acquia.com/" target="_blank">https://sitestudiodocs.acquia.com/</a></p>';
       return $output;
 
     default:
@@ -51,7 +51,6 @@ function cohesion_elements_library_info_alter(&$libraries, $extension) {
     // Otherwise relative from module/theme root.
     if ($cohesion_asset_libraries = Drupal::keyValue('cohesion.elements.asset.libraries')->getAll()) {
       foreach ($cohesion_asset_libraries as $library_key => $library_info) {
-
         $libraries[$library_key] = [];
 
         // Add the js assets to the library.
@@ -102,22 +101,11 @@ function cohesion_elements_library_info_alter(&$libraries, $extension) {
  */
 function preprocess_cohesion_elements_component(&$variables) {
   foreach ($variables['parentContext'] as $key => $value) {
-    if ($key !== 'componentFields' && $key !== 'template' && !$value instanceof Attribute) {
+    if ($key !== 'componentFieldsValues' && $key !== 'template' && !$value instanceof Attribute) {
       $variables[$key] = $value;
     }
   }
 
-}
-
-/**
- * Preprocess the component preview iframe page.html.twig
- * See: templates/page--cohesionapi--component--preview.html.twig.
- *
- * @param $variables
- */
-function preprocess_cohesion_preview_page(&$variables) {
-  // Load the build created in CohesionComponentController::preview.
-  $variables['preview_build'] = &drupal_static('component_preview_build');
 }
 
 /**
@@ -139,7 +127,7 @@ function cohesion_elements_theme($existing, $type, $theme, $path) {
         'content' => '',
         'parentContext' => [],
         'parentIsComponent' => FALSE,
-        'componentFields' => [],
+        'componentFieldsValues' => [],
         'componentUuid' => '',
         'template' => '',
       ],
@@ -247,7 +235,8 @@ function cohesion_elements_page_attachments(array &$attachments) {
 
   // If the user has contextual links enabled, attach the component settings
   // tray overrides.
-  if (\Drupal::currentUser()->hasPermission('access contextual links') && \Drupal::currentUser()->hasPermission('access components') && $route_name != 'cohesion_elements.component.preview') {
+  $route = \Drupal::routeMatch()->getRouteObject();
+  if (!\Drupal::service('router.admin_context')->isAdminRoute($route) && \Drupal::currentUser()->hasPermission('access contextual links') && \Drupal::currentUser()->hasPermission('access components') && $route_name != 'cohesion_elements.component.preview') {
     $attachments['#attached']['library'][] = 'cohesion_elements/settings-tray';
   }
 }
@@ -389,7 +378,7 @@ function cohesion_elements_form_language_content_settings_form_alter(&$form, For
  * Implements hook_form_FORM_ID_alter() for 'field_ui_field_storage_add_form'.
  */
 function cohesion_elements_form_field_ui_field_storage_add_form_alter(array &$form) {
-  unset($form['add']['new_storage_type']['#options'][(string) t('Acquia Cohesion')]['cohesion_entity_reference_revisions']);
+  unset($form['add']['new_storage_type']['#options'][(string) t('Site Studio')]['cohesion_entity_reference_revisions']);
   unset($form['add']['new_storage_type']['#options'][(string) t('Reference revisions')]['field_ui:entity_reference_revisions:cohesion_layout']);
 }
 
@@ -423,9 +412,7 @@ function cohesion_elements_form_component_content_edit_form_alter(&$form, FormSt
 function cohesion_elements_preprocess_image_widget(&$variables) {
   $element = $variables['element'];
 
-  $variables['attributes'] = ['class' => ['image-widget', 'js-form-managed-file', 'form-managed-file', 'clearfix']];
-
-  if (!empty($element['fids']['#value'])) {
+  if (isset($element['#preview_image_style']) && $element['#preview_image_style'] == 'dx8_component_preview' && !empty($element['fids']['#value'])) {
     $file = reset($element['#files']);
     $element['file_' . $file->id()]['filename']['#suffix'] = ' <span class="file-size">(' . format_size($file->getSize()) . ')</span> ';
     $file_variables = [
@@ -480,17 +467,20 @@ function cohesion_elements_preprocess_image_widget(&$variables) {
  * Implements hook_menu_local_actions_alter().
  */
 function cohesion_elements_menu_local_actions_alter(&$local_actions) {
-  // Add class to component admin link actions.
-  if (isset($local_actions['entity.cohesion_component.toggle_components_groups'])) {
-    $local_actions['entity.cohesion_component.toggle_components_groups']['options']['attributes']['class'][] = 'coh-toggle-accordion';
-    $local_actions['entity.cohesion_component.toggle_components_groups']['options']['attributes']['class'][] = 'open';
-    $local_actions['entity.cohesion_component.toggle_components_groups']['options']['attributes']['role'][] = 'button';
-  }
 
-  if (isset($local_actions['entity.cohesion_helper.toggle_helpers_groups'])) {
-    $local_actions['entity.cohesion_helper.toggle_helpers_groups']['options']['attributes']['class'][] = 'coh-toggle-accordion';
-    $local_actions['entity.cohesion_helper.toggle_helpers_groups']['options']['attributes']['class'][] = 'open';
-    $local_actions['entity.cohesion_helper.toggle_helpers_groups']['options']['attributes']['role'][] = 'button';
+  $action_routes = [
+    'entity.cohesion_component.toggle_components_groups',
+    'entity.cohesion_helper.toggle_helpers_groups',
+    'entity.component_content.toggle_component_content_groups'
+  ];
+
+  foreach($action_routes as $action_route) {
+    // Add class to component admin link actions.
+    if (isset($local_actions[$action_route])) {
+      $local_actions[$action_route]['options']['attributes']['class'][] = 'coh-toggle-accordion';
+      $local_actions[$action_route]['options']['attributes']['class'][] = 'open';
+      $local_actions[$action_route]['options']['attributes']['role'][] = 'button';
+    }
   }
 }
 

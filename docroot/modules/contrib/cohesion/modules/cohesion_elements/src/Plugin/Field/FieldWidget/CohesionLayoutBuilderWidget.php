@@ -2,27 +2,29 @@
 
 namespace Drupal\cohesion_elements\Plugin\Field\FieldWidget;
 
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\cohesion\Services\JsonXss;
+use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\cohesion_elements\Entity\ComponentContent;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\token\TokenEntityMapperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Plugin implementation of the 'cohesion_layout_builder_widget' widget.
  *
  * @FieldWidget(
  *   id = "cohesion_layout_builder_widget",
- *   label = @Translation("Acquia Cohesion layout canvas"),
+ *   label = @Translation("Site Studio layout canvas"),
  *   field_types = {
  *     "entity_reference_revisions",
  *     "cohesion_entity_reference_revisions",
@@ -87,18 +89,23 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    /* @var CohesionLayout $layout_entity */
-    $layout_entity = NULL;
+
     $values = $items->getValue();
     $target_type = $this->getFieldSetting('target_type');
     $entity_storage = $this->entityTypeManager->getStorage($target_type);
-
-    /* @var CohesionLayout $layout_entity */
+    /** @var \Drupal\cohesion_elements\Entity\CohesionLayout $layout_entity */
     if (empty($values[$delta]['target_id'])) {
       $layout_entity = $entity_storage->create();
     }
     else {
-      $layout_entity = $entity_storage->loadRevision($values[$delta]['target_revision_id']);
+      // If the form loads after node preview, there is already an entity attached with potentially modified values.
+      // Use that if possible, so we don't lose work in progress.
+      if (isset($values[$delta]['entity']) && $values[$delta]['entity'] instanceof CohesionLayout) {
+        $layout_entity = $values[$delta]['entity'];
+      }
+      else {
+        $layout_entity = $entity_storage->loadRevision($values[$delta]['target_revision_id']);
+      }
     }
 
     $storage = $form_state->getStorage();
@@ -197,9 +204,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
     if ($host instanceof ComponentContent) {
       $cohFormGroupId = 'component_content';
     }
-    else {
-      $element['target_id']['#canvas_name'] = $items->getName() . '_' . $delta;
-    }
+    $element['target_id']['#canvas_name'] = $items->getName() . '_' . $delta;
 
     $element['target_id'] += [
       '#json_values' => mb_strlen($layout_entity->json_values->value) ? $layout_entity->json_values->value : '{}',
@@ -211,6 +216,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
       '#title' => $items->getDataDefinition()->getLabel(),
       '#required' => $items->getDataDefinition()->isRequired(),
       '#token_browser' => $this->tokenEntityMapper->getTokenTypeForEntityType($host->getEntityTypeId(), ''),
+      '#isContentEntity' => $layout_entity instanceof ContentEntityInterface,
     ];
 
     // Stash the Xss paths for this entity.
@@ -266,7 +272,7 @@ class CohesionLayoutBuilderWidget extends WidgetBase implements ContainerFactory
    * @param array $complete_form
    */
   public function validateElement(array &$element, FormStateInterface $form_state, array &$complete_form) {
-    /* @var CohesionLayout $entity */
+    /** @var \Drupal\cohesion_elements\Entity\CohesionLayout $entity */
     $entity = &$element['target_id']['#entity'];
 
     $value = [

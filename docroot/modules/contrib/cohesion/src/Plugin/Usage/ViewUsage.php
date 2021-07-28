@@ -7,7 +7,7 @@ use Drupal\cohesion\UsagePluginBase;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Class ViewUsage.
+ * Plugin for view usage.
  *
  * @package Drupal\cohesion\Plugin\Usage
  *
@@ -20,7 +20,9 @@ use Drupal\Core\Entity\EntityInterface;
  *   group_key = FALSE,
  *   group_key_entity_type = FALSE,
  *   exclude_from_package_requirements = FALSE,
- *   exportable = TRUE
+ *   exportable = TRUE,
+ *   config_type = "core",
+ *   scan_groups = {"core", "site_studio"}
  * )
  */
 class ViewUsage extends UsagePluginBase {
@@ -73,7 +75,7 @@ class ViewUsage extends UsagePluginBase {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($entry['decoded']['model']));
         foreach ($iterator as $k => $v) {
           // View used directly.
-          if ($k == 'view' && $v != NULL) {
+          if ($k == 'view' && $v != NULL && !is_bool($v)) {
             if ($view_entity = $this->storage->load($v)) {
               $entities[] = [
                 'type' => $this->getEntityType(),
