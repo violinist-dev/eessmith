@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '83cc41a4c19ee60a8da6e1160de32d7d0c60523d',
+        'reference' => '1ea27dffd101f8af566f709aed28525c8e23a8f5',
         'name' => 'acquia/eessmith',
         'dev' => true,
     ),
@@ -34,7 +34,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '83cc41a4c19ee60a8da6e1160de32d7d0c60523d',
+            'reference' => '1ea27dffd101f8af566f709aed28525c8e23a8f5',
             'dev_requirement' => false,
         ),
         'asm89/stack-cors' => array(
