@@ -7,3 +7,4 @@ docroot/files
 docroot/sites/*/files
 docroot/sites/*/private
 docroot/sites/*/settings.local.php
+docroot/themes/contrib/bootstrap_clean_blog/*

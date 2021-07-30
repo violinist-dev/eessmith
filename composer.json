@@ -19,7 +19,8 @@
         "drupal/token": "^1.9.0",
         "drupal/core-composer-scaffold": "^9.2",
         "drupal/upgrade_status": "^3.8",
-        "drupal/core-project-message": "^9.2"
+        "drupal/core-project-message": "^9.2",
+        "drupal/bootstrap_clean_blog": "1.0.0-rc2"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -57,9 +58,6 @@
             "merge-extra": false
         },
         "patches": {
-            "drupal/bootstrap_clean_blog": {
-                "bootstrap_clean_blog issue 3146287 patch": "https://www.drupal.org/files/issues/2021-04-25/3146287_3.patch"
-            }
         },
         "drupal-scaffold": {
             "excludes": [
