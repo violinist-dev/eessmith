@@ -19,7 +19,8 @@
         "drupal/token": "^1.9.0",
         "drupal/core-composer-scaffold": "^9.2",
         "drupal/upgrade_status": "^3.8",
-        "drupal/core-project-message": "^9.2"
+        "drupal/core-project-message": "^9.2",
+        "drush/drush": "^10.5"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
