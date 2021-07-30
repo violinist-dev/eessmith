@@ -6,10 +6,9 @@
     "require": {
         "composer/installers": "^1.11",
         "cweagans/composer-patches": "^1.7",
-        "drupal/core-recommended": "^8.9.17",
+        "drupal/core-recommended": "^9.2",
         "drupal/stage_file_proxy": "^1.1.0",
         "drupal/google_analytics": "^3.1.0",
-        "drupal/head2head": "^1.0",
         "drupal/acquia_connector": "^1.25.0",
         "drupal/youtube": "^1.2.0",
         "drupal/bootstrap": "^3.23",
@@ -18,10 +17,9 @@
         "drupal/entity_reference_revisions": "^1.9.0",
         "drupal/imce": "^2.2",
         "drupal/token": "^1.9.0",
-        "drupal/core": "^8.9.17",
-        "drupal/core-composer-scaffold": "^8.9.17",
-        "drupal/bootstrap_clean_blog": "1.0-rc2",
-        "drupal/upgrade_status": "^3.8"
+        "drupal/core-composer-scaffold": "^9.2",
+        "drupal/upgrade_status": "^3.8",
+        "drupal/core-project-message": "^9.2"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -104,8 +102,5 @@
             "type": "vcs",
             "url": "https://bitbucket.org/cohesion_dev/dx8-theme.git"
         }
-    },
-    "require-dev": {
-        "drupal/core-dev": "8.9.17"
     }
 }
