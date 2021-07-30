@@ -57,7 +57,6 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         ),
         'W' => 
         array (
-            'Wikimedia\\Composer\\' => 19,
             'Webmozart\\Assert\\' => 17,
         ),
         'V' => 
@@ -201,10 +200,6 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         'Zumba\\GastonJS\\' => 
         array (
             0 => __DIR__ . '/..' . '/jcalderonzumba/gastonjs/src',
-        ),
-        'Wikimedia\\Composer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src',
         ),
         'Webmozart\\Assert\\' => 
         array (
@@ -597,6 +592,7 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
     public static $classMap = array (
         'ArithmeticError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',
         'AssertionError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'DivisionByZeroError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
         'Drupal' => __DIR__ . '/../..' . '/docroot/core/lib/Drupal.php',
         'DrupalFinder\\DrupalFinder' => __DIR__ . '/..' . '/webflo/drupal-finder/src/DrupalFinder.php',

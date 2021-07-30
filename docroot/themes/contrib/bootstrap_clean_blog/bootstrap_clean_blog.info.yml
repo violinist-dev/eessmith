@@ -18,6 +18,5 @@ libraries:
 # Information added by Drupal.org packaging script on 2016-10-08
 version: '8.x-1.0-rc2'
 core: '8.x'
-core_version_requirement: ^8 || ^9
 project: 'bootstrap_clean_blog'
 datestamp: 1475907840
