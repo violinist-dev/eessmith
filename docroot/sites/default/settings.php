@@ -237,16 +237,9 @@
  * can enhance security by putting the active configuration outside your
  * document root.
  *
- * Example:
- * @code
- *   $config_directories = array(
- *     CONFIG_ACTIVE_DIRECTORY => '/some/directory/outside/webroot',
- *     CONFIG_STAGING_DIRECTORY => '/another/directory/outside/webroot',
- *   );
- * @endcode
- */
-#$config_directories = array();
-$config_directories['vcs'] = $app_root . '/../config/' . basename($site_path);
+ **/
+$settings['config_sync_directory'] = $settings['config_vcs_directory'];
+$settings['config_vcs_directory'] = $app_root . '/../config/' . basename($site_path);
 
 /**
  * Settings:
