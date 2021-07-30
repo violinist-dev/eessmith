@@ -22,8 +22,7 @@
         "drupal/core": "^8.9.17",
         "drupal/core-composer-scaffold": "^8.9.17",
         "drupal/bootstrap_clean_blog": "1.0-rc2",
-        "drupal/upgrade_status": "^3.8",
-        "drupal/adminimal_theme": "^1.6"
+        "drupal/upgrade_status": "^3.8"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -42,7 +41,7 @@
             "docroot/modules/contrib/{$name}/": [
                 "type:drupal-module"
             ],
-            "docroot/themes/{$name}/": [
+            "docroot/themes/contrib/{$name}/": [
                 "type:drupal-theme"
             ],
             "docroot/libraries/{$name}/": [
