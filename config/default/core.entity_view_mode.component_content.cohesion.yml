@@ -1,0 +1,10 @@
+uuid: 98607a55-2dec-42bf-ba18-75b423b1c885
+langcode: en
+status: true
+dependencies:
+  module:
+    - cohesion_elements
+id: component_content.cohesion
+label: Cohesion
+targetEntityType: component_content
+cache: true
