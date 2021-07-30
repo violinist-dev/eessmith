@@ -1709,7 +1709,8 @@
                     "status": "not-covered",
                     "message": "RC releases are not covered by Drupal security advisories."
                 }
-            }
+            },
+            "patches_applied": []
         },
         "installation-source": "dist",
         "notification-url": "https://packages.drupal.org/8/downloads",

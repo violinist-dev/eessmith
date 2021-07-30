@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6978c02a4baa13b3b185c5aa1697c1ce",
+    "content-hash": "106b1f6596dfa5dcc616e237a0ff3e90",
     "packages": [
         {
             "name": "acquia/cohesion",
@@ -1070,7 +1070,8 @@
                         "status": "not-covered",
                         "message": "RC releases are not covered by Drupal security advisories."
                     }
-                }
+                },
+                "patches_applied": []
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [

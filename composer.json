@@ -59,6 +59,11 @@
             "replace": false,
             "merge-extra": false
         },
+        "patches": {
+            "drupal/bootstrap_clean_blog": {
+                "bootstrap_clean_blog issue 3146287 patch": "https://www.drupal.org/files/issues/2021-04-25/3146287_3.patch"
+            }
+        },
         "drupal-scaffold": {
             "excludes": [
                 ".htaccess",
