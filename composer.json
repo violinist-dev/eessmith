@@ -20,7 +20,8 @@
         "drupal/core-composer-scaffold": "^9.2",
         "drupal/upgrade_status": "^3.8",
         "drupal/core-project-message": "^9.2",
-        "drush/drush": "^10.5"
+        "drush/drush": "^10.5",
+        "drupal/core": "^9.2.3"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -57,8 +58,7 @@
             "replace": false,
             "merge-extra": false
         },
-        "patches": {
-        },
+        "patches": [],
         "drupal-scaffold": {
             "excludes": [
                 ".htaccess",
