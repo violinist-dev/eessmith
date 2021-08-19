@@ -1,5 +1,25 @@
 # Release notes
 
+## 6.6.1 
+
+### Menu templates are generated with incorrect filename
+
+#### What is it? 
+
+Fixes a bug that causes menu templates to be generated with an incorrect filename and therefore results in not rendering the template selected.
+
+#### What impact will there be?
+
+Menu templates are now generated with the correct filename and will start to render as expected.
+
+#### What actions do I need to take?
+
+A Site Studio rebuild or re-save the affected menu templates.
+
+#### Are there any risks I should be aware of?
+
+None.
+
 ## 6.6.0
 
 ## Slider - accessibility improvements
