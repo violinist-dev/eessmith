@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "01f39d6345e2ff79ba19a9e68c5902f3",
+    "content-hash": "774246cf1bfb2618188c645ae7d7d53d",
     "packages": [
         {
             "name": "acquia/cohesion",
@@ -7700,5 +7700,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

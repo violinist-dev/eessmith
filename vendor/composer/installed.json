@@ -7958,6 +7958,6 @@
             "install-path": "../webmozart/path-util"
         }
     ],
-    "dev": false,
+    "dev": true,
     "dev-package-names": []
 }
