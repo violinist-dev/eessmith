@@ -73,16 +73,16 @@
         },
         {
             "name": "acquia/cohesion-theme",
-            "version": "6.6.1",
+            "version": "6.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/cohesion-theme.git",
-                "reference": "1f9e939906de24f010da0d2d2af217e926f322d9"
+                "reference": "42e566575808511108f2e606ad8e0c694b6859a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/1f9e939906de24f010da0d2d2af217e926f322d9",
-                "reference": "1f9e939906de24f010da0d2d2af217e926f322d9",
+                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/42e566575808511108f2e606ad8e0c694b6859a8",
+                "reference": "42e566575808511108f2e606ad8e0c694b6859a8",
                 "shasum": ""
             },
             "type": "drupal-theme",
@@ -100,9 +100,9 @@
             "description": "Site Studio minimal theme",
             "support": {
                 "issues": "https://github.com/acquia/cohesion-theme/issues",
-                "source": "https://github.com/acquia/cohesion-theme/tree/6.6.1"
+                "source": "https://github.com/acquia/cohesion-theme/tree/6.7.0"
             },
-            "time": "2021-08-16T09:52:37+00:00"
+            "time": "2021-10-06T13:30:59+00:00"
         },
         {
             "name": "asm89/stack-cors",
