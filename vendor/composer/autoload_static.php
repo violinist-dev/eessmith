@@ -354,8 +354,8 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         ),
         'PHPStan\\' => 
         array (
-            0 => __DIR__ . '/..' . '/phpstan/phpstan-deprecation-rules/src',
-            1 => __DIR__ . '/..' . '/mglaman/phpstan-drupal/src',
+            0 => __DIR__ . '/..' . '/mglaman/phpstan-drupal/src',
+            1 => __DIR__ . '/..' . '/phpstan/phpstan-deprecation-rules/src',
         ),
         'MathieuViossat\\Util\\' => 
         array (

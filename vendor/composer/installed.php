@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => '2021-10-26',
+        'version' => '2021.10.26',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '3b01b2ba300393d5cf61ed1c4b043bf6f4efca5e',
+        'reference' => '0894dd871882400ac09beb892de9ecdf0ae62431',
         'name' => 'acquia/eessmith',
         'dev' => true,
     ),
@@ -29,12 +29,12 @@
             'dev_requirement' => false,
         ),
         'acquia/eessmith' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => '2021-10-26',
+            'version' => '2021.10.26',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '3b01b2ba300393d5cf61ed1c4b043bf6f4efca5e',
+            'reference' => '0894dd871882400ac09beb892de9ecdf0ae62431',
             'dev_requirement' => false,
         ),
         'asm89/stack-cors' => array(
@@ -1282,8 +1282,8 @@
         'psr/container-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0',
-                1 => '^1.0',
+                0 => '^1.0',
+                1 => '1.0',
             ),
         ),
         'psr/event-dispatcher-implementation' => array(
