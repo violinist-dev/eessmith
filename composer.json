@@ -2,7 +2,7 @@
     "name": "acquia/eessmith",
     "description": "Composer build of my employee site.",
     "type": "project",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "require": {
         "composer/installers": "^1.11",
         "cweagans/composer-patches": "^1.7",
