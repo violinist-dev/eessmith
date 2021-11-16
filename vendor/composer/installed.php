@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'ce4c8b7580a166153563e86cb807fc4c436be471',
+        'reference' => '0803d986dd0e9abce5c8d6b69b9fcdd3f5938e05',
         'name' => 'acquia/eessmith',
         'dev' => true,
     ),
@@ -34,7 +34,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'ce4c8b7580a166153563e86cb807fc4c436be471',
+            'reference' => '0803d986dd0e9abce5c8d6b69b9fcdd3f5938e05',
             'dev_requirement' => false,
         ),
         'asm89/stack-cors' => array(
@@ -866,12 +866,12 @@
             ),
         ),
         'drupal/stage_file_proxy' => array(
-            'pretty_version' => '1.1.0',
-            'version' => '1.1.0.0',
+            'pretty_version' => '1.2.0',
+            'version' => '1.2.0.0',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../docroot/modules/contrib/stage_file_proxy',
             'aliases' => array(),
-            'reference' => '8.x-1.1',
+            'reference' => '8.x-1.2',
             'dev_requirement' => false,
         ),
         'drupal/standard' => array(
