@@ -46,6 +46,10 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
     );
 
     public static $prefixLengthsPsr4 = array (
+        'm' => 
+        array (
+            'mglaman\\PHPStanDrupal\\' => 22,
+        ),
         'c' => 
         array (
             'cweagans\\Composer\\' => 18,
@@ -175,6 +179,10 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
     );
 
     public static $prefixDirsPsr4 = array (
+        'mglaman\\PHPStanDrupal\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mglaman/phpstan-drupal/src',
+        ),
         'cweagans\\Composer\\' => 
         array (
             0 => __DIR__ . '/..' . '/cweagans/composer-patches/src',
@@ -354,8 +362,7 @@ class ComposerStaticInit355962ff916b055657c7b3a80cd20fb3
         ),
         'PHPStan\\' => 
         array (
-            0 => __DIR__ . '/..' . '/mglaman/phpstan-drupal/src',
-            1 => __DIR__ . '/..' . '/phpstan/phpstan-deprecation-rules/src',
+            0 => __DIR__ . '/..' . '/phpstan/phpstan-deprecation-rules/src',
         ),
         'MathieuViossat\\Util\\' => 
         array (
