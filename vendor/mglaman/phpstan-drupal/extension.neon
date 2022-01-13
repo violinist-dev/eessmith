@@ -13,14 +13,30 @@ parameters:
 		- engine
 	drupal:
 		drupal_root: '%currentWorkingDirectory%'
-		entityTypeStorageMapping:
-			node: Drupal\node\NodeStorage
-			taxonomy_term: Drupal\taxonomy\TermStorage
-			user: Drupal\user\UserStorage
+		entityMapping:
+			node:
+				class: Drupal\node\Entity\Node
+				storage: Drupal\node\NodeStorage
+			taxonomy_term:
+				class: Drupal\taxonomy\Entity\Term
+				storage: Drupal\taxonomy\TermStorage
+			user:
+				class: Drupal\user\Entity\User
+				storage: Drupal\user\UserStorage
+			block:
+				class: Drupal\block\Entity\Block
 parametersSchema:
 	drupal: structure([
 		drupal_root: string()
-		entityTypeStorageMapping: arrayOf(string())
+		entityMapping: arrayOf(anyOf(
+			structure([
+				class: string()
+			]),
+			structure([
+				class: string()
+				storage: string()
+			])
+		))
 	])
 rules:
 	- mglaman\PHPStanDrupal\Rules\Classes\PluginManagerInspectionRule
@@ -31,17 +47,28 @@ rules:
 services:
 	-
 		class: mglaman\PHPStanDrupal\Drupal\ServiceMap
+	-
+		class: mglaman\PHPStanDrupal\Drupal\EntityDataRepository
+		arguments:
+			entityMapping: %drupal.entityMapping%
 
 	-
 		class: mglaman\PHPStanDrupal\Type\EntityTypeManagerGetStorageDynamicReturnTypeExtension
-		arguments:
-			entityTypeStorageMapping: %drupal.entityTypeStorageMapping%
+		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
+	-
+		class: mglaman\PHPStanDrupal\Type\EntityStorage\EntityStorageDynamicReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
 	-
 		class: mglaman\PHPStanDrupal\Type\ContainerDynamicReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
 	-
 		class: mglaman\PHPStanDrupal\Type\DrupalClassResolverDynamicReturnTypeExtension
+		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
+	-
+		class: mglaman\PHPStanDrupal\Type\EntityQuery\EntityQueryDynamicReturnTypeExtension
+		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
+	-
+		class: mglaman\PHPStanDrupal\Type\UrlToStringDynamicReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
 	-
 		class: mglaman\PHPStanDrupal\Type\DrupalClassResolverDynamicStaticReturnTypeExtension
