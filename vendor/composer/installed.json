@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "acquia/cohesion",
-            "version": "6.7.0",
-            "version_normalized": "6.7.0.0",
+            "version": "6.8.0",
+            "version_normalized": "6.8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/cohesion.git",
-                "reference": "1a94f3923d64353cb4b12dc64d235ede7b9ee711"
+                "reference": "9f81196058a851d86ff372e08920228c2b4f5d51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/cohesion/zipball/1a94f3923d64353cb4b12dc64d235ede7b9ee711",
-                "reference": "1a94f3923d64353cb4b12dc64d235ede7b9ee711",
+                "url": "https://api.github.com/repos/acquia/cohesion/zipball/9f81196058a851d86ff372e08920228c2b4f5d51",
+                "reference": "9f81196058a851d86ff372e08920228c2b4f5d51",
                 "shasum": ""
             },
             "require": {
@@ -35,12 +35,13 @@
                 "drupal/google_analytics": "Provides integration with Google Analytics",
                 "drupal/menu_item_extras": "Make the Menu Link Content entity fully fieldable.",
                 "drupal/menu_link_attributes": "This module allows you to add attributes to your menu links or their wrapping <li> elements.",
+                "drupal/node_revision_delete": "Provides tools to help manage node revisions and keep your database to a reasonable size.",
                 "drupal/request_data_conditions": "Defines a set of conditions via the Drupal 8 Conditions Plugin API for use with the context module",
                 "drupal/search_api": "Provides a framework for easily creating searches on any entity known to Drupal, using any kind of search engine.",
                 "drupal/views_infinite_scroll": "Provides infinite scroll functionality to Views",
                 "drupal/webform": "This module allows you to use webforms."
             },
-            "time": "2021-10-06T13:30:42+00:00",
+            "time": "2022-01-14T10:29:38+00:00",
             "type": "drupal-module",
             "extra": {
                 "drush": {
@@ -64,26 +65,26 @@
             ],
             "description": "Site Studio",
             "support": {
-                "source": "https://github.com/acquia/cohesion/tree/6.7.0"
+                "source": "https://github.com/acquia/cohesion/tree/6.8.0"
             },
             "install-path": "../../docroot/modules/contrib/cohesion"
         },
         {
             "name": "acquia/cohesion-theme",
-            "version": "6.7.0",
-            "version_normalized": "6.7.0.0",
+            "version": "6.8.0",
+            "version_normalized": "6.8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/cohesion-theme.git",
-                "reference": "42e566575808511108f2e606ad8e0c694b6859a8"
+                "reference": "64e7a201005ae6981ad453366ed4251dd9e6bd2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/42e566575808511108f2e606ad8e0c694b6859a8",
-                "reference": "42e566575808511108f2e606ad8e0c694b6859a8",
+                "url": "https://api.github.com/repos/acquia/cohesion-theme/zipball/64e7a201005ae6981ad453366ed4251dd9e6bd2f",
+                "reference": "64e7a201005ae6981ad453366ed4251dd9e6bd2f",
                 "shasum": ""
             },
-            "time": "2021-10-06T13:30:59+00:00",
+            "time": "2022-01-14T10:29:43+00:00",
             "type": "drupal-theme",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -100,7 +101,7 @@
             "description": "Site Studio minimal theme",
             "support": {
                 "issues": "https://github.com/acquia/cohesion-theme/issues",
-                "source": "https://github.com/acquia/cohesion-theme/tree/6.7.0"
+                "source": "https://github.com/acquia/cohesion-theme/tree/6.8.0"
             },
             "install-path": "../../docroot/themes/contrib/cohesion-theme"
         },
@@ -1645,17 +1646,17 @@
         },
         {
             "name": "drupal/core",
-            "version": "9.3.2",
-            "version_normalized": "9.3.2.0",
+            "version": "9.3.3",
+            "version_normalized": "9.3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "6c9ba6b6314550e7efb8f5f4e2a40f54cfd6aee1"
+                "reference": "a9bd68be9a4e39724ea555f8040114759a8faf7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/6c9ba6b6314550e7efb8f5f4e2a40f54cfd6aee1",
-                "reference": "6c9ba6b6314550e7efb8f5f4e2a40f54cfd6aee1",
+                "url": "https://api.github.com/repos/drupal/core/zipball/a9bd68be9a4e39724ea555f8040114759a8faf7f",
+                "reference": "a9bd68be9a4e39724ea555f8040114759a8faf7f",
                 "shasum": ""
             },
             "require": {
@@ -1822,7 +1823,7 @@
                 "drupal/workflows": "self.version",
                 "drupal/workspaces": "self.version"
             },
-            "time": "2022-01-05T02:55:30+00:00",
+            "time": "2022-01-19T00:13:54+00:00",
             "type": "drupal-core",
             "extra": {
                 "drupal-scaffold": {
@@ -1899,14 +1900,14 @@
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
             "support": {
-                "source": "https://github.com/drupal/core/tree/9.3.2"
+                "source": "https://github.com/drupal/core/tree/9.3.3"
             },
             "install-path": "../../docroot/core"
         },
         {
             "name": "drupal/core-composer-scaffold",
-            "version": "9.3.2",
-            "version_normalized": "9.3.2.0",
+            "version": "9.3.3",
+            "version_normalized": "9.3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-composer-scaffold.git",
@@ -1952,14 +1953,14 @@
                 "drupal"
             ],
             "support": {
-                "source": "https://github.com/drupal/core-composer-scaffold/tree/9.3.2"
+                "source": "https://github.com/drupal/core-composer-scaffold/tree/9.3.3"
             },
             "install-path": "../drupal/core-composer-scaffold"
         },
         {
             "name": "drupal/core-project-message",
-            "version": "9.3.2",
-            "version_normalized": "9.3.2.0",
+            "version": "9.3.3",
+            "version_normalized": "9.3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-project-message.git",
@@ -1996,23 +1997,23 @@
                 "drupal"
             ],
             "support": {
-                "source": "https://github.com/drupal/core-project-message/tree/9.3.2"
+                "source": "https://github.com/drupal/core-project-message/tree/9.3.3"
             },
             "install-path": "../drupal/core-project-message"
         },
         {
             "name": "drupal/core-recommended",
-            "version": "9.3.2",
-            "version_normalized": "9.3.2.0",
+            "version": "9.3.3",
+            "version_normalized": "9.3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-recommended.git",
-                "reference": "9f570d6bf6e568b8c2deab02349a11fad3d1e272"
+                "reference": "a2fc42cb765874e5393d203ee807ac57abe04b12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core-recommended/zipball/9f570d6bf6e568b8c2deab02349a11fad3d1e272",
-                "reference": "9f570d6bf6e568b8c2deab02349a11fad3d1e272",
+                "url": "https://api.github.com/repos/drupal/core-recommended/zipball/a2fc42cb765874e5393d203ee807ac57abe04b12",
+                "reference": "a2fc42cb765874e5393d203ee807ac57abe04b12",
                 "shasum": ""
             },
             "require": {
@@ -2021,7 +2022,7 @@
                 "doctrine/annotations": "1.13.2",
                 "doctrine/lexer": "1.2.1",
                 "doctrine/reflection": "1.2.2",
-                "drupal/core": "9.3.2",
+                "drupal/core": "9.3.3",
                 "egulias/email-validator": "3.1.2",
                 "guzzlehttp/guzzle": "6.5.5",
                 "guzzlehttp/promises": "1.5.1",
@@ -2076,7 +2077,7 @@
             "conflict": {
                 "webflo/drupal-core-strict": "*"
             },
-            "time": "2022-01-05T02:55:30+00:00",
+            "time": "2022-01-19T00:13:54+00:00",
             "type": "metapackage",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2084,7 +2085,7 @@
             ],
             "description": "Locked core dependencies; require this project INSTEAD OF drupal/core.",
             "support": {
-                "source": "https://github.com/drupal/core-recommended/tree/9.3.2"
+                "source": "https://github.com/drupal/core-recommended/tree/9.3.3"
             },
             "install-path": null
         },
