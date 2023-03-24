@@ -4,8 +4,8 @@ namespace mglaman\PHPStanDrupal\Drupal;
 
 use Drupal\Core\DependencyInjection\ContainerNotInitializedException;
 use DrupalFinder\DrupalFinder;
-use Nette\Utils\Finder;
 use PHPStan\DependencyInjection\Container;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 class DrupalAutoloader
@@ -143,7 +143,7 @@ class DrupalAutoloader
                 }
                 $drushDir = dirname($reflect->getFileName(), $levels);
                 /** @var \SplFileInfo $file */
-                foreach (Finder::findFiles('*.inc')->in($drushDir . '/includes') as $file) {
+                foreach (Finder::create()->files()->name('*.inc')->in($drushDir . '/includes') as $file) {
                     require_once $file->getPathname();
                 }
             }
@@ -196,12 +196,15 @@ class DrupalAutoloader
             && class_exists('Drupal\TestTools\PhpUnitCompatibility\PhpUnit8\ClassWriter')) {
             \Drupal\TestTools\PhpUnitCompatibility\PhpUnit8\ClassWriter::mutateTestBase($this->autoloader);
         }
+
+        $extension_map = $container->getByType(ExtensionMap::class);
+        $extension_map->setExtensions($this->moduleData, $this->themeData, $profiles);
     }
 
     protected function loadLegacyIncludes(): void
     {
         /** @var \SplFileInfo $file */
-        foreach (Finder::findFiles('*.inc')->in($this->drupalRoot . '/core/includes') as $file) {
+        foreach (Finder::create()->files()->name('*.inc')->in($this->drupalRoot . '/core/includes') as $file) {
             require_once $file->getPathname();
         }
     }

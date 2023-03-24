@@ -1,5 +1,997 @@
 # Release notes
 
+## 6.9.5
+
+### Content template url is malformed when used in a multisite/subdir context
+
+#### What is it?
+
+Fixes a bug when adding a Drupal field to a content template under multisite in a subdirectory context.
+
+#### What impact will there be?
+
+The underlying API call is correctly formed and the field edit form loads as expected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### PHP 8.1 Deprecation warning when an icon library contains a null value
+
+#### What is it?
+
+Fixes a PHP 8.1 deprecation warning when an icon library contains a null value.
+
+#### What impact will there be?
+
+Logs will be silent when an icon value is null in PHP 8.1.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.9.4
+
+### Layout canvas changes are lost when server side validation and refresh takes place
+
+#### What is it?
+
+When using a required checkbox or radio button field in a content type, form validation will trigger a page refresh
+causing layout canvas changes to be lost if the required field is not populated.
+
+#### What impact will there be?
+
+Form validation will retain layout canvas changes regardless of page refresh.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Visual page builder initialized incorrectly
+
+#### What is it?
+
+Fixes a bug where the visual page builder would initialize when a Layout canvas
+field was used in a block. This would result in an error.
+
+#### What impact will there be?
+
+The visual page builder will only be initialized if the entity type has a layout
+canvas field. Nested entities that contain layout canvas fields will not enable
+the visual page builder.
+
+#### What actions do I need to take?
+
+Cache clear.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### PHP 8.1 support added
+
+#### What is it?
+
+Ensures php code meets php 8.1 standards and removes any errors or warnings from logs.
+
+#### What impact will there be?
+
+Site Studio 6.9.4 and above can be used without warnings or errors being logged.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Updating multiple twig functions to respect Drupal entity permissions
+
+#### What is it?
+
+Unpublished referenced entities sometimes would be still rendered for users
+without permissions to view such entities. This now has been resolved.
+
+#### What impact will there be?
+
+When rendering referenced entities Drupal permissions and entity status will be
+respected.
+
+#### What actions do I need to take?
+
+Cache clear.
+
+#### Are there any risks I should be aware of?
+
+If the website used this bug as a feature where unpublished entities were still
+displayed when used as referenced entities via Layout Canvas, this will need to
+be addressed.
+
+### Updating Image Browser Update manager to use ModuleHandlerInterface
+
+#### What is it?
+
+Updates the image browser update manager to use ModuleHandlerInterface rather
+than ModuleHandler.
+This caused some errors when contrib modules overwrote the default
+ModuleHandler.
+
+#### What impact will there be?
+
+If a site uses a module that overrides the default ModuleHandler, no errors
+relating to ModuleHandler should occur.
+
+#### What actions do I need to take?
+
+Cache clear.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Page builder incorrectly displaying drop zones from components that contained a nested component with a drop zone
+
+#### What is it?
+
+Fixes a bug where drop zones were appearing on the page builder from nested
+components, causing JS errors such as "Cannot read properties of undefined (
+reading 'parentUid')" when attempting to insert new components.
+Only drop zones from components on a node layout canvas should appear in the
+page builder.
+
+#### What impact will there be?
+
+Only drop zones from components on a node layout canvas will appear. Drop zones
+from a component in a component will not appear on the page builder, reflecting
+the node layout canvas.
+
+Users should not experience JS errors when attempting to insert components onto
+the layout canvas in the page builder.
+
+#### What actions do I need to take?
+
+Cache clear and Site Studio rebuild.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Nested accordion tabs components navigation links incorrect
+
+#### What is it?
+
+Fixes a bug where nested accordion tabs components navigation links were all the
+same. This meant users would not be able to navigate between the accordion
+items.
+
+#### What impact will there be?
+
+The navigation links will be correct and clicking on them will show the correct
+accordion item content.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Nested components in a pattern repeater resulted in same styling
+
+#### What is it?
+
+Fixes a bug where nested components in a pattern repeater resulted in the same
+styling when it should be different for each repeated item.
+
+#### What impact will there be?
+
+The styling will appear as expected and will be different for each repeated item
+if set in the component.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Error appeared on the page builder when editing a translated node that contained a component in a component
+
+#### What is it?
+
+Fixes a bug where the error "Cannot read properties of undefined (reading '
+uuid')" appeared whilst editing a translated node that contained a component in
+a component on the layout canvas.
+
+This error specifically appeared when editing using the Visual Page Builder.
+
+#### What impact will there be?
+
+The error "Cannot read properties of undefined (reading 'uuid')", will no longer
+appear when editing a translated node that contains a component in a component.
+Users will be able to edit the translated node as expected using the Visual Page
+Builder.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.9.3
+
+### Any new component created by saving from the layout canvas cannot be used.
+
+#### What is it?
+
+Creating a component from within the layout canvas ellipsis menu results in a broken component that cannot be used.
+
+#### What impact will there be?
+
+Components can successfully be created from within the layout canvas ellipsis menu.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Resolves package export crashing when handling recursive config dependencies
+
+#### What is it?
+
+Fixes a bug where the package export process would crash if a recursive config dependency was encountered.
+
+#### What impact will there be?
+
+Recursive config dependencies will be handled without issues
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Adds support for relative paths to sitestudio:package:multi-import
+
+#### What is it?
+
+Fixes a bug where the `sitestudio:package:multi-import` would only work with absolute paths. After this change both absolute and relative paths are supported.
+
+#### What impact will there be?
+
+Relative paths will be allowed to be used both as argument to the `sitestudio:package:multi-import` command and as package definitions in multi-package manifest file.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.9.2
+
+### Duplicate styles on same component
+
+#### What is it?
+
+Fixes a bug where the same styles or no styles were applied when the same type of component
+was placed on the page
+
+#### What impact will there be?
+
+All styles will now come through without any duplicate
+
+#### What actions do I need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Exported packages files store metadata in individual files
+
+#### What is it?
+
+Packages exported in new format no longer store all of exported file entity metadata in a single
+`sitestudio_package_files.json` file. Instead each file entity metadata is exported as individual file prefixed with
+`sitestudio_file_metadata` and using `.yml` extension.
+
+#### What impact will there be?
+
+All new package exports will no longer contain `sitestudio_package_files.json` file. Individual metadata files using
+filename format of `sitestudio_file_metadata.<uuid>.yml` will be exported instead.
+
+Any packages that already use `sitestudio_package_files.json` will continue to work as before. If such package is
+exported, metadata from `sitestudio_package_files.json` will be split into individual files after this update.
+
+#### What actions do I need to take?
+
+Export your packages via Drush or Drupal UI and make sure to commit all of the additionally created metadata files, if
+git is used.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.9.1
+
+### Creating a component content from a custom component on a layout canvas
+
+#### What is it?
+
+Fixes a bug when creating a component content from a custom component on a layout canvas the newly created component
+content would not appear in the sidebar browser.
+
+#### What impact will there be?
+
+Component contents can be created from a custom component on a layout canvas and they will appear in the sidebar
+browser as expected.
+
+Any existing component contents created from a custom component via the layout canvas will now appear in the
+sidebar browser after running the database update.
+
+#### What actions do I need to take?
+
+Run Drupal update via drush or UI.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Create a component content from a custom component via the UI
+
+#### What is it?
+
+The ability to create a component content from a custom component direct in the UI
+at `Site Studio > Components > Component Content > Create Component Content` rather than from the Layout Canvas.
+
+#### What impact will there be?
+
+Component contents can be created from a custom component directly in the UI as is possible with components and no
+longer has to be created from a Layout Canvas.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Deleting an item from a Pattern repeater that contains a Link field the last item is always deleted
+
+#### What is it?
+Fixes a bug when a Component has a Pattern repeater with a Link field inside the last item would always be deleted.
+
+#### What impact will there be?
+The correct item will now be deleted.
+
+#### What actions do I need to take?
+Run an API import `drush cohesion:import` when upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Resolves fatal error when using Site Studio and the Component modules together
+
+#### What is it?
+
+Fixes the fatal error `Fatal error: Cannot redeclare _component_build_library()` when both Site Studio and the Component
+modules are installed together.
+
+#### What impact will there be?
+
+Both Site Studio and the Component modules can be installed together.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### A nested component with multiple instances, with inline styles always using the first components styles
+
+#### What is it?
+
+Fixes a bug where inline styles of a nested component with multiple instances of the same component were present. The
+styles are configurable in the component form, but would always use the first instances styles, rather than the styles
+set for that component instance.
+
+#### What impact will there be?
+
+If the component has a configurable form that applies inline styles, the correct styles will be applied for that
+component instance, rather than using the first instances styles.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Transitioning content between moderation states on the Visual page builder resulting in an error
+
+#### What is it?
+
+Fixes a bug when attempting to transition content between moderation states, on the Visual page builder, the user
+receives the error `Invaild state transition from..` although the state transition should be valid. This appeared to
+only occur on content types configured to use revisions.
+
+Transitioning between these states worked as expected on the backend edit page.
+
+#### What impact will there be?
+
+The error `Invaild state transition from..` should only appear when attempting to transition to an invalid state.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Includes "indirect" dependencies when exporting new format packages
+
+#### What is it?
+Fixes a bug where only direct dependencies would only be included in package export.
+
+#### What impact will there be?
+Additional files will be present in new format package exports.
+
+#### What actions do I need to take?
+Run a `sitestudio:package:export` command or use UI to export new format package complete with
+previously missing dependencies.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.9.0
+
+### Machine names are displayed in categories list
+
+#### What is it?
+
+Adds a new column to the "Component categories" entity list named "Machine names (id)" that contains each category "machine name" (id) used by Drupal.
+
+#### What impact will there be?
+
+It is possible now to quickly find category machine name without having to edit it.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Site studio custom components
+
+#### What is it?
+
+Adds a new feature to Site studio where developers can create their own components by coding them with Javascript/HTML/CSS or Twig/Javascript/CSS.
+Refer to the [user guide](https://sitestudiodocs.acquia.com/user-guide/custom-component)
+for more detailed documentation on how to create and use custom components.
+
+Custom component examples can be found in a submodule (example_custom_component). This module is intended for demonstration
+purposes only and should not be enabled on production.
+
+#### What impact will there be?
+
+Developers will be able to extend Site studio capabilities by defining their own custom components. This will enable Site Studio to have functionality that
+previously could not be built with Site Studio elements.
+
+Javascript developers with limited knowledge of Drupal will be able to add custom component to Site Studio
+without the need for a Drupal developer. A Drupal developer will only be required for creating
+a module and file structure. Refer to the [user guide](https://sitestudiodocs.acquia.com/user-guide/custom-component)
+for more information.
+
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Site Studio package multi-import command for Drush
+
+#### What is it?
+
+A new drush command that takes package list file as an argument and imports multiple packages at once with a combined rebuild process based on imported changes.
+
+#### What impact will there be?
+
+This will allow specifying multiple packages to be imported into a site in a specific order with a single optimised rebuild process.
+There is also a `PackageImportHandler` (`cohesion_sync.package_import_handler`) service available to access such functionality via PHP and Drupal services.
+
+#### What actions do I need to take?
+
+The new command is `sitestudio:package:multi-import --path=<path/to/package_list.yml`.
+Package list needs to follow specific format for the command to work, more information is available [here](https://sitestudiodocs.acquia.com/6.9/user-guide/package-import-using-drush#multi-package).
+
+#### Are there any risks I should be aware of?
+
+Only new format packages (exports containing multiple yaml files, rather than single aggregated yaml file) are supported.
+Strict format of package list file needs to be followed.
+Import happens in the same order as listed in a package list. If multiple package import the same entity, only the last import will be taken into consideration.
+Reading [documentation](https://sitestudiodocs.acquia.com/6.9/user-guide/package-import-using-drush#multi-package) before attempting to use the new command is strongly recommended
+
+### Next generation images
+
+#### What is it?
+
+Adds the ability to use Next generation images such as `.avif` and `.webp` images when using the Picture Element (subject to Drupal supporting these image formats).
+
+#### What impact will there be?
+
+This will fix an issue where the fallback image was the first image added to a Picture Element. The last image added to the Picture Element will now be used as the fallback.
+
+#### What actions do I need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Missing permission check for saving components/helpers from a layout canvas
+
+#### What is it?
+
+The "Save" option allowed a user to save the layout canvas (or an item on it) both as Helper and as Component even if the user did not have permission to do so.
+
+#### What impact will there be?
+
+Users will now need the 'administer helpers' and/or 'administer components' permissions to use the Save functionality on layout canvases.
+
+#### What actions do I need to take?
+
+You may need to update user permissions if you were relying on this functionality.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Site Studio generated CSS will now be aggregated
+
+#### What is it?
+
+Any stylesheet generated by Site Studio will now be aggregated with the rest of the website styles
+
+#### What impact will there be?
+
+All styles will now be aggregated increasing frontend performance.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Component contents not rendering
+
+#### What is it?
+
+Fixes an issue where component contents were not rendering after reverting to a previous revision or publishing a draft.
+
+#### What impact will there be?
+
+Component contents will now render as expected.
+
+#### What actions do I need to take?
+
+Run a rebuild as part of upgrading to this version.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Inline css media queries will not render if all component fields are empty
+
+#### What is it?
+
+In the event where one or multiple fields attached to a style on a specific media query are not populated when the component is used, the media query will not render at all.
+
+#### What impact will there be?
+
+This will fix an issue where empty media query css would render, having no effect on the page
+
+#### What actions do I need to take?
+
+`drush cohesion:rebuild`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Improvements to the link auto complete endpoint
+
+#### What is it?
+
+Some improvements made to the link auto complete endpoint used in the link element, which should improvement performance and use less memory.
+When inserting an external link the endpoint won't continue to look for content.
+
+#### What impact will there be?
+
+The auto complete functionality used in the link element should use less memory. When using the entity type selection
+within the link element, it now correctly displays the supported types. These types include: nodes, views, taxonomy
+terms, users, media and files.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Uncaught ReferenceError: _ is not defined console error
+
+#### What is it?
+
+Fixes a bug when editing a component on a layout canvas, the sidebar editor would throw a console error.
+If aggregation was enabled the sidebar browser did not load as expected.
+
+#### What impact will there be?
+
+This error will no longer appear and the sidebar editor will load as expected if aggregation is enabled.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.8.3
+
+### Slider and Accordion elements behave incorrectly in Visual Page Builder
+
+#### What is it?
+
+The slider should NOT autoplay when VPB is enabled even if it has been configured to do so.
+
+Accordion tabs should not append a hash to the URL when VPB is enabled even if they have been configured to do so.
+
+#### What impact will there be?
+
+User experience editing these elements in the VPB should be improved.
+
+#### What actions do I need to take?
+
+Run an API import `drush cohesion:import` when upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.8.2
+
+### WYSIWYG used with hide if no data adds extra <br>
+
+#### What is it?
+
+When using WYSIWYG field on a component and linking to both a WYSIWYG element and a hide if not data field, it would add extra <br> for each line break
+
+#### What impact will there be?
+
+Rendered WYSIWYG will not longer output extra <br>
+
+#### What actions do I need to take?
+
+You need to re-save effected entities or perform a rebuild
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Compatibility with the Select2 module
+
+#### What is it?
+
+When exposing filters on a view and utilising a module/library such as [Select2](https://www.drupal.org/project/select2) the select2 library was not attaching as expected on page load
+
+#### What impact will there be?
+
+Following a cache rebuild the select2 library will attach to select elements as expected
+
+#### What actions do I need to take?
+
+Cache rebuild
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Modal element autoload functionality not working
+
+#### What is it?
+
+Fixes a bug where a modal that had the autoload functionality enabled was not autoloading as expected and a browser console error was displayed.
+
+#### What impact will there be?
+
+Modals that should autoload will now automatically load as expected.
+
+#### What actions do I need to take?
+
+Run an API import `drush cohesion:import` when upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Visual page builder edit controls not showing on translated page
+
+#### What is it?
+
+When editing a translated page, the edit buttons would not show when using the Visual page builder
+
+#### What impact will there be?
+
+You can now edit component on translated pages
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Single entity exports fix
+
+#### What is it?
+
+When exporting single entities (like components) via UI, full package settings for entity type restrictions were applied. This has been fixed and full package export settings now only apply to full package exports.
+
+#### What impact will there be?
+
+Individually exported entities will no longer follow full package export settings. This will resolve some unexpected behaviour, such as files with zero bytes content being exported when single entity packages export would contain items restricted by full packace export settings.
+
+#### What actions do I need to take?
+
+If you have single entity packages exported with zero bytes content, exporting the same entities again
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unable to upload fonts on a path based multi-site setup
+
+#### What is it?
+
+Fixes a bug when attempting to upload font and icon font files would produce an error.
+
+#### What impact will there be?
+
+Fonts and icon fonts can be uploaded correctly without error on a path based multi-site.
+
+#### What actions do I need to take?
+
+Run a cohesion API import `drush cohesion:import` when upgrading.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Enabled template generation during drupal config import
+
+#### What is it?
+
+When importing Drupal config, if the Site Studio module has been initialised, templates generation will occur if relevant content types are imported.
+
+#### What impact will there be?
+
+Templates will be generated when Drupal config is imported.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+If templates are generated during deployments, CLI output will have additional output - we recommend additional testing of automation tools that rely on such output.
+
+### Add a drush command that manually triggers regeneration of templates
+
+#### What is it?
+
+We have added new drush command `sitestudio:templates:regenerate` that will trigger templates regeneration manually. This is useful in case a non-standard workflow was used to introduce content type changes (for example direct database manipulation) or if Drupal is in a state of templates misalignment due to config import completed prior to Site Studio 6.8.2.
+
+#### What impact will there be?
+
+None.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+If templates are generated during deployments, there will be additional CLI output - we recommend additional testing of automation tools that rely on such output.
+
+### New Package Management permissions fix
+
+#### What is it?
+
+When exporting packages via UI using the new package management non super-admin role users would encounter "access denied" screen when trying to download generated package, even if they would have "access coheison_sync" permission assigned to their role.
+
+#### What impact will there be?
+
+Only users with "access cohesion_sync" permissions will be able to export packages via UI.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+## 6.8.1
+
+### Field Repeater - Deleting an item in the Component form deletes the wrong item
+
+#### What is it?
+
+When deleting an item with a WYSIWYG in a Field repeater deletes the wrong item.
+
+#### What impact will there be?
+
+Components that have a Field repeater with a WYSIWYG, will now delete the correct item.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Field Repeater - When Minimum repeatable fields is set it doesn't show the Minimum number of pattern repeats
+
+#### What is it?
+
+When creating a Component with the Minimum repeatable fields set to more than 1 the minimum number is not being rendered.
+
+#### What impact will there be?
+
+When using a Component the Minimum repeatable fields will match what is rendered.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Field repeater - number of fields getting out of sync
+
+#### What is it?
+
+When first adding a Component to the Layout canvas and not changing any settings before saving the page, when you then come back to the Component on the Layout canvas and Edit the Component the default Minimum number of fields is incorrect.
+
+#### What impact will there be?
+
+The minimum number of fields will now be shown correct when saving the page and then editing the Component settings.
+
+#### What actions do I need to take?
+
+`drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unable to use the Visual page builder with nested components
+
+#### What is it?
+
+Fixes a bug where a component dropped on the Visual page builder that would also contain a component would return an error ("Cannot read property of undefined (reading 'uuid'))
+
+#### What impact will there be?
+
+Components containing components can now be used in the Visual page builder
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Visual page builder warning "no image browser defined"
+
+#### What is it?
+
+Fixes a bug where "no image browser defined" warning message would appear on the visual page builder, although an image browser had been defined.
+
+#### What impact will there be?
+
+This will resolve the warning appearing incorrectly, allowing the user to select an image as expected.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Unable to add components to a layout canvas on path based multi-site
+
+#### What is it?
+
+Fixes a bug where users were experiencing errors when attempting to add components to a layout canvas on a path base multi-site.
+
+#### What impact will there be?
+
+Components can now be added the to layout canvas without error.
+
+#### What actions do I need to take?
+
+A Site Studio API import should be run as part of the upgrade: `drush cohesion:import`
+
+#### Are there any risks I should be aware of?
+
+None.
+
+### Prevent Package entities from being processed during rebuild
+
+#### What is it?
+
+Fixes a bug where Package entities would be processed during partial rebuild after package import.
+
+#### What impact will there be?
+
+This will resolve errors that were happening during package imports, if Package entities would be imported and partial rebuild triggered.
+
+#### What actions do I need to take?
+
+None.
+
+#### Are there any risks I should be aware of?
+
+None.
+
 ## 6.8.0
 
 ### Layout canvas undo and redo

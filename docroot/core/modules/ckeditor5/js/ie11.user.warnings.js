@@ -4,11 +4,10 @@
 * https://www.drupal.org/node/2815083
 * @preserve
 **/
-
-(function (Drupal, Modernizr) {
-  var isIE11 = Modernizr.mq('(-ms-high-contrast: active), (-ms-high-contrast: none)');
-
+(function (Drupal) {
+  var isIE11 = !!document.documentMode;
   if (isIE11) {
+    window.CKEditor5 = null;
     var quickEditLabelObserver = null;
     Drupal.editors.ckeditor5 = {
       attach: function attach(element) {
@@ -23,7 +22,6 @@
       },
       detach: function detach() {
         var quickEditToolbar = document.querySelector('#quickedit-entity-toolbar .quickedit-toolbar');
-
         if (quickEditToolbar) {
           quickEditToolbar.classList.remove('ck5-ie11');
           quickEditToolbar.classList.add('icon-pencil');
@@ -35,7 +33,6 @@
         var quickEditToolbar = document.querySelector('#quickedit-entity-toolbar .quickedit-toolbar');
         var notEditableAlert = Drupal.t('Field Not Editable');
         var notEditableMessage = Drupal.t('CKEditor 5 is not compatible with IE11.');
-
         function quickEditLabelWarnIE11(toolbarLabel) {
           quickEditLabelObserver.disconnect();
           toolbarLabel.innerHTML = "<div><b>".concat(notEditableAlert, "</b><div>").concat(notEditableMessage, "</div></div>");
@@ -43,7 +40,6 @@
             childList: true
           });
         }
-
         if (quickEditToolbar) {
           quickEditToolbar.classList.add('ck5-ie11');
           quickEditToolbar.classList.remove('icon-pencil');
@@ -63,4 +59,4 @@
       }
     };
   }
-})(Drupal, Modernizr);
+})(Drupal);

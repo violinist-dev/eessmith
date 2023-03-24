@@ -33,7 +33,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
     $form['cohesion']['#cohFormId'] = $this->entity->getAssetName();
     unset($form['cohesion']['#json_mapper']);
 
-    $form_class = str_replace('_', '-', $this->entity->getEntityTypeId()) . '-' . str_replace('_', '-', $this->entity->id()) . '-form';
+    $form_class = str_replace('_', '-', $this->entity->getEntityTypeId()) . '-' . str_replace('_', '-', $this->entity->id() ?? '') . '-form';
     $form['#attributes']['class'][] = $form_class;
 
     // Set Drupal field endpoint.
@@ -102,7 +102,7 @@ abstract class ElementBaseForm extends CohesionBaseForm {
       '#weight' => 1,
       '#description' => $this->entity->getEntityMachineNamePrefix(),
       '#description_display' => 'before',
-      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id()),
+      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id() ?? ''),
       '#type' => 'ajax_machine_name',
       '#required' => FALSE,
       '#machine_name' => [

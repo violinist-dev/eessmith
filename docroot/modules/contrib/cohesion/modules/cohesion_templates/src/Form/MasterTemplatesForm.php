@@ -23,7 +23,8 @@ class MasterTemplatesForm extends TemplateForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    // If user is "creating" the master template, the title needs to reflect this.
+    // If user is "creating" the master template, the title needs to reflect
+    // this.
     $operation = $this->getOperation();
     if ($operation == 'duplicate') {
       $this->entity->set('default', FALSE);
@@ -43,7 +44,7 @@ class MasterTemplatesForm extends TemplateForm {
       '#weight' => 1,
       '#description' => $this->entity->getEntityMachineNamePrefix(),
       '#description_display' => 'before',
-      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id()),
+      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id() ?? ''),
       '#type' => 'ajax_machine_name',
       '#required' => FALSE,
       '#machine_name' => [

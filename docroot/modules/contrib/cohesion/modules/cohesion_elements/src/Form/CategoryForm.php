@@ -47,7 +47,7 @@ class CategoryForm extends EntityForm {
       '#access' => TRUE,
       '#weight' => 1,
       '#description_display' => 'before',
-      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id()),
+      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id() ?? ''),
       '#type' => 'ajax_machine_name',
       '#required' => FALSE,
       '#machine_name' => [
@@ -80,7 +80,8 @@ class CategoryForm extends EntityForm {
     // Apply Angular styling to this form.
     $form['#attributes']['class'][] = 'coh-form';
 
-    // Include the Angular css (which controls the cohesion_accordion and other form styling).
+    // Include the Angular css (which controls the cohesion_accordion and other
+    // form styling).
     $form['#attached']['library'][] = 'cohesion/cohesion-admin-styles';
 
     return $form;

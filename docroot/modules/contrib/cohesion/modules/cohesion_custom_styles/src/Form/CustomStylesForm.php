@@ -69,7 +69,8 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
       ->getCohFormOnInit('custom_styles', $custom_style_type->id());
     $form['#attached']['drupalSettings']['cohesion']['custom_style_type'] = $this->entity->get('custom_style_type');
 
-    // Attached to DrupalSettings javascript to have access to the Parent class name if any.
+    // Attached to DrupalSettings javascript to have access to the Parent class
+    // name if any.
     if ($this->entity->getParentId()) {
       $storage = \Drupal::entityTypeManager()->getStorage('cohesion_custom_style');
       $parent = $storage->load($this->entity->getParentId());
@@ -88,7 +89,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
     $form['details']['class_name']['#title'] = $this->t('Class Name') . ' ';
     $form['details']['class_name']['#attributes']['class'] = ['class-name'];
     $form['details']['class_name']['#description_display'] = 'before';
-    $form['details']['class_name']['#default_value'] = str_replace(custom_style_class_prefix, '', $this->entity->get('class_name'));
+    $form['details']['class_name']['#default_value'] = str_replace(custom_style_class_prefix, '', $this->entity->get('class_name') ?? '');
     $form['details']['class_name']['#type'] = 'machine_name';
     $form['details']['class_name']['#required'] = FALSE;
     $form['details']['class_name']['#disabled'] = !$this->entity->isNew();
@@ -211,7 +212,7 @@ class CustomStylesForm extends CohesionStyleBuilderForm {
     if ($form_state->getValue('original_class_name') !== $this->entity->getClass()) {
 
       $storage = $this->entityTypeManager->getStorage('cohesion_custom_style');
-      $ids = $storage->getQuery()->condition('parent', $form_state->getValue('original_class_name'))->execute();
+      $ids = $storage->getQuery()->condition('parent', $form_state->getValue('original_class_name') ?? '')->execute();
 
       // Loop over the children.
       foreach ($storage->loadMultiple($ids) as $child_entity) {

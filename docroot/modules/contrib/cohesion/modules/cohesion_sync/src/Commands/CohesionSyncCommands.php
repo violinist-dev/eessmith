@@ -39,10 +39,12 @@ class CohesionSyncCommands extends DrushCommands {
    * Export DX8 packages to sync.
    *
    * @param array $options
-   *   An associative array of options whose values come from cli, aliases, config, etc.
+   *   An associative array of options whose values come from cli, aliases,
+   *   config, etc.
    *
    * @option filename-prefix
-   *   The export filename prefix that will output a file like: [prefix]-package.yml_
+   *   The export filename prefix that will output a file
+   *   like: [prefix]-package.yml_
    *
    * @validate-module-enabled cohesion_sync
    *
@@ -50,6 +52,8 @@ class CohesionSyncCommands extends DrushCommands {
    * @aliases sync-export
    */
   public function export(array $options = ['filename-prefix' => NULL]) {
+
+    $this->warn('You are using a deprecated package export command which will be removed in a future version of Site Studio. For more information refer to documentation at https://sitestudiodocs.acquia.com/6.9/user-guide/deprecating-legacy-package-system');
 
     $filename_prefix = $options['filename-prefix'];
 
@@ -59,7 +63,7 @@ class CohesionSyncCommands extends DrushCommands {
         return CommandResult::exitCode(self::EXIT_SUCCESS);
       }
       else {
-        $this->say(t('Site Studio', 'Unable to export Site Studio packages. Check the dblog for more information.'));
+        $this->say(t('Unable to export Site Studio packages. Check the logs for more information.'));
       }
     }
     catch (\Exception $e) {
@@ -72,7 +76,8 @@ class CohesionSyncCommands extends DrushCommands {
    * Import DX8 packages from sync.
    *
    * @param array $options
-   *   An associative array of options whose values come from cli, aliases, config, etc.
+   *   An associative array of options whose values come from cli, aliases,
+   *   config, etc.
    *
    * @option overwrite-all
    *   Overwrite existing entities when differences detected
@@ -92,7 +97,17 @@ class CohesionSyncCommands extends DrushCommands {
    * @command sync:import
    * @aliases sync-import
    */
-  public function import(array $options = ['overwrite-all' => NULL, 'keep-all' => NULL, 'path' => NULL, 'force' => NULL, 'no-rebuild' => NULL, 'no-maintenance' => NULL]) {
+  public function import(array $options = [
+    'overwrite-all' => NULL,
+    'keep-all' => NULL,
+    'path' => NULL,
+    'force' => NULL,
+    'no-rebuild' => NULL,
+    'no-maintenance' => NULL,
+  ]) {
+
+    $this->warn('You are using a deprecated package import command which will be removed in a future version of Site Studio. For more information refer to documentation at https://sitestudiodocs.acquia.com/6.9/user-guide/deprecating-legacy-package-system');
+
     // Get options.
     $overwrite_all = $options['overwrite-all'];
     $keep_all = $options['keep-all'];
@@ -126,6 +141,22 @@ class CohesionSyncCommands extends DrushCommands {
     }
 
     return CommandResult::exitCode(self::EXIT_FAILURE);
+  }
+
+  /**
+   * Wrapper for warning user of errors.
+   *
+   * @param $text
+   *   Error text.
+   * @param $length
+   *   Length of output line.
+   * @param $color
+   *   Color - defaults to red.
+   *
+   * @return void
+   */
+  protected function warn($text, $length = 40, $color = 'red') {
+    $this->yell($text, $length, $color);
   }
 
 }

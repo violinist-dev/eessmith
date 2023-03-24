@@ -5,6 +5,7 @@ namespace Drupal\sitestudio_page_builder\Services;
 use Drupal\cohesion\Routing\CohesionRouteMatchInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,7 +23,8 @@ class SitestudioPageBuilderManager implements SitestudioPageBuilderManagerInterf
 
   /**
    * SitestudioPageBuilderManager constructor.
-   *    * @param \Drupal\cohesion\Routing\CohesionRouteMatchInterface $current_route_match
+   *
+   * @param \Drupal\cohesion\Routing\CohesionRouteMatchInterface $current_route_match
    * Current rout match service.
    */
   public function __construct(CohesionRouteMatchInterface $current_route_match) {
@@ -36,13 +38,15 @@ class SitestudioPageBuilderManager implements SitestudioPageBuilderManagerInterf
   }
 
   /**
+   * Should the Visual page builder be enabled?
+   *
    * {@inheritDoc}
    */
   public function shouldEnablePageBuilder() {
     $entities = $this->currentRouteMatch->getRouteEntities();
 
     // Only routes containing one entity can match
-    if(count($entities)) {
+    if (count($entities) === 1) {
       $entity = reset($entities);
 
       $allowed_routes = [
@@ -50,8 +54,13 @@ class SitestudioPageBuilderManager implements SitestudioPageBuilderManagerInterf
         "entity.{$entity->getEntityTypeId()}.latest_version",
       ];
 
-      if($entity instanceof ContentEntityInterface && in_array($this->currentRouteMatch->getRouteName(), $allowed_routes)) {
-        return $entity;
+      if ($entity instanceof ContentEntityInterface && in_array($this->currentRouteMatch->getRouteName(), $allowed_routes)) {
+        // Check that there is a Layout canvas field on the entity.
+        foreach ($entity->getFieldDefinitions() as $field) {
+          if ($field instanceof FieldConfig && $field->getType() == 'cohesion_entity_reference_revisions') {
+            return $entity;
+          }
+        }
       }
     }
 

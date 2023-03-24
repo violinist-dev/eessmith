@@ -22,6 +22,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ImportFileForm extends FormBase {
 
+  const EXTENSIONS = ['tar.gz', 'tgz', 'tar.bz2'];
+  const FILE_EXTENSION_PATTERN = "/.+(\.tar\.gz|\.tgz|\.tar\.bz2){1}$/";
+
   /**
    * The entity manager.
    *
@@ -202,7 +205,7 @@ class ImportFileForm extends FormBase {
       $form['import']['import_tarball'] = [
         '#type' => 'file',
         '#title' => $this->t('Configuration archive'),
-        '#description' => $this->t('Allowed types: @extensions.', ['@extensions' => 'tar.gz tgz tar.bz2']),
+        '#description' => $this->t('Allowed types: @extensions.', ['@extensions' => implode(" ", self::EXTENSIONS)]),
       ];
 
       $form['import']['submit'] = [
@@ -233,8 +236,13 @@ class ImportFileForm extends FormBase {
     if ($form_state->getTriggeringElement()['#name'] == 'import_submit') {
       $all_files = $this->getRequest()->files->get('files', []);
       if (!empty($all_files['import_tarball'])) {
+        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file_upload */
         $file_upload = $all_files['import_tarball'];
-        if ($file_upload->isValid()) {
+        // Reject yml or yml_ uploads.
+        if (preg_match(self::FILE_EXTENSION_PATTERN, $file_upload->getClientOriginalName()) !== 1 || !$file_upload->isValid()) {
+          $form_state->setErrorByName('import_tarball', $this->t('Invalid file type'));
+        }
+        else {
           $form_state->setValue('import_tarball', $file_upload->getRealPath());
           return;
         }
@@ -405,7 +413,8 @@ class ImportFileForm extends FormBase {
       '#value' => $this->store_key,
     ];
 
-    // Get the data saved during validation and delete straight after from the store
+    // Get the data saved during validation and delete straight after from the
+    // store.
     $sync_data = $this->sitestudioTempSharedStore->get($this->store_key);
     if($sync_data !== NULL) {
       if(isset($sync_data['action_data'])) {
@@ -444,7 +453,8 @@ class ImportFileForm extends FormBase {
       $no_change_form = [];
       foreach ($this->action_data as $uuid => $action_data_entry) {
 
-        // Render a form for each type of entry that the user might want to take actions against
+        // Render a form for each type of entry that the user might want to take
+        // actions against
         switch ($action_data_entry['entry_action_state']) {
           case ENTRY_EXISTING_ASK:
             // If the entry requires user input.
@@ -500,7 +510,8 @@ class ImportFileForm extends FormBase {
         '#type' => 'submit',
         '#value' => $this->step == 0 ? $this->t('Validate package') : $this->t('Import package'),
         '#button_type' => 'primary',
-        // Don't disable the button if validation has completed otherwise the form won't submit.
+        // Don't disable the button if validation has completed otherwise the
+        // form won't submit.
         '#disabled' => !$form_state->isValidationComplete(),
         '#name' => 'legacy_import',
       ],

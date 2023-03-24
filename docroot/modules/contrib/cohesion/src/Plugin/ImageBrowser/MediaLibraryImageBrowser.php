@@ -32,7 +32,7 @@ class MediaLibraryImageBrowser extends ImageBrowserPluginBase {
       ->getBundleInfo('media');
 
     foreach ($bundles as $key => $bundle) {
-      $options[$key] = $bundle['label'];
+      $options[$key] = $bundle['label'] . ' (' . $key . ')';
     }
 
     $index = $config_object[$browser_type]['cohesion_media_lib_types'] ?? [];
@@ -118,7 +118,7 @@ class MediaLibraryImageBrowser extends ImageBrowserPluginBase {
         'media_library_allowed_types' => $allowed_types,
         'media_library_selected_type' => $media_lib_state->getSelectedTypeId(),
         'media_library_remaining' => 1,
-        'hash' => $media_lib_state->getHash()
+        'hash' => $media_lib_state->getHash(),
       ])->toString();
 
       $attachments['drupalSettings']['cohesion']['imageBrowser'] = [

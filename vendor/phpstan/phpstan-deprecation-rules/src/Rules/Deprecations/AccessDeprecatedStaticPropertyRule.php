@@ -7,15 +7,19 @@ use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
+use PHPStan\Broker\ClassNotFoundException;
+use PHPStan\Reflection\MissingPropertyFromReflectionException;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleLevelHelper;
 use PHPStan\Type\ErrorType;
 use PHPStan\Type\Type;
+use function sprintf;
 
 /**
- * @implements \PHPStan\Rules\Rule<StaticPropertyFetch>
+ * @implements Rule<StaticPropertyFetch>
  */
-class AccessDeprecatedStaticPropertyRule implements \PHPStan\Rules\Rule
+class AccessDeprecatedStaticPropertyRule implements Rule
 {
 
 	/** @var ReflectionProvider */
@@ -49,13 +53,13 @@ class AccessDeprecatedStaticPropertyRule implements \PHPStan\Rules\Rule
 		$referencedClasses = [];
 
 		if ($node->class instanceof Name) {
-			$referencedClasses[] = (string) $node->class;
+			$referencedClasses[] = $scope->resolveName($node->class);
 		} else {
 			$classTypeResult = $this->ruleLevelHelper->findTypeToCheck(
 				$scope,
 				$node->class,
 				'', // We don't care about the error message
-				function (Type $type) use ($propertyName): bool {
+				static function (Type $type) use ($propertyName): bool {
 					return $type->canAccessProperties()->yes() && $type->hasProperty($propertyName)->yes();
 				}
 			);
@@ -71,9 +75,9 @@ class AccessDeprecatedStaticPropertyRule implements \PHPStan\Rules\Rule
 			try {
 				$class = $this->reflectionProvider->getClass($referencedClass);
 				$property = $class->getProperty($propertyName, $scope);
-			} catch (\PHPStan\Broker\ClassNotFoundException $e) {
+			} catch (ClassNotFoundException $e) {
 				continue;
-			} catch (\PHPStan\Reflection\MissingPropertyFromReflectionException $e) {
+			} catch (MissingPropertyFromReflectionException $e) {
 				continue;
 			}
 
@@ -83,14 +87,14 @@ class AccessDeprecatedStaticPropertyRule implements \PHPStan\Rules\Rule
 					return [sprintf(
 						'Access to deprecated static property $%s of class %s.',
 						$propertyName,
-						$referencedClass
+						$property->getDeclaringClass()->getName()
 					)];
 				}
 
 				return [sprintf(
 					"Access to deprecated static property $%s of class %s:\n%s",
 					$propertyName,
-					$referencedClass,
+					$property->getDeclaringClass()->getName(),
 					$description
 				)];
 			}

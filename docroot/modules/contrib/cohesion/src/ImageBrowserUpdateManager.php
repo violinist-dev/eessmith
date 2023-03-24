@@ -5,8 +5,9 @@ namespace Drupal\cohesion;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepository;
-use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\file\FileInterface;
+use Drupal\media\MediaInterface;
 
 /**
  * Defines the image browser update manager.
@@ -16,7 +17,7 @@ use Drupal\file\FileInterface;
 class ImageBrowserUpdateManager {
 
   /**
-   * Holds the ImageBrowser plugin manager sevice.
+   * Holds the ImageBrowser plugin manager service.
    *
    * @var \Drupal\cohesion\ImageBrowserPluginManager
    */
@@ -25,7 +26,7 @@ class ImageBrowserUpdateManager {
   /**
    * Holds the module handler service.
    *
-   * @var \Drupal\Core\Extension\ModuleHandler
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 
@@ -57,7 +58,12 @@ class ImageBrowserUpdateManager {
    * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
    * @param \Drupal\Core\Entity\EntityRepository $entityRepository
    */
-  public function __construct(ConfigFactoryInterface $configFactory, ImageBrowserPluginManager $pluginManager, ModuleHandler $moduleHandler, EntityRepository $entityRepository) {
+  public function __construct(
+    ConfigFactoryInterface $configFactory,
+    ImageBrowserPluginManager $pluginManager,
+    ModuleHandlerInterface $moduleHandler,
+    EntityRepository $entityRepository
+  ) {
     $this->pluginManager = $pluginManager;
     $this->moduleHandler = $moduleHandler;
     $this->entityRepository = $entityRepository;
@@ -73,8 +79,7 @@ class ImageBrowserUpdateManager {
         if (!$this->moduleHandler->moduleExists($this->pluginInstanceConfig->getModule())) {
           $this->pluginInstanceConfig = NULL;
         }
-      }
-      catch (\Exception $e) {
+      } catch (\Exception $e) {
         $this->pluginInstanceConfig = NULL;
       }
     }
@@ -88,8 +93,7 @@ class ImageBrowserUpdateManager {
         if (!$this->moduleHandler->moduleExists($this->pluginInstanceContent->getModule())) {
           $this->pluginInstanceContent = NULL;
         }
-      }
-      catch (\Exception $e) {
+      } catch (\Exception $e) {
         $this->pluginInstanceContent = NULL;
       }
     }
@@ -166,8 +170,7 @@ class ImageBrowserUpdateManager {
       // Load the entity by UUID in the token.
       try {
         $entity = $this->entityRepository->loadEntityByUuid($token[1], $token[2]);
-      }
-      catch (\Exception $e) {
+      } catch (\Exception $e) {
         return FALSE;
       }
 
@@ -186,6 +189,19 @@ class ImageBrowserUpdateManager {
 
           // This is a media entity reference (Entity Browser).
           case 'media':
+
+            // Checking for Acquia DAM assets and using original embeds.
+            if ($entity instanceof MediaInterface && strpos($entity->getSource()->getPluginId(), 'acquia_dam_asset') === 0) {
+              ['asset_id' => $asset_id, 'version_id' => $version_id] = $entity->getSource()->getSourceFieldValue($entity);
+              $uri = "acquia-dam://$asset_id/$version_id";
+
+              return [
+                'path' => $uri,
+                'label' => $entity->label(),
+              ];
+
+            }
+
             if ($image_uri = $entity->getSource()->getMetadata($entity, 'thumbnail_uri')) {
               return [
                 'path' => $image_uri,
@@ -194,7 +210,8 @@ class ImageBrowserUpdateManager {
             }
             break;
 
-          // If not a file or media, its another entity type from an Entity browser so just display the title.
+          // If not a file or media, its another entity type from an
+          // Entity browser so just display the title.
           default:
             return [
               'path' => '',

@@ -26,7 +26,13 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "vendor-dir": "vendor"
+        "vendor-dir": "vendor",
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "drupal/core-composer-scaffold": true,
+            "drupal/core-project-message": true
+        }
     },
     "extra": {
         "_readme": [

@@ -3,10 +3,11 @@
 namespace Drupal\cohesion\Element;
 
 use Drupal\cohesion\Entity\CohesionSettingsInterface;
+use Drupal\cohesion\Entity\EntityJsonValuesInterface;
 use Drupal\cohesion\Event\CohesionJsAppUrlsEvent;
 use Drupal\cohesion_elements\Entity\CohesionLayout;
 use Drupal\Component\Utility\Environment;
-use Drupal\cohesion\Entity\EntityJsonValuesInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element\FormElement;
@@ -83,6 +84,28 @@ class CohesionField extends FormElement {
   }
 
   /**
+   * Get layoutCanvas field names for the current fieldable entity.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return array
+   */
+  protected static function getLayoutCanvasFields(FormStateInterface $form_state) {
+    $layout_fields = [];
+    $entity = $form_state->getFormObject()->getEntity();
+    if ($entity instanceof FieldableEntityInterface) {
+      $definitions = $entity->getFieldDefinitions();
+      foreach ($definitions as $definition) {
+        if ($definition->getType() == 'cohesion_entity_reference_revisions') {
+          $layout_fields[] = $definition->getName();
+        }
+      }
+    }
+
+    return $layout_fields;
+  }
+
+  /**
    * @param $element
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    * @param $complete_form
@@ -100,7 +123,8 @@ class CohesionField extends FormElement {
       ];
     }
 
-    // Prevent progress spinning wheel from loading if form is field config form.
+    // Prevent progress spinning wheel from loading if form is field config
+    // form.
     $is_loading = ($form_state->getFormObject()
       ->getFormId() == 'field_config_edit_form') ? '' : 'ssa-is-loading';
 
@@ -127,8 +151,22 @@ class CohesionField extends FormElement {
 
     $json_values = NULL;
     // Add the json values.
-    if($element['#entity'] instanceof EntityJsonValuesInterface && $element['#entity']->isLayoutCanvas()) {
-      if($payload = \Drupal::service('cohesion.utils')->getPayloadForLayoutCanvasDataMerge($element['#entity'])) {
+    if ($element['#entity'] instanceof EntityJsonValuesInterface && $element['#entity']->isLayoutCanvas()) {
+
+      // If state exists - apply to the entity.
+      $layout_fields = self::getLayoutCanvasFields($form_state);
+      if ($form_state->isProcessingInput() && $form_state->getValues() && !empty($layout_fields)) {
+        foreach ($layout_fields as $field) {
+          if (strstr($element['#canvas_name'], $field) !== FALSE) {
+            $form_state_value = $form_state->getValue($field);
+            if (!is_numeric($form_state_value)) {
+              $element['#entity']->setJsonValue($form_state_value);
+            }
+          }
+        }
+      }
+
+      if ($payload = \Drupal::service('cohesion.utils')->getPayloadForLayoutCanvasDataMerge($element['#entity'])) {
         $response = \Drupal::service('cohesion.api_client')->layoutCanvasDataMerge($payload);
 
         if ($response && $response['code'] == 200) {
@@ -141,7 +179,7 @@ class CohesionField extends FormElement {
       }
     }
 
-    if(is_null($json_values)) {
+    if (empty($json_values)) {
       $json_values = json_decode($element['#json_values']);
     }
 

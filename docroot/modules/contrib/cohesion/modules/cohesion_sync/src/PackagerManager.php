@@ -12,7 +12,7 @@ use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Entity\EntityRepository;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\File\FileSystem;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Site\Settings;
@@ -62,7 +62,7 @@ class PackagerManager {
   protected $usageUpdateManager;
 
   /**
-   * @var \Drupal\Core\File\FileSystem
+   * @var \Drupal\Core\File\FileSystemInterface
    */
   protected $fileSystem;
 
@@ -95,11 +95,11 @@ class PackagerManager {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    * @param \Drupal\cohesion_sync\SyncPluginManager $sync_plugin_manager
    * @param \Drupal\cohesion\UsageUpdateManager $usage_update_manager
-   * @param \Drupal\Core\File\FileSystem $file_system
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    * @param \Drupal\Core\Config\StorageInterface $config_storage
    */
-  public function __construct(EntityRepository $entityRepository, EntityTypeManagerInterface $entityTypeManager, SyncPluginManager $sync_plugin_manager, UsageUpdateManager $usage_update_manager, FileSystem $file_system, LoggerChannelFactoryInterface $logger_factory, StorageInterface $config_storage) {
+  public function __construct(EntityRepository $entityRepository, EntityTypeManagerInterface $entityTypeManager, SyncPluginManager $sync_plugin_manager, UsageUpdateManager $usage_update_manager, FileSystemInterface $file_system, LoggerChannelFactoryInterface $logger_factory, StorageInterface $config_storage) {
     $this->entityRepository = $entityRepository;
     $this->entityTypeManager = $entityTypeManager;
     $this->syncPluginManager = $sync_plugin_manager;
@@ -368,15 +368,15 @@ class PackagerManager {
    */
   public function applyBatchYamlPackageStream($uri, $action_data, $no_rebuild = FALSE) {
 
-    // Operations for the batch process
+    // Operations for the batch process.
     $operations = [];
     // Entities that need to be imported. Can be a mix of config (site studio
-    // and others) and Files
+    // and others) and Files.
     $uuids = [];
     // Entities that need to be rebuilt.
     $entities_need_rebuild = [];
     // Does the sync requires an entire rebuild because base unit settings or
-    // responsive grid has been changed
+    // responsive grid has been changed.
     $needs_complete_rebuild = FALSE;
 
     foreach ($action_data as $uuid => $action) {
@@ -385,7 +385,11 @@ class PackagerManager {
         ENTRY_EXISTING_OVERWRITTEN,
       ])) {
         // Does this sync require a full rebuild.
-        if ($action['entity_type'] == 'cohesion_website_settings' && in_array($action['id'], ['base_unit_settings', 'responsive_grid_settings'])) {
+        $entity_type_need_full_rebuild = [
+          'base_unit_settings',
+          'responsive_grid_settings',
+        ];
+        if ($action['entity_type'] == 'cohesion_website_settings' && in_array($action['id'], $entity_type_need_full_rebuild)) {
           $needs_complete_rebuild = TRUE;
         }
 
@@ -402,7 +406,12 @@ class PackagerManager {
           // be rebuild as well as the entity. Ex: a scss variable that has a
           // change in value, we need to rebuild every entity where this scss
           // variable is used.
-          $entity_type_with_dependency = ['cohesion_scss_variable', 'cohesion_style_guide', 'cohesion_color', 'cohesion_font_stack'];
+          $entity_type_with_dependency = [
+            'cohesion_scss_variable',
+            'cohesion_style_guide',
+            'cohesion_color',
+            'cohesion_font_stack',
+          ];
           if (in_array($action['entity_type'], $entity_type_with_dependency)) {
 
             $usage = \Drupal::database()->select('coh_usage', 'c1')
@@ -544,7 +553,8 @@ class PackagerManager {
   public function matchUUIDS($action_data, $entry) {
     $replace_uuid = [];
     foreach ($action_data as $uuid => $data) {
-      if (in_array($data['entry_action_state'], [ENTRY_NEW_IMPORTED, ENTRY_EXISTING_OVERWRITTEN]) && isset($data['replace_uuid'])) {
+      $to_import_type = [ENTRY_NEW_IMPORTED, ENTRY_EXISTING_OVERWRITTEN];
+      if (in_array($data['entry_action_state'], $to_import_type) && isset($data['replace_uuid'])) {
         $replace_uuid[$uuid] = $data['replace_uuid'];
       }
     }

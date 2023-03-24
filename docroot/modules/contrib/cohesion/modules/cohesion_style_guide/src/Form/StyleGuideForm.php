@@ -85,7 +85,7 @@ class StyleGuideForm extends CohesionBaseForm {
       '#weight' => 1,
       '#description' => $this->entity->getEntityMachineNamePrefix(),
       '#description_display' => 'before',
-      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id()),
+      '#default_value' => str_replace($this->entity->getEntityMachineNamePrefix(), '', $this->entity->id() ?? ''),
       '#type' => 'ajax_machine_name',
       '#required' => FALSE,
       '#machine_name' => [
@@ -140,7 +140,8 @@ class StyleGuideForm extends CohesionBaseForm {
       $canvasInstance = $this->entity->getLayoutCanvasInstance();
       $new_models = $canvasInstance->iterateModels('style_guide_form');
       foreach ($current_canvas->iterateModels('style_guide_form') as $model_uuid => $model) {
-        // Rebuild if fields has been deleted or if field values have been changed.
+        // Rebuild if fields has been deleted or if field values have been
+        // changed.
         if (!array_key_exists($model_uuid, $new_models) || $new_models[$model_uuid]->getValues() != $model->getValues()) {
           $run_rebuild = TRUE;
         }

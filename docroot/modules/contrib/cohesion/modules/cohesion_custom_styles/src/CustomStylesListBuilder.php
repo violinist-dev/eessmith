@@ -195,7 +195,7 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       '#header' => ($style_entities) ? $this->buildHeader() : [],
       '#title' => $group_title,
       '#rows' => [],
-      '#empty' => $this->t('There are no @label yet.', ['@label' => mb_strtolower($this->entityType->getLabel())]),
+      '#empty' => $this->t('There are no @label yet.', ['@label' => mb_strtolower($this->entityType->getLabel() ?? '')]),
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
         'tags' => $this->entityType->getListCacheTags(),
@@ -340,7 +340,8 @@ class CustomStylesListBuilder extends CohesionListBuilder implements FormInterfa
       $weight = 0;
       foreach ($entities as $id => $entity) {
 
-        // Store the current order so we can use it to sort custom styles in stylesheet.json.
+        // Store the current order so we can use it to sort custom styles in
+        // stylesheet.json.
         $config_name = $entity->getConfigDependencyName();
         try {
           $config = \Drupal::configFactory()->getEditable($config_name);
