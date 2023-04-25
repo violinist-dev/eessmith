@@ -3,7 +3,7 @@
         'name' => 'acquia/eessmith',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '6215b2e1a4663bf7396f2de126547c59c5218c65',
+        'reference' => 'b948a3a3eac27141af3c5ef051e58c3ef04db165',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'acquia/eessmith' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '6215b2e1a4663bf7396f2de126547c59c5218c65',
+            'reference' => 'b948a3a3eac27141af3c5ef051e58c3ef04db165',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
