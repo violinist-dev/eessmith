@@ -1739,7 +1739,7 @@
         },
         {
             "name": "drupal/core-project-message",
-            "version": "9.5.7",
+            "version": "9.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-project-message.git",
@@ -1774,7 +1774,7 @@
                 "drupal"
             ],
             "support": {
-                "source": "https://github.com/drupal/core-project-message/tree/9.5.7"
+                "source": "https://github.com/drupal/core-project-message/tree/9.5.9"
             },
             "time": "2022-02-24T17:40:53+00:00"
         },
